@@ -6,7 +6,7 @@ import time
 model = YOLO('/home/lorenzo/computer_vision/weights.pt')
 
 # Process video and collect metrics
-cap = cv2.VideoCapture("video.mkv")
+cap = cv2.VideoCapture("/home/lorenzo/computer_vision/testing_media/redbuoykayak1.mp4")
 fps = cap.get(cv2.CAP_PROP_FPS)
 total_frames = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
 
@@ -36,7 +36,7 @@ while True:
         device=0,
         imgsz=640,
         conf=0.6,
-        verbose=False
+        verbose=False,
     )
     inference_time = (time.time() - start_time) * 1000
     
@@ -126,3 +126,17 @@ if detection_data['detection_stability']:
     print(f"Stable detection (change ≤1): {sum(1 for x in detection_data['detection_stability'] if x <= 1)} frames")
 
 print("\n" + "="*60)
+
+model.predict(
+    source="/home/lorenzo/computer_vision/testing_media/redbuoykayak1.mp4",
+    device=0,
+    conf=0.6,
+    iou=0.5,
+    max_det=30,
+    verbose=False,
+    save=True,
+    stream=True,
+    project="runs/detect",
+    name="redbuoykayak1",
+    exist_ok=False,
+)
