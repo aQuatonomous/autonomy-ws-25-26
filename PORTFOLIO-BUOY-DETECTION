@@ -1,0 +1,107 @@
+TITLE: RoboBoat Buoy Detection – Real-Time Object Detection with YOLOv11
+
+DATE: Oct 2025
+ROLE: Computer Vision / ML Engineer
+STACK: Python, PyTorch, Ultralytics YOLOv11, TensorBoard, WSL2 Linux, Roboflow, CUDA
+
+PROBLEM
+- Detect and classify RoboBoat-regatta buoys and markers in real time across 23 visual classes (colors + shapes/poles).
+- Robust performance under changing lighting, occlusions, and water reflections.
+
+DATASET
+- Source: Roboflow Universe (CC BY 4.0): https://universe.roboflow.com/lorenzos-workspace-ofgiq/roboboat-buoy-detection-b5sov
+- Config: computer_vision/data.yaml
+  - Paths: train: ../train/images, val: ../valid/images, test: ../test/images
+  - Classes (nc=23): black_buoy, black_circle, black_cross, black_triangle, blue_buoy, blue_circle, blue_cross, blue_racquet_ball, blue_triangle, dock, green_buoy, green_circle, green_cross, green_pole_buoy, green_triangle, red_buoy, red_circle, red_cross, red_pole_buoy, red_racquet_ball, yellow_buoy, yellow_racquet_ball
+- Local dataset layout:
+  - /home/lorenzo/computer_vision/train/
+  - /home/lorenzo/computer_vision/valid/
+  - /home/lorenzo/computer_vision/test/
+
+MODEL
+- Architecture: Ultralytics YOLOv11n (nano) pretrained, fine-tuned for detection on 23 classes.
+- Weights used: computer_vision/yolo11n.pt (pretrained), then fine-tuned to produce best.pt/last.pt.
+
+TRAINING CONFIG (final active run)
+- Project dir: /home/lorenzo/computer_vision/buoy_detection/yolov11n_resume2
+- Started from: previous run last.pt (fine-tuning continuation)
+- Key hyperparameters (from args.yaml):
+  - epochs=150, patience=50, batch=16, imgsz=640, device=0, workers=2
+  - deterministic=true, seed=0
+  - augmentations: hsv_h=0.015, hsv_s=0.7, hsv_v=0.4, translate=0.1, scale=0.5, fliplr=0.5, mosaic=1.0 (closed after 10), auto_augment=randaugment, erasing=0.4
+  - optimizer=auto, lr0=0.01, lrf=0.01, momentum=0.937, weight_decay=0.0005, warmup_epochs=3
+  - plots=true
+- Logging: TensorBoard events saved to yolov11n_resume2/events.out.tfevents.*
+
+RUNS / EXPERIMENTS
+- Active (keep): buoy_detection/yolov11n_resume2/
+  - Contains: args.yaml, results.csv, TensorBoard events, train_batch{0..2}.jpg, labels.jpg, weights/{best.pt,last.pt}
+- Prior (optional to remove): buoy_detection/yolo11n_imgsz640_epochs100_patience50_batch16_plotsTrue_workers2_cacheDisk/
+  - Earlier stage; resumed into the active run above.
+- Discarded (remove): exp10-new/* (COCO experiments; not related to buoy dataset, no useful artifacts)
+
+METRICS (validation; yolov11n_resume2, first 5 epochs from results.csv)
+- Epoch 1: Precision=0.841, Recall=0.685, mAP50=0.754, mAP50-95=0.454
+- Epoch 2: Precision=0.831, Recall=0.684, mAP50=0.754, mAP50-95=0.445
+- Epoch 3: Precision=0.772, Recall=0.648, mAP50=0.713, mAP50-95=0.412
+- Epoch 4: Precision=0.765, Recall=0.672, mAP50=0.714, mAP50-95=0.415
+- Epoch 5: Precision=0.818, Recall=0.667, mAP50=0.733, mAP50-95=0.434
+Interpretation:
+- Strong precision (~0.82) indicates low false positives.
+- Recall (~0.67) indicates room to catch more objects; may improve with continued training, tiling, or class-rebalancing.
+- mAP50 ~0.73 at epoch 5 is solid for early epochs on 23 classes.
+
+VISUAL ARTIFACTS TO INCLUDE (paths)
+- Training sample batches: buoy_detection/yolov11n_resume2/train_batch0.jpg (and 1/2)
+- Dataset label mosaic: buoy_detection/yolov11n_resume2/labels.jpg
+- TensorBoard scalar charts (screenshots):
+  - Scalars: metrics/precision(B), metrics/recall(B), metrics/mAP50(B), metrics/mAP50-95(B)
+  - Losses: train/box_loss, train/cls_loss, train/dfl_loss + val counterparts
+  - Learning rate curves: lr/pg0, lr/pg1, lr/pg2
+- (Optional) Results curves if generated: results.png (not present yet)
+- (Optional) Confusion matrix per class (can generate via validation/report)
+
+REPRO STEPS
+1) Train (from scratch or resume):
+   yolo task=detect mode=train data=data.yaml model=yolo11n.pt imgsz=640 epochs=150 patience=50 batch=16 project=buoy_detection device=0 plots=True workers=2 name=yolov11n
+   # resume-style (used in final run):
+   yolo task=detect mode=train data=data.yaml model=buoy_detection/yolo11n_imgsz640_epochs100_patience50_batch16_plotsTrue_workers2_cacheDisk/weights/last.pt imgsz=640 epochs=150 patience=50 batch=16 project=/home/lorenzo/computer_vision/buoy_detection name=yolov11n_resume2 device=0 plots=True workers=2
+2) Monitor training:
+   tensorboard --logdir=/home/lorenzo/computer_vision/buoy_detection/yolov11n_resume2 --port=6006
+   Open http://localhost:6006
+3) Validate:
+   yolo task=detect mode=val model=/home/lorenzo/computer_vision/buoy_detection/yolov11n_resume2/weights/best.pt data=/home/lorenzo/computer_vision/data.yaml imgsz=640
+4) Inference on images or video:
+   yolo task=detect mode=predict model=/home/lorenzo/computer_vision/buoy_detection/yolov11n_resume2/weights/best.pt source=/path/to/images_or_video imgsz=640 save=True save_txt=True
+
+ENGINEERING NOTES
+- Deterministic training (seed=0) for reproducibility; warmup schedule ramps LR to stabilize early epochs.
+- Augmentations tuned for on-water variance (illumination, scale, minor translations, flips).
+- Mosaic closed late (close_mosaic=10) to stabilize final epochs.
+- Using nano model (YOLOv11n) for real-time feasibility; can scale to s/m if latency budget allows.
+
+CHALLENGES & SOLUTIONS
+- Class diversity across 23 categories: mitigate with balanced sampling and strong color/shape augmentations.
+- Water reflections and glare: HSV and contrast variations improve robustness.
+- Early-epoch metric oscillations: warmup + patience; monitor for over/underfitting via val losses + TensorBoard.
+
+RESULT HIGHLIGHTS (so far)
+- Achieved mAP50 ≈ 0.73 and precision ≈ 0.82 at epoch 5 (validation) across 23 classes.
+- Established fully reproducible pipeline with TensorBoard tracking and resumable checkpoints.
+- Built clean experiment structure; deprecated unrelated COCO runs.
+
+NEXT STEPS
+- Train to convergence; monitor mAP50-95 trend and recall uplift.
+- Hyperparameter sweeps (LR, mosaic schedule, batch).
+- Try larger backbone (yolov11s) if compute allows; or prune/quantize for edge deployment.
+- Export to ONNX/TensorRT for embedded inference; add ByteTrack/BOTSort for multi-frame tracking.
+- Generate per-class AP breakdown and confusion matrix to target weak classes.
+
+SELECT FILES/ARTIFACTS
+- Config: /home/lorenzo/computer_vision/data.yaml
+- Active run: /home/lorenzo/computer_vision/buoy_detection/yolov11n_resume2/
+- Weights: best.pt, last.pt
+- Metrics CSV: results.csv
+- TensorBoard: events.out.tfevents.*
+- Pretrained: /home/lorenzo/computer_vision/yolo11n.pt
+- Docs: /home/lorenzo/computer_vision/README.txt, README.dataset.txt
