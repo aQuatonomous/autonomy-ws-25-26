@@ -1,0 +1,4 @@
+source;share/pointcloud_filters/local_setup.bash
+source;share/pointcloud_filters/local_setup.dsv
+source;share/pointcloud_filters/local_setup.sh
+source;share/pointcloud_filters/local_setup.zsh

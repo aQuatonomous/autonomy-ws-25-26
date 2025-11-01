@@ -1,0 +1,4 @@
+# Request: retrieve a time window of filtered LiDAR point clouds
+float32 window_sec     # Duration of history to retrieve (0.0 to max_buffer_duration_sec)
+bool merged            # If true, return a single merged cloud; if false, return array of individual clouds
+

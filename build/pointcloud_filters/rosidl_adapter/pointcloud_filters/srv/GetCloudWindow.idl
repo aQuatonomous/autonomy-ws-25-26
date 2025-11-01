@@ -1,0 +1,32 @@
+// generated from rosidl_adapter/resource/srv.idl.em
+// with input from pointcloud_filters/srv/GetCloudWindow.srv
+// generated code does not contain a copyright notice
+
+#include "sensor_msgs/msg/PointCloud2.idl"
+
+module pointcloud_filters {
+  module srv {
+    @verbatim (language="comment", text=
+      "Request: retrieve a time window of filtered LiDAR point clouds")
+    struct GetCloudWindow_Request {
+      @verbatim (language="comment", text=
+        "Duration of history to retrieve (0.0 to max_buffer_duration_sec)")
+      float window_sec;
+
+      @verbatim (language="comment", text=
+        "If true, return a single merged cloud; if false, return array of individual clouds")
+      boolean merged;
+    };
+    @verbatim (language="comment", text=
+      "Response")
+    struct GetCloudWindow_Response {
+      @verbatim (language="comment", text=
+        "Array of individual clouds (if merged=false)")
+      sequence<sensor_msgs::msg::PointCloud2> clouds;
+
+      @verbatim (language="comment", text=
+        "Single concatenated cloud (if merged=true)")
+      sensor_msgs::msg::PointCloud2 merged_cloud;
+    };
+  };
+};

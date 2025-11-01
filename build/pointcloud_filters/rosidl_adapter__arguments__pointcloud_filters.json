@@ -1,0 +1,6 @@
+{
+  "package_name": "pointcloud_filters",
+  "non_idl_tuples": [
+    "/home/jacob/ros2_ws/src/pointcloud_filters:srv/GetCloudWindow.srv"
+  ]
+}

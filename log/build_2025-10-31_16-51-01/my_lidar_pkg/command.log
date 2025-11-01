@@ -1,1 +1,0 @@
-Invoking command in '/home/jacob/ros2_ws/build/my_lidar_pkg': /usr/bin/cmake /home/jacob/ros2_ws/src/my_lidar_pkg -DCATKIN_INSTALL_INTO_PREFIX_ROOT=0 -DCMAKE_INSTALL_PREFIX=/home/jacob/ros2_ws/install/my_lidar_pkg

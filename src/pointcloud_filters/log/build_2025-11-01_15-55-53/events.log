@@ -1,0 +1,375 @@
+[0.000000] (-) TimerEvent: {}
+[0.002051] (pointcloud_filters) JobQueued: {'identifier': 'pointcloud_filters', 'dependencies': OrderedDict()}
+[0.004270] (pointcloud_filters) JobStarted: {'identifier': 'pointcloud_filters'}
+[0.027780] (pointcloud_filters) JobProgress: {'identifier': 'pointcloud_filters', 'progress': 'cmake'}
+[0.029115] (pointcloud_filters) Command: {'cmd': ['/usr/bin/cmake', '/home/jacob/ros2_ws/src/pointcloud_filters', '-DCMAKE_INSTALL_PREFIX=/home/jacob/ros2_ws/src/pointcloud_filters/install/pointcloud_filters'], 'cwd': '/home/jacob/ros2_ws/src/pointcloud_filters/build/pointcloud_filters', 'env': OrderedDict([('LESSOPEN', '| /usr/bin/lesspipe %s'), ('LANGUAGE', 'en_CA:en'), ('USER', 'jacob'), ('ROS_PACKAGE_PATH', '/home/jacob/ros2_ws/install/my_lidar_pkg/share'), ('XDG_SESSION_TYPE', 'x11'), ('SHLVL', '1'), ('LD_LIBRARY_PATH', '/home/jacob/ros2_ws/install/pointcloud_filters/lib:/opt/ros/humble/opt/rviz_ogre_vendor/lib:/opt/ros/humble/lib/aarch64-linux-gnu:/opt/ros/humble/lib'), ('HOME', '/home/jacob'), ('OLDPWD', '/home/jacob/ros2_ws/src/pointcloud_filters/install'), ('DESKTOP_SESSION', 'ubuntu'), ('ROS_PYTHON_VERSION', '3'), ('GNOME_SHELL_SESSION_MODE', 'ubuntu'), ('GTK_MODULES', 'gail:atk-bridge'), ('SYSTEMD_EXEC_PID', '292821'), ('DBUS_SESSION_BUS_ADDRESS', 'unix:path=/run/user/1002/bus'), ('COLORTERM', 'truecolor'), ('IM_CONFIG_PHASE', '1'), ('COLCON_PREFIX_PATH', '/home/jacob/ros2_ws/src/pointcloud_filters/install:/home/jacob/ros2_ws/install'), ('ROS_DISTRO', 'humble'), ('GTK_IM_MODULE', 'ibus'), ('LOGNAME', 'jacob'), ('_', '/usr/bin/colcon'), ('ROS_VERSION', '2'), ('PKG_CONFIG_PATH', '/home/jacob/ros2_ws/install/my_lidar_pkg/lib/aarch64-linux-gnu/pkgconfig:/home/jacob/ros2_ws/install/my_lidar_pkg/lib/pkgconfig'), ('XDG_SESSION_CLASS', 'user'), ('USERNAME', 'jacob'), ('TERM', 'xterm-256color'), ('GNOME_DESKTOP_SESSION_ID', 'this-is-deprecated'), ('ROS_LOCALHOST_ONLY', '0'), ('WINDOWPATH', '3'), ('PATH', '/opt/ros/humble/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/snap/bin:/snap/bin'), ('SESSION_MANAGER', 'local/aqua-desktop:@/tmp/.ICE-unix/291916,unix/aqua-desktop:/tmp/.ICE-unix/291916'), ('XDG_MENU_PREFIX', 'gnome-'), ('GNOME_TERMINAL_SCREEN', '/org/gnome/Terminal/screen/5cc13227_b266_4366_a918_30640ba3b3fc'), ('XDG_RUNTIME_DIR', '/run/user/1002'), ('DISPLAY', ':2'), ('LANG', 'en_US.UTF-8'), ('XDG_CURRENT_DESKTOP', 'ubuntu:GNOME'), ('XMODIFIERS', '@im=ibus'), ('XDG_SESSION_DESKTOP', 'ubuntu'), ('XAUTHORITY', '/run/user/1002/gdm/Xauthority'), ('LS_COLORS', 'rs=0:di=01;34:ln=01;36:mh=00:pi=40;33:so=01;35:do=01;35:bd=40;33;01:cd=40;33;01:or=40;31;01:mi=00:su=37;41:sg=30;43:ca=30;41:tw=30;42:ow=34;42:st=37;44:ex=01;32:*.tar=01;31:*.tgz=01;31:*.arc=01;31:*.arj=01;31:*.taz=01;31:*.lha=01;31:*.lz4=01;31:*.lzh=01;31:*.lzma=01;31:*.tlz=01;31:*.txz=01;31:*.tzo=01;31:*.t7z=01;31:*.zip=01;31:*.z=01;31:*.dz=01;31:*.gz=01;31:*.lrz=01;31:*.lz=01;31:*.lzo=01;31:*.xz=01;31:*.zst=01;31:*.tzst=01;31:*.bz2=01;31:*.bz=01;31:*.tbz=01;31:*.tbz2=01;31:*.tz=01;31:*.deb=01;31:*.rpm=01;31:*.jar=01;31:*.war=01;31:*.ear=01;31:*.sar=01;31:*.rar=01;31:*.alz=01;31:*.ace=01;31:*.zoo=01;31:*.cpio=01;31:*.7z=01;31:*.rz=01;31:*.cab=01;31:*.wim=01;31:*.swm=01;31:*.dwm=01;31:*.esd=01;31:*.jpg=01;35:*.jpeg=01;35:*.mjpg=01;35:*.mjpeg=01;35:*.gif=01;35:*.bmp=01;35:*.pbm=01;35:*.pgm=01;35:*.ppm=01;35:*.tga=01;35:*.xbm=01;35:*.xpm=01;35:*.tif=01;35:*.tiff=01;35:*.png=01;35:*.svg=01;35:*.svgz=01;35:*.mng=01;35:*.pcx=01;35:*.mov=01;35:*.mpg=01;35:*.mpeg=01;35:*.m2v=01;35:*.mkv=01;35:*.webm=01;35:*.webp=01;35:*.ogm=01;35:*.mp4=01;35:*.m4v=01;35:*.mp4v=01;35:*.vob=01;35:*.qt=01;35:*.nuv=01;35:*.wmv=01;35:*.asf=01;35:*.rm=01;35:*.rmvb=01;35:*.flc=01;35:*.avi=01;35:*.fli=01;35:*.flv=01;35:*.gl=01;35:*.dl=01;35:*.xcf=01;35:*.xwd=01;35:*.yuv=01;35:*.cgm=01;35:*.emf=01;35:*.ogv=01;35:*.ogx=01;35:*.aac=00;36:*.au=00;36:*.flac=00;36:*.m4a=00;36:*.mid=00;36:*.midi=00;36:*.mka=00;36:*.mp3=00;36:*.mpc=00;36:*.ogg=00;36:*.ra=00;36:*.wav=00;36:*.oga=00;36:*.opus=00;36:*.spx=00;36:*.xspf=00;36:'), ('GNOME_TERMINAL_SERVICE', ':1.131'), ('SSH_AGENT_LAUNCHER', 'gnome-keyring'), ('SSH_AUTH_SOCK', '/run/user/1002/keyring/ssh'), ('AMENT_PREFIX_PATH', '/home/jacob/ros2_ws/src/pointcloud_filters/install/pointcloud_filters:/home/jacob/ros2_ws/install/unitree_lidar_ros2:/home/jacob/ros2_ws/install/pointcloud_filters:/opt/ros/humble'), ('SHELL', '/bin/bash'), ('QT_ACCESSIBILITY', '1'), ('GDMSESSION', 'ubuntu'), ('LESSCLOSE', '/usr/bin/lesspipe %s %s'), ('GPG_AGENT_INFO', '/run/user/1002/gnupg/S.gpg-agent:0:1'), ('QT_IM_MODULE', 'ibus'), ('PWD', '/home/jacob/ros2_ws/src/pointcloud_filters/build/pointcloud_filters'), ('LC_ALL', 'en_US.UTF-8'), ('XDG_CONFIG_DIRS', '/etc/xdg/xdg-ubuntu:/etc/xdg'), ('XDG_DATA_DIRS', '/usr/share/ubuntu:/usr/share/gnome:/usr/local/share/:/usr/share/:/var/lib/snapd/desktop'), ('PYTHONPATH', '/home/jacob/ros2_ws/install/pointcloud_filters/local/lib/python3.10/dist-packages:/home/jacob/ros2_ws/src/pointcloud_filters/install/pointcloud_filters/lib/python3.10/site-packages:/home/jacob/ros2_ws/build/pointcloud_filters:/home/jacob/ros2_ws/install/pointcloud_filters/lib/python3.10/site-packages:/home/jacob/ros2_ws/install/my_lidar_pkg/local/lib/python3.10/dist-packages:/opt/ros/humble/lib/python3.10/site-packages:/opt/ros/humble/local/lib/python3.10/dist-packages'), ('COLCON', '1'), ('VTE_VERSION', '6800'), ('CMAKE_PREFIX_PATH', '/home/jacob/ros2_ws/install/pointcloud_filters:/home/jacob/ros2_ws/install/unitree_lidar_ros2:/home/jacob/ros2_ws/install/my_lidar_pkg:/home/jacob/ros2_ws/src/pointcloud_filters/install/pointcloud_filters:/opt/ros/humble')]), 'shell': False}
+[0.099799] (-) TimerEvent: {}
+[0.190258] (pointcloud_filters) StdoutLine: {'line': b'-- The C compiler identification is GNU 11.4.0\n'}
+[0.199978] (-) TimerEvent: {}
+[0.301215] (-) TimerEvent: {}
+[0.349064] (pointcloud_filters) StdoutLine: {'line': b'-- The CXX compiler identification is GNU 11.4.0\n'}
+[0.373658] (pointcloud_filters) StdoutLine: {'line': b'-- Detecting C compiler ABI info\n'}
+[0.401514] (-) TimerEvent: {}
+[0.502716] (-) TimerEvent: {}
+[0.575188] (pointcloud_filters) StdoutLine: {'line': b'-- Detecting C compiler ABI info - done\n'}
+[0.602121] (pointcloud_filters) StdoutLine: {'line': b'-- Check for working C compiler: /usr/bin/cc - skipped\n'}
+[0.603066] (-) TimerEvent: {}
+[0.603659] (pointcloud_filters) StdoutLine: {'line': b'-- Detecting C compile features\n'}
+[0.604859] (pointcloud_filters) StdoutLine: {'line': b'-- Detecting C compile features - done\n'}
+[0.613961] (pointcloud_filters) StdoutLine: {'line': b'-- Detecting CXX compiler ABI info\n'}
+[0.703354] (-) TimerEvent: {}
+[0.804761] (-) TimerEvent: {}
+[0.834623] (pointcloud_filters) StdoutLine: {'line': b'-- Detecting CXX compiler ABI info - done\n'}
+[0.854864] (pointcloud_filters) StdoutLine: {'line': b'-- Check for working CXX compiler: /usr/bin/c++ - skipped\n'}
+[0.856350] (pointcloud_filters) StdoutLine: {'line': b'-- Detecting CXX compile features\n'}
+[0.857688] (pointcloud_filters) StdoutLine: {'line': b'-- Detecting CXX compile features - done\n'}
+[0.865815] (pointcloud_filters) StdoutLine: {'line': b'-- Found ament_cmake: 1.3.12 (/opt/ros/humble/share/ament_cmake/cmake)\n'}
+[0.904989] (-) TimerEvent: {}
+[1.006187] (-) TimerEvent: {}
+[1.107307] (-) TimerEvent: {}
+[1.208383] (-) TimerEvent: {}
+[1.309398] (-) TimerEvent: {}
+[1.316611] (pointcloud_filters) StdoutLine: {'line': b'-- Found Python3: /usr/bin/python3 (found version "3.10.12") found components: Interpreter \n'}
+[1.409618] (-) TimerEvent: {}
+[1.510751] (-) TimerEvent: {}
+[1.583598] (pointcloud_filters) StdoutLine: {'line': b'-- Found rosidl_default_generators: 1.2.0 (/opt/ros/humble/share/rosidl_default_generators/cmake)\n'}
+[1.592026] (pointcloud_filters) StdoutLine: {'line': b'-- Using all available rosidl_typesupport_c: rosidl_typesupport_fastrtps_c;rosidl_typesupport_introspection_c\n'}
+[1.607158] (pointcloud_filters) StdoutLine: {'line': b'-- Found rosidl_adapter: 3.1.7 (/opt/ros/humble/share/rosidl_adapter/cmake)\n'}
+[1.610794] (-) TimerEvent: {}
+[1.698280] (pointcloud_filters) StdoutLine: {'line': b'-- Using all available rosidl_typesupport_cpp: rosidl_typesupport_fastrtps_cpp;rosidl_typesupport_introspection_cpp\n'}
+[1.711027] (-) TimerEvent: {}
+[1.772561] (pointcloud_filters) StdoutLine: {'line': b'-- Found sensor_msgs: 4.9.0 (/opt/ros/humble/share/sensor_msgs/cmake)\n'}
+[1.811333] (-) TimerEvent: {}
+[1.912513] (-) TimerEvent: {}
+[2.013550] (-) TimerEvent: {}
+[2.114592] (-) TimerEvent: {}
+[2.215550] (-) TimerEvent: {}
+[2.316509] (-) TimerEvent: {}
+[2.417526] (-) TimerEvent: {}
+[2.518783] (-) TimerEvent: {}
+[2.620501] (-) TimerEvent: {}
+[2.721864] (-) TimerEvent: {}
+[2.751625] (pointcloud_filters) StdoutLine: {'line': b'-- Found ament_cmake_ros: 0.10.0 (/opt/ros/humble/share/ament_cmake_ros/cmake)\n'}
+[2.822038] (-) TimerEvent: {}
+[2.923263] (-) TimerEvent: {}
+[3.024315] (-) TimerEvent: {}
+[3.125418] (-) TimerEvent: {}
+[3.226620] (-) TimerEvent: {}
+[3.327780] (-) TimerEvent: {}
+[3.428879] (-) TimerEvent: {}
+[3.530014] (-) TimerEvent: {}
+[3.558027] (pointcloud_filters) StdoutLine: {'line': b'-- Using all available rosidl_typesupport_c: rosidl_typesupport_fastrtps_c;rosidl_typesupport_introspection_c\n'}
+[3.630292] (-) TimerEvent: {}
+[3.731328] (-) TimerEvent: {}
+[3.832404] (-) TimerEvent: {}
+[3.933590] (-) TimerEvent: {}
+[4.034763] (-) TimerEvent: {}
+[4.135798] (-) TimerEvent: {}
+[4.236845] (-) TimerEvent: {}
+[4.338161] (-) TimerEvent: {}
+[4.439288] (-) TimerEvent: {}
+[4.540272] (-) TimerEvent: {}
+[4.589150] (pointcloud_filters) StdoutLine: {'line': b'-- Using all available rosidl_typesupport_cpp: rosidl_typesupport_fastrtps_cpp;rosidl_typesupport_introspection_cpp\n'}
+[4.640503] (-) TimerEvent: {}
+[4.658396] (pointcloud_filters) StdoutLine: {'line': b'-- Found PythonInterp: /usr/bin/python3 (found suitable version "3.10.12", minimum required is "3.6") \n'}
+[4.665847] (pointcloud_filters) StdoutLine: {'line': b'-- Found python_cmake_module: 0.10.0 (/opt/ros/humble/share/python_cmake_module/cmake)\n'}
+[4.740797] (-) TimerEvent: {}
+[4.743940] (pointcloud_filters) StdoutLine: {'line': b'-- Found PythonLibs: /usr/lib/aarch64-linux-gnu/libpython3.10.so (found suitable version "3.10.12", minimum required is "3.5") \n'}
+[4.744581] (pointcloud_filters) StdoutLine: {'line': b'-- Using PYTHON_EXECUTABLE: /usr/bin/python3\n'}
+[4.744781] (pointcloud_filters) StdoutLine: {'line': b'-- Using PYTHON_INCLUDE_DIRS: /usr/include/python3.10\n'}
+[4.744954] (pointcloud_filters) StdoutLine: {'line': b'-- Using PYTHON_LIBRARIES: /usr/lib/aarch64-linux-gnu/libpython3.10.so\n'}
+[4.817853] (pointcloud_filters) StdoutLine: {'line': b'-- Found PythonExtra: .so  \n'}
+[4.841074] (-) TimerEvent: {}
+[4.942190] (-) TimerEvent: {}
+[5.019565] (pointcloud_filters) StdoutLine: {'line': b'-- Configuring done\n'}
+[5.042509] (-) TimerEvent: {}
+[5.112875] (pointcloud_filters) StdoutLine: {'line': b'-- Generating done\n'}
+[5.142799] (-) TimerEvent: {}
+[5.144748] (pointcloud_filters) StdoutLine: {'line': b'-- Build files have been written to: /home/jacob/ros2_ws/src/pointcloud_filters/build/pointcloud_filters\n'}
+[5.186698] (pointcloud_filters) CommandEnded: {'returncode': 0}
+[5.189566] (pointcloud_filters) JobProgress: {'identifier': 'pointcloud_filters', 'progress': 'build'}
+[5.192399] (pointcloud_filters) Command: {'cmd': ['/usr/bin/cmake', '--build', '/home/jacob/ros2_ws/src/pointcloud_filters/build/pointcloud_filters', '--', '-j6', '-l6'], 'cwd': '/home/jacob/ros2_ws/src/pointcloud_filters/build/pointcloud_filters', 'env': OrderedDict([('LESSOPEN', '| /usr/bin/lesspipe %s'), ('LANGUAGE', 'en_CA:en'), ('USER', 'jacob'), ('ROS_PACKAGE_PATH', '/home/jacob/ros2_ws/install/my_lidar_pkg/share'), ('XDG_SESSION_TYPE', 'x11'), ('SHLVL', '1'), ('LD_LIBRARY_PATH', '/home/jacob/ros2_ws/install/pointcloud_filters/lib:/opt/ros/humble/opt/rviz_ogre_vendor/lib:/opt/ros/humble/lib/aarch64-linux-gnu:/opt/ros/humble/lib'), ('HOME', '/home/jacob'), ('OLDPWD', '/home/jacob/ros2_ws/src/pointcloud_filters/install'), ('DESKTOP_SESSION', 'ubuntu'), ('ROS_PYTHON_VERSION', '3'), ('GNOME_SHELL_SESSION_MODE', 'ubuntu'), ('GTK_MODULES', 'gail:atk-bridge'), ('SYSTEMD_EXEC_PID', '292821'), ('DBUS_SESSION_BUS_ADDRESS', 'unix:path=/run/user/1002/bus'), ('COLORTERM', 'truecolor'), ('IM_CONFIG_PHASE', '1'), ('COLCON_PREFIX_PATH', '/home/jacob/ros2_ws/src/pointcloud_filters/install:/home/jacob/ros2_ws/install'), ('ROS_DISTRO', 'humble'), ('GTK_IM_MODULE', 'ibus'), ('LOGNAME', 'jacob'), ('_', '/usr/bin/colcon'), ('ROS_VERSION', '2'), ('PKG_CONFIG_PATH', '/home/jacob/ros2_ws/install/my_lidar_pkg/lib/aarch64-linux-gnu/pkgconfig:/home/jacob/ros2_ws/install/my_lidar_pkg/lib/pkgconfig'), ('XDG_SESSION_CLASS', 'user'), ('USERNAME', 'jacob'), ('TERM', 'xterm-256color'), ('GNOME_DESKTOP_SESSION_ID', 'this-is-deprecated'), ('ROS_LOCALHOST_ONLY', '0'), ('WINDOWPATH', '3'), ('PATH', '/opt/ros/humble/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/snap/bin:/snap/bin'), ('SESSION_MANAGER', 'local/aqua-desktop:@/tmp/.ICE-unix/291916,unix/aqua-desktop:/tmp/.ICE-unix/291916'), ('XDG_MENU_PREFIX', 'gnome-'), ('GNOME_TERMINAL_SCREEN', '/org/gnome/Terminal/screen/5cc13227_b266_4366_a918_30640ba3b3fc'), ('XDG_RUNTIME_DIR', '/run/user/1002'), ('DISPLAY', ':2'), ('LANG', 'en_US.UTF-8'), ('XDG_CURRENT_DESKTOP', 'ubuntu:GNOME'), ('XMODIFIERS', '@im=ibus'), ('XDG_SESSION_DESKTOP', 'ubuntu'), ('XAUTHORITY', '/run/user/1002/gdm/Xauthority'), ('LS_COLORS', 'rs=0:di=01;34:ln=01;36:mh=00:pi=40;33:so=01;35:do=01;35:bd=40;33;01:cd=40;33;01:or=40;31;01:mi=00:su=37;41:sg=30;43:ca=30;41:tw=30;42:ow=34;42:st=37;44:ex=01;32:*.tar=01;31:*.tgz=01;31:*.arc=01;31:*.arj=01;31:*.taz=01;31:*.lha=01;31:*.lz4=01;31:*.lzh=01;31:*.lzma=01;31:*.tlz=01;31:*.txz=01;31:*.tzo=01;31:*.t7z=01;31:*.zip=01;31:*.z=01;31:*.dz=01;31:*.gz=01;31:*.lrz=01;31:*.lz=01;31:*.lzo=01;31:*.xz=01;31:*.zst=01;31:*.tzst=01;31:*.bz2=01;31:*.bz=01;31:*.tbz=01;31:*.tbz2=01;31:*.tz=01;31:*.deb=01;31:*.rpm=01;31:*.jar=01;31:*.war=01;31:*.ear=01;31:*.sar=01;31:*.rar=01;31:*.alz=01;31:*.ace=01;31:*.zoo=01;31:*.cpio=01;31:*.7z=01;31:*.rz=01;31:*.cab=01;31:*.wim=01;31:*.swm=01;31:*.dwm=01;31:*.esd=01;31:*.jpg=01;35:*.jpeg=01;35:*.mjpg=01;35:*.mjpeg=01;35:*.gif=01;35:*.bmp=01;35:*.pbm=01;35:*.pgm=01;35:*.ppm=01;35:*.tga=01;35:*.xbm=01;35:*.xpm=01;35:*.tif=01;35:*.tiff=01;35:*.png=01;35:*.svg=01;35:*.svgz=01;35:*.mng=01;35:*.pcx=01;35:*.mov=01;35:*.mpg=01;35:*.mpeg=01;35:*.m2v=01;35:*.mkv=01;35:*.webm=01;35:*.webp=01;35:*.ogm=01;35:*.mp4=01;35:*.m4v=01;35:*.mp4v=01;35:*.vob=01;35:*.qt=01;35:*.nuv=01;35:*.wmv=01;35:*.asf=01;35:*.rm=01;35:*.rmvb=01;35:*.flc=01;35:*.avi=01;35:*.fli=01;35:*.flv=01;35:*.gl=01;35:*.dl=01;35:*.xcf=01;35:*.xwd=01;35:*.yuv=01;35:*.cgm=01;35:*.emf=01;35:*.ogv=01;35:*.ogx=01;35:*.aac=00;36:*.au=00;36:*.flac=00;36:*.m4a=00;36:*.mid=00;36:*.midi=00;36:*.mka=00;36:*.mp3=00;36:*.mpc=00;36:*.ogg=00;36:*.ra=00;36:*.wav=00;36:*.oga=00;36:*.opus=00;36:*.spx=00;36:*.xspf=00;36:'), ('GNOME_TERMINAL_SERVICE', ':1.131'), ('SSH_AGENT_LAUNCHER', 'gnome-keyring'), ('SSH_AUTH_SOCK', '/run/user/1002/keyring/ssh'), ('AMENT_PREFIX_PATH', '/home/jacob/ros2_ws/src/pointcloud_filters/install/pointcloud_filters:/home/jacob/ros2_ws/install/unitree_lidar_ros2:/home/jacob/ros2_ws/install/pointcloud_filters:/opt/ros/humble'), ('SHELL', '/bin/bash'), ('QT_ACCESSIBILITY', '1'), ('GDMSESSION', 'ubuntu'), ('LESSCLOSE', '/usr/bin/lesspipe %s %s'), ('GPG_AGENT_INFO', '/run/user/1002/gnupg/S.gpg-agent:0:1'), ('QT_IM_MODULE', 'ibus'), ('PWD', '/home/jacob/ros2_ws/src/pointcloud_filters/build/pointcloud_filters'), ('LC_ALL', 'en_US.UTF-8'), ('XDG_CONFIG_DIRS', '/etc/xdg/xdg-ubuntu:/etc/xdg'), ('XDG_DATA_DIRS', '/usr/share/ubuntu:/usr/share/gnome:/usr/local/share/:/usr/share/:/var/lib/snapd/desktop'), ('PYTHONPATH', '/home/jacob/ros2_ws/install/pointcloud_filters/local/lib/python3.10/dist-packages:/home/jacob/ros2_ws/src/pointcloud_filters/install/pointcloud_filters/lib/python3.10/site-packages:/home/jacob/ros2_ws/build/pointcloud_filters:/home/jacob/ros2_ws/install/pointcloud_filters/lib/python3.10/site-packages:/home/jacob/ros2_ws/install/my_lidar_pkg/local/lib/python3.10/dist-packages:/opt/ros/humble/lib/python3.10/site-packages:/opt/ros/humble/local/lib/python3.10/dist-packages'), ('COLCON', '1'), ('VTE_VERSION', '6800'), ('CMAKE_PREFIX_PATH', '/home/jacob/ros2_ws/install/pointcloud_filters:/home/jacob/ros2_ws/install/unitree_lidar_ros2:/home/jacob/ros2_ws/install/my_lidar_pkg:/home/jacob/ros2_ws/src/pointcloud_filters/install/pointcloud_filters:/opt/ros/humble')]), 'shell': False}
+[5.243092] (-) TimerEvent: {}
+[5.312797] (pointcloud_filters) StdoutLine: {'line': b'[  3%] \x1b[34m\x1b[1mGenerating C code for ROS interfaces\x1b[0m\n'}
+[5.342273] (pointcloud_filters) StdoutLine: {'line': b'[  6%] \x1b[34m\x1b[1mGenerating C++ code for ROS interfaces\x1b[0m\n'}
+[5.343128] (-) TimerEvent: {}
+[5.375748] (pointcloud_filters) StdoutLine: {'line': b'[  6%] Built target ament_cmake_python_copy_pointcloud_filters\n'}
+[5.443419] (-) TimerEvent: {}
+[5.544486] (-) TimerEvent: {}
+[5.645479] (-) TimerEvent: {}
+[5.746486] (-) TimerEvent: {}
+[5.848134] (-) TimerEvent: {}
+[5.949485] (-) TimerEvent: {}
+[6.051197] (-) TimerEvent: {}
+[6.079563] (pointcloud_filters) StdoutLine: {'line': b'running egg_info\n'}
+[6.082051] (pointcloud_filters) StdoutLine: {'line': b'creating pointcloud_filters.egg-info\n'}
+[6.083540] (pointcloud_filters) StdoutLine: {'line': b'writing pointcloud_filters.egg-info/PKG-INFO\n'}
+[6.084887] (pointcloud_filters) StdoutLine: {'line': b'writing dependency_links to pointcloud_filters.egg-info/dependency_links.txt\n'}
+[6.085476] (pointcloud_filters) StdoutLine: {'line': b'writing top-level names to pointcloud_filters.egg-info/top_level.txt\n'}
+[6.085976] (pointcloud_filters) StdoutLine: {'line': b"writing manifest file 'pointcloud_filters.egg-info/SOURCES.txt'\n"}
+[6.093675] (pointcloud_filters) StdoutLine: {'line': b"reading manifest file 'pointcloud_filters.egg-info/SOURCES.txt'\n"}
+[6.095840] (pointcloud_filters) StdoutLine: {'line': b"writing manifest file 'pointcloud_filters.egg-info/SOURCES.txt'\n"}
+[6.151503] (-) TimerEvent: {}
+[6.202331] (pointcloud_filters) StdoutLine: {'line': b'[  6%] Built target pointcloud_filters__cpp\n'}
+[6.230377] (pointcloud_filters) StdoutLine: {'line': b'[  9%] \x1b[34m\x1b[1mGenerating C++ type support for eProsima Fast-RTPS\x1b[0m\n'}
+[6.237340] (pointcloud_filters) StdoutLine: {'line': b'[ 12%] \x1b[34m\x1b[1mGenerating C++ type support dispatch for ROS interfaces\x1b[0m\n'}
+[6.244216] (pointcloud_filters) StdoutLine: {'line': b'[ 16%] \x1b[34m\x1b[1mGenerating C++ introspection for ROS interfaces\x1b[0m\n'}
+[6.251687] (-) TimerEvent: {}
+[6.267256] (pointcloud_filters) StdoutLine: {'line': b'[ 16%] Built target ament_cmake_python_build_pointcloud_filters_egg\n'}
+[6.283555] (pointcloud_filters) StdoutLine: {'line': b'[ 19%] \x1b[32mBuilding C object CMakeFiles/pointcloud_filters__rosidl_generator_c.dir/rosidl_generator_c/pointcloud_filters/srv/detail/get_cloud_window__functions.c.o\x1b[0m\n'}
+[6.351943] (-) TimerEvent: {}
+[6.452980] (-) TimerEvent: {}
+[6.495908] (pointcloud_filters) StdoutLine: {'line': b'[ 22%] \x1b[32m\x1b[1mLinking C shared library libpointcloud_filters__rosidl_generator_c.so\x1b[0m\n'}
+[6.553255] (-) TimerEvent: {}
+[6.603611] (pointcloud_filters) StdoutLine: {'line': b'[ 22%] Built target pointcloud_filters__rosidl_generator_c\n'}
+[6.638509] (pointcloud_filters) StdoutLine: {'line': b'[ 25%] \x1b[34m\x1b[1mGenerating C introspection for ROS interfaces\x1b[0m\n'}
+[6.653482] (-) TimerEvent: {}
+[6.658884] (pointcloud_filters) StdoutLine: {'line': b'[ 32%] \x1b[34m\x1b[1mGenerating C type support for eProsima Fast-RTPS\x1b[0m\n'}
+[6.659905] (pointcloud_filters) StdoutLine: {'line': b'[ 32%] \x1b[34m\x1b[1mGenerating C type support dispatch for ROS interfaces\x1b[0m\n'}
+[6.753947] (-) TimerEvent: {}
+[6.855031] (-) TimerEvent: {}
+[6.956060] (-) TimerEvent: {}
+[7.056997] (-) TimerEvent: {}
+[7.158059] (-) TimerEvent: {}
+[7.255184] (pointcloud_filters) StdoutLine: {'line': b'[ 35%] \x1b[32mBuilding CXX object CMakeFiles/pointcloud_filters__rosidl_typesupport_cpp.dir/rosidl_typesupport_cpp/pointcloud_filters/srv/get_cloud_window__type_support.cpp.o\x1b[0m\n'}
+[7.258156] (-) TimerEvent: {}
+[7.317701] (pointcloud_filters) StdoutLine: {'line': b'[ 38%] \x1b[32mBuilding CXX object CMakeFiles/pointcloud_filters__rosidl_typesupport_fastrtps_cpp.dir/rosidl_typesupport_fastrtps_cpp/pointcloud_filters/srv/detail/dds_fastrtps/get_cloud_window__type_support.cpp.o\x1b[0m\n'}
+[7.358444] (-) TimerEvent: {}
+[7.396101] (pointcloud_filters) StdoutLine: {'line': b'[ 41%] \x1b[32mBuilding CXX object CMakeFiles/pointcloud_filters__rosidl_typesupport_introspection_cpp.dir/rosidl_typesupport_introspection_cpp/pointcloud_filters/srv/detail/get_cloud_window__type_support.cpp.o\x1b[0m\n'}
+[7.458739] (-) TimerEvent: {}
+[7.559845] (-) TimerEvent: {}
+[7.660942] (-) TimerEvent: {}
+[7.684026] (pointcloud_filters) StdoutLine: {'line': b'[ 45%] \x1b[32mBuilding CXX object CMakeFiles/pointcloud_filters__rosidl_typesupport_c.dir/rosidl_typesupport_c/pointcloud_filters/srv/get_cloud_window__type_support.cpp.o\x1b[0m\n'}
+[7.761263] (-) TimerEvent: {}
+[7.827617] (pointcloud_filters) StdoutLine: {'line': b'[ 48%] \x1b[32mBuilding C object CMakeFiles/pointcloud_filters__rosidl_typesupport_introspection_c.dir/rosidl_typesupport_introspection_c/pointcloud_filters/srv/detail/get_cloud_window__type_support.c.o\x1b[0m\n'}
+[7.839236] (pointcloud_filters) StdoutLine: {'line': b'[ 51%] \x1b[32mBuilding CXX object CMakeFiles/pointcloud_filters__rosidl_typesupport_fastrtps_c.dir/rosidl_typesupport_fastrtps_c/pointcloud_filters/srv/detail/get_cloud_window__type_support_c.cpp.o\x1b[0m\n'}
+[7.861515] (-) TimerEvent: {}
+[7.878224] (pointcloud_filters) StdoutLine: {'line': b'[ 54%] \x1b[32m\x1b[1mLinking CXX shared library libpointcloud_filters__rosidl_typesupport_c.so\x1b[0m\n'}
+[7.961811] (-) TimerEvent: {}
+[8.028576] (pointcloud_filters) StdoutLine: {'line': b'[ 58%] \x1b[32m\x1b[1mLinking C shared library libpointcloud_filters__rosidl_typesupport_introspection_c.so\x1b[0m\n'}
+[8.062137] (-) TimerEvent: {}
+[8.080895] (pointcloud_filters) StdoutLine: {'line': b'[ 58%] Built target pointcloud_filters__rosidl_typesupport_c\n'}
+[8.162445] (-) TimerEvent: {}
+[8.215518] (pointcloud_filters) StdoutLine: {'line': b'[ 58%] Built target pointcloud_filters__rosidl_typesupport_introspection_c\n'}
+[8.262786] (-) TimerEvent: {}
+[8.339032] (pointcloud_filters) StdoutLine: {'line': b'[ 61%] \x1b[32m\x1b[1mLinking CXX shared library libpointcloud_filters__rosidl_typesupport_cpp.so\x1b[0m\n'}
+[8.363284] (-) TimerEvent: {}
+[8.464592] (-) TimerEvent: {}
+[8.484637] (pointcloud_filters) StdoutLine: {'line': b'[ 61%] Built target pointcloud_filters__rosidl_typesupport_cpp\n'}
+[8.564855] (-) TimerEvent: {}
+[8.666135] (-) TimerEvent: {}
+[8.767347] (-) TimerEvent: {}
+[8.828693] (pointcloud_filters) StdoutLine: {'line': b'[ 64%] \x1b[32m\x1b[1mLinking CXX shared library libpointcloud_filters__rosidl_typesupport_fastrtps_cpp.so\x1b[0m\n'}
+[8.867665] (-) TimerEvent: {}
+[8.969034] (-) TimerEvent: {}
+[9.014121] (pointcloud_filters) StdoutLine: {'line': b'[ 67%] \x1b[32m\x1b[1mLinking CXX shared library libpointcloud_filters__rosidl_typesupport_fastrtps_c.so\x1b[0m\n'}
+[9.069267] (-) TimerEvent: {}
+[9.087260] (pointcloud_filters) StdoutLine: {'line': b'[ 67%] Built target pointcloud_filters__rosidl_typesupport_fastrtps_cpp\n'}
+[9.169532] (-) TimerEvent: {}
+[9.270402] (pointcloud_filters) StdoutLine: {'line': b'[ 70%] \x1b[32m\x1b[1mLinking CXX shared library libpointcloud_filters__rosidl_typesupport_introspection_cpp.so\x1b[0m\n'}
+[9.271277] (-) TimerEvent: {}
+[9.288013] (pointcloud_filters) StdoutLine: {'line': b'[ 70%] Built target pointcloud_filters__rosidl_typesupport_fastrtps_c\n'}
+[9.371629] (-) TimerEvent: {}
+[9.472811] (-) TimerEvent: {}
+[9.515657] (pointcloud_filters) StdoutLine: {'line': b'[ 70%] Built target pointcloud_filters__rosidl_typesupport_introspection_cpp\n'}
+[9.572517] (pointcloud_filters) StdoutLine: {'line': b'[ 70%] Built target pointcloud_filters\n'}
+[9.573475] (-) TimerEvent: {}
+[9.634886] (pointcloud_filters) StdoutLine: {'line': b'[ 74%] \x1b[34m\x1b[1mGenerating Python code for ROS interfaces\x1b[0m\n'}
+[9.673737] (-) TimerEvent: {}
+[9.774708] (-) TimerEvent: {}
+[9.875695] (-) TimerEvent: {}
+[9.976874] (-) TimerEvent: {}
+[10.078244] (-) TimerEvent: {}
+[10.179338] (-) TimerEvent: {}
+[10.280387] (-) TimerEvent: {}
+[10.381435] (-) TimerEvent: {}
+[10.482419] (-) TimerEvent: {}
+[10.583471] (-) TimerEvent: {}
+[10.684461] (-) TimerEvent: {}
+[10.765738] (pointcloud_filters) StdoutLine: {'line': b'[ 74%] Built target pointcloud_filters__py\n'}
+[10.784696] (-) TimerEvent: {}
+[10.828905] (pointcloud_filters) StdoutLine: {'line': b'[ 77%] \x1b[32mBuilding C object CMakeFiles/pointcloud_filters__rosidl_generator_py.dir/rosidl_generator_py/pointcloud_filters/srv/_get_cloud_window_s.c.o\x1b[0m\n'}
+[10.884990] (-) TimerEvent: {}
+[10.986058] (-) TimerEvent: {}
+[11.087183] (-) TimerEvent: {}
+[11.171892] (pointcloud_filters) StdoutLine: {'line': b'[ 80%] \x1b[32m\x1b[1mLinking C shared library rosidl_generator_py/pointcloud_filters/libpointcloud_filters__rosidl_generator_py.so\x1b[0m\n'}
+[11.187415] (-) TimerEvent: {}
+[11.288537] (-) TimerEvent: {}
+[11.296901] (pointcloud_filters) StdoutLine: {'line': b'[ 80%] Built target pointcloud_filters__rosidl_generator_py\n'}
+[11.359060] (pointcloud_filters) StdoutLine: {'line': b'[ 90%] \x1b[32mBuilding C object CMakeFiles/pointcloud_filters__rosidl_typesupport_c__pyext.dir/rosidl_generator_py/pointcloud_filters/_pointcloud_filters_s.ep.rosidl_typesupport_c.c.o\x1b[0m\n'}
+[11.359863] (pointcloud_filters) StdoutLine: {'line': b'[ 90%] \x1b[32mBuilding C object CMakeFiles/pointcloud_filters__rosidl_typesupport_fastrtps_c__pyext.dir/rosidl_generator_py/pointcloud_filters/_pointcloud_filters_s.ep.rosidl_typesupport_fastrtps_c.c.o\x1b[0m\n'}
+[11.360087] (pointcloud_filters) StdoutLine: {'line': b'[ 90%] \x1b[32mBuilding C object CMakeFiles/pointcloud_filters__rosidl_typesupport_introspection_c__pyext.dir/rosidl_generator_py/pointcloud_filters/_pointcloud_filters_s.ep.rosidl_typesupport_introspection_c.c.o\x1b[0m\n'}
+[11.388789] (-) TimerEvent: {}
+[11.489870] (-) TimerEvent: {}
+[11.590965] (-) TimerEvent: {}
+[11.642382] (pointcloud_filters) StdoutLine: {'line': b'[100%] \x1b[32m\x1b[1mLinking C shared library rosidl_generator_py/pointcloud_filters/pointcloud_filters_s__rosidl_typesupport_introspection_c.cpython-310-aarch64-linux-gnu.so\x1b[0m\n'}
+[11.643229] (pointcloud_filters) StdoutLine: {'line': b'[100%] \x1b[32m\x1b[1mLinking C shared library rosidl_generator_py/pointcloud_filters/pointcloud_filters_s__rosidl_typesupport_c.cpython-310-aarch64-linux-gnu.so\x1b[0m\n'}
+[11.643444] (pointcloud_filters) StdoutLine: {'line': b'[100%] \x1b[32m\x1b[1mLinking C shared library rosidl_generator_py/pointcloud_filters/pointcloud_filters_s__rosidl_typesupport_fastrtps_c.cpython-310-aarch64-linux-gnu.so\x1b[0m\n'}
+[11.691276] (-) TimerEvent: {}
+[11.769572] (pointcloud_filters) StdoutLine: {'line': b'[100%] Built target pointcloud_filters__rosidl_typesupport_introspection_c__pyext\n'}
+[11.770335] (pointcloud_filters) StdoutLine: {'line': b'[100%] Built target pointcloud_filters__rosidl_typesupport_c__pyext\n'}
+[11.771599] (pointcloud_filters) StdoutLine: {'line': b'[100%] Built target pointcloud_filters__rosidl_typesupport_fastrtps_c__pyext\n'}
+[11.791541] (-) TimerEvent: {}
+[11.814080] (pointcloud_filters) CommandEnded: {'returncode': 0}
+[11.817057] (pointcloud_filters) JobProgress: {'identifier': 'pointcloud_filters', 'progress': 'install'}
+[11.849889] (pointcloud_filters) Command: {'cmd': ['/usr/bin/cmake', '--install', '/home/jacob/ros2_ws/src/pointcloud_filters/build/pointcloud_filters'], 'cwd': '/home/jacob/ros2_ws/src/pointcloud_filters/build/pointcloud_filters', 'env': OrderedDict([('LESSOPEN', '| /usr/bin/lesspipe %s'), ('LANGUAGE', 'en_CA:en'), ('USER', 'jacob'), ('ROS_PACKAGE_PATH', '/home/jacob/ros2_ws/install/my_lidar_pkg/share'), ('XDG_SESSION_TYPE', 'x11'), ('SHLVL', '1'), ('LD_LIBRARY_PATH', '/home/jacob/ros2_ws/install/pointcloud_filters/lib:/opt/ros/humble/opt/rviz_ogre_vendor/lib:/opt/ros/humble/lib/aarch64-linux-gnu:/opt/ros/humble/lib'), ('HOME', '/home/jacob'), ('OLDPWD', '/home/jacob/ros2_ws/src/pointcloud_filters/install'), ('DESKTOP_SESSION', 'ubuntu'), ('ROS_PYTHON_VERSION', '3'), ('GNOME_SHELL_SESSION_MODE', 'ubuntu'), ('GTK_MODULES', 'gail:atk-bridge'), ('SYSTEMD_EXEC_PID', '292821'), ('DBUS_SESSION_BUS_ADDRESS', 'unix:path=/run/user/1002/bus'), ('COLORTERM', 'truecolor'), ('IM_CONFIG_PHASE', '1'), ('COLCON_PREFIX_PATH', '/home/jacob/ros2_ws/src/pointcloud_filters/install:/home/jacob/ros2_ws/install'), ('ROS_DISTRO', 'humble'), ('GTK_IM_MODULE', 'ibus'), ('LOGNAME', 'jacob'), ('_', '/usr/bin/colcon'), ('ROS_VERSION', '2'), ('PKG_CONFIG_PATH', '/home/jacob/ros2_ws/install/my_lidar_pkg/lib/aarch64-linux-gnu/pkgconfig:/home/jacob/ros2_ws/install/my_lidar_pkg/lib/pkgconfig'), ('XDG_SESSION_CLASS', 'user'), ('USERNAME', 'jacob'), ('TERM', 'xterm-256color'), ('GNOME_DESKTOP_SESSION_ID', 'this-is-deprecated'), ('ROS_LOCALHOST_ONLY', '0'), ('WINDOWPATH', '3'), ('PATH', '/opt/ros/humble/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/snap/bin:/snap/bin'), ('SESSION_MANAGER', 'local/aqua-desktop:@/tmp/.ICE-unix/291916,unix/aqua-desktop:/tmp/.ICE-unix/291916'), ('XDG_MENU_PREFIX', 'gnome-'), ('GNOME_TERMINAL_SCREEN', '/org/gnome/Terminal/screen/5cc13227_b266_4366_a918_30640ba3b3fc'), ('XDG_RUNTIME_DIR', '/run/user/1002'), ('DISPLAY', ':2'), ('LANG', 'en_US.UTF-8'), ('XDG_CURRENT_DESKTOP', 'ubuntu:GNOME'), ('XMODIFIERS', '@im=ibus'), ('XDG_SESSION_DESKTOP', 'ubuntu'), ('XAUTHORITY', '/run/user/1002/gdm/Xauthority'), ('LS_COLORS', 'rs=0:di=01;34:ln=01;36:mh=00:pi=40;33:so=01;35:do=01;35:bd=40;33;01:cd=40;33;01:or=40;31;01:mi=00:su=37;41:sg=30;43:ca=30;41:tw=30;42:ow=34;42:st=37;44:ex=01;32:*.tar=01;31:*.tgz=01;31:*.arc=01;31:*.arj=01;31:*.taz=01;31:*.lha=01;31:*.lz4=01;31:*.lzh=01;31:*.lzma=01;31:*.tlz=01;31:*.txz=01;31:*.tzo=01;31:*.t7z=01;31:*.zip=01;31:*.z=01;31:*.dz=01;31:*.gz=01;31:*.lrz=01;31:*.lz=01;31:*.lzo=01;31:*.xz=01;31:*.zst=01;31:*.tzst=01;31:*.bz2=01;31:*.bz=01;31:*.tbz=01;31:*.tbz2=01;31:*.tz=01;31:*.deb=01;31:*.rpm=01;31:*.jar=01;31:*.war=01;31:*.ear=01;31:*.sar=01;31:*.rar=01;31:*.alz=01;31:*.ace=01;31:*.zoo=01;31:*.cpio=01;31:*.7z=01;31:*.rz=01;31:*.cab=01;31:*.wim=01;31:*.swm=01;31:*.dwm=01;31:*.esd=01;31:*.jpg=01;35:*.jpeg=01;35:*.mjpg=01;35:*.mjpeg=01;35:*.gif=01;35:*.bmp=01;35:*.pbm=01;35:*.pgm=01;35:*.ppm=01;35:*.tga=01;35:*.xbm=01;35:*.xpm=01;35:*.tif=01;35:*.tiff=01;35:*.png=01;35:*.svg=01;35:*.svgz=01;35:*.mng=01;35:*.pcx=01;35:*.mov=01;35:*.mpg=01;35:*.mpeg=01;35:*.m2v=01;35:*.mkv=01;35:*.webm=01;35:*.webp=01;35:*.ogm=01;35:*.mp4=01;35:*.m4v=01;35:*.mp4v=01;35:*.vob=01;35:*.qt=01;35:*.nuv=01;35:*.wmv=01;35:*.asf=01;35:*.rm=01;35:*.rmvb=01;35:*.flc=01;35:*.avi=01;35:*.fli=01;35:*.flv=01;35:*.gl=01;35:*.dl=01;35:*.xcf=01;35:*.xwd=01;35:*.yuv=01;35:*.cgm=01;35:*.emf=01;35:*.ogv=01;35:*.ogx=01;35:*.aac=00;36:*.au=00;36:*.flac=00;36:*.m4a=00;36:*.mid=00;36:*.midi=00;36:*.mka=00;36:*.mp3=00;36:*.mpc=00;36:*.ogg=00;36:*.ra=00;36:*.wav=00;36:*.oga=00;36:*.opus=00;36:*.spx=00;36:*.xspf=00;36:'), ('GNOME_TERMINAL_SERVICE', ':1.131'), ('SSH_AGENT_LAUNCHER', 'gnome-keyring'), ('SSH_AUTH_SOCK', '/run/user/1002/keyring/ssh'), ('AMENT_PREFIX_PATH', '/home/jacob/ros2_ws/src/pointcloud_filters/install/pointcloud_filters:/home/jacob/ros2_ws/install/unitree_lidar_ros2:/home/jacob/ros2_ws/install/pointcloud_filters:/opt/ros/humble'), ('SHELL', '/bin/bash'), ('QT_ACCESSIBILITY', '1'), ('GDMSESSION', 'ubuntu'), ('LESSCLOSE', '/usr/bin/lesspipe %s %s'), ('GPG_AGENT_INFO', '/run/user/1002/gnupg/S.gpg-agent:0:1'), ('QT_IM_MODULE', 'ibus'), ('PWD', '/home/jacob/ros2_ws/src/pointcloud_filters/build/pointcloud_filters'), ('LC_ALL', 'en_US.UTF-8'), ('XDG_CONFIG_DIRS', '/etc/xdg/xdg-ubuntu:/etc/xdg'), ('XDG_DATA_DIRS', '/usr/share/ubuntu:/usr/share/gnome:/usr/local/share/:/usr/share/:/var/lib/snapd/desktop'), ('PYTHONPATH', '/home/jacob/ros2_ws/install/pointcloud_filters/local/lib/python3.10/dist-packages:/home/jacob/ros2_ws/src/pointcloud_filters/install/pointcloud_filters/lib/python3.10/site-packages:/home/jacob/ros2_ws/build/pointcloud_filters:/home/jacob/ros2_ws/install/pointcloud_filters/lib/python3.10/site-packages:/home/jacob/ros2_ws/install/my_lidar_pkg/local/lib/python3.10/dist-packages:/opt/ros/humble/lib/python3.10/site-packages:/opt/ros/humble/local/lib/python3.10/dist-packages'), ('COLCON', '1'), ('VTE_VERSION', '6800'), ('CMAKE_PREFIX_PATH', '/home/jacob/ros2_ws/install/pointcloud_filters:/home/jacob/ros2_ws/install/unitree_lidar_ros2:/home/jacob/ros2_ws/install/my_lidar_pkg:/home/jacob/ros2_ws/src/pointcloud_filters/install/pointcloud_filters:/opt/ros/humble')]), 'shell': False}
+[11.878987] (pointcloud_filters) StdoutLine: {'line': b'-- Install configuration: ""\n'}
+[11.879816] (pointcloud_filters) StdoutLine: {'line': b'-- Installing: /home/jacob/ros2_ws/src/pointcloud_filters/install/pointcloud_filters/share/ament_index/resource_index/rosidl_interfaces/pointcloud_filters\n'}
+[11.880711] (pointcloud_filters) StdoutLine: {'line': b'-- Installing: /home/jacob/ros2_ws/src/pointcloud_filters/install/pointcloud_filters/include/pointcloud_filters/pointcloud_filters\n'}
+[11.881283] (pointcloud_filters) StdoutLine: {'line': b'-- Installing: /home/jacob/ros2_ws/src/pointcloud_filters/install/pointcloud_filters/include/pointcloud_filters/pointcloud_filters/msg\n'}
+[11.881650] (pointcloud_filters) StdoutLine: {'line': b'-- Installing: /home/jacob/ros2_ws/src/pointcloud_filters/install/pointcloud_filters/include/pointcloud_filters/pointcloud_filters/msg/rosidl_generator_c__visibility_control.h\n'}
+[11.882073] (pointcloud_filters) StdoutLine: {'line': b'-- Installing: /home/jacob/ros2_ws/src/pointcloud_filters/install/pointcloud_filters/include/pointcloud_filters/pointcloud_filters/srv\n'}
+[11.882417] (pointcloud_filters) StdoutLine: {'line': b'-- Installing: /home/jacob/ros2_ws/src/pointcloud_filters/install/pointcloud_filters/include/pointcloud_filters/pointcloud_filters/srv/detail\n'}
+[11.882790] (pointcloud_filters) StdoutLine: {'line': b'-- Installing: /home/jacob/ros2_ws/src/pointcloud_filters/install/pointcloud_filters/include/pointcloud_filters/pointcloud_filters/srv/detail/get_cloud_window__functions.h\n'}
+[11.883120] (pointcloud_filters) StdoutLine: {'line': b'-- Installing: /home/jacob/ros2_ws/src/pointcloud_filters/install/pointcloud_filters/include/pointcloud_filters/pointcloud_filters/srv/detail/get_cloud_window__functions.c\n'}
+[11.883472] (pointcloud_filters) StdoutLine: {'line': b'-- Installing: /home/jacob/ros2_ws/src/pointcloud_filters/install/pointcloud_filters/include/pointcloud_filters/pointcloud_filters/srv/detail/get_cloud_window__struct.h\n'}
+[11.883740] (pointcloud_filters) StdoutLine: {'line': b'-- Installing: /home/jacob/ros2_ws/src/pointcloud_filters/install/pointcloud_filters/include/pointcloud_filters/pointcloud_filters/srv/detail/get_cloud_window__type_support.h\n'}
+[11.884049] (pointcloud_filters) StdoutLine: {'line': b'-- Installing: /home/jacob/ros2_ws/src/pointcloud_filters/install/pointcloud_filters/include/pointcloud_filters/pointcloud_filters/srv/get_cloud_window.h\n'}
+[11.884335] (pointcloud_filters) StdoutLine: {'line': b'-- Installing: /home/jacob/ros2_ws/src/pointcloud_filters/install/pointcloud_filters/share/pointcloud_filters/environment/library_path.sh\n'}
+[11.884628] (pointcloud_filters) StdoutLine: {'line': b'-- Installing: /home/jacob/ros2_ws/src/pointcloud_filters/install/pointcloud_filters/share/pointcloud_filters/environment/library_path.dsv\n'}
+[11.884923] (pointcloud_filters) StdoutLine: {'line': b'-- Installing: /home/jacob/ros2_ws/src/pointcloud_filters/install/pointcloud_filters/lib/libpointcloud_filters__rosidl_generator_c.so\n'}
+[11.885541] (pointcloud_filters) StdoutLine: {'line': b'-- Set runtime path of "/home/jacob/ros2_ws/src/pointcloud_filters/install/pointcloud_filters/lib/libpointcloud_filters__rosidl_generator_c.so" to ""\n'}
+[11.886001] (pointcloud_filters) StdoutLine: {'line': b'-- Up-to-date: /home/jacob/ros2_ws/src/pointcloud_filters/install/pointcloud_filters/include/pointcloud_filters/pointcloud_filters\n'}
+[11.886412] (pointcloud_filters) StdoutLine: {'line': b'-- Up-to-date: /home/jacob/ros2_ws/src/pointcloud_filters/install/pointcloud_filters/include/pointcloud_filters/pointcloud_filters/msg\n'}
+[11.886730] (pointcloud_filters) StdoutLine: {'line': b'-- Installing: /home/jacob/ros2_ws/src/pointcloud_filters/install/pointcloud_filters/include/pointcloud_filters/pointcloud_filters/msg/rosidl_typesupport_fastrtps_c__visibility_control.h\n'}
+[11.887044] (pointcloud_filters) StdoutLine: {'line': b'-- Up-to-date: /home/jacob/ros2_ws/src/pointcloud_filters/install/pointcloud_filters/include/pointcloud_filters/pointcloud_filters/srv\n'}
+[11.887368] (pointcloud_filters) StdoutLine: {'line': b'-- Up-to-date: /home/jacob/ros2_ws/src/pointcloud_filters/install/pointcloud_filters/include/pointcloud_filters/pointcloud_filters/srv/detail\n'}
+[11.887626] (pointcloud_filters) StdoutLine: {'line': b'-- Installing: /home/jacob/ros2_ws/src/pointcloud_filters/install/pointcloud_filters/include/pointcloud_filters/pointcloud_filters/srv/detail/get_cloud_window__rosidl_typesupport_fastrtps_c.h\n'}
+[11.887932] (pointcloud_filters) StdoutLine: {'line': b'-- Installing: /home/jacob/ros2_ws/src/pointcloud_filters/install/pointcloud_filters/lib/libpointcloud_filters__rosidl_typesupport_fastrtps_c.so\n'}
+[11.888345] (pointcloud_filters) StdoutLine: {'line': b'-- Set runtime path of "/home/jacob/ros2_ws/src/pointcloud_filters/install/pointcloud_filters/lib/libpointcloud_filters__rosidl_typesupport_fastrtps_c.so" to ""\n'}
+[11.888617] (pointcloud_filters) StdoutLine: {'line': b'-- Up-to-date: /home/jacob/ros2_ws/src/pointcloud_filters/install/pointcloud_filters/include/pointcloud_filters/pointcloud_filters\n'}
+[11.888859] (pointcloud_filters) StdoutLine: {'line': b'-- Up-to-date: /home/jacob/ros2_ws/src/pointcloud_filters/install/pointcloud_filters/include/pointcloud_filters/pointcloud_filters/msg\n'}
+[11.889098] (pointcloud_filters) StdoutLine: {'line': b'-- Installing: /home/jacob/ros2_ws/src/pointcloud_filters/install/pointcloud_filters/include/pointcloud_filters/pointcloud_filters/msg/rosidl_typesupport_introspection_c__visibility_control.h\n'}
+[11.889678] (pointcloud_filters) StdoutLine: {'line': b'-- Up-to-date: /home/jacob/ros2_ws/src/pointcloud_filters/install/pointcloud_filters/include/pointcloud_filters/pointcloud_filters/srv\n'}
+[11.890026] (pointcloud_filters) StdoutLine: {'line': b'-- Up-to-date: /home/jacob/ros2_ws/src/pointcloud_filters/install/pointcloud_filters/include/pointcloud_filters/pointcloud_filters/srv/detail\n'}
+[11.890273] (pointcloud_filters) StdoutLine: {'line': b'-- Installing: /home/jacob/ros2_ws/src/pointcloud_filters/install/pointcloud_filters/include/pointcloud_filters/pointcloud_filters/srv/detail/get_cloud_window__type_support.c\n'}
+[11.890591] (pointcloud_filters) StdoutLine: {'line': b'-- Installing: /home/jacob/ros2_ws/src/pointcloud_filters/install/pointcloud_filters/include/pointcloud_filters/pointcloud_filters/srv/detail/get_cloud_window__rosidl_typesupport_introspection_c.h\n'}
+[11.890915] (pointcloud_filters) StdoutLine: {'line': b'-- Installing: /home/jacob/ros2_ws/src/pointcloud_filters/install/pointcloud_filters/lib/libpointcloud_filters__rosidl_typesupport_introspection_c.so\n'}
+[11.891622] (pointcloud_filters) StdoutLine: {'line': b'-- Set runtime path of "/home/jacob/ros2_ws/src/pointcloud_filters/install/pointcloud_filters/lib/libpointcloud_filters__rosidl_typesupport_introspection_c.so" to ""\n'}
+[11.891951] (-) TimerEvent: {}
+[11.892398] (pointcloud_filters) StdoutLine: {'line': b'-- Installing: /home/jacob/ros2_ws/src/pointcloud_filters/install/pointcloud_filters/lib/libpointcloud_filters__rosidl_typesupport_c.so\n'}
+[11.892869] (pointcloud_filters) StdoutLine: {'line': b'-- Set runtime path of "/home/jacob/ros2_ws/src/pointcloud_filters/install/pointcloud_filters/lib/libpointcloud_filters__rosidl_typesupport_c.so" to ""\n'}
+[11.893246] (pointcloud_filters) StdoutLine: {'line': b'-- Up-to-date: /home/jacob/ros2_ws/src/pointcloud_filters/install/pointcloud_filters/include/pointcloud_filters/pointcloud_filters\n'}
+[11.893635] (pointcloud_filters) StdoutLine: {'line': b'-- Up-to-date: /home/jacob/ros2_ws/src/pointcloud_filters/install/pointcloud_filters/include/pointcloud_filters/pointcloud_filters/msg\n'}
+[11.894040] (pointcloud_filters) StdoutLine: {'line': b'-- Installing: /home/jacob/ros2_ws/src/pointcloud_filters/install/pointcloud_filters/include/pointcloud_filters/pointcloud_filters/msg/rosidl_generator_cpp__visibility_control.hpp\n'}
+[11.894360] (pointcloud_filters) StdoutLine: {'line': b'-- Up-to-date: /home/jacob/ros2_ws/src/pointcloud_filters/install/pointcloud_filters/include/pointcloud_filters/pointcloud_filters/srv\n'}
+[11.894713] (pointcloud_filters) StdoutLine: {'line': b'-- Installing: /home/jacob/ros2_ws/src/pointcloud_filters/install/pointcloud_filters/include/pointcloud_filters/pointcloud_filters/srv/get_cloud_window.hpp\n'}
+[11.895066] (pointcloud_filters) StdoutLine: {'line': b'-- Up-to-date: /home/jacob/ros2_ws/src/pointcloud_filters/install/pointcloud_filters/include/pointcloud_filters/pointcloud_filters/srv/detail\n'}
+[11.895335] (pointcloud_filters) StdoutLine: {'line': b'-- Installing: /home/jacob/ros2_ws/src/pointcloud_filters/install/pointcloud_filters/include/pointcloud_filters/pointcloud_filters/srv/detail/get_cloud_window__builder.hpp\n'}
+[11.895765] (pointcloud_filters) StdoutLine: {'line': b'-- Installing: /home/jacob/ros2_ws/src/pointcloud_filters/install/pointcloud_filters/include/pointcloud_filters/pointcloud_filters/srv/detail/get_cloud_window__struct.hpp\n'}
+[11.896033] (pointcloud_filters) StdoutLine: {'line': b'-- Installing: /home/jacob/ros2_ws/src/pointcloud_filters/install/pointcloud_filters/include/pointcloud_filters/pointcloud_filters/srv/detail/get_cloud_window__type_support.hpp\n'}
+[11.896383] (pointcloud_filters) StdoutLine: {'line': b'-- Installing: /home/jacob/ros2_ws/src/pointcloud_filters/install/pointcloud_filters/include/pointcloud_filters/pointcloud_filters/srv/detail/get_cloud_window__traits.hpp\n'}
+[11.896731] (pointcloud_filters) StdoutLine: {'line': b'-- Up-to-date: /home/jacob/ros2_ws/src/pointcloud_filters/install/pointcloud_filters/include/pointcloud_filters/pointcloud_filters\n'}
+[11.897045] (pointcloud_filters) StdoutLine: {'line': b'-- Up-to-date: /home/jacob/ros2_ws/src/pointcloud_filters/install/pointcloud_filters/include/pointcloud_filters/pointcloud_filters/msg\n'}
+[11.897355] (pointcloud_filters) StdoutLine: {'line': b'-- Installing: /home/jacob/ros2_ws/src/pointcloud_filters/install/pointcloud_filters/include/pointcloud_filters/pointcloud_filters/msg/rosidl_typesupport_fastrtps_cpp__visibility_control.h\n'}
+[11.897614] (pointcloud_filters) StdoutLine: {'line': b'-- Up-to-date: /home/jacob/ros2_ws/src/pointcloud_filters/install/pointcloud_filters/include/pointcloud_filters/pointcloud_filters/srv\n'}
+[11.897861] (pointcloud_filters) StdoutLine: {'line': b'-- Up-to-date: /home/jacob/ros2_ws/src/pointcloud_filters/install/pointcloud_filters/include/pointcloud_filters/pointcloud_filters/srv/detail\n'}
+[11.898099] (pointcloud_filters) StdoutLine: {'line': b'-- Installing: /home/jacob/ros2_ws/src/pointcloud_filters/install/pointcloud_filters/include/pointcloud_filters/pointcloud_filters/srv/detail/dds_fastrtps\n'}
+[11.898475] (pointcloud_filters) StdoutLine: {'line': b'-- Installing: /home/jacob/ros2_ws/src/pointcloud_filters/install/pointcloud_filters/include/pointcloud_filters/pointcloud_filters/srv/detail/get_cloud_window__rosidl_typesupport_fastrtps_cpp.hpp\n'}
+[11.898841] (pointcloud_filters) StdoutLine: {'line': b'-- Installing: /home/jacob/ros2_ws/src/pointcloud_filters/install/pointcloud_filters/lib/libpointcloud_filters__rosidl_typesupport_fastrtps_cpp.so\n'}
+[11.899093] (pointcloud_filters) StdoutLine: {'line': b'-- Set runtime path of "/home/jacob/ros2_ws/src/pointcloud_filters/install/pointcloud_filters/lib/libpointcloud_filters__rosidl_typesupport_fastrtps_cpp.so" to ""\n'}
+[11.899485] (pointcloud_filters) StdoutLine: {'line': b'-- Up-to-date: /home/jacob/ros2_ws/src/pointcloud_filters/install/pointcloud_filters/include/pointcloud_filters/pointcloud_filters\n'}
+[11.899750] (pointcloud_filters) StdoutLine: {'line': b'-- Up-to-date: /home/jacob/ros2_ws/src/pointcloud_filters/install/pointcloud_filters/include/pointcloud_filters/pointcloud_filters/srv\n'}
+[11.900043] (pointcloud_filters) StdoutLine: {'line': b'-- Up-to-date: /home/jacob/ros2_ws/src/pointcloud_filters/install/pointcloud_filters/include/pointcloud_filters/pointcloud_filters/srv/detail\n'}
+[11.900293] (pointcloud_filters) StdoutLine: {'line': b'-- Installing: /home/jacob/ros2_ws/src/pointcloud_filters/install/pointcloud_filters/include/pointcloud_filters/pointcloud_filters/srv/detail/get_cloud_window__type_support.cpp\n'}
+[11.900595] (pointcloud_filters) StdoutLine: {'line': b'-- Installing: /home/jacob/ros2_ws/src/pointcloud_filters/install/pointcloud_filters/include/pointcloud_filters/pointcloud_filters/srv/detail/get_cloud_window__rosidl_typesupport_introspection_cpp.hpp\n'}
+[11.900985] (pointcloud_filters) StdoutLine: {'line': b'-- Installing: /home/jacob/ros2_ws/src/pointcloud_filters/install/pointcloud_filters/lib/libpointcloud_filters__rosidl_typesupport_introspection_cpp.so\n'}
+[11.901238] (pointcloud_filters) StdoutLine: {'line': b'-- Set runtime path of "/home/jacob/ros2_ws/src/pointcloud_filters/install/pointcloud_filters/lib/libpointcloud_filters__rosidl_typesupport_introspection_cpp.so" to ""\n'}
+[11.901480] (pointcloud_filters) StdoutLine: {'line': b'-- Installing: /home/jacob/ros2_ws/src/pointcloud_filters/install/pointcloud_filters/lib/libpointcloud_filters__rosidl_typesupport_cpp.so\n'}
+[11.901803] (pointcloud_filters) StdoutLine: {'line': b'-- Set runtime path of "/home/jacob/ros2_ws/src/pointcloud_filters/install/pointcloud_filters/lib/libpointcloud_filters__rosidl_typesupport_cpp.so" to ""\n'}
+[11.902120] (pointcloud_filters) StdoutLine: {'line': b'-- Installing: /home/jacob/ros2_ws/src/pointcloud_filters/install/pointcloud_filters/share/pointcloud_filters/environment/pythonpath.sh\n'}
+[11.902468] (pointcloud_filters) StdoutLine: {'line': b'-- Installing: /home/jacob/ros2_ws/src/pointcloud_filters/install/pointcloud_filters/share/pointcloud_filters/environment/pythonpath.dsv\n'}
+[11.902830] (pointcloud_filters) StdoutLine: {'line': b'-- Installing: /home/jacob/ros2_ws/src/pointcloud_filters/install/pointcloud_filters/local/lib/python3.10/dist-packages/pointcloud_filters-0.1.0-py3.10.egg-info\n'}
+[11.904018] (pointcloud_filters) StdoutLine: {'line': b'-- Installing: /home/jacob/ros2_ws/src/pointcloud_filters/install/pointcloud_filters/local/lib/python3.10/dist-packages/pointcloud_filters-0.1.0-py3.10.egg-info/top_level.txt\n'}
+[11.904688] (pointcloud_filters) StdoutLine: {'line': b'-- Installing: /home/jacob/ros2_ws/src/pointcloud_filters/install/pointcloud_filters/local/lib/python3.10/dist-packages/pointcloud_filters-0.1.0-py3.10.egg-info/SOURCES.txt\n'}
+[11.905010] (pointcloud_filters) StdoutLine: {'line': b'-- Installing: /home/jacob/ros2_ws/src/pointcloud_filters/install/pointcloud_filters/local/lib/python3.10/dist-packages/pointcloud_filters-0.1.0-py3.10.egg-info/PKG-INFO\n'}
+[11.905344] (pointcloud_filters) StdoutLine: {'line': b'-- Installing: /home/jacob/ros2_ws/src/pointcloud_filters/install/pointcloud_filters/local/lib/python3.10/dist-packages/pointcloud_filters-0.1.0-py3.10.egg-info/dependency_links.txt\n'}
+[11.905662] (pointcloud_filters) StdoutLine: {'line': b'-- Installing: /home/jacob/ros2_ws/src/pointcloud_filters/install/pointcloud_filters/local/lib/python3.10/dist-packages/pointcloud_filters\n'}
+[11.905962] (pointcloud_filters) StdoutLine: {'line': b'-- Installing: /home/jacob/ros2_ws/src/pointcloud_filters/install/pointcloud_filters/local/lib/python3.10/dist-packages/pointcloud_filters/_pointcloud_filters_s.ep.rosidl_typesupport_fastrtps_c.c\n'}
+[11.906263] (pointcloud_filters) StdoutLine: {'line': b'-- Installing: /home/jacob/ros2_ws/src/pointcloud_filters/install/pointcloud_filters/local/lib/python3.10/dist-packages/pointcloud_filters/_pointcloud_filters_s.ep.rosidl_typesupport_introspection_c.c\n'}
+[11.906783] (pointcloud_filters) StdoutLine: {'line': b'-- Installing: /home/jacob/ros2_ws/src/pointcloud_filters/install/pointcloud_filters/local/lib/python3.10/dist-packages/pointcloud_filters/pointcloud_filters_s__rosidl_typesupport_c.cpython-310-aarch64-linux-gnu.so\n'}
+[11.907438] (pointcloud_filters) StdoutLine: {'line': b'-- Installing: /home/jacob/ros2_ws/src/pointcloud_filters/install/pointcloud_filters/local/lib/python3.10/dist-packages/pointcloud_filters/_pointcloud_filters_s.ep.rosidl_typesupport_c.c\n'}
+[11.908085] (pointcloud_filters) StdoutLine: {'line': b'-- Installing: /home/jacob/ros2_ws/src/pointcloud_filters/install/pointcloud_filters/local/lib/python3.10/dist-packages/pointcloud_filters/pointcloud_filters_s__rosidl_typesupport_fastrtps_c.cpython-310-aarch64-linux-gnu.so\n'}
+[11.908364] (pointcloud_filters) StdoutLine: {'line': b'-- Installing: /home/jacob/ros2_ws/src/pointcloud_filters/install/pointcloud_filters/local/lib/python3.10/dist-packages/pointcloud_filters/libpointcloud_filters__rosidl_generator_py.so\n'}
+[11.908624] (pointcloud_filters) StdoutLine: {'line': b'-- Installing: /home/jacob/ros2_ws/src/pointcloud_filters/install/pointcloud_filters/local/lib/python3.10/dist-packages/pointcloud_filters/srv\n'}
+[11.908869] (pointcloud_filters) StdoutLine: {'line': b'-- Installing: /home/jacob/ros2_ws/src/pointcloud_filters/install/pointcloud_filters/local/lib/python3.10/dist-packages/pointcloud_filters/srv/_get_cloud_window.py\n'}
+[11.909106] (pointcloud_filters) StdoutLine: {'line': b'-- Installing: /home/jacob/ros2_ws/src/pointcloud_filters/install/pointcloud_filters/local/lib/python3.10/dist-packages/pointcloud_filters/srv/_get_cloud_window_s.c\n'}
+[11.909343] (pointcloud_filters) StdoutLine: {'line': b'-- Installing: /home/jacob/ros2_ws/src/pointcloud_filters/install/pointcloud_filters/local/lib/python3.10/dist-packages/pointcloud_filters/srv/__init__.py\n'}
+[11.909575] (pointcloud_filters) StdoutLine: {'line': b'-- Installing: /home/jacob/ros2_ws/src/pointcloud_filters/install/pointcloud_filters/local/lib/python3.10/dist-packages/pointcloud_filters/__init__.py\n'}
+[11.909805] (pointcloud_filters) StdoutLine: {'line': b'-- Installing: /home/jacob/ros2_ws/src/pointcloud_filters/install/pointcloud_filters/local/lib/python3.10/dist-packages/pointcloud_filters/pointcloud_filters_s__rosidl_typesupport_introspection_c.cpython-310-aarch64-linux-gnu.so\n'}
+[11.992239] (-) TimerEvent: {}
+[12.003770] (pointcloud_filters) StdoutLine: {'line': b"Listing '/home/jacob/ros2_ws/src/pointcloud_filters/install/pointcloud_filters/local/lib/python3.10/dist-packages/pointcloud_filters'...\n"}
+[12.004569] (pointcloud_filters) StdoutLine: {'line': b"Compiling '/home/jacob/ros2_ws/src/pointcloud_filters/install/pointcloud_filters/local/lib/python3.10/dist-packages/pointcloud_filters/__init__.py'...\n"}
+[12.004897] (pointcloud_filters) StdoutLine: {'line': b"Listing '/home/jacob/ros2_ws/src/pointcloud_filters/install/pointcloud_filters/local/lib/python3.10/dist-packages/pointcloud_filters/srv'...\n"}
+[12.005176] (pointcloud_filters) StdoutLine: {'line': b"Compiling '/home/jacob/ros2_ws/src/pointcloud_filters/install/pointcloud_filters/local/lib/python3.10/dist-packages/pointcloud_filters/srv/__init__.py'...\n"}
+[12.005497] (pointcloud_filters) StdoutLine: {'line': b"Compiling '/home/jacob/ros2_ws/src/pointcloud_filters/install/pointcloud_filters/local/lib/python3.10/dist-packages/pointcloud_filters/srv/_get_cloud_window.py'...\n"}
+[12.023811] (pointcloud_filters) StdoutLine: {'line': b'-- Installing: /home/jacob/ros2_ws/src/pointcloud_filters/install/pointcloud_filters/local/lib/python3.10/dist-packages/pointcloud_filters/pointcloud_filters_s__rosidl_typesupport_fastrtps_c.cpython-310-aarch64-linux-gnu.so\n'}
+[12.024825] (pointcloud_filters) StdoutLine: {'line': b'-- Set runtime path of "/home/jacob/ros2_ws/src/pointcloud_filters/install/pointcloud_filters/local/lib/python3.10/dist-packages/pointcloud_filters/pointcloud_filters_s__rosidl_typesupport_fastrtps_c.cpython-310-aarch64-linux-gnu.so" to ""\n'}
+[12.025176] (pointcloud_filters) StdoutLine: {'line': b'-- Installing: /home/jacob/ros2_ws/src/pointcloud_filters/install/pointcloud_filters/local/lib/python3.10/dist-packages/pointcloud_filters/pointcloud_filters_s__rosidl_typesupport_introspection_c.cpython-310-aarch64-linux-gnu.so\n'}
+[12.025698] (pointcloud_filters) StdoutLine: {'line': b'-- Set runtime path of "/home/jacob/ros2_ws/src/pointcloud_filters/install/pointcloud_filters/local/lib/python3.10/dist-packages/pointcloud_filters/pointcloud_filters_s__rosidl_typesupport_introspection_c.cpython-310-aarch64-linux-gnu.so" to ""\n'}
+[12.026683] (pointcloud_filters) StdoutLine: {'line': b'-- Installing: /home/jacob/ros2_ws/src/pointcloud_filters/install/pointcloud_filters/local/lib/python3.10/dist-packages/pointcloud_filters/pointcloud_filters_s__rosidl_typesupport_c.cpython-310-aarch64-linux-gnu.so\n'}
+[12.027106] (pointcloud_filters) StdoutLine: {'line': b'-- Set runtime path of "/home/jacob/ros2_ws/src/pointcloud_filters/install/pointcloud_filters/local/lib/python3.10/dist-packages/pointcloud_filters/pointcloud_filters_s__rosidl_typesupport_c.cpython-310-aarch64-linux-gnu.so" to ""\n'}
+[12.027365] (pointcloud_filters) StdoutLine: {'line': b'-- Installing: /home/jacob/ros2_ws/src/pointcloud_filters/install/pointcloud_filters/lib/libpointcloud_filters__rosidl_generator_py.so\n'}
+[12.027750] (pointcloud_filters) StdoutLine: {'line': b'-- Set runtime path of "/home/jacob/ros2_ws/src/pointcloud_filters/install/pointcloud_filters/lib/libpointcloud_filters__rosidl_generator_py.so" to ""\n'}
+[12.028188] (pointcloud_filters) StdoutLine: {'line': b'-- Installing: /home/jacob/ros2_ws/src/pointcloud_filters/install/pointcloud_filters/share/pointcloud_filters/srv/GetCloudWindow.idl\n'}
+[12.030413] (pointcloud_filters) StdoutLine: {'line': b'-- Installing: /home/jacob/ros2_ws/src/pointcloud_filters/install/pointcloud_filters/share/pointcloud_filters/srv/GetCloudWindow.srv\n'}
+[12.031227] (pointcloud_filters) StdoutLine: {'line': b'-- Installing: /home/jacob/ros2_ws/src/pointcloud_filters/install/pointcloud_filters/share/pointcloud_filters/srv/GetCloudWindow_Request.msg\n'}
+[12.031625] (pointcloud_filters) StdoutLine: {'line': b'-- Installing: /home/jacob/ros2_ws/src/pointcloud_filters/install/pointcloud_filters/share/pointcloud_filters/srv/GetCloudWindow_Response.msg\n'}
+[12.031931] (pointcloud_filters) StdoutLine: {'line': b'-- Installing: /home/jacob/ros2_ws/src/pointcloud_filters/install/pointcloud_filters/lib/pointcloud_filters/lidar_range_filter\n'}
+[12.032868] (pointcloud_filters) StdoutLine: {'line': b'-- Up-to-date: /home/jacob/ros2_ws/src/pointcloud_filters/install/pointcloud_filters/lib/python3.10/site-packages/pointcloud_filters\n'}
+[12.033166] (pointcloud_filters) StdoutLine: {'line': b'-- Installing: /home/jacob/ros2_ws/src/pointcloud_filters/install/pointcloud_filters/lib/python3.10/site-packages/pointcloud_filters/lidar_range_filter.py\n'}
+[12.034652] (pointcloud_filters) StdoutLine: {'line': b'-- Installing: /home/jacob/ros2_ws/src/pointcloud_filters/install/pointcloud_filters/lib/python3.10/site-packages/pointcloud_filters/build\n'}
+[12.035185] (pointcloud_filters) StdoutLine: {'line': b'-- Up-to-date: /home/jacob/ros2_ws/src/pointcloud_filters/install/pointcloud_filters/lib/python3.10/site-packages/pointcloud_filters/__pycache__\n'}
+[12.035897] (pointcloud_filters) StdoutLine: {'line': b'-- Installing: /home/jacob/ros2_ws/src/pointcloud_filters/install/pointcloud_filters/lib/python3.10/site-packages/pointcloud_filters/install\n'}
+[12.036899] (pointcloud_filters) StdoutLine: {'line': b'-- Installing: /home/jacob/ros2_ws/src/pointcloud_filters/install/pointcloud_filters/lib/python3.10/site-packages/pointcloud_filters/install/_local_setup_util_sh.py\n'}
+[12.037239] (pointcloud_filters) StdoutLine: {'line': b'-- Installing: /home/jacob/ros2_ws/src/pointcloud_filters/install/pointcloud_filters/lib/python3.10/site-packages/pointcloud_filters/install/_local_setup_util_ps1.py\n'}
+[12.037425] (pointcloud_filters) StdoutLine: {'line': b'-- Installing: /home/jacob/ros2_ws/src/pointcloud_filters/install/pointcloud_filters/lib/python3.10/site-packages/pointcloud_filters/log\n'}
+[12.037841] (pointcloud_filters) StdoutLine: {'line': b'-- Installing: /home/jacob/ros2_ws/src/pointcloud_filters/install/pointcloud_filters/lib/python3.10/site-packages/pointcloud_filters/log/build_2025-11-01_15-10-28\n'}
+[12.038072] (pointcloud_filters) StdoutLine: {'line': b'-- Installing: /home/jacob/ros2_ws/src/pointcloud_filters/install/pointcloud_filters/lib/python3.10/site-packages/pointcloud_filters/log/latest\n'}
+[12.038278] (pointcloud_filters) StdoutLine: {'line': b'-- Installing: /home/jacob/ros2_ws/src/pointcloud_filters/install/pointcloud_filters/lib/python3.10/site-packages/pointcloud_filters/log/latest_build\n'}
+[12.038444] (pointcloud_filters) StdoutLine: {'line': b'-- Up-to-date: /home/jacob/ros2_ws/src/pointcloud_filters/install/pointcloud_filters/lib/python3.10/site-packages/pointcloud_filters/__init__.py\n'}
+[12.038789] (pointcloud_filters) StdoutLine: {'line': b'-- Up-to-date: /home/jacob/ros2_ws/src/pointcloud_filters/install/pointcloud_filters/share/pointcloud_filters/launch\n'}
+[12.039001] (pointcloud_filters) StdoutLine: {'line': b'-- Up-to-date: /home/jacob/ros2_ws/src/pointcloud_filters/install/pointcloud_filters/share/pointcloud_filters/launch/lidar_range_filter.launch.py\n'}
+[12.039165] (pointcloud_filters) StdoutLine: {'line': b'-- Installing: /home/jacob/ros2_ws/src/pointcloud_filters/install/pointcloud_filters/share/ament_index/resource_index/package_run_dependencies/pointcloud_filters\n'}
+[12.039358] (pointcloud_filters) StdoutLine: {'line': b'-- Installing: /home/jacob/ros2_ws/src/pointcloud_filters/install/pointcloud_filters/share/ament_index/resource_index/parent_prefix_path/pointcloud_filters\n'}
+[12.039533] (pointcloud_filters) StdoutLine: {'line': b'-- Installing: /home/jacob/ros2_ws/src/pointcloud_filters/install/pointcloud_filters/share/pointcloud_filters/environment/ament_prefix_path.sh\n'}
+[12.039723] (pointcloud_filters) StdoutLine: {'line': b'-- Installing: /home/jacob/ros2_ws/src/pointcloud_filters/install/pointcloud_filters/share/pointcloud_filters/environment/ament_prefix_path.dsv\n'}
+[12.039875] (pointcloud_filters) StdoutLine: {'line': b'-- Installing: /home/jacob/ros2_ws/src/pointcloud_filters/install/pointcloud_filters/share/pointcloud_filters/environment/path.sh\n'}
+[12.040061] (pointcloud_filters) StdoutLine: {'line': b'-- Installing: /home/jacob/ros2_ws/src/pointcloud_filters/install/pointcloud_filters/share/pointcloud_filters/environment/path.dsv\n'}
+[12.040215] (pointcloud_filters) StdoutLine: {'line': b'-- Installing: /home/jacob/ros2_ws/src/pointcloud_filters/install/pointcloud_filters/share/pointcloud_filters/local_setup.bash\n'}
+[12.040393] (pointcloud_filters) StdoutLine: {'line': b'-- Installing: /home/jacob/ros2_ws/src/pointcloud_filters/install/pointcloud_filters/share/pointcloud_filters/local_setup.sh\n'}
+[12.040633] (pointcloud_filters) StdoutLine: {'line': b'-- Installing: /home/jacob/ros2_ws/src/pointcloud_filters/install/pointcloud_filters/share/pointcloud_filters/local_setup.zsh\n'}
+[12.040830] (pointcloud_filters) StdoutLine: {'line': b'-- Installing: /home/jacob/ros2_ws/src/pointcloud_filters/install/pointcloud_filters/share/pointcloud_filters/local_setup.dsv\n'}
+[12.040988] (pointcloud_filters) StdoutLine: {'line': b'-- Installing: /home/jacob/ros2_ws/src/pointcloud_filters/install/pointcloud_filters/share/pointcloud_filters/package.dsv\n'}
+[12.041177] (pointcloud_filters) StdoutLine: {'line': b'-- Installing: /home/jacob/ros2_ws/src/pointcloud_filters/install/pointcloud_filters/share/ament_index/resource_index/packages/pointcloud_filters\n'}
+[12.041331] (pointcloud_filters) StdoutLine: {'line': b'-- Installing: /home/jacob/ros2_ws/src/pointcloud_filters/install/pointcloud_filters/share/pointcloud_filters/cmake/export_pointcloud_filters__rosidl_generator_cExport.cmake\n'}
+[12.041518] (pointcloud_filters) StdoutLine: {'line': b'-- Installing: /home/jacob/ros2_ws/src/pointcloud_filters/install/pointcloud_filters/share/pointcloud_filters/cmake/export_pointcloud_filters__rosidl_generator_cExport-noconfig.cmake\n'}
+[12.041675] (pointcloud_filters) StdoutLine: {'line': b'-- Installing: /home/jacob/ros2_ws/src/pointcloud_filters/install/pointcloud_filters/share/pointcloud_filters/cmake/export_pointcloud_filters__rosidl_typesupport_fastrtps_cExport.cmake\n'}
+[12.041915] (pointcloud_filters) StdoutLine: {'line': b'-- Installing: /home/jacob/ros2_ws/src/pointcloud_filters/install/pointcloud_filters/share/pointcloud_filters/cmake/export_pointcloud_filters__rosidl_typesupport_fastrtps_cExport-noconfig.cmake\n'}
+[12.042071] (pointcloud_filters) StdoutLine: {'line': b'-- Installing: /home/jacob/ros2_ws/src/pointcloud_filters/install/pointcloud_filters/share/pointcloud_filters/cmake/pointcloud_filters__rosidl_typesupport_introspection_cExport.cmake\n'}
+[12.042255] (pointcloud_filters) StdoutLine: {'line': b'-- Installing: /home/jacob/ros2_ws/src/pointcloud_filters/install/pointcloud_filters/share/pointcloud_filters/cmake/pointcloud_filters__rosidl_typesupport_introspection_cExport-noconfig.cmake\n'}
+[12.042808] (pointcloud_filters) StdoutLine: {'line': b'-- Installing: /home/jacob/ros2_ws/src/pointcloud_filters/install/pointcloud_filters/share/pointcloud_filters/cmake/pointcloud_filters__rosidl_typesupport_cExport.cmake\n'}
+[12.043283] (pointcloud_filters) StdoutLine: {'line': b'-- Installing: /home/jacob/ros2_ws/src/pointcloud_filters/install/pointcloud_filters/share/pointcloud_filters/cmake/pointcloud_filters__rosidl_typesupport_cExport-noconfig.cmake\n'}
+[12.043701] (pointcloud_filters) StdoutLine: {'line': b'-- Installing: /home/jacob/ros2_ws/src/pointcloud_filters/install/pointcloud_filters/share/pointcloud_filters/cmake/export_pointcloud_filters__rosidl_generator_cppExport.cmake\n'}
+[12.043941] (pointcloud_filters) StdoutLine: {'line': b'-- Installing: /home/jacob/ros2_ws/src/pointcloud_filters/install/pointcloud_filters/share/pointcloud_filters/cmake/export_pointcloud_filters__rosidl_typesupport_fastrtps_cppExport.cmake\n'}
+[12.044140] (pointcloud_filters) StdoutLine: {'line': b'-- Installing: /home/jacob/ros2_ws/src/pointcloud_filters/install/pointcloud_filters/share/pointcloud_filters/cmake/export_pointcloud_filters__rosidl_typesupport_fastrtps_cppExport-noconfig.cmake\n'}
+[12.044351] (pointcloud_filters) StdoutLine: {'line': b'-- Installing: /home/jacob/ros2_ws/src/pointcloud_filters/install/pointcloud_filters/share/pointcloud_filters/cmake/pointcloud_filters__rosidl_typesupport_introspection_cppExport.cmake\n'}
+[12.045042] (pointcloud_filters) StdoutLine: {'line': b'-- Installing: /home/jacob/ros2_ws/src/pointcloud_filters/install/pointcloud_filters/share/pointcloud_filters/cmake/pointcloud_filters__rosidl_typesupport_introspection_cppExport-noconfig.cmake\n'}
+[12.045342] (pointcloud_filters) StdoutLine: {'line': b'-- Installing: /home/jacob/ros2_ws/src/pointcloud_filters/install/pointcloud_filters/share/pointcloud_filters/cmake/pointcloud_filters__rosidl_typesupport_cppExport.cmake\n'}
+[12.045544] (pointcloud_filters) StdoutLine: {'line': b'-- Installing: /home/jacob/ros2_ws/src/pointcloud_filters/install/pointcloud_filters/share/pointcloud_filters/cmake/pointcloud_filters__rosidl_typesupport_cppExport-noconfig.cmake\n'}
+[12.046207] (pointcloud_filters) StdoutLine: {'line': b'-- Installing: /home/jacob/ros2_ws/src/pointcloud_filters/install/pointcloud_filters/share/pointcloud_filters/cmake/export_pointcloud_filters__rosidl_generator_pyExport.cmake\n'}
+[12.047010] (pointcloud_filters) StdoutLine: {'line': b'-- Installing: /home/jacob/ros2_ws/src/pointcloud_filters/install/pointcloud_filters/share/pointcloud_filters/cmake/export_pointcloud_filters__rosidl_generator_pyExport-noconfig.cmake\n'}
+[12.048347] (pointcloud_filters) StdoutLine: {'line': b'-- Installing: /home/jacob/ros2_ws/src/pointcloud_filters/install/pointcloud_filters/share/pointcloud_filters/cmake/rosidl_cmake-extras.cmake\n'}
+[12.048568] (pointcloud_filters) StdoutLine: {'line': b'-- Installing: /home/jacob/ros2_ws/src/pointcloud_filters/install/pointcloud_filters/share/pointcloud_filters/cmake/ament_cmake_export_dependencies-extras.cmake\n'}
+[12.048732] (pointcloud_filters) StdoutLine: {'line': b'-- Installing: /home/jacob/ros2_ws/src/pointcloud_filters/install/pointcloud_filters/share/pointcloud_filters/cmake/ament_cmake_export_include_directories-extras.cmake\n'}
+[12.049516] (pointcloud_filters) StdoutLine: {'line': b'-- Installing: /home/jacob/ros2_ws/src/pointcloud_filters/install/pointcloud_filters/share/pointcloud_filters/cmake/ament_cmake_export_libraries-extras.cmake\n'}
+[12.049733] (pointcloud_filters) StdoutLine: {'line': b'-- Installing: /home/jacob/ros2_ws/src/pointcloud_filters/install/pointcloud_filters/share/pointcloud_filters/cmake/ament_cmake_export_targets-extras.cmake\n'}
+[12.049902] (pointcloud_filters) StdoutLine: {'line': b'-- Installing: /home/jacob/ros2_ws/src/pointcloud_filters/install/pointcloud_filters/share/pointcloud_filters/cmake/rosidl_cmake_export_typesupport_targets-extras.cmake\n'}
+[12.050060] (pointcloud_filters) StdoutLine: {'line': b'-- Installing: /home/jacob/ros2_ws/src/pointcloud_filters/install/pointcloud_filters/share/pointcloud_filters/cmake/rosidl_cmake_export_typesupport_libraries-extras.cmake\n'}
+[12.050211] (pointcloud_filters) StdoutLine: {'line': b'-- Installing: /home/jacob/ros2_ws/src/pointcloud_filters/install/pointcloud_filters/share/pointcloud_filters/cmake/pointcloud_filtersConfig.cmake\n'}
+[12.050363] (pointcloud_filters) StdoutLine: {'line': b'-- Installing: /home/jacob/ros2_ws/src/pointcloud_filters/install/pointcloud_filters/share/pointcloud_filters/cmake/pointcloud_filtersConfig-version.cmake\n'}
+[12.050549] (pointcloud_filters) StdoutLine: {'line': b'-- Installing: /home/jacob/ros2_ws/src/pointcloud_filters/install/pointcloud_filters/share/pointcloud_filters/package.xml\n'}
+[12.055974] (pointcloud_filters) CommandEnded: {'returncode': 0}
+[12.092379] (-) TimerEvent: {}
+[12.125401] (pointcloud_filters) JobEnded: {'identifier': 'pointcloud_filters', 'rc': 0}
+[12.127609] (-) EventReactorShutdown: {}

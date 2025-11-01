@@ -2,6 +2,8 @@
 
 import math
 from typing import Optional
+from collections import deque
+from threading import Lock
 
 import numpy as np
 
@@ -15,6 +17,8 @@ from geometry_msgs.msg import TransformStamped
 import tf2_ros
 
 from sensor_msgs_py import point_cloud2 as pc2
+
+from GetCloudWindow.srv import GetCloudWindow
 
 
 def quaternion_to_rotation_matrix(x: float, y: float, z: float, w: float) -> np.ndarray:
@@ -49,8 +53,10 @@ class LidarRangeFilterNode(Node):
         self.declare_parameter('base_frame', 'base_link')
         self.declare_parameter('use_tf_transform', False)
         self.declare_parameter('z_min', 0.0)
-        self.declare_parameter('z_max', 10.0)
-        self.declare_parameter('range_max', 30.0)
+        self.declare_parameter('z_max', 1.0)
+        self.declare_parameter('range_max', 1.0)
+        self.declare_parameter('max_buffer_duration_sec', 5.0)
+        self.declare_parameter('keep_publisher', True)
 
         self.input_topic = self.get_parameter('input_topic').get_parameter_value().string_value
         self.output_topic = self.get_parameter('output_topic').get_parameter_value().string_value
@@ -59,6 +65,12 @@ class LidarRangeFilterNode(Node):
         self.z_min = float(self.get_parameter('z_min').get_parameter_value().double_value)
         self.z_max = float(self.get_parameter('z_max').get_parameter_value().double_value)
         self.range_max = float(self.get_parameter('range_max').get_parameter_value().double_value)
+        self.max_buffer_duration_sec = float(self.get_parameter('max_buffer_duration_sec').get_parameter_value().double_value)
+        self.keep_publisher = self.get_parameter('keep_publisher').get_parameter_value().bool_value
+
+        # Time-ordered buffer for filtered clouds (stores up to max_buffer_duration_sec)
+        self.cloud_buffer = deque()
+        self.buffer_lock = Lock()
 
         # TF buffer/listener for transforms to base_frame
         self.tf_buffer: Optional[tf2_ros.Buffer] = None
@@ -75,12 +87,20 @@ class LidarRangeFilterNode(Node):
         )
 
         self.sub = self.create_subscription(PointCloud2, self.input_topic, self.cloud_cb, qos)
-        self.pub = self.create_publisher(PointCloud2, self.output_topic, qos)
+        
+        # Publisher (conditional on keep_publisher param)
+        if self.keep_publisher:
+            self.pub = self.create_publisher(PointCloud2, self.output_topic, qos)
+        else:
+            self.pub = None
+
+        # Service for retrieving windowed point cloud data
+        self.srv = self.create_service(GetCloudWindow, '~/get_cloud_window', self.handle_get_cloud_window)
 
         self.get_logger().info(
-            f'lidar_range_filter started: input={self.input_topic}, output={self.output_topic}, '
+            f'lidar_range_filter started: input={self.input_topic}, output={self.output_topic if self.keep_publisher else "(disabled)"}, '
             f'z=[{self.z_min},{self.z_max}] m, range_max={self.range_max} m, base_frame={self.base_frame}, '
-            f'use_tf_transform={self.use_tf_transform}'
+            f'use_tf_transform={self.use_tf_transform}, max_buffer_duration_sec={self.max_buffer_duration_sec}'
         )
 
     def lookup_transform(self, target_frame: str, source_frame: str, stamp) -> Optional[TransformStamped]:
@@ -169,8 +189,12 @@ class LidarRangeFilterNode(Node):
 
         if not np.any(mask):
             # Publish empty XYZ cloud
-            fields = pc2.create_cloud_xyz32(header, [])
-            self.pub.publish(fields)
+            out_msg = pc2.create_cloud_xyz32(header, [])
+            if self.pub:
+                self.pub.publish(out_msg)
+            # Store empty cloud in buffer
+            with self.buffer_lock:
+                self._append_to_buffer(out_msg)
             return
 
         if keep_intensity:
@@ -191,7 +215,114 @@ class LidarRangeFilterNode(Node):
             sel_pts = np.vstack((x[mask], y[mask], z[mask])).T.astype(np.float32)
             out_msg = pc2.create_cloud_xyz32(header, sel_pts.tolist())
 
-        self.pub.publish(out_msg)
+        # Publish if enabled
+        if self.pub:
+            self.pub.publish(out_msg)
+
+        # Store filtered cloud in buffer
+        with self.buffer_lock:
+            self._append_to_buffer(out_msg)
+
+    def _append_to_buffer(self, cloud: PointCloud2) -> None:
+        """Append cloud to buffer and evict old entries beyond max_buffer_duration_sec."""
+        self.cloud_buffer.append(cloud)
+        # Evict old clouds
+        if len(self.cloud_buffer) > 1:
+            newest_stamp = self.cloud_buffer[-1].header.stamp
+            newest_time_sec = newest_stamp.sec + newest_stamp.nanosec * 1e-9
+            while len(self.cloud_buffer) > 1:
+                oldest_stamp = self.cloud_buffer[0].header.stamp
+                oldest_time_sec = oldest_stamp.sec + oldest_stamp.nanosec * 1e-9
+                if (newest_time_sec - oldest_time_sec) > self.max_buffer_duration_sec:
+                    self.cloud_buffer.popleft()
+                else:
+                    break
+
+    def handle_get_cloud_window(self, request, response):
+        """Service handler: return windowed point clouds."""
+        window_sec = min(request.window_sec, self.max_buffer_duration_sec)
+        
+        with self.buffer_lock:
+            if len(self.cloud_buffer) == 0:
+                # Empty buffer
+                response.clouds = []
+                response.merged_cloud = PointCloud2()
+                return response
+
+            # Get newest timestamp
+            newest_stamp = self.cloud_buffer[-1].header.stamp
+            newest_time_sec = newest_stamp.sec + newest_stamp.nanosec * 1e-9
+            cutoff_time_sec = newest_time_sec - window_sec
+
+            # Select clouds within window
+            selected = []
+            for cloud in self.cloud_buffer:
+                stamp = cloud.header.stamp
+                time_sec = stamp.sec + stamp.nanosec * 1e-9
+                if time_sec >= cutoff_time_sec:
+                    selected.append(cloud)
+
+            if len(selected) == 0:
+                response.clouds = []
+                response.merged_cloud = PointCloud2()
+                return response
+
+            if request.merged:
+                # Merge all selected clouds into one
+                response.merged_cloud = self._merge_clouds(selected)
+                response.clouds = []
+            else:
+                # Return array of individual clouds
+                response.clouds = selected
+                response.merged_cloud = PointCloud2()
+
+        return response
+
+    def _merge_clouds(self, clouds):
+        """Concatenate multiple PointCloud2 messages into a single cloud."""
+        if len(clouds) == 0:
+            return PointCloud2()
+        if len(clouds) == 1:
+            return clouds[0]
+
+        # Use the header from the newest cloud
+        merged_header = clouds[-1].header
+
+        # Read all points from all clouds
+        all_points = []
+        field_names = None
+        for cloud in clouds:
+            if field_names is None:
+                field_names = tuple(f.name for f in cloud.fields)
+            try:
+                pts_iter = pc2.read_points(cloud, field_names=field_names, skip_nans=True)
+                for p in pts_iter:
+                    if isinstance(p, np.void) and getattr(p, 'dtype', None) is not None and p.dtype.fields is not None:
+                        all_points.append(tuple(float(p[fn]) for fn in field_names))
+                    else:
+                        all_points.append(tuple(float(p[i]) for i in range(len(field_names))))
+            except Exception as e:
+                self.get_logger().warn(f'Failed to read points during merge: {e}')
+                continue
+
+        if len(all_points) == 0:
+            return PointCloud2()
+
+        # Reconstruct PointCloud2 with merged points
+        if 'intensity' in field_names:
+            from sensor_msgs.msg import PointField
+            fields = [
+                PointField(name='x', offset=0, datatype=PointField.FLOAT32, count=1),
+                PointField(name='y', offset=4, datatype=PointField.FLOAT32, count=1),
+                PointField(name='z', offset=8, datatype=PointField.FLOAT32, count=1),
+                PointField(name='intensity', offset=12, datatype=PointField.FLOAT32, count=1),
+            ]
+            merged_cloud = pc2.create_cloud(merged_header, fields, all_points)
+        else:
+            # XYZ only
+            merged_cloud = pc2.create_cloud_xyz32(merged_header, all_points)
+
+        return merged_cloud
 
 
 def main(args=None):

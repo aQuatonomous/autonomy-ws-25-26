@@ -1,3 +1,0 @@
-[console_scripts]
-lidar_range_filter = pointcloud_filters.lidar_range_filter:main
-

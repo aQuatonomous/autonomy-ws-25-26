@@ -1,0 +1,4 @@
+srv/GetCloudWindow.idl
+srv/GetCloudWindow.srv
+srv/GetCloudWindow_Request.msg
+srv/GetCloudWindow_Response.msg

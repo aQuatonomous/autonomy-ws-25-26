@@ -1,1 +1,0 @@
-Invoking command in '/home/jacob/ros2_ws/build/unitree_lidar_sdk': /usr/bin/cmake /home/jacob/ros2_ws/src/unilidar_sdk/unitree_lidar_sdk -DCMAKE_INSTALL_PREFIX=/home/jacob/ros2_ws/install/unitree_lidar_sdk
