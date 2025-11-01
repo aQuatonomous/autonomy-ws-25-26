@@ -1,0 +1,12 @@
+Metadata-Version: 2.1
+Name: pointcloud-filters
+Version: 0.1.0
+Summary: Point cloud filtering utilities for LiDAR: range and z clipping.
+Home-page: UNKNOWN
+Maintainer: jacob
+Maintainer-email: jacob@example.com
+License: MIT
+Platform: UNKNOWN
+
+UNKNOWN
+

@@ -1,0 +1,9 @@
+[0.000000] (-) TimerEvent: {}
+[0.000811] (-) JobUnselected: {'identifier': 'my_lidar_pkg'}
+[0.001218] (-) JobUnselected: {'identifier': 'ros_numpy'}
+[0.001897] (-) JobUnselected: {'identifier': 'unitree_lidar_ros2'}
+[0.002332] (-) JobUnselected: {'identifier': 'unitree_lidar_sdk'}
+[0.002686] (pointcloud_filters) JobQueued: {'identifier': 'pointcloud_filters', 'dependencies': OrderedDict([('ros_numpy', '/home/jacob/ros2_ws/install/ros_numpy')])}
+[0.002855] (pointcloud_filters) JobStarted: {'identifier': 'pointcloud_filters'}
+[0.028836] (pointcloud_filters) JobEnded: {'identifier': 'pointcloud_filters', 'rc': 1}
+[0.040278] (-) EventReactorShutdown: {}

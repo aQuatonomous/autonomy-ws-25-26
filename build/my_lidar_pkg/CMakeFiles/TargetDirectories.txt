@@ -1,0 +1,12 @@
+/home/jacob/ros2_ws/build/my_lidar_pkg/CMakeFiles/uninstall.dir
+/home/jacob/ros2_ws/build/my_lidar_pkg/CMakeFiles/my_lidar_pkg_uninstall.dir
+/home/jacob/ros2_ws/build/my_lidar_pkg/CMakeFiles/ament_cmake_python_copy_my_lidar_pkg.dir
+/home/jacob/ros2_ws/build/my_lidar_pkg/CMakeFiles/ament_cmake_python_copy_my_lidar_pkg_setup.dir
+/home/jacob/ros2_ws/build/my_lidar_pkg/CMakeFiles/ament_cmake_python_build_my_lidar_pkg_egg.dir
+/home/jacob/ros2_ws/build/my_lidar_pkg/CMakeFiles/test.dir
+/home/jacob/ros2_ws/build/my_lidar_pkg/CMakeFiles/edit_cache.dir
+/home/jacob/ros2_ws/build/my_lidar_pkg/CMakeFiles/rebuild_cache.dir
+/home/jacob/ros2_ws/build/my_lidar_pkg/CMakeFiles/list_install_components.dir
+/home/jacob/ros2_ws/build/my_lidar_pkg/CMakeFiles/install.dir
+/home/jacob/ros2_ws/build/my_lidar_pkg/CMakeFiles/install/local.dir
+/home/jacob/ros2_ws/build/my_lidar_pkg/CMakeFiles/install/strip.dir

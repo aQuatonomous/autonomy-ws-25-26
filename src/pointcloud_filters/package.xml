@@ -1,0 +1,23 @@
+<?xml version="1.0"?>
+<package format="3">
+  <name>pointcloud_filters</name>
+  <version>0.1.0</version>
+  <description>Point cloud filtering utilities for LiDAR: range and z clipping.</description>
+  <maintainer email="jacob@example.com">jacob</maintainer>
+  <license>MIT</license>
+
+  <buildtool_depend>ament_python</buildtool_depend>
+
+  <exec_depend>rclpy</exec_depend>
+  <exec_depend>sensor_msgs</exec_depend>
+  <exec_depend>std_msgs</exec_depend>
+  <exec_depend>geometry_msgs</exec_depend>
+  <exec_depend>tf2_ros</exec_depend>
+  <exec_depend>builtin_interfaces</exec_depend>
+  <exec_depend>numpy</exec_depend>
+  <!-- ros_numpy is ROS 1; avoid depending on it in ROS 2. Use sensor_msgs_py.point_cloud2 instead. -->
+
+  <export>
+    <build_type>ament_python</build_type>
+  </export>
+</package>

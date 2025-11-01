@@ -1,0 +1,38 @@
+running egg_info
+creating build/pointcloud_filters/pointcloud_filters.egg-info
+writing build/pointcloud_filters/pointcloud_filters.egg-info/PKG-INFO
+writing dependency_links to build/pointcloud_filters/pointcloud_filters.egg-info/dependency_links.txt
+writing entry points to build/pointcloud_filters/pointcloud_filters.egg-info/entry_points.txt
+writing requirements to build/pointcloud_filters/pointcloud_filters.egg-info/requires.txt
+writing top-level names to build/pointcloud_filters/pointcloud_filters.egg-info/top_level.txt
+writing manifest file 'build/pointcloud_filters/pointcloud_filters.egg-info/SOURCES.txt'
+reading manifest file 'build/pointcloud_filters/pointcloud_filters.egg-info/SOURCES.txt'
+writing manifest file 'build/pointcloud_filters/pointcloud_filters.egg-info/SOURCES.txt'
+running build
+running build_py
+creating /home/jacob/ros2_ws/src/pointcloud_filters/build/pointcloud_filters/build
+creating /home/jacob/ros2_ws/src/pointcloud_filters/build/pointcloud_filters/build/lib
+creating /home/jacob/ros2_ws/src/pointcloud_filters/build/pointcloud_filters/build/lib/pointcloud_filters
+copying pointcloud_filters/lidar_range_filter.py -> /home/jacob/ros2_ws/src/pointcloud_filters/build/pointcloud_filters/build/lib/pointcloud_filters
+copying pointcloud_filters/__init__.py -> /home/jacob/ros2_ws/src/pointcloud_filters/build/pointcloud_filters/build/lib/pointcloud_filters
+running install
+running install_lib
+creating /home/jacob/ros2_ws/src/pointcloud_filters/install/pointcloud_filters/lib/python3.10/site-packages/pointcloud_filters
+copying /home/jacob/ros2_ws/src/pointcloud_filters/build/pointcloud_filters/build/lib/pointcloud_filters/lidar_range_filter.py -> /home/jacob/ros2_ws/src/pointcloud_filters/install/pointcloud_filters/lib/python3.10/site-packages/pointcloud_filters
+copying /home/jacob/ros2_ws/src/pointcloud_filters/build/pointcloud_filters/build/lib/pointcloud_filters/__init__.py -> /home/jacob/ros2_ws/src/pointcloud_filters/install/pointcloud_filters/lib/python3.10/site-packages/pointcloud_filters
+byte-compiling /home/jacob/ros2_ws/src/pointcloud_filters/install/pointcloud_filters/lib/python3.10/site-packages/pointcloud_filters/lidar_range_filter.py to lidar_range_filter.cpython-310.pyc
+byte-compiling /home/jacob/ros2_ws/src/pointcloud_filters/install/pointcloud_filters/lib/python3.10/site-packages/pointcloud_filters/__init__.py to __init__.cpython-310.pyc
+running install_data
+creating /home/jacob/ros2_ws/src/pointcloud_filters/install/pointcloud_filters/share/ament_index
+creating /home/jacob/ros2_ws/src/pointcloud_filters/install/pointcloud_filters/share/ament_index/resource_index
+creating /home/jacob/ros2_ws/src/pointcloud_filters/install/pointcloud_filters/share/ament_index/resource_index/packages
+copying resource/pointcloud_filters -> /home/jacob/ros2_ws/src/pointcloud_filters/install/pointcloud_filters/share/ament_index/resource_index/packages
+copying package.xml -> /home/jacob/ros2_ws/src/pointcloud_filters/install/pointcloud_filters/share/pointcloud_filters
+creating /home/jacob/ros2_ws/src/pointcloud_filters/install/pointcloud_filters/share/pointcloud_filters/launch
+copying launch/lidar_range_filter.launch.py -> /home/jacob/ros2_ws/src/pointcloud_filters/install/pointcloud_filters/share/pointcloud_filters/launch
+copying README.md -> /home/jacob/ros2_ws/src/pointcloud_filters/install/pointcloud_filters/share/pointcloud_filters
+running install_egg_info
+Copying build/pointcloud_filters/pointcloud_filters.egg-info to /home/jacob/ros2_ws/src/pointcloud_filters/install/pointcloud_filters/lib/python3.10/site-packages/pointcloud_filters-0.1.0-py3.10.egg-info
+running install_scripts
+Installing lidar_range_filter script to /home/jacob/ros2_ws/src/pointcloud_filters/install/pointcloud_filters/lib/pointcloud_filters
+writing list of installed files to '/home/jacob/ros2_ws/src/pointcloud_filters/build/pointcloud_filters/install.log'

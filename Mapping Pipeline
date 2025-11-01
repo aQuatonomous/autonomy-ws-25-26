@@ -1,0 +1,171 @@
+# Mapping pipeline plan (boat + Unitree 1D LiDAR + cameras + Pixhawk + Jetson Orin Nano)
+
+Summary
+- Goal: publish a list of buoy landmarks verified by LiDAR, in a global frame and with positions relative to the boat.
+- Strategy: camera detections propose bearing hypotheses; LiDAR validates range and vertical extent (z clipping 0–10 m); fused boat pose (MAVROS/EKF) projects detections into map coordinates; track buoys over time.
+
+Assessment of current plan
+- Limiting LiDAR to 30 m is good: add a range gate to reduce clutter and computation.
+- Verifying camera detections with LiDAR at the same bearing is solid. Use a small angular window and temporal consistency to avoid false positives.
+- “Get height of objects” with a planar (1D/2D) LiDAR is not straightforward. Without 3D LiDAR or an active tilting mechanism, height estimates are unreliable. Prefer height/size estimation from cameras (known buoy size, monocular ranging, or stereo) or accumulate scans with accurate roll/pitch to reconstruct sparse vertical structure (advanced).
+- On water, LiDAR returns can be sparse and water reflections/noise are common; make IMU-based stabilization and outlier filtering a priority.
+
+Proposed mapping stack (ROS 2)
+- Core assumptions
+  - Use GPS + IMU from Pixhawk as primary localization. SLAM is optional and often unreliable on water due to texture-poor environments.
+  - Maintain a landmark map of buoys (object-level mapping), not a dense occupancy map.
+
+Nodes and responsibilities
+1) Sensor drivers and filters
+ - unilidar_sdk (vendor driver)
+   - Publishes: /unilidar/cloud (sensor_msgs/PointCloud2, frame: unilidar_lidar)
+ - pointcloud_filters/lidar_range_filter
+   - Input: /unilidar/cloud (sensor_msgs/PointCloud2)
+   - Output: /points_filtered (sensor_msgs/PointCloud2 clipped to range 0–30 m AND vertical height window z ∈ [0,10] m)
+   - Notes:
+     - Perform the vertical clip in the base_link frame (transform incoming PointCloud2 to base_link with tf2, or ensure the cloud is already expressed relative to base_link).
+     - Use pcl_ros filters: CropBox or PassThrough on the z axis to keep only points with z between 0 and 10 m, then apply a radius/range filter to limit to 30 m.
+     - Optionally remove the water plane after transforming to base_link using plane segmentation and roll/pitch compensation from IMU.
+ - Note: my_lidar_pkg exists in the repo but is not used in this stack; don’t add buoy-specific logic there.
+
+   - camera_detector (existing)
+     - Publishes: vision_msgs/Detection2DArray or custom message containing class, confidence, and bearing (0–360 cw) per buoy hypothesis
+   - time_sync
+     - Synchronize camera detections, PointCloud2 scans, and IMU using ApproximateTime (message_filters)
+
+2) State estimation and frames
+   - mavlink_bridge (MAVROS for ROS 2 or mavlink-routerd + custom bridge)
+     - Publishes: vehicle pose components (IMU, GPS, GPS fix status, velocity), MAVLink status
+   - robot_localization EKF
+     - Inputs: IMU (high-rate), GPS (low-rate), optional wheel/thruster odometry if available
+     - Outputs: nav_msgs/Odometry in odom; alignment with map via navsat_transform_node for global frame
+   - navsat_transform_node
+     - Converts GPS fixes + EKF odom to a map frame (ENU), provides tf map->odom
+   - static_transform_publisher
+     - Publishes calibrated extrinsics: base_link->lidar, base_link->camera_{front,side}
+
+3) Data association and verification
+- buoy_bearing_projector
+  - Input: camera detections with pixel ROI or precomputed bearing
+  - Output: standardized detections with bearing in base_link frame (radians CCW per REP 103) and bearing covariance
+- lidar_bearing_verifier
+  - Inputs: filtered PointCloud2 (range + vertical clipped), standardized buoy bearings
+  - Output: verified detections with range (r, theta) in base_link and a z-consistency flag
+  - Details:
+    - Operate only on PointCloud2 already clipped to z ∈ [0,10] m and range ≤ 30 m.
+    - For each bearing hypothesis: extract points inside angular sector ±Δθ and z window (already clipped), transform to polar coords in base_link, apply median filtering and cluster scoring (intensity if available).
+    - Require temporal confirmation (N of M frames) and minimum separation between buoys.
+    - Mark ambiguous or no-return cases.
+
+4) Landmark mapping and tracking (black box inputs/outputs clarified)
+- Black box inputs (confirmed)
+  - /points_filtered (sensor_msgs/PointCloud2)        # LiDAR pointcloud clipped to range and z [0,10] m (base_link frame or transformable)
+  - /camera/.../detections (vision_msgs/Detection2DArray or custom)  # buoy locations from CV (bearing/ROI + confidence)
+  - /mavros/.../odometry or /odometry/filtered (nav_msgs/Odometry)   # global EKF pose from MAVROS (map/ENU frame)
+- Black box outputs
+  - /buoy_map (my_msgs/BuoyArray) — entity list of tracked buoys with:
+    - position_map: geometry_msgs/Point (x,y[,z]) in map (ENU) frame
+    - position_base_link: geometry_msgs/Point (x,y[,z]) relative to the boat (base_link)
+    - covariance (3x3 or flattened)
+    - confidence (0..1), class, id, last_seen, last_range_m, last_bearing_rad
+  - /visualization_marker_array for RViz showing both map and boat-relative markers
+
+- buoy_tracker_mapper responsibilities:
+  - Consume verified (r, theta) in base_link + timestamp and current MAVROS/EKF pose.
+  - Convert each detection to:
+    - map frame via TF chain (map <- odom <- base_link) using the EKF pose for alignment
+    - base_link-relative position (direct from r, theta; transformed to x,y,z in base_link)
+  - Data association (NN gating with Mahalanobis distance; optional JPDA for crowding).
+  - Track with EKF/alpha-beta filters; keep stable IDs; prune stale entities.
+  - Publish BuoyArray containing both map and base_link-relative positions.
+
+5) Optional perception enhancements
+   - buoy_height_estimator (optional)
+     - Inputs: camera detections, known buoy size, camera model, IMU roll/pitch, sea level assumption
+     - Output: approximate height or class-specific size; attach to buoy attributes
+   - water_clutter_filter
+     - Heuristics to reject near-water grazing returns; use IMU roll/pitch to mask downwards angles
+
+6) Output contract
+   - Publish a list of buoy locations to a topic
+     - Recommend: custom message my_msgs/Buoy and my_msgs/BuoyArray
+       - Buoy: id, geometry_msgs/Point position (map frame), float32 confidence, string class, float32 range_m, float32 bearing_rad, builtin_interfaces/Time last_seen
+     - Alternative: geometry_msgs/PoseArray in map frame (loses metadata)
+
+Frames and conventions
+- Frames: map -> odom -> base_link -> {lidar, camera_front, camera_side}
+- Angles: ROS REP 103 (x forward, y left, z up). Use yaw CCW-positive. Convert any 0–360 clockwise inputs to radians CCW.
+- Time: use header.stamp consistently; buffer tf with adequate history (>= 1 s) for interpolation.
+
+Gazebo + ArduPilot SITL simulation
+- Gazebo world: water plane + buoy models with known positions
+- Sensors: gazebo_ros_ray (LiDAR), gazebo_ros_camera for front/side cameras
+- SITL: ArduPilot SITL sending MAVLink over UDP to MAVROS/mavlink-router on the host/container
+- Synthetic detector: for initial testing, publish perfect bearings from ground truth; then replace with real model
+- Validate:
+  - Bearing→scan association logic (corner cases with occlusions and partial hits)
+  - Pose fusion accuracy (compare with ground truth)
+  - Tracker stability in waves (roll/pitch disturbances)
+
+Milestones (incremental)
+1) Baseline sensing
+   - LiDAR range gate (<= 30 m), extrinsics calibrated, tf tree validated
+   - Camera detector publishes bearings with timestamps
+2) Verification
+   - Associate bearings to scan bins; output verified range with confidence; visualize in RViz
+3) Mapping
+   - Fuse with boat pose to publish buoy positions in map frame; visualize and log
+4) Tracking
+   - Data association and temporal filtering; stable IDs; prune stale detections
+5) Robustness
+   - Handle no-return/ambiguous cases; implement N-of-M confirmation and angular hysteresis
+6) Simulation parity
+   - Full pipeline reproducible in Gazebo+SITL; regression tests on recorded bags
+
+Risks and mitigations
+- Water reflections and sparse returns
+  - Mitigate with angular median filtering, intensity gating, and temporal voting; tune scan window size
+- Pose errors dominate global accuracy
+  - Ensure IMU/GPS fusion is tuned; verify time synchronization; calibrate extrinsics carefully
+- Bearing convention mismatches
+  - Normalize to REP 103; unit tests around conversions
+- “Height” estimation with planar LiDAR
+  - Prefer camera-based size/height or skip until 3D sensing is available
+
+Open questions
+- Exact LiDAR model and whether it provides intensity per return?
+- Camera intrinsics/extrinsics availability and calibration status?
+- Required output frame (map ENU) and whether you also need lat/lon export?
+- ROS 2 distro on the Jetson and whether MAVROS (ROS 2) or mavlink-router is preferred?
+
+ Recommended topics (example)
+- /unilidar/cloud (sensor_msgs/PointCloud2)           # LiDAR raw from vendor driver (frame: unilidar_lidar)
+- /unilidar/imu (sensor_msgs/Imu)                     # IMU from vendor driver (frame: unilidar_imu)
+- /points_filtered (sensor_msgs/PointCloud2)          # LiDAR range-clipped / denoised
+- /camera/front/detections (Detection2DArray or custom)
+- /camera/side/detections (Detection2DArray or custom)
+- /buoy_detections/standardized (bearing-normalized)
+- /buoy_detections/verified (range-bearing, custom)
+- /mavros/imu/data, /mavros/global_position/global, /odometry/filtered
+- /tf, /tf_static
+- /buoy_map (my_msgs/BuoyArray)
+- /visualization_marker_array
+
+Conclusion
+- Keep the pipeline object-centric: bearing hypotheses from vision → LiDAR verification → pose fusion → tracked buoy landmarks in map frame.
+- Defer height unless you have 3D sensing or a reliable camera method.
+- Invest early in tf, time sync, and GPS/IMU fusion; they determine your map accuracy more than anything else.
+
+Message definition suggestion (updated)
+````text
+// Buoy.msg
+string id
+geometry_msgs/Point position_map         # map frame (ENU)
+geometry_msgs/Point position_base_link   # coordinates relative to boat (base_link)
+float32[3][3] covariance                 # 3x3 covariance
+float32 confidence                       # 0..1
+string class                             # "channel", "starboard", etc.
+float32 range_m                          # last measured range (base_link)
+float32 bearing_rad                      # last measured bearing (base_link)
+builtin_interfaces/Time last_seen
+`````

@@ -1,0 +1,33 @@
+[1.759s] Invoking command in '/home/jacob/ros2_ws/src/my_lidar_pkg/build/my_lidar_pkg': PYTHONPATH=/home/jacob/ros2_ws/src/my_lidar_pkg/build/my_lidar_pkg/prefix_override:/usr/lib/python3/dist-packages/colcon_core/task/python/colcon_distutils_commands:/home/jacob/ros2_ws/src/my_lidar_pkg/install/my_lidar_pkg/lib/python3.10/site-packages:${PYTHONPATH} /usr/bin/python3 -W ignore:setup.py install is deprecated -W ignore:easy_install command is deprecated setup.py develop --uninstall --editable --build-directory /home/jacob/ros2_ws/src/my_lidar_pkg/build/my_lidar_pkg/build
+[2.420s] running develop
+[2.839s] Removing /home/jacob/ros2_ws/src/my_lidar_pkg/install/my_lidar_pkg/lib/python3.10/site-packages/my-lidar-pkg.egg-link (link to .)
+[2.973s] Invoked command in '/home/jacob/ros2_ws/src/my_lidar_pkg/build/my_lidar_pkg' returned '0': PYTHONPATH=/home/jacob/ros2_ws/src/my_lidar_pkg/build/my_lidar_pkg/prefix_override:/usr/lib/python3/dist-packages/colcon_core/task/python/colcon_distutils_commands:/home/jacob/ros2_ws/src/my_lidar_pkg/install/my_lidar_pkg/lib/python3.10/site-packages:${PYTHONPATH} /usr/bin/python3 -W ignore:setup.py install is deprecated -W ignore:easy_install command is deprecated setup.py develop --uninstall --editable --build-directory /home/jacob/ros2_ws/src/my_lidar_pkg/build/my_lidar_pkg/build
+[2.980s] Invoking command in '/home/jacob/ros2_ws/src/my_lidar_pkg': PYTHONPATH=/home/jacob/ros2_ws/src/my_lidar_pkg/build/my_lidar_pkg/prefix_override:/usr/lib/python3/dist-packages/colcon_core/task/python/colcon_distutils_commands:/home/jacob/ros2_ws/src/my_lidar_pkg/install/my_lidar_pkg/lib/python3.10/site-packages:${PYTHONPATH} /usr/bin/python3 -W ignore:setup.py install is deprecated -W ignore:easy_install command is deprecated setup.py egg_info --egg-base build/my_lidar_pkg build --build-base /home/jacob/ros2_ws/src/my_lidar_pkg/build/my_lidar_pkg/build install --record /home/jacob/ros2_ws/src/my_lidar_pkg/build/my_lidar_pkg/install.log --single-version-externally-managed
+[3.583s] running egg_info
+[3.584s] writing build/my_lidar_pkg/my_lidar_pkg.egg-info/PKG-INFO
+[3.585s] writing dependency_links to build/my_lidar_pkg/my_lidar_pkg.egg-info/dependency_links.txt
+[3.586s] writing entry points to build/my_lidar_pkg/my_lidar_pkg.egg-info/entry_points.txt
+[3.586s] writing requirements to build/my_lidar_pkg/my_lidar_pkg.egg-info/requires.txt
+[3.586s] writing top-level names to build/my_lidar_pkg/my_lidar_pkg.egg-info/top_level.txt
+[3.591s] reading manifest file 'build/my_lidar_pkg/my_lidar_pkg.egg-info/SOURCES.txt'
+[3.594s] writing manifest file 'build/my_lidar_pkg/my_lidar_pkg.egg-info/SOURCES.txt'
+[3.595s] running build
+[3.595s] running build_py
+[3.595s] creating /home/jacob/ros2_ws/src/my_lidar_pkg/build/my_lidar_pkg/build
+[3.595s] creating /home/jacob/ros2_ws/src/my_lidar_pkg/build/my_lidar_pkg/build/lib
+[3.596s] creating /home/jacob/ros2_ws/src/my_lidar_pkg/build/my_lidar_pkg/build/lib/my_lidar_pkg
+[3.596s] copying my_lidar_pkg/lidar_subscriber.py -> /home/jacob/ros2_ws/src/my_lidar_pkg/build/my_lidar_pkg/build/lib/my_lidar_pkg
+[3.596s] copying my_lidar_pkg/__init__.py -> /home/jacob/ros2_ws/src/my_lidar_pkg/build/my_lidar_pkg/build/lib/my_lidar_pkg
+[3.597s] running install
+[3.597s] running install_lib
+[3.599s] creating /home/jacob/ros2_ws/src/my_lidar_pkg/install/my_lidar_pkg/lib/python3.10/site-packages/my_lidar_pkg
+[3.600s] copying /home/jacob/ros2_ws/src/my_lidar_pkg/build/my_lidar_pkg/build/lib/my_lidar_pkg/lidar_subscriber.py -> /home/jacob/ros2_ws/src/my_lidar_pkg/install/my_lidar_pkg/lib/python3.10/site-packages/my_lidar_pkg
+[3.600s] copying /home/jacob/ros2_ws/src/my_lidar_pkg/build/my_lidar_pkg/build/lib/my_lidar_pkg/__init__.py -> /home/jacob/ros2_ws/src/my_lidar_pkg/install/my_lidar_pkg/lib/python3.10/site-packages/my_lidar_pkg
+[3.601s] byte-compiling /home/jacob/ros2_ws/src/my_lidar_pkg/install/my_lidar_pkg/lib/python3.10/site-packages/my_lidar_pkg/lidar_subscriber.py to lidar_subscriber.cpython-310.pyc
+[3.603s] byte-compiling /home/jacob/ros2_ws/src/my_lidar_pkg/install/my_lidar_pkg/lib/python3.10/site-packages/my_lidar_pkg/__init__.py to __init__.cpython-310.pyc
+[3.603s] running install_egg_info
+[3.612s] Copying build/my_lidar_pkg/my_lidar_pkg.egg-info to /home/jacob/ros2_ws/src/my_lidar_pkg/install/my_lidar_pkg/lib/python3.10/site-packages/my_lidar_pkg-0.1.0-py3.10.egg-info
+[3.616s] running install_scripts
+[3.669s] Installing lidar_subscriber script to /home/jacob/ros2_ws/src/my_lidar_pkg/install/my_lidar_pkg/lib/my_lidar_pkg
+[3.670s] writing list of installed files to '/home/jacob/ros2_ws/src/my_lidar_pkg/build/my_lidar_pkg/install.log'
+[3.782s] Invoked command in '/home/jacob/ros2_ws/src/my_lidar_pkg' returned '0': PYTHONPATH=/home/jacob/ros2_ws/src/my_lidar_pkg/build/my_lidar_pkg/prefix_override:/usr/lib/python3/dist-packages/colcon_core/task/python/colcon_distutils_commands:/home/jacob/ros2_ws/src/my_lidar_pkg/install/my_lidar_pkg/lib/python3.10/site-packages:${PYTHONPATH} /usr/bin/python3 -W ignore:setup.py install is deprecated -W ignore:easy_install command is deprecated setup.py egg_info --egg-base build/my_lidar_pkg build --build-base /home/jacob/ros2_ws/src/my_lidar_pkg/build/my_lidar_pkg/build install --record /home/jacob/ros2_ws/src/my_lidar_pkg/build/my_lidar_pkg/install.log --single-version-externally-managed

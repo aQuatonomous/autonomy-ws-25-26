@@ -1,0 +1,17 @@
+<?xml version="1.0"?>
+<package format="3">
+  <name>my_lidar_pkg</name>
+  <version>0.1.0</version>
+  <description>ROS 2 package for Unitree LiDAR processing</description>
+  <maintainer email="20jasb1@queensu.ca">Jacob Badali</maintainer>
+  <license>Apache-2.0</license>
+
+  <buildtool_depend>ament_python</buildtool_depend>
+
+  <!-- Runtime deps that are actual ROS packages -->
+  <exec_depend>rclpy</exec_depend>
+  <exec_depend>sensor_msgs</exec_depend>
+
+  <!-- Do NOT list ros_numpy here unless you have a valid rosdep key for it -->
+</package>
+

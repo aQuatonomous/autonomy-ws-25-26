@@ -1,0 +1,4 @@
+Invoking command in '/home/jacob/ros2_ws/build/my_lidar_pkg': /usr/bin/cmake --build /home/jacob/ros2_ws/build/my_lidar_pkg -- -j6 -l6
+Invoked command in '/home/jacob/ros2_ws/build/my_lidar_pkg' returned '0': /usr/bin/cmake --build /home/jacob/ros2_ws/build/my_lidar_pkg -- -j6 -l6
+Invoking command in '/home/jacob/ros2_ws/build/my_lidar_pkg': /usr/bin/cmake --install /home/jacob/ros2_ws/build/my_lidar_pkg
+Invoked command in '/home/jacob/ros2_ws/build/my_lidar_pkg' returned '0': /usr/bin/cmake --install /home/jacob/ros2_ws/build/my_lidar_pkg

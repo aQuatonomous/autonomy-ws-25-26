@@ -1,0 +1,17 @@
+[1.751s] Invoking command in '/home/jacob/ros2_ws/build/pointcloud_filters': PYTHONPATH=/home/jacob/ros2_ws/build/pointcloud_filters/prefix_override:/usr/lib/python3/dist-packages/colcon_core/task/python/colcon_distutils_commands:/home/jacob/ros2_ws/install/pointcloud_filters/lib/python3.10/site-packages:${PYTHONPATH} /usr/bin/python3 -W ignore:setup.py install is deprecated -W ignore:easy_install command is deprecated setup.py develop --editable --build-directory /home/jacob/ros2_ws/build/pointcloud_filters/build --no-deps symlink_data
+[2.430s] running develop
+[2.867s] running egg_info
+[2.868s] writing pointcloud_filters.egg-info/PKG-INFO
+[2.869s] writing dependency_links to pointcloud_filters.egg-info/dependency_links.txt
+[2.869s] writing entry points to pointcloud_filters.egg-info/entry_points.txt
+[2.870s] writing requirements to pointcloud_filters.egg-info/requires.txt
+[2.870s] writing top-level names to pointcloud_filters.egg-info/top_level.txt
+[2.876s] reading manifest file 'pointcloud_filters.egg-info/SOURCES.txt'
+[2.878s] writing manifest file 'pointcloud_filters.egg-info/SOURCES.txt'
+[2.883s] running build_ext
+[2.883s] Creating /home/jacob/ros2_ws/install/pointcloud_filters/lib/python3.10/site-packages/pointcloud-filters.egg-link (link to .)
+[2.886s] Installing lidar_range_filter script to /home/jacob/ros2_ws/install/pointcloud_filters/lib/pointcloud_filters
+[2.887s] 
+[2.887s] Installed /home/jacob/ros2_ws/build/pointcloud_filters
+[2.887s] running symlink_data
+[3.032s] Invoked command in '/home/jacob/ros2_ws/build/pointcloud_filters' returned '0': PYTHONPATH=/home/jacob/ros2_ws/build/pointcloud_filters/prefix_override:/usr/lib/python3/dist-packages/colcon_core/task/python/colcon_distutils_commands:/home/jacob/ros2_ws/install/pointcloud_filters/lib/python3.10/site-packages:${PYTHONPATH} /usr/bin/python3 -W ignore:setup.py install is deprecated -W ignore:easy_install command is deprecated setup.py develop --editable --build-directory /home/jacob/ros2_ws/build/pointcloud_filters/build --no-deps symlink_data

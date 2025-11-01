@@ -1,0 +1,74 @@
+[0.000000] (-) TimerEvent: {}
+[0.001395] (pointcloud_filters) JobQueued: {'identifier': 'pointcloud_filters', 'dependencies': OrderedDict()}
+[0.005300] (pointcloud_filters) JobStarted: {'identifier': 'pointcloud_filters'}
+[0.098792] (-) TimerEvent: {}
+[0.201845] (-) TimerEvent: {}
+[0.303042] (-) TimerEvent: {}
+[0.404217] (-) TimerEvent: {}
+[0.505368] (-) TimerEvent: {}
+[0.606409] (-) TimerEvent: {}
+[0.707524] (-) TimerEvent: {}
+[0.809199] (-) TimerEvent: {}
+[0.910249] (-) TimerEvent: {}
+[1.011314] (-) TimerEvent: {}
+[1.112271] (-) TimerEvent: {}
+[1.213211] (-) TimerEvent: {}
+[1.314196] (-) TimerEvent: {}
+[1.415174] (-) TimerEvent: {}
+[1.516128] (-) TimerEvent: {}
+[1.617140] (-) TimerEvent: {}
+[1.718366] (-) TimerEvent: {}
+[1.819503] (-) TimerEvent: {}
+[1.920677] (-) TimerEvent: {}
+[2.022580] (-) TimerEvent: {}
+[2.048696] (pointcloud_filters) Command: {'cmd': ['/usr/bin/python3', '-W', 'ignore:setup.py install is deprecated', '-W', 'ignore:easy_install command is deprecated', 'setup.py', 'egg_info', '--egg-base', 'build/pointcloud_filters', 'build', '--build-base', '/home/jacob/ros2_ws/src/pointcloud_filters/build/pointcloud_filters/build', 'install', '--record', '/home/jacob/ros2_ws/src/pointcloud_filters/build/pointcloud_filters/install.log', '--single-version-externally-managed', 'install_data'], 'cwd': '/home/jacob/ros2_ws/src/pointcloud_filters', 'env': {'LESSOPEN': '| /usr/bin/lesspipe %s', 'LANGUAGE': 'en_CA:en', 'USER': 'jacob', 'ROS_PACKAGE_PATH': '/home/jacob/ros2_ws/install/my_lidar_pkg/share', 'XDG_SESSION_TYPE': 'x11', 'SHLVL': '1', 'LD_LIBRARY_PATH': '/opt/ros/humble/opt/rviz_ogre_vendor/lib:/opt/ros/humble/lib/aarch64-linux-gnu:/opt/ros/humble/lib', 'HOME': '/home/jacob', 'OLDPWD': '/home/jacob/ros2_ws/src/pointcloud_filters/pointcloud_filters', 'DESKTOP_SESSION': 'ubuntu', 'ROS_PYTHON_VERSION': '3', 'GNOME_SHELL_SESSION_MODE': 'ubuntu', 'GTK_MODULES': 'gail:atk-bridge', 'SYSTEMD_EXEC_PID': '292821', 'DBUS_SESSION_BUS_ADDRESS': 'unix:path=/run/user/1002/bus', 'COLORTERM': 'truecolor', 'IM_CONFIG_PHASE': '1', 'COLCON_PREFIX_PATH': '/home/jacob/ros2_ws/install', 'ROS_DISTRO': 'humble', 'GTK_IM_MODULE': 'ibus', 'LOGNAME': 'jacob', '_': '/usr/bin/colcon', 'ROS_VERSION': '2', 'PKG_CONFIG_PATH': '/home/jacob/ros2_ws/install/my_lidar_pkg/lib/aarch64-linux-gnu/pkgconfig:/home/jacob/ros2_ws/install/my_lidar_pkg/lib/pkgconfig', 'XDG_SESSION_CLASS': 'user', 'USERNAME': 'jacob', 'TERM': 'xterm-256color', 'GNOME_DESKTOP_SESSION_ID': 'this-is-deprecated', 'ROS_LOCALHOST_ONLY': '0', 'WINDOWPATH': '3', 'PATH': '/opt/ros/humble/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/snap/bin:/snap/bin', 'SESSION_MANAGER': 'local/aqua-desktop:@/tmp/.ICE-unix/291916,unix/aqua-desktop:/tmp/.ICE-unix/291916', 'XDG_MENU_PREFIX': 'gnome-', 'GNOME_TERMINAL_SCREEN': '/org/gnome/Terminal/screen/5cc13227_b266_4366_a918_30640ba3b3fc', 'XDG_RUNTIME_DIR': '/run/user/1002', 'DISPLAY': ':2', 'LANG': 'en_US.UTF-8', 'XDG_CURRENT_DESKTOP': 'ubuntu:GNOME', 'XMODIFIERS': '@im=ibus', 'XDG_SESSION_DESKTOP': 'ubuntu', 'XAUTHORITY': '/run/user/1002/gdm/Xauthority', 'LS_COLORS': 'rs=0:di=01;34:ln=01;36:mh=00:pi=40;33:so=01;35:do=01;35:bd=40;33;01:cd=40;33;01:or=40;31;01:mi=00:su=37;41:sg=30;43:ca=30;41:tw=30;42:ow=34;42:st=37;44:ex=01;32:*.tar=01;31:*.tgz=01;31:*.arc=01;31:*.arj=01;31:*.taz=01;31:*.lha=01;31:*.lz4=01;31:*.lzh=01;31:*.lzma=01;31:*.tlz=01;31:*.txz=01;31:*.tzo=01;31:*.t7z=01;31:*.zip=01;31:*.z=01;31:*.dz=01;31:*.gz=01;31:*.lrz=01;31:*.lz=01;31:*.lzo=01;31:*.xz=01;31:*.zst=01;31:*.tzst=01;31:*.bz2=01;31:*.bz=01;31:*.tbz=01;31:*.tbz2=01;31:*.tz=01;31:*.deb=01;31:*.rpm=01;31:*.jar=01;31:*.war=01;31:*.ear=01;31:*.sar=01;31:*.rar=01;31:*.alz=01;31:*.ace=01;31:*.zoo=01;31:*.cpio=01;31:*.7z=01;31:*.rz=01;31:*.cab=01;31:*.wim=01;31:*.swm=01;31:*.dwm=01;31:*.esd=01;31:*.jpg=01;35:*.jpeg=01;35:*.mjpg=01;35:*.mjpeg=01;35:*.gif=01;35:*.bmp=01;35:*.pbm=01;35:*.pgm=01;35:*.ppm=01;35:*.tga=01;35:*.xbm=01;35:*.xpm=01;35:*.tif=01;35:*.tiff=01;35:*.png=01;35:*.svg=01;35:*.svgz=01;35:*.mng=01;35:*.pcx=01;35:*.mov=01;35:*.mpg=01;35:*.mpeg=01;35:*.m2v=01;35:*.mkv=01;35:*.webm=01;35:*.webp=01;35:*.ogm=01;35:*.mp4=01;35:*.m4v=01;35:*.mp4v=01;35:*.vob=01;35:*.qt=01;35:*.nuv=01;35:*.wmv=01;35:*.asf=01;35:*.rm=01;35:*.rmvb=01;35:*.flc=01;35:*.avi=01;35:*.fli=01;35:*.flv=01;35:*.gl=01;35:*.dl=01;35:*.xcf=01;35:*.xwd=01;35:*.yuv=01;35:*.cgm=01;35:*.emf=01;35:*.ogv=01;35:*.ogx=01;35:*.aac=00;36:*.au=00;36:*.flac=00;36:*.m4a=00;36:*.mid=00;36:*.midi=00;36:*.mka=00;36:*.mp3=00;36:*.mpc=00;36:*.ogg=00;36:*.ra=00;36:*.wav=00;36:*.oga=00;36:*.opus=00;36:*.spx=00;36:*.xspf=00;36:', 'GNOME_TERMINAL_SERVICE': ':1.131', 'SSH_AGENT_LAUNCHER': 'gnome-keyring', 'SSH_AUTH_SOCK': '/run/user/1002/keyring/ssh', 'AMENT_PREFIX_PATH': '/home/jacob/ros2_ws/install/unitree_lidar_ros2:/home/jacob/ros2_ws/install/pointcloud_filters:/opt/ros/humble', 'SHELL': '/bin/bash', 'QT_ACCESSIBILITY': '1', 'GDMSESSION': 'ubuntu', 'LESSCLOSE': '/usr/bin/lesspipe %s %s', 'GPG_AGENT_INFO': '/run/user/1002/gnupg/S.gpg-agent:0:1', 'QT_IM_MODULE': 'ibus', 'PWD': '/home/jacob/ros2_ws/src/pointcloud_filters/build/pointcloud_filters', 'LC_ALL': 'en_US.UTF-8', 'XDG_CONFIG_DIRS': '/etc/xdg/xdg-ubuntu:/etc/xdg', 'XDG_DATA_DIRS': '/usr/share/ubuntu:/usr/share/gnome:/usr/local/share/:/usr/share/:/var/lib/snapd/desktop', 'PYTHONPATH': '/home/jacob/ros2_ws/src/pointcloud_filters/build/pointcloud_filters/prefix_override:/usr/lib/python3/dist-packages/colcon_core/task/python/colcon_distutils_commands:/home/jacob/ros2_ws/src/pointcloud_filters/install/pointcloud_filters/lib/python3.10/site-packages:/home/jacob/ros2_ws/build/pointcloud_filters:/home/jacob/ros2_ws/install/pointcloud_filters/lib/python3.10/site-packages:/home/jacob/ros2_ws/install/my_lidar_pkg/local/lib/python3.10/dist-packages:/opt/ros/humble/lib/python3.10/site-packages:/opt/ros/humble/local/lib/python3.10/dist-packages', 'COLCON': '1', 'VTE_VERSION': '6800', 'CMAKE_PREFIX_PATH': '/home/jacob/ros2_ws/install/unitree_lidar_ros2:/home/jacob/ros2_ws/install/my_lidar_pkg'}, 'shell': False}
+[2.122848] (-) TimerEvent: {}
+[2.223846] (-) TimerEvent: {}
+[2.324927] (-) TimerEvent: {}
+[2.425933] (-) TimerEvent: {}
+[2.527074] (-) TimerEvent: {}
+[2.628040] (-) TimerEvent: {}
+[2.701866] (pointcloud_filters) StdoutLine: {'line': b'running egg_info\n'}
+[2.703400] (pointcloud_filters) StdoutLine: {'line': b'creating build/pointcloud_filters/pointcloud_filters.egg-info\n'}
+[2.705145] (pointcloud_filters) StdoutLine: {'line': b'writing build/pointcloud_filters/pointcloud_filters.egg-info/PKG-INFO\n'}
+[2.706020] (pointcloud_filters) StdoutLine: {'line': b'writing dependency_links to build/pointcloud_filters/pointcloud_filters.egg-info/dependency_links.txt\n'}
+[2.706341] (pointcloud_filters) StdoutLine: {'line': b'writing entry points to build/pointcloud_filters/pointcloud_filters.egg-info/entry_points.txt\n'}
+[2.706510] (pointcloud_filters) StdoutLine: {'line': b'writing requirements to build/pointcloud_filters/pointcloud_filters.egg-info/requires.txt\n'}
+[2.706662] (pointcloud_filters) StdoutLine: {'line': b'writing top-level names to build/pointcloud_filters/pointcloud_filters.egg-info/top_level.txt\n'}
+[2.706816] (pointcloud_filters) StdoutLine: {'line': b"writing manifest file 'build/pointcloud_filters/pointcloud_filters.egg-info/SOURCES.txt'\n"}
+[2.710683] (pointcloud_filters) StdoutLine: {'line': b"reading manifest file 'build/pointcloud_filters/pointcloud_filters.egg-info/SOURCES.txt'\n"}
+[2.716780] (pointcloud_filters) StdoutLine: {'line': b"writing manifest file 'build/pointcloud_filters/pointcloud_filters.egg-info/SOURCES.txt'\n"}
+[2.717424] (pointcloud_filters) StdoutLine: {'line': b'running build\n'}
+[2.717652] (pointcloud_filters) StdoutLine: {'line': b'running build_py\n'}
+[2.717906] (pointcloud_filters) StdoutLine: {'line': b'creating /home/jacob/ros2_ws/src/pointcloud_filters/build/pointcloud_filters/build\n'}
+[2.718162] (pointcloud_filters) StdoutLine: {'line': b'creating /home/jacob/ros2_ws/src/pointcloud_filters/build/pointcloud_filters/build/lib\n'}
+[2.718384] (pointcloud_filters) StdoutLine: {'line': b'creating /home/jacob/ros2_ws/src/pointcloud_filters/build/pointcloud_filters/build/lib/pointcloud_filters\n'}
+[2.718642] (pointcloud_filters) StdoutLine: {'line': b'copying pointcloud_filters/lidar_range_filter.py -> /home/jacob/ros2_ws/src/pointcloud_filters/build/pointcloud_filters/build/lib/pointcloud_filters\n'}
+[2.718956] (pointcloud_filters) StdoutLine: {'line': b'copying pointcloud_filters/__init__.py -> /home/jacob/ros2_ws/src/pointcloud_filters/build/pointcloud_filters/build/lib/pointcloud_filters\n'}
+[2.719481] (pointcloud_filters) StdoutLine: {'line': b'running install\n'}
+[2.720402] (pointcloud_filters) StdoutLine: {'line': b'running install_lib\n'}
+[2.723477] (pointcloud_filters) StdoutLine: {'line': b'creating /home/jacob/ros2_ws/src/pointcloud_filters/install/pointcloud_filters/lib/python3.10/site-packages/pointcloud_filters\n'}
+[2.724024] (pointcloud_filters) StdoutLine: {'line': b'copying /home/jacob/ros2_ws/src/pointcloud_filters/build/pointcloud_filters/build/lib/pointcloud_filters/lidar_range_filter.py -> /home/jacob/ros2_ws/src/pointcloud_filters/install/pointcloud_filters/lib/python3.10/site-packages/pointcloud_filters\n'}
+[2.724220] (pointcloud_filters) StdoutLine: {'line': b'copying /home/jacob/ros2_ws/src/pointcloud_filters/build/pointcloud_filters/build/lib/pointcloud_filters/__init__.py -> /home/jacob/ros2_ws/src/pointcloud_filters/install/pointcloud_filters/lib/python3.10/site-packages/pointcloud_filters\n'}
+[2.725240] (pointcloud_filters) StdoutLine: {'line': b'byte-compiling /home/jacob/ros2_ws/src/pointcloud_filters/install/pointcloud_filters/lib/python3.10/site-packages/pointcloud_filters/lidar_range_filter.py to lidar_range_filter.cpython-310.pyc\n'}
+[2.728189] (-) TimerEvent: {}
+[2.730245] (pointcloud_filters) StdoutLine: {'line': b'byte-compiling /home/jacob/ros2_ws/src/pointcloud_filters/install/pointcloud_filters/lib/python3.10/site-packages/pointcloud_filters/__init__.py to __init__.cpython-310.pyc\n'}
+[2.730692] (pointcloud_filters) StdoutLine: {'line': b'running install_data\n'}
+[2.730980] (pointcloud_filters) StdoutLine: {'line': b'creating /home/jacob/ros2_ws/src/pointcloud_filters/install/pointcloud_filters/share/ament_index\n'}
+[2.731211] (pointcloud_filters) StdoutLine: {'line': b'creating /home/jacob/ros2_ws/src/pointcloud_filters/install/pointcloud_filters/share/ament_index/resource_index\n'}
+[2.731444] (pointcloud_filters) StdoutLine: {'line': b'creating /home/jacob/ros2_ws/src/pointcloud_filters/install/pointcloud_filters/share/ament_index/resource_index/packages\n'}
+[2.731595] (pointcloud_filters) StdoutLine: {'line': b'copying resource/pointcloud_filters -> /home/jacob/ros2_ws/src/pointcloud_filters/install/pointcloud_filters/share/ament_index/resource_index/packages\n'}
+[2.731804] (pointcloud_filters) StdoutLine: {'line': b'copying package.xml -> /home/jacob/ros2_ws/src/pointcloud_filters/install/pointcloud_filters/share/pointcloud_filters\n'}
+[2.732152] (pointcloud_filters) StdoutLine: {'line': b'creating /home/jacob/ros2_ws/src/pointcloud_filters/install/pointcloud_filters/share/pointcloud_filters/launch\n'}
+[2.732508] (pointcloud_filters) StdoutLine: {'line': b'copying launch/lidar_range_filter.launch.py -> /home/jacob/ros2_ws/src/pointcloud_filters/install/pointcloud_filters/share/pointcloud_filters/launch\n'}
+[2.732795] (pointcloud_filters) StdoutLine: {'line': b'copying README.md -> /home/jacob/ros2_ws/src/pointcloud_filters/install/pointcloud_filters/share/pointcloud_filters\n'}
+[2.732961] (pointcloud_filters) StdoutLine: {'line': b'running install_egg_info\n'}
+[2.738752] (pointcloud_filters) StdoutLine: {'line': b'Copying build/pointcloud_filters/pointcloud_filters.egg-info to /home/jacob/ros2_ws/src/pointcloud_filters/install/pointcloud_filters/lib/python3.10/site-packages/pointcloud_filters-0.1.0-py3.10.egg-info\n'}
+[2.741060] (pointcloud_filters) StdoutLine: {'line': b'running install_scripts\n'}
+[2.795965] (pointcloud_filters) StdoutLine: {'line': b'Installing lidar_range_filter script to /home/jacob/ros2_ws/src/pointcloud_filters/install/pointcloud_filters/lib/pointcloud_filters\n'}
+[2.797261] (pointcloud_filters) StdoutLine: {'line': b"writing list of installed files to '/home/jacob/ros2_ws/src/pointcloud_filters/build/pointcloud_filters/install.log'\n"}
+[2.828484] (-) TimerEvent: {}
+[2.918150] (pointcloud_filters) CommandEnded: {'returncode': 0}
+[2.928741] (-) TimerEvent: {}
+[2.970005] (pointcloud_filters) JobEnded: {'identifier': 'pointcloud_filters', 'rc': 0}
+[2.972603] (-) EventReactorShutdown: {}

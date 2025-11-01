@@ -1,0 +1,4 @@
+[0.810s] Invoking command in '/home/jacob/ros2_ws/build/unitree_lidar_sdk': /usr/bin/cmake /home/jacob/ros2_ws/src/unilidar_sdk/unitree_lidar_sdk -DCMAKE_INSTALL_PREFIX=/home/jacob/ros2_ws/install/unitree_lidar_sdk
+[0.866s] -- Configuring done
+[0.928s] -- Generating done
+[0.937s] -- Build files have been written to: /home/jacob/ros2_ws/build/unitree_lidar_sdk

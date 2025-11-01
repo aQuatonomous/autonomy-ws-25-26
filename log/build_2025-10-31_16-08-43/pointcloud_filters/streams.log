@@ -1,0 +1,27 @@
+[1.775s] Invoking command in '/home/jacob/ros2_ws/build/pointcloud_filters': PYTHONPATH=/home/jacob/ros2_ws/build/pointcloud_filters/prefix_override:/usr/lib/python3/dist-packages/colcon_core/task/python/colcon_distutils_commands:/home/jacob/ros2_ws/install/pointcloud_filters/lib/python3.10/site-packages:${PYTHONPATH} /usr/bin/python3 -W ignore:setup.py install is deprecated -W ignore:easy_install command is deprecated setup.py develop --editable --build-directory /home/jacob/ros2_ws/build/pointcloud_filters/build --no-deps symlink_data
+[2.433s] running develop
+[2.841s] running egg_info
+[2.841s] creating pointcloud_filters.egg-info
+[2.842s] writing pointcloud_filters.egg-info/PKG-INFO
+[2.843s] writing dependency_links to pointcloud_filters.egg-info/dependency_links.txt
+[2.843s] writing entry points to pointcloud_filters.egg-info/entry_points.txt
+[2.843s] writing requirements to pointcloud_filters.egg-info/requires.txt
+[2.843s] writing top-level names to pointcloud_filters.egg-info/top_level.txt
+[2.844s] writing manifest file 'pointcloud_filters.egg-info/SOURCES.txt'
+[2.849s] reading manifest file 'pointcloud_filters.egg-info/SOURCES.txt'
+[2.851s] writing manifest file 'pointcloud_filters.egg-info/SOURCES.txt'
+[2.855s] running build_ext
+[2.855s] Creating /home/jacob/ros2_ws/install/pointcloud_filters/lib/python3.10/site-packages/pointcloud-filters.egg-link (link to .)
+[2.857s] Installing lidar_range_filter script to /home/jacob/ros2_ws/install/pointcloud_filters/lib/pointcloud_filters
+[2.858s] 
+[2.858s] Installed /home/jacob/ros2_ws/build/pointcloud_filters
+[2.858s] running symlink_data
+[2.859s] creating /home/jacob/ros2_ws/install/pointcloud_filters/share/ament_index
+[2.859s] creating /home/jacob/ros2_ws/install/pointcloud_filters/share/ament_index/resource_index
+[2.859s] creating /home/jacob/ros2_ws/install/pointcloud_filters/share/ament_index/resource_index/packages
+[2.859s] symbolically linking /home/jacob/ros2_ws/build/pointcloud_filters/resource/pointcloud_filters -> /home/jacob/ros2_ws/install/pointcloud_filters/share/ament_index/resource_index/packages
+[2.859s] symbolically linking /home/jacob/ros2_ws/build/pointcloud_filters/package.xml -> /home/jacob/ros2_ws/install/pointcloud_filters/share/pointcloud_filters
+[2.860s] creating /home/jacob/ros2_ws/install/pointcloud_filters/share/pointcloud_filters/launch
+[2.860s] symbolically linking /home/jacob/ros2_ws/build/pointcloud_filters/launch/lidar_range_filter.launch.py -> /home/jacob/ros2_ws/install/pointcloud_filters/share/pointcloud_filters/launch
+[2.860s] symbolically linking /home/jacob/ros2_ws/build/pointcloud_filters/README.md -> /home/jacob/ros2_ws/install/pointcloud_filters/share/pointcloud_filters
+[2.996s] Invoked command in '/home/jacob/ros2_ws/build/pointcloud_filters' returned '0': PYTHONPATH=/home/jacob/ros2_ws/build/pointcloud_filters/prefix_override:/usr/lib/python3/dist-packages/colcon_core/task/python/colcon_distutils_commands:/home/jacob/ros2_ws/install/pointcloud_filters/lib/python3.10/site-packages:${PYTHONPATH} /usr/bin/python3 -W ignore:setup.py install is deprecated -W ignore:easy_install command is deprecated setup.py develop --editable --build-directory /home/jacob/ros2_ws/build/pointcloud_filters/build --no-deps symlink_data

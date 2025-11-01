@@ -1,0 +1,15 @@
+running develop
+running egg_info
+writing pointcloud_filters.egg-info/PKG-INFO
+writing dependency_links to pointcloud_filters.egg-info/dependency_links.txt
+writing entry points to pointcloud_filters.egg-info/entry_points.txt
+writing requirements to pointcloud_filters.egg-info/requires.txt
+writing top-level names to pointcloud_filters.egg-info/top_level.txt
+reading manifest file 'pointcloud_filters.egg-info/SOURCES.txt'
+writing manifest file 'pointcloud_filters.egg-info/SOURCES.txt'
+running build_ext
+Creating /home/jacob/ros2_ws/install/pointcloud_filters/lib/python3.10/site-packages/pointcloud-filters.egg-link (link to .)
+Installing lidar_range_filter script to /home/jacob/ros2_ws/install/pointcloud_filters/lib/pointcloud_filters
+
+Installed /home/jacob/ros2_ws/build/pointcloud_filters
+running symlink_data
