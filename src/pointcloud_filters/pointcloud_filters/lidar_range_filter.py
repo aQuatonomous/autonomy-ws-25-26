@@ -53,8 +53,8 @@ class LidarRangeFilterNode(Node):
         self.declare_parameter('base_frame', 'base_link')
         self.declare_parameter('use_tf_transform', False)
         self.declare_parameter('z_min', 0.0)
-        self.declare_parameter('z_max', 1.0)
-        self.declare_parameter('range_max', 1.0)
+        self.declare_parameter('z_max', 0.5)
+        self.declare_parameter('range_max', 0.5)
         self.declare_parameter('max_buffer_duration_sec', 5.0)
         self.declare_parameter('keep_publisher', True)
 
