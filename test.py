@@ -1,12 +1,12 @@
 from ultralytics import YOLO
 
 model = YOLO('/home/lorenzo/computer_vision/weights.pt')
-res=model.predict("image.png", device='0', imgsz=640, verbose=False) # GPU warmup
+res=model.predict("test.png", device='0', imgsz=640, verbose=False) # GPU warmup
 res = model.predict(
-    source="image.png",
+    source="test.png",
     device='0',
     imgsz=640,
-    conf=0.60,
+    conf=0.05,
     iou=0.50,
     max_det=30,
     save=True, show=True, save_txt=False, save_conf=False, verbose=False
