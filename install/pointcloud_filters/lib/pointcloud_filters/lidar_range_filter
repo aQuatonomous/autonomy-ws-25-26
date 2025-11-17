@@ -80,7 +80,7 @@ class LidarRangeFilterNode(Node):
             self.tf_listener = tf2_ros.TransformListener(self.tf_buffer, self)
 
         qos = QoSProfile(
-            reliability=QoSReliabilityPolicy.BEST_EFFORT,
+            reliability=QoSReliabilityPolicy.RELIABLE,
             durability=QoSDurabilityPolicy.VOLATILE,
             history=QoSHistoryPolicy.KEEP_LAST,
             depth=1,

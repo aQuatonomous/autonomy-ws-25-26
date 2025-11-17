@@ -241,23 +241,31 @@ CMakeFiles/pointcloud_filters__rosidl_typesupport_fastrtps_c__pyext.dir/rosidl_g
   /opt/ros/humble/include/rosidl_typesupport_interface/rosidl_typesupport_interface/macros.h \
   /opt/ros/humble/include/rosidl_runtime_c/rosidl_runtime_c/service_type_support_struct.h \
   /opt/ros/humble/include/rosidl_runtime_c/rosidl_runtime_c/action_type_support_struct.h \
-  rosidl_generator_c/pointcloud_filters/srv/detail/get_cloud_window__type_support.h \
+  rosidl_generator_c/pointcloud_filters/msg/detail/buoy_detection__type_support.h \
   rosidl_generator_c/pointcloud_filters/msg/rosidl_generator_c__visibility_control.h \
-  rosidl_generator_c/pointcloud_filters/srv/detail/get_cloud_window__struct.h \
-  /opt/ros/humble/include/sensor_msgs/sensor_msgs/msg/detail/point_cloud2__struct.h \
+  rosidl_generator_c/pointcloud_filters/msg/detail/buoy_detection__struct.h \
+  rosidl_generator_c/pointcloud_filters/msg/detail/buoy_detection__functions.h \
+  rosidl_generator_c/pointcloud_filters/msg/detail/buoy_detection_array__type_support.h \
+  rosidl_generator_c/pointcloud_filters/msg/detail/buoy_detection_array__struct.h \
   /opt/ros/humble/include/std_msgs/std_msgs/msg/detail/header__struct.h \
   /opt/ros/humble/include/builtin_interfaces/builtin_interfaces/msg/detail/time__struct.h \
   /opt/ros/humble/include/rosidl_runtime_c/rosidl_runtime_c/string.h \
   /opt/ros/humble/include/rosidl_runtime_c/rosidl_runtime_c/primitives_sequence.h \
+  rosidl_generator_c/pointcloud_filters/msg/detail/buoy_detection_array__functions.h \
+  rosidl_generator_c/pointcloud_filters/srv/detail/get_cloud_window__type_support.h \
+  rosidl_generator_c/pointcloud_filters/srv/detail/get_cloud_window__struct.h \
+  /opt/ros/humble/include/sensor_msgs/sensor_msgs/msg/detail/point_cloud2__struct.h \
   /opt/ros/humble/include/sensor_msgs/sensor_msgs/msg/detail/point_field__struct.h \
   rosidl_generator_c/pointcloud_filters/srv/detail/get_cloud_window__functions.h
 
 
 /opt/ros/humble/include/sensor_msgs/sensor_msgs/msg/detail/point_field__struct.h:
 
+rosidl_generator_c/pointcloud_filters/srv/detail/get_cloud_window__type_support.h:
+
 /opt/ros/humble/include/rosidl_runtime_c/rosidl_runtime_c/primitives_sequence.h:
 
-rosidl_generator_c/pointcloud_filters/srv/detail/get_cloud_window__type_support.h:
+rosidl_generator_c/pointcloud_filters/msg/detail/buoy_detection__type_support.h:
 
 /opt/ros/humble/include/rosidl_runtime_c/rosidl_runtime_c/service_type_support_struct.h:
 
@@ -272,6 +280,8 @@ rosidl_generator_c/pointcloud_filters/srv/detail/get_cloud_window__type_support.
 /usr/include/python3.10/import.h:
 
 /usr/include/python3.10/intrcheck.h:
+
+rosidl_generator_c/pointcloud_filters/msg/detail/buoy_detection_array__type_support.h:
 
 /usr/include/python3.10/tracemalloc.h:
 
@@ -405,6 +415,8 @@ rosidl_generator_c/pointcloud_filters/msg/rosidl_generator_c__visibility_control
 
 /usr/include/aarch64-linux-gnu/python3.10/pyconfig.h:
 
+rosidl_generator_c/pointcloud_filters/msg/detail/buoy_detection_array__struct.h:
+
 /usr/include/stdlib.h:
 
 /usr/include/aarch64-linux-gnu/bits/types/__mbstate_t.h:
@@ -455,6 +467,8 @@ rosidl_generator_c/pointcloud_filters/msg/rosidl_generator_c__visibility_control
 
 /usr/include/aarch64-linux-gnu/bits/fp-fast.h:
 
+rosidl_generator_c/pointcloud_filters/msg/detail/buoy_detection__functions.h:
+
 /opt/ros/humble/include/rosidl_runtime_c/rosidl_runtime_c/message_type_support_struct.h:
 
 /usr/include/python3.10/Python.h:
@@ -466,6 +480,8 @@ rosidl_generator_c/pointcloud_filters/msg/rosidl_generator_c__visibility_control
 /usr/include/python3.10/cpython/pytime.h:
 
 /usr/include/features-time64.h:
+
+rosidl_generator_c/pointcloud_filters/msg/detail/buoy_detection__struct.h:
 
 /usr/include/python3.10/cpython/fileutils.h:
 
@@ -622,6 +638,8 @@ rosidl_generator_c/pointcloud_filters/srv/detail/get_cloud_window__struct.h:
 /usr/include/aarch64-linux-gnu/bits/types/__sigset_t.h:
 
 /usr/include/aarch64-linux-gnu/asm/posix_types.h:
+
+rosidl_generator_c/pointcloud_filters/msg/detail/buoy_detection_array__functions.h:
 
 /usr/include/aarch64-linux-gnu/bits/types/struct_timeval.h:
 
