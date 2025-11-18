@@ -34,8 +34,8 @@ class BuoyVisualizer(Node):
         super().__init__('buoy_visualizer')
         
         # Parameters
-        self.declare_parameter('marker_height', 2.0)  # Height of cylinder markers (meters)
-        self.declare_parameter('marker_radius', 0.5)  # Radius of cylinder markers (meters)
+        self.declare_parameter('marker_height', 0.3)  # Height of cylinder markers (meters)
+        self.declare_parameter('marker_radius', 0.1)  # Radius of cylinder markers (meters)
         self.declare_parameter('marker_lifetime', 0.5)  # How long markers persist (seconds)
         
         self.marker_height = self.get_parameter('marker_height').value

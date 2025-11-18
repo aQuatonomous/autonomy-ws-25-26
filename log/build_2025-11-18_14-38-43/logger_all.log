@@ -1,0 +1,308 @@
+[0.880s] DEBUG:colcon:Command line arguments: ['/usr/bin/colcon', 'build', '--packages-select', 'pointcloud_filters']
+[0.881s] DEBUG:colcon:Parsed command line arguments: Namespace(log_base=None, log_level=None, verb_name='build', build_base='build', install_base='install', merge_install=False, symlink_install=False, test_result_base=None, continue_on_error=False, executor='parallel', parallel_workers=6, event_handlers=None, ignore_user_meta=False, metas=['./colcon.meta'], base_paths=['.'], packages_ignore=None, packages_ignore_regex=None, paths=None, packages_up_to=None, packages_up_to_regex=None, packages_above=None, packages_above_and_dependencies=None, packages_above_depth=None, packages_select_by_dep=None, packages_skip_by_dep=None, packages_skip_up_to=None, packages_select_build_failed=False, packages_skip_build_finished=False, packages_select_test_failures=False, packages_skip_test_passed=False, packages_select=['pointcloud_filters'], packages_skip=None, packages_select_regex=None, packages_skip_regex=None, packages_start=None, packages_end=None, allow_overriding=[], cmake_args=None, cmake_target=None, cmake_target_skip_unavailable=False, cmake_clean_cache=False, cmake_clean_first=False, cmake_force_configure=False, ament_cmake_args=None, catkin_cmake_args=None, catkin_skip_building_tests=False, verb_parser=<colcon_defaults.argument_parser.defaults.DefaultArgumentsDecorator object at 0xffff97708400>, verb_extension=<colcon_core.verb.build.BuildVerb object at 0xffff978c5870>, main=<bound method BuildVerb.main of <colcon_core.verb.build.BuildVerb object at 0xffff978c5870>>)
+[5.247s] Level 1:colcon.colcon_core.package_discovery:discover_packages(colcon_meta) check parameters
+[5.248s] Level 1:colcon.colcon_core.package_discovery:discover_packages(recursive) check parameters
+[5.248s] Level 1:colcon.colcon_core.package_discovery:discover_packages(ignore) check parameters
+[5.248s] Level 1:colcon.colcon_core.package_discovery:discover_packages(path) check parameters
+[5.248s] Level 1:colcon.colcon_core.package_discovery:discover_packages(colcon_meta) discover
+[5.248s] Level 1:colcon.colcon_core.package_discovery:discover_packages(recursive) discover
+[5.248s] INFO:colcon.colcon_core.package_discovery:Crawling recursively for packages in '/home/jacob/ros2_ws'
+[5.249s] Level 1:colcon.colcon_core.package_identification:_identify(.) by extensions ['ignore', 'ignore_ament_install']
+[5.249s] Level 1:colcon.colcon_core.package_identification:_identify(.) by extension 'ignore'
+[5.249s] Level 1:colcon.colcon_core.package_identification:_identify(.) by extension 'ignore_ament_install'
+[5.249s] Level 1:colcon.colcon_core.package_identification:_identify(.) by extensions ['colcon_pkg']
+[5.250s] Level 1:colcon.colcon_core.package_identification:_identify(.) by extension 'colcon_pkg'
+[5.250s] Level 1:colcon.colcon_core.package_identification:_identify(.) by extensions ['colcon_meta']
+[5.250s] Level 1:colcon.colcon_core.package_identification:_identify(.) by extension 'colcon_meta'
+[5.250s] Level 1:colcon.colcon_core.package_identification:_identify(.) by extensions ['ros']
+[5.250s] Level 1:colcon.colcon_core.package_identification:_identify(.) by extension 'ros'
+[5.312s] Level 1:colcon.colcon_core.package_identification:_identify(.) by extensions ['cmake', 'python']
+[5.313s] Level 1:colcon.colcon_core.package_identification:_identify(.) by extension 'cmake'
+[5.313s] Level 1:colcon.colcon_core.package_identification:_identify(.) by extension 'python'
+[5.313s] Level 1:colcon.colcon_core.package_identification:_identify(.) by extensions ['python_setup_py']
+[5.313s] Level 1:colcon.colcon_core.package_identification:_identify(.) by extension 'python_setup_py'
+[5.314s] Level 1:colcon.colcon_core.package_identification:_identify(build) by extensions ['ignore', 'ignore_ament_install']
+[5.314s] Level 1:colcon.colcon_core.package_identification:_identify(build) by extension 'ignore'
+[5.314s] Level 1:colcon.colcon_core.package_identification:_identify(build) ignored
+[5.315s] Level 1:colcon.colcon_core.package_identification:_identify(install) by extensions ['ignore', 'ignore_ament_install']
+[5.315s] Level 1:colcon.colcon_core.package_identification:_identify(install) by extension 'ignore'
+[5.315s] Level 1:colcon.colcon_core.package_identification:_identify(install) ignored
+[5.315s] Level 1:colcon.colcon_core.package_identification:_identify(log) by extensions ['ignore', 'ignore_ament_install']
+[5.316s] Level 1:colcon.colcon_core.package_identification:_identify(log) by extension 'ignore'
+[5.316s] Level 1:colcon.colcon_core.package_identification:_identify(log) ignored
+[5.316s] Level 1:colcon.colcon_core.package_identification:_identify(src) by extensions ['ignore', 'ignore_ament_install']
+[5.316s] Level 1:colcon.colcon_core.package_identification:_identify(src) by extension 'ignore'
+[5.316s] Level 1:colcon.colcon_core.package_identification:_identify(src) by extension 'ignore_ament_install'
+[5.316s] Level 1:colcon.colcon_core.package_identification:_identify(src) by extensions ['colcon_pkg']
+[5.316s] Level 1:colcon.colcon_core.package_identification:_identify(src) by extension 'colcon_pkg'
+[5.317s] Level 1:colcon.colcon_core.package_identification:_identify(src) by extensions ['colcon_meta']
+[5.317s] Level 1:colcon.colcon_core.package_identification:_identify(src) by extension 'colcon_meta'
+[5.317s] Level 1:colcon.colcon_core.package_identification:_identify(src) by extensions ['ros']
+[5.317s] Level 1:colcon.colcon_core.package_identification:_identify(src) by extension 'ros'
+[5.317s] Level 1:colcon.colcon_core.package_identification:_identify(src) by extensions ['cmake', 'python']
+[5.317s] Level 1:colcon.colcon_core.package_identification:_identify(src) by extension 'cmake'
+[5.317s] Level 1:colcon.colcon_core.package_identification:_identify(src) by extension 'python'
+[5.317s] Level 1:colcon.colcon_core.package_identification:_identify(src) by extensions ['python_setup_py']
+[5.318s] Level 1:colcon.colcon_core.package_identification:_identify(src) by extension 'python_setup_py'
+[5.318s] Level 1:colcon.colcon_core.package_identification:_identify(src/my_lidar_pkg) by extensions ['ignore', 'ignore_ament_install']
+[5.318s] Level 1:colcon.colcon_core.package_identification:_identify(src/my_lidar_pkg) by extension 'ignore'
+[5.318s] Level 1:colcon.colcon_core.package_identification:_identify(src/my_lidar_pkg) by extension 'ignore_ament_install'
+[5.318s] Level 1:colcon.colcon_core.package_identification:_identify(src/my_lidar_pkg) by extensions ['colcon_pkg']
+[5.318s] Level 1:colcon.colcon_core.package_identification:_identify(src/my_lidar_pkg) by extension 'colcon_pkg'
+[5.319s] Level 1:colcon.colcon_core.package_identification:_identify(src/my_lidar_pkg) by extensions ['colcon_meta']
+[5.319s] Level 1:colcon.colcon_core.package_identification:_identify(src/my_lidar_pkg) by extension 'colcon_meta'
+[5.319s] Level 1:colcon.colcon_core.package_identification:_identify(src/my_lidar_pkg) by extensions ['ros']
+[5.319s] Level 1:colcon.colcon_core.package_identification:_identify(src/my_lidar_pkg) by extension 'ros'
+[5.330s] DEBUG:colcon.colcon_core.package_identification:Package 'src/my_lidar_pkg' with type 'ros.catkin' and name 'my_lidar_pkg'
+[5.331s] Level 1:colcon.colcon_core.package_identification:_identify(src/pointcloud_filters) by extensions ['ignore', 'ignore_ament_install']
+[5.331s] Level 1:colcon.colcon_core.package_identification:_identify(src/pointcloud_filters) by extension 'ignore'
+[5.331s] Level 1:colcon.colcon_core.package_identification:_identify(src/pointcloud_filters) by extension 'ignore_ament_install'
+[5.332s] Level 1:colcon.colcon_core.package_identification:_identify(src/pointcloud_filters) by extensions ['colcon_pkg']
+[5.332s] Level 1:colcon.colcon_core.package_identification:_identify(src/pointcloud_filters) by extension 'colcon_pkg'
+[5.332s] Level 1:colcon.colcon_core.package_identification:_identify(src/pointcloud_filters) by extensions ['colcon_meta']
+[5.332s] Level 1:colcon.colcon_core.package_identification:_identify(src/pointcloud_filters) by extension 'colcon_meta'
+[5.332s] Level 1:colcon.colcon_core.package_identification:_identify(src/pointcloud_filters) by extensions ['ros']
+[5.332s] Level 1:colcon.colcon_core.package_identification:_identify(src/pointcloud_filters) by extension 'ros'
+[5.336s] DEBUG:colcon.colcon_core.package_identification:Package 'src/pointcloud_filters' with type 'ros.ament_cmake' and name 'pointcloud_filters'
+[5.337s] Level 1:colcon.colcon_core.package_identification:_identify(src/ros_numpy) by extensions ['ignore', 'ignore_ament_install']
+[5.337s] Level 1:colcon.colcon_core.package_identification:_identify(src/ros_numpy) by extension 'ignore'
+[5.337s] Level 1:colcon.colcon_core.package_identification:_identify(src/ros_numpy) by extension 'ignore_ament_install'
+[5.338s] Level 1:colcon.colcon_core.package_identification:_identify(src/ros_numpy) by extensions ['colcon_pkg']
+[5.338s] Level 1:colcon.colcon_core.package_identification:_identify(src/ros_numpy) by extension 'colcon_pkg'
+[5.338s] Level 1:colcon.colcon_core.package_identification:_identify(src/ros_numpy) by extensions ['colcon_meta']
+[5.338s] Level 1:colcon.colcon_core.package_identification:_identify(src/ros_numpy) by extension 'colcon_meta'
+[5.338s] Level 1:colcon.colcon_core.package_identification:_identify(src/ros_numpy) by extensions ['ros']
+[5.338s] Level 1:colcon.colcon_core.package_identification:_identify(src/ros_numpy) by extension 'ros'
+[5.353s] DEBUG:colcon.colcon_core.package_identification:Package 'src/ros_numpy' with type 'ros.catkin' and name 'ros_numpy'
+[5.354s] Level 1:colcon.colcon_core.package_identification:_identify(src/unilidar_sdk) by extensions ['ignore', 'ignore_ament_install']
+[5.355s] Level 1:colcon.colcon_core.package_identification:_identify(src/unilidar_sdk) by extension 'ignore'
+[5.355s] Level 1:colcon.colcon_core.package_identification:_identify(src/unilidar_sdk) by extension 'ignore_ament_install'
+[5.355s] Level 1:colcon.colcon_core.package_identification:_identify(src/unilidar_sdk) by extensions ['colcon_pkg']
+[5.355s] Level 1:colcon.colcon_core.package_identification:_identify(src/unilidar_sdk) by extension 'colcon_pkg'
+[5.355s] Level 1:colcon.colcon_core.package_identification:_identify(src/unilidar_sdk) by extensions ['colcon_meta']
+[5.355s] Level 1:colcon.colcon_core.package_identification:_identify(src/unilidar_sdk) by extension 'colcon_meta'
+[5.355s] Level 1:colcon.colcon_core.package_identification:_identify(src/unilidar_sdk) by extensions ['ros']
+[5.356s] Level 1:colcon.colcon_core.package_identification:_identify(src/unilidar_sdk) by extension 'ros'
+[5.356s] Level 1:colcon.colcon_core.package_identification:_identify(src/unilidar_sdk) by extensions ['cmake', 'python']
+[5.356s] Level 1:colcon.colcon_core.package_identification:_identify(src/unilidar_sdk) by extension 'cmake'
+[5.356s] Level 1:colcon.colcon_core.package_identification:_identify(src/unilidar_sdk) by extension 'python'
+[5.356s] Level 1:colcon.colcon_core.package_identification:_identify(src/unilidar_sdk) by extensions ['python_setup_py']
+[5.356s] Level 1:colcon.colcon_core.package_identification:_identify(src/unilidar_sdk) by extension 'python_setup_py'
+[5.357s] Level 1:colcon.colcon_core.package_identification:_identify(src/unilidar_sdk/docs) by extensions ['ignore', 'ignore_ament_install']
+[5.357s] Level 1:colcon.colcon_core.package_identification:_identify(src/unilidar_sdk/docs) by extension 'ignore'
+[5.357s] Level 1:colcon.colcon_core.package_identification:_identify(src/unilidar_sdk/docs) by extension 'ignore_ament_install'
+[5.357s] Level 1:colcon.colcon_core.package_identification:_identify(src/unilidar_sdk/docs) by extensions ['colcon_pkg']
+[5.357s] Level 1:colcon.colcon_core.package_identification:_identify(src/unilidar_sdk/docs) by extension 'colcon_pkg'
+[5.357s] Level 1:colcon.colcon_core.package_identification:_identify(src/unilidar_sdk/docs) by extensions ['colcon_meta']
+[5.357s] Level 1:colcon.colcon_core.package_identification:_identify(src/unilidar_sdk/docs) by extension 'colcon_meta'
+[5.357s] Level 1:colcon.colcon_core.package_identification:_identify(src/unilidar_sdk/docs) by extensions ['ros']
+[5.357s] Level 1:colcon.colcon_core.package_identification:_identify(src/unilidar_sdk/docs) by extension 'ros'
+[5.358s] Level 1:colcon.colcon_core.package_identification:_identify(src/unilidar_sdk/docs) by extensions ['cmake', 'python']
+[5.358s] Level 1:colcon.colcon_core.package_identification:_identify(src/unilidar_sdk/docs) by extension 'cmake'
+[5.358s] Level 1:colcon.colcon_core.package_identification:_identify(src/unilidar_sdk/docs) by extension 'python'
+[5.358s] Level 1:colcon.colcon_core.package_identification:_identify(src/unilidar_sdk/docs) by extensions ['python_setup_py']
+[5.358s] Level 1:colcon.colcon_core.package_identification:_identify(src/unilidar_sdk/docs) by extension 'python_setup_py'
+[5.358s] Level 1:colcon.colcon_core.package_identification:_identify(src/unilidar_sdk/unitree_lidar_ros) by extensions ['ignore', 'ignore_ament_install']
+[5.359s] Level 1:colcon.colcon_core.package_identification:_identify(src/unilidar_sdk/unitree_lidar_ros) by extension 'ignore'
+[5.359s] Level 1:colcon.colcon_core.package_identification:_identify(src/unilidar_sdk/unitree_lidar_ros) by extension 'ignore_ament_install'
+[5.359s] Level 1:colcon.colcon_core.package_identification:_identify(src/unilidar_sdk/unitree_lidar_ros) by extensions ['colcon_pkg']
+[5.359s] Level 1:colcon.colcon_core.package_identification:_identify(src/unilidar_sdk/unitree_lidar_ros) by extension 'colcon_pkg'
+[5.359s] Level 1:colcon.colcon_core.package_identification:_identify(src/unilidar_sdk/unitree_lidar_ros) by extensions ['colcon_meta']
+[5.359s] Level 1:colcon.colcon_core.package_identification:_identify(src/unilidar_sdk/unitree_lidar_ros) by extension 'colcon_meta'
+[5.359s] Level 1:colcon.colcon_core.package_identification:_identify(src/unilidar_sdk/unitree_lidar_ros) by extensions ['ros']
+[5.359s] Level 1:colcon.colcon_core.package_identification:_identify(src/unilidar_sdk/unitree_lidar_ros) by extension 'ros'
+[5.360s] Level 1:colcon.colcon_core.package_identification:_identify(src/unilidar_sdk/unitree_lidar_ros) by extensions ['cmake', 'python']
+[5.360s] Level 1:colcon.colcon_core.package_identification:_identify(src/unilidar_sdk/unitree_lidar_ros) by extension 'cmake'
+[5.360s] Level 1:colcon.colcon_core.package_identification:_identify(src/unilidar_sdk/unitree_lidar_ros) by extension 'python'
+[5.360s] Level 1:colcon.colcon_core.package_identification:_identify(src/unilidar_sdk/unitree_lidar_ros) by extensions ['python_setup_py']
+[5.360s] Level 1:colcon.colcon_core.package_identification:_identify(src/unilidar_sdk/unitree_lidar_ros) by extension 'python_setup_py'
+[5.360s] Level 1:colcon.colcon_core.package_identification:_identify(src/unilidar_sdk/unitree_lidar_ros/src) by extensions ['ignore', 'ignore_ament_install']
+[5.360s] Level 1:colcon.colcon_core.package_identification:_identify(src/unilidar_sdk/unitree_lidar_ros/src) by extension 'ignore'
+[5.361s] Level 1:colcon.colcon_core.package_identification:_identify(src/unilidar_sdk/unitree_lidar_ros/src) by extension 'ignore_ament_install'
+[5.361s] Level 1:colcon.colcon_core.package_identification:_identify(src/unilidar_sdk/unitree_lidar_ros/src) by extensions ['colcon_pkg']
+[5.361s] Level 1:colcon.colcon_core.package_identification:_identify(src/unilidar_sdk/unitree_lidar_ros/src) by extension 'colcon_pkg'
+[5.361s] Level 1:colcon.colcon_core.package_identification:_identify(src/unilidar_sdk/unitree_lidar_ros/src) by extensions ['colcon_meta']
+[5.361s] Level 1:colcon.colcon_core.package_identification:_identify(src/unilidar_sdk/unitree_lidar_ros/src) by extension 'colcon_meta'
+[5.361s] Level 1:colcon.colcon_core.package_identification:_identify(src/unilidar_sdk/unitree_lidar_ros/src) by extensions ['ros']
+[5.361s] Level 1:colcon.colcon_core.package_identification:_identify(src/unilidar_sdk/unitree_lidar_ros/src) by extension 'ros'
+[5.361s] Level 1:colcon.colcon_core.package_identification:_identify(src/unilidar_sdk/unitree_lidar_ros/src) by extensions ['cmake', 'python']
+[5.361s] Level 1:colcon.colcon_core.package_identification:_identify(src/unilidar_sdk/unitree_lidar_ros/src) by extension 'cmake'
+[5.362s] Level 1:colcon.colcon_core.package_identification:_identify(src/unilidar_sdk/unitree_lidar_ros/src) by extension 'python'
+[5.362s] Level 1:colcon.colcon_core.package_identification:_identify(src/unilidar_sdk/unitree_lidar_ros/src) by extensions ['python_setup_py']
+[5.362s] Level 1:colcon.colcon_core.package_identification:_identify(src/unilidar_sdk/unitree_lidar_ros/src) by extension 'python_setup_py'
+[5.362s] Level 1:colcon.colcon_core.package_identification:_identify(src/unilidar_sdk/unitree_lidar_ros/src/unitree_lidar_ros) by extensions ['ignore', 'ignore_ament_install']
+[5.362s] Level 1:colcon.colcon_core.package_identification:_identify(src/unilidar_sdk/unitree_lidar_ros/src/unitree_lidar_ros) by extension 'ignore'
+[5.362s] Level 1:colcon.colcon_core.package_identification:_identify(src/unilidar_sdk/unitree_lidar_ros/src/unitree_lidar_ros) by extension 'ignore_ament_install'
+[5.362s] Level 1:colcon.colcon_core.package_identification:_identify(src/unilidar_sdk/unitree_lidar_ros/src/unitree_lidar_ros) by extensions ['colcon_pkg']
+[5.363s] Level 1:colcon.colcon_core.package_identification:_identify(src/unilidar_sdk/unitree_lidar_ros/src/unitree_lidar_ros) by extension 'colcon_pkg'
+[5.363s] Level 1:colcon.colcon_core.package_identification:_identify(src/unilidar_sdk/unitree_lidar_ros/src/unitree_lidar_ros) by extensions ['colcon_meta']
+[5.363s] Level 1:colcon.colcon_core.package_identification:_identify(src/unilidar_sdk/unitree_lidar_ros/src/unitree_lidar_ros) by extension 'colcon_meta'
+[5.363s] Level 1:colcon.colcon_core.package_identification:_identify(src/unilidar_sdk/unitree_lidar_ros/src/unitree_lidar_ros) by extensions ['ros']
+[5.363s] Level 1:colcon.colcon_core.package_identification:_identify(src/unilidar_sdk/unitree_lidar_ros/src/unitree_lidar_ros) by extension 'ros'
+[5.367s] DEBUG:colcon.colcon_core.package_identification:Package 'src/unilidar_sdk/unitree_lidar_ros/src/unitree_lidar_ros' with type 'ros.catkin' and name 'unitree_lidar_ros'
+[5.368s] Level 1:colcon.colcon_core.package_identification:_identify(src/unilidar_sdk/unitree_lidar_ros2) by extensions ['ignore', 'ignore_ament_install']
+[5.368s] Level 1:colcon.colcon_core.package_identification:_identify(src/unilidar_sdk/unitree_lidar_ros2) by extension 'ignore'
+[5.368s] Level 1:colcon.colcon_core.package_identification:_identify(src/unilidar_sdk/unitree_lidar_ros2) by extension 'ignore_ament_install'
+[5.368s] Level 1:colcon.colcon_core.package_identification:_identify(src/unilidar_sdk/unitree_lidar_ros2) by extensions ['colcon_pkg']
+[5.369s] Level 1:colcon.colcon_core.package_identification:_identify(src/unilidar_sdk/unitree_lidar_ros2) by extension 'colcon_pkg'
+[5.369s] Level 1:colcon.colcon_core.package_identification:_identify(src/unilidar_sdk/unitree_lidar_ros2) by extensions ['colcon_meta']
+[5.369s] Level 1:colcon.colcon_core.package_identification:_identify(src/unilidar_sdk/unitree_lidar_ros2) by extension 'colcon_meta'
+[5.369s] Level 1:colcon.colcon_core.package_identification:_identify(src/unilidar_sdk/unitree_lidar_ros2) by extensions ['ros']
+[5.369s] Level 1:colcon.colcon_core.package_identification:_identify(src/unilidar_sdk/unitree_lidar_ros2) by extension 'ros'
+[5.369s] Level 1:colcon.colcon_core.package_identification:_identify(src/unilidar_sdk/unitree_lidar_ros2) by extensions ['cmake', 'python']
+[5.369s] Level 1:colcon.colcon_core.package_identification:_identify(src/unilidar_sdk/unitree_lidar_ros2) by extension 'cmake'
+[5.369s] Level 1:colcon.colcon_core.package_identification:_identify(src/unilidar_sdk/unitree_lidar_ros2) by extension 'python'
+[5.370s] Level 1:colcon.colcon_core.package_identification:_identify(src/unilidar_sdk/unitree_lidar_ros2) by extensions ['python_setup_py']
+[5.370s] Level 1:colcon.colcon_core.package_identification:_identify(src/unilidar_sdk/unitree_lidar_ros2) by extension 'python_setup_py'
+[5.372s] Level 1:colcon.colcon_core.package_identification:_identify(src/unilidar_sdk/unitree_lidar_ros2/build) by extensions ['ignore', 'ignore_ament_install']
+[5.372s] Level 1:colcon.colcon_core.package_identification:_identify(src/unilidar_sdk/unitree_lidar_ros2/build) by extension 'ignore'
+[5.375s] Level 1:colcon.colcon_core.package_identification:_identify(src/unilidar_sdk/unitree_lidar_ros2/build) ignored
+[5.376s] Level 1:colcon.colcon_core.package_identification:_identify(src/unilidar_sdk/unitree_lidar_ros2/install) by extensions ['ignore', 'ignore_ament_install']
+[5.376s] Level 1:colcon.colcon_core.package_identification:_identify(src/unilidar_sdk/unitree_lidar_ros2/install) by extension 'ignore'
+[5.377s] Level 1:colcon.colcon_core.package_identification:_identify(src/unilidar_sdk/unitree_lidar_ros2/install) ignored
+[5.377s] Level 1:colcon.colcon_core.package_identification:_identify(src/unilidar_sdk/unitree_lidar_ros2/log) by extensions ['ignore', 'ignore_ament_install']
+[5.378s] Level 1:colcon.colcon_core.package_identification:_identify(src/unilidar_sdk/unitree_lidar_ros2/log) by extension 'ignore'
+[5.378s] Level 1:colcon.colcon_core.package_identification:_identify(src/unilidar_sdk/unitree_lidar_ros2/log) ignored
+[5.378s] Level 1:colcon.colcon_core.package_identification:_identify(src/unilidar_sdk/unitree_lidar_ros2/src) by extensions ['ignore', 'ignore_ament_install']
+[5.378s] Level 1:colcon.colcon_core.package_identification:_identify(src/unilidar_sdk/unitree_lidar_ros2/src) by extension 'ignore'
+[5.378s] Level 1:colcon.colcon_core.package_identification:_identify(src/unilidar_sdk/unitree_lidar_ros2/src) by extension 'ignore_ament_install'
+[5.379s] Level 1:colcon.colcon_core.package_identification:_identify(src/unilidar_sdk/unitree_lidar_ros2/src) by extensions ['colcon_pkg']
+[5.379s] Level 1:colcon.colcon_core.package_identification:_identify(src/unilidar_sdk/unitree_lidar_ros2/src) by extension 'colcon_pkg'
+[5.379s] Level 1:colcon.colcon_core.package_identification:_identify(src/unilidar_sdk/unitree_lidar_ros2/src) by extensions ['colcon_meta']
+[5.379s] Level 1:colcon.colcon_core.package_identification:_identify(src/unilidar_sdk/unitree_lidar_ros2/src) by extension 'colcon_meta'
+[5.379s] Level 1:colcon.colcon_core.package_identification:_identify(src/unilidar_sdk/unitree_lidar_ros2/src) by extensions ['ros']
+[5.379s] Level 1:colcon.colcon_core.package_identification:_identify(src/unilidar_sdk/unitree_lidar_ros2/src) by extension 'ros'
+[5.379s] Level 1:colcon.colcon_core.package_identification:_identify(src/unilidar_sdk/unitree_lidar_ros2/src) by extensions ['cmake', 'python']
+[5.379s] Level 1:colcon.colcon_core.package_identification:_identify(src/unilidar_sdk/unitree_lidar_ros2/src) by extension 'cmake'
+[5.380s] Level 1:colcon.colcon_core.package_identification:_identify(src/unilidar_sdk/unitree_lidar_ros2/src) by extension 'python'
+[5.380s] Level 1:colcon.colcon_core.package_identification:_identify(src/unilidar_sdk/unitree_lidar_ros2/src) by extensions ['python_setup_py']
+[5.380s] Level 1:colcon.colcon_core.package_identification:_identify(src/unilidar_sdk/unitree_lidar_ros2/src) by extension 'python_setup_py'
+[5.380s] Level 1:colcon.colcon_core.package_identification:_identify(src/unilidar_sdk/unitree_lidar_ros2/src/unitree_lidar_ros2) by extensions ['ignore', 'ignore_ament_install']
+[5.380s] Level 1:colcon.colcon_core.package_identification:_identify(src/unilidar_sdk/unitree_lidar_ros2/src/unitree_lidar_ros2) by extension 'ignore'
+[5.380s] Level 1:colcon.colcon_core.package_identification:_identify(src/unilidar_sdk/unitree_lidar_ros2/src/unitree_lidar_ros2) by extension 'ignore_ament_install'
+[5.380s] Level 1:colcon.colcon_core.package_identification:_identify(src/unilidar_sdk/unitree_lidar_ros2/src/unitree_lidar_ros2) by extensions ['colcon_pkg']
+[5.381s] Level 1:colcon.colcon_core.package_identification:_identify(src/unilidar_sdk/unitree_lidar_ros2/src/unitree_lidar_ros2) by extension 'colcon_pkg'
+[5.381s] Level 1:colcon.colcon_core.package_identification:_identify(src/unilidar_sdk/unitree_lidar_ros2/src/unitree_lidar_ros2) by extensions ['colcon_meta']
+[5.381s] Level 1:colcon.colcon_core.package_identification:_identify(src/unilidar_sdk/unitree_lidar_ros2/src/unitree_lidar_ros2) by extension 'colcon_meta'
+[5.381s] Level 1:colcon.colcon_core.package_identification:_identify(src/unilidar_sdk/unitree_lidar_ros2/src/unitree_lidar_ros2) by extensions ['ros']
+[5.381s] Level 1:colcon.colcon_core.package_identification:_identify(src/unilidar_sdk/unitree_lidar_ros2/src/unitree_lidar_ros2) by extension 'ros'
+[5.384s] DEBUG:colcon.colcon_core.package_identification:Package 'src/unilidar_sdk/unitree_lidar_ros2/src/unitree_lidar_ros2' with type 'ros.ament_cmake' and name 'unitree_lidar_ros2'
+[5.384s] Level 1:colcon.colcon_core.package_identification:_identify(src/unilidar_sdk/unitree_lidar_sdk) by extensions ['ignore', 'ignore_ament_install']
+[5.385s] Level 1:colcon.colcon_core.package_identification:_identify(src/unilidar_sdk/unitree_lidar_sdk) by extension 'ignore'
+[5.385s] Level 1:colcon.colcon_core.package_identification:_identify(src/unilidar_sdk/unitree_lidar_sdk) by extension 'ignore_ament_install'
+[5.385s] Level 1:colcon.colcon_core.package_identification:_identify(src/unilidar_sdk/unitree_lidar_sdk) by extensions ['colcon_pkg']
+[5.385s] Level 1:colcon.colcon_core.package_identification:_identify(src/unilidar_sdk/unitree_lidar_sdk) by extension 'colcon_pkg'
+[5.385s] Level 1:colcon.colcon_core.package_identification:_identify(src/unilidar_sdk/unitree_lidar_sdk) by extensions ['colcon_meta']
+[5.385s] Level 1:colcon.colcon_core.package_identification:_identify(src/unilidar_sdk/unitree_lidar_sdk) by extension 'colcon_meta'
+[5.385s] Level 1:colcon.colcon_core.package_identification:_identify(src/unilidar_sdk/unitree_lidar_sdk) by extensions ['ros']
+[5.385s] Level 1:colcon.colcon_core.package_identification:_identify(src/unilidar_sdk/unitree_lidar_sdk) by extension 'ros'
+[5.386s] Level 1:colcon.colcon_core.package_identification:_identify(src/unilidar_sdk/unitree_lidar_sdk) by extensions ['cmake', 'python']
+[5.386s] Level 1:colcon.colcon_core.package_identification:_identify(src/unilidar_sdk/unitree_lidar_sdk) by extension 'cmake'
+[5.391s] Level 1:colcon.colcon_core.package_identification:_identify(src/unilidar_sdk/unitree_lidar_sdk) by extension 'python'
+[5.391s] DEBUG:colcon.colcon_core.package_identification:Package 'src/unilidar_sdk/unitree_lidar_sdk' with type 'cmake' and name 'unitree_lidar_sdk'
+[5.391s] Level 1:colcon.colcon_core.package_discovery:discover_packages(recursive) using defaults
+[5.391s] Level 1:colcon.colcon_core.package_discovery:discover_packages(ignore) discover
+[5.392s] Level 1:colcon.colcon_core.package_discovery:discover_packages(ignore) using defaults
+[5.392s] Level 1:colcon.colcon_core.package_discovery:discover_packages(path) discover
+[5.392s] Level 1:colcon.colcon_core.package_discovery:discover_packages(path) using defaults
+[5.557s] INFO:colcon.colcon_core.package_selection:Skipping not selected package 'my_lidar_pkg' in 'src/my_lidar_pkg'
+[5.558s] INFO:colcon.colcon_core.package_selection:Skipping not selected package 'ros_numpy' in 'src/ros_numpy'
+[5.558s] INFO:colcon.colcon_core.package_selection:Skipping not selected package 'unitree_lidar_ros' in 'src/unilidar_sdk/unitree_lidar_ros/src/unitree_lidar_ros'
+[5.558s] INFO:colcon.colcon_core.package_selection:Skipping not selected package 'unitree_lidar_ros2' in 'src/unilidar_sdk/unitree_lidar_ros2/src/unitree_lidar_ros2'
+[5.558s] INFO:colcon.colcon_core.package_selection:Skipping not selected package 'unitree_lidar_sdk' in 'src/unilidar_sdk/unitree_lidar_sdk'
+[5.560s] Level 1:colcon.colcon_core.package_discovery:discover_packages(prefix_path) check parameters
+[5.560s] Level 1:colcon.colcon_core.package_discovery:discover_packages(prefix_path) discover
+[5.570s] DEBUG:colcon.colcon_installed_package_information.package_discovery:Found 4 installed packages in /home/jacob/ros2_ws/install
+[5.576s] DEBUG:colcon.colcon_installed_package_information.package_discovery:Found 297 installed packages in /opt/ros/humble
+[5.580s] Level 1:colcon.colcon_core.package_discovery:discover_packages(prefix_path) using defaults
+[5.840s] Level 5:colcon.colcon_core.verb:set package 'pointcloud_filters' build argument 'cmake_args' from command line to 'None'
+[5.840s] Level 5:colcon.colcon_core.verb:set package 'pointcloud_filters' build argument 'cmake_target' from command line to 'None'
+[5.840s] Level 5:colcon.colcon_core.verb:set package 'pointcloud_filters' build argument 'cmake_target_skip_unavailable' from command line to 'False'
+[5.840s] Level 5:colcon.colcon_core.verb:set package 'pointcloud_filters' build argument 'cmake_clean_cache' from command line to 'False'
+[5.840s] Level 5:colcon.colcon_core.verb:set package 'pointcloud_filters' build argument 'cmake_clean_first' from command line to 'False'
+[5.840s] Level 5:colcon.colcon_core.verb:set package 'pointcloud_filters' build argument 'cmake_force_configure' from command line to 'False'
+[5.841s] Level 5:colcon.colcon_core.verb:set package 'pointcloud_filters' build argument 'ament_cmake_args' from command line to 'None'
+[5.841s] Level 5:colcon.colcon_core.verb:set package 'pointcloud_filters' build argument 'catkin_cmake_args' from command line to 'None'
+[5.841s] Level 5:colcon.colcon_core.verb:set package 'pointcloud_filters' build argument 'catkin_skip_building_tests' from command line to 'False'
+[5.841s] DEBUG:colcon.colcon_core.verb:Building package 'pointcloud_filters' with the following arguments: {'ament_cmake_args': None, 'build_base': '/home/jacob/ros2_ws/build/pointcloud_filters', 'catkin_cmake_args': None, 'catkin_skip_building_tests': False, 'cmake_args': None, 'cmake_clean_cache': False, 'cmake_clean_first': False, 'cmake_force_configure': False, 'cmake_target': None, 'cmake_target_skip_unavailable': False, 'install_base': '/home/jacob/ros2_ws/install/pointcloud_filters', 'merge_install': False, 'path': '/home/jacob/ros2_ws/src/pointcloud_filters', 'symlink_install': False, 'test_result_base': None}
+[5.841s] INFO:colcon.colcon_core.executor:Executing jobs using 'parallel' executor
+[5.845s] DEBUG:colcon.colcon_parallel_executor.executor.parallel:run_until_complete
+[5.846s] INFO:colcon.colcon_ros.task.ament_cmake.build:Building ROS package in '/home/jacob/ros2_ws/src/pointcloud_filters' with build type 'ament_cmake'
+[5.847s] INFO:colcon.colcon_cmake.task.cmake.build:Building CMake package in '/home/jacob/ros2_ws/src/pointcloud_filters'
+[5.864s] INFO:colcon.colcon_core.plugin_system:Skipping extension 'colcon_core.shell.bat': Not used on non-Windows systems
+[5.864s] INFO:colcon.colcon_core.shell:Skip shell extension 'powershell' for command environment: Not usable outside of PowerShell
+[5.865s] DEBUG:colcon.colcon_core.shell:Skip shell extension 'dsv' for command environment
+[5.892s] DEBUG:colcon.colcon_core.event_handler.log_command:Invoking command in '/home/jacob/ros2_ws/build/pointcloud_filters': CMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}:/opt/ros/humble /usr/bin/cmake --build /home/jacob/ros2_ws/build/pointcloud_filters -- -j6 -l6
+[7.485s] DEBUG:colcon.colcon_core.event_handler.log_command:Invoked command in '/home/jacob/ros2_ws/build/pointcloud_filters' returned '0': CMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}:/opt/ros/humble /usr/bin/cmake --build /home/jacob/ros2_ws/build/pointcloud_filters -- -j6 -l6
+[7.519s] DEBUG:colcon.colcon_core.event_handler.log_command:Invoking command in '/home/jacob/ros2_ws/build/pointcloud_filters': CMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}:/opt/ros/humble /usr/bin/cmake --install /home/jacob/ros2_ws/build/pointcloud_filters
+[20.743s] Level 1:colcon.colcon_core.environment:create_environment_scripts_only(pointcloud_filters)
+[20.773s] DEBUG:colcon.colcon_core.event_handler.log_command:Invoked command in '/home/jacob/ros2_ws/build/pointcloud_filters' returned '0': CMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}:/opt/ros/humble /usr/bin/cmake --install /home/jacob/ros2_ws/build/pointcloud_filters
+[20.795s] Level 1:colcon.colcon_core.environment:checking '/home/jacob/ros2_ws/install/pointcloud_filters' for CMake module files
+[20.798s] Level 1:colcon.colcon_core.environment:checking '/home/jacob/ros2_ws/install/pointcloud_filters' for CMake config files
+[20.800s] Level 1:colcon.colcon_core.shell:create_environment_hook('pointcloud_filters', 'cmake_prefix_path')
+[20.801s] INFO:colcon.colcon_core.shell:Creating environment hook '/home/jacob/ros2_ws/install/pointcloud_filters/share/pointcloud_filters/hook/cmake_prefix_path.ps1'
+[20.804s] INFO:colcon.colcon_core.shell:Creating environment descriptor '/home/jacob/ros2_ws/install/pointcloud_filters/share/pointcloud_filters/hook/cmake_prefix_path.dsv'
+[20.809s] INFO:colcon.colcon_core.shell:Creating environment hook '/home/jacob/ros2_ws/install/pointcloud_filters/share/pointcloud_filters/hook/cmake_prefix_path.sh'
+[20.813s] Level 1:colcon.colcon_core.environment:checking '/home/jacob/ros2_ws/install/pointcloud_filters/lib'
+[20.814s] Level 1:colcon.colcon_core.shell:create_environment_hook('pointcloud_filters', 'ld_library_path_lib')
+[20.815s] INFO:colcon.colcon_core.shell:Creating environment hook '/home/jacob/ros2_ws/install/pointcloud_filters/share/pointcloud_filters/hook/ld_library_path_lib.ps1'
+[20.816s] INFO:colcon.colcon_core.shell:Creating environment descriptor '/home/jacob/ros2_ws/install/pointcloud_filters/share/pointcloud_filters/hook/ld_library_path_lib.dsv'
+[20.817s] INFO:colcon.colcon_core.shell:Creating environment hook '/home/jacob/ros2_ws/install/pointcloud_filters/share/pointcloud_filters/hook/ld_library_path_lib.sh'
+[20.818s] Level 1:colcon.colcon_core.environment:checking '/home/jacob/ros2_ws/install/pointcloud_filters/bin'
+[20.818s] Level 1:colcon.colcon_core.environment:checking '/home/jacob/ros2_ws/install/pointcloud_filters/lib/pkgconfig/pointcloud_filters.pc'
+[20.819s] Level 1:colcon.colcon_core.environment:checking '/home/jacob/ros2_ws/install/pointcloud_filters/lib/python3.10/site-packages'
+[20.819s] Level 1:colcon.colcon_core.shell:create_environment_hook('pointcloud_filters', 'pythonpath')
+[20.820s] INFO:colcon.colcon_core.shell:Creating environment hook '/home/jacob/ros2_ws/install/pointcloud_filters/share/pointcloud_filters/hook/pythonpath.ps1'
+[20.821s] INFO:colcon.colcon_core.shell:Creating environment descriptor '/home/jacob/ros2_ws/install/pointcloud_filters/share/pointcloud_filters/hook/pythonpath.dsv'
+[20.822s] INFO:colcon.colcon_core.shell:Creating environment hook '/home/jacob/ros2_ws/install/pointcloud_filters/share/pointcloud_filters/hook/pythonpath.sh'
+[20.824s] Level 1:colcon.colcon_core.environment:checking '/home/jacob/ros2_ws/install/pointcloud_filters/bin'
+[20.825s] INFO:colcon.colcon_core.shell:Creating package script '/home/jacob/ros2_ws/install/pointcloud_filters/share/pointcloud_filters/package.ps1'
+[20.828s] INFO:colcon.colcon_core.shell:Creating package descriptor '/home/jacob/ros2_ws/install/pointcloud_filters/share/pointcloud_filters/package.dsv'
+[20.831s] INFO:colcon.colcon_core.shell:Creating package script '/home/jacob/ros2_ws/install/pointcloud_filters/share/pointcloud_filters/package.sh'
+[20.835s] INFO:colcon.colcon_core.shell:Creating package script '/home/jacob/ros2_ws/install/pointcloud_filters/share/pointcloud_filters/package.bash'
+[20.840s] INFO:colcon.colcon_core.shell:Creating package script '/home/jacob/ros2_ws/install/pointcloud_filters/share/pointcloud_filters/package.zsh'
+[20.845s] Level 1:colcon.colcon_core.environment:create_file_with_runtime_dependencies(/home/jacob/ros2_ws/install/pointcloud_filters/share/colcon-core/packages/pointcloud_filters)
+[20.848s] Level 1:colcon.colcon_core.environment:create_environment_scripts_only(pointcloud_filters)
+[20.848s] Level 1:colcon.colcon_core.environment:checking '/home/jacob/ros2_ws/install/pointcloud_filters' for CMake module files
+[20.850s] Level 1:colcon.colcon_core.environment:checking '/home/jacob/ros2_ws/install/pointcloud_filters' for CMake config files
+[20.851s] Level 1:colcon.colcon_core.shell:create_environment_hook('pointcloud_filters', 'cmake_prefix_path')
+[20.852s] INFO:colcon.colcon_core.shell:Creating environment hook '/home/jacob/ros2_ws/install/pointcloud_filters/share/pointcloud_filters/hook/cmake_prefix_path.ps1'
+[20.854s] INFO:colcon.colcon_core.shell:Creating environment descriptor '/home/jacob/ros2_ws/install/pointcloud_filters/share/pointcloud_filters/hook/cmake_prefix_path.dsv'
+[20.855s] INFO:colcon.colcon_core.shell:Creating environment hook '/home/jacob/ros2_ws/install/pointcloud_filters/share/pointcloud_filters/hook/cmake_prefix_path.sh'
+[20.860s] Level 1:colcon.colcon_core.environment:checking '/home/jacob/ros2_ws/install/pointcloud_filters/lib'
+[20.860s] Level 1:colcon.colcon_core.shell:create_environment_hook('pointcloud_filters', 'ld_library_path_lib')
+[20.863s] INFO:colcon.colcon_core.shell:Creating environment hook '/home/jacob/ros2_ws/install/pointcloud_filters/share/pointcloud_filters/hook/ld_library_path_lib.ps1'
+[20.865s] INFO:colcon.colcon_core.shell:Creating environment descriptor '/home/jacob/ros2_ws/install/pointcloud_filters/share/pointcloud_filters/hook/ld_library_path_lib.dsv'
+[20.866s] INFO:colcon.colcon_core.shell:Creating environment hook '/home/jacob/ros2_ws/install/pointcloud_filters/share/pointcloud_filters/hook/ld_library_path_lib.sh'
+[20.867s] Level 1:colcon.colcon_core.environment:checking '/home/jacob/ros2_ws/install/pointcloud_filters/bin'
+[20.867s] Level 1:colcon.colcon_core.environment:checking '/home/jacob/ros2_ws/install/pointcloud_filters/lib/pkgconfig/pointcloud_filters.pc'
+[20.868s] Level 1:colcon.colcon_core.environment:checking '/home/jacob/ros2_ws/install/pointcloud_filters/lib/python3.10/site-packages'
+[20.868s] Level 1:colcon.colcon_core.shell:create_environment_hook('pointcloud_filters', 'pythonpath')
+[20.869s] INFO:colcon.colcon_core.shell:Creating environment hook '/home/jacob/ros2_ws/install/pointcloud_filters/share/pointcloud_filters/hook/pythonpath.ps1'
+[20.871s] INFO:colcon.colcon_core.shell:Creating environment descriptor '/home/jacob/ros2_ws/install/pointcloud_filters/share/pointcloud_filters/hook/pythonpath.dsv'
+[20.872s] INFO:colcon.colcon_core.shell:Creating environment hook '/home/jacob/ros2_ws/install/pointcloud_filters/share/pointcloud_filters/hook/pythonpath.sh'
+[20.874s] Level 1:colcon.colcon_core.environment:checking '/home/jacob/ros2_ws/install/pointcloud_filters/bin'
+[20.876s] INFO:colcon.colcon_core.shell:Creating package script '/home/jacob/ros2_ws/install/pointcloud_filters/share/pointcloud_filters/package.ps1'
+[20.878s] INFO:colcon.colcon_core.shell:Creating package descriptor '/home/jacob/ros2_ws/install/pointcloud_filters/share/pointcloud_filters/package.dsv'
+[20.881s] INFO:colcon.colcon_core.shell:Creating package script '/home/jacob/ros2_ws/install/pointcloud_filters/share/pointcloud_filters/package.sh'
+[20.884s] INFO:colcon.colcon_core.shell:Creating package script '/home/jacob/ros2_ws/install/pointcloud_filters/share/pointcloud_filters/package.bash'
+[20.887s] INFO:colcon.colcon_core.shell:Creating package script '/home/jacob/ros2_ws/install/pointcloud_filters/share/pointcloud_filters/package.zsh'
+[20.889s] Level 1:colcon.colcon_core.environment:create_file_with_runtime_dependencies(/home/jacob/ros2_ws/install/pointcloud_filters/share/colcon-core/packages/pointcloud_filters)
+[20.891s] DEBUG:colcon.colcon_parallel_executor.executor.parallel:closing loop
+[20.895s] DEBUG:colcon.colcon_parallel_executor.executor.parallel:loop closed
+[20.896s] DEBUG:colcon.colcon_parallel_executor.executor.parallel:run_until_complete finished with '0'
+[20.896s] DEBUG:colcon.colcon_core.event_reactor:joining thread
+[20.953s] INFO:colcon.colcon_core.plugin_system:Skipping extension 'colcon_notification.desktop_notification.terminal_notifier': Not used on non-Darwin systems
+[20.954s] INFO:colcon.colcon_core.plugin_system:Skipping extension 'colcon_notification.desktop_notification.win32': Not used on non-Windows systems
+[20.954s] INFO:colcon.colcon_notification.desktop_notification:Sending desktop notification using 'notify2'
+[21.633s] DEBUG:colcon.colcon_core.event_reactor:joined thread
+[21.635s] INFO:colcon.colcon_core.shell:Creating prefix script '/home/jacob/ros2_ws/install/local_setup.ps1'
+[21.642s] INFO:colcon.colcon_core.shell:Creating prefix util module '/home/jacob/ros2_ws/install/_local_setup_util_ps1.py'
+[21.658s] INFO:colcon.colcon_core.shell:Creating prefix chain script '/home/jacob/ros2_ws/install/setup.ps1'
+[21.674s] INFO:colcon.colcon_core.shell:Creating prefix script '/home/jacob/ros2_ws/install/local_setup.sh'
+[21.678s] INFO:colcon.colcon_core.shell:Creating prefix util module '/home/jacob/ros2_ws/install/_local_setup_util_sh.py'
+[21.682s] INFO:colcon.colcon_core.shell:Creating prefix chain script '/home/jacob/ros2_ws/install/setup.sh'
+[21.690s] INFO:colcon.colcon_core.shell:Creating prefix script '/home/jacob/ros2_ws/install/local_setup.bash'
+[21.696s] INFO:colcon.colcon_core.shell:Creating prefix chain script '/home/jacob/ros2_ws/install/setup.bash'
+[21.700s] INFO:colcon.colcon_core.shell:Creating prefix script '/home/jacob/ros2_ws/install/local_setup.zsh'
+[21.704s] INFO:colcon.colcon_core.shell:Creating prefix chain script '/home/jacob/ros2_ws/install/setup.zsh'

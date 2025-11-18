@@ -57,6 +57,8 @@ class LidarRangeFilterNode(Node):
         self.declare_parameter('range_max', 0.5)
         self.declare_parameter('max_buffer_duration_sec', 5.0)
         self.declare_parameter('keep_publisher', True)
+        self.declare_parameter('enable_accumulation', True)
+        self.declare_parameter('accumulation_window', 1.0)
 
         self.input_topic = self.get_parameter('input_topic').get_parameter_value().string_value
         self.output_topic = self.get_parameter('output_topic').get_parameter_value().string_value
@@ -67,6 +69,8 @@ class LidarRangeFilterNode(Node):
         self.range_max = float(self.get_parameter('range_max').get_parameter_value().double_value)
         self.max_buffer_duration_sec = float(self.get_parameter('max_buffer_duration_sec').get_parameter_value().double_value)
         self.keep_publisher = self.get_parameter('keep_publisher').get_parameter_value().bool_value
+        self.enable_accumulation = self.get_parameter('enable_accumulation').get_parameter_value().bool_value
+        self.accumulation_window = float(self.get_parameter('accumulation_window').get_parameter_value().double_value)
 
         # Time-ordered buffer for filtered clouds (stores up to max_buffer_duration_sec)
         self.cloud_buffer = deque()
@@ -100,7 +104,8 @@ class LidarRangeFilterNode(Node):
         self.get_logger().info(
             f'lidar_range_filter started: input={self.input_topic}, output={self.output_topic if self.keep_publisher else "(disabled)"}, '
             f'z=[{self.z_min},{self.z_max}] m, range_max={self.range_max} m, base_frame={self.base_frame}, '
-            f'use_tf_transform={self.use_tf_transform}, max_buffer_duration_sec={self.max_buffer_duration_sec}'
+            f'use_tf_transform={self.use_tf_transform}, max_buffer_duration_sec={self.max_buffer_duration_sec}, '
+            f'accumulation: {"enabled (" + str(self.accumulation_window) + "s)" if self.enable_accumulation else "disabled"}'
         )
 
     def lookup_transform(self, target_frame: str, source_frame: str, stamp) -> Optional[TransformStamped]:
@@ -215,13 +220,19 @@ class LidarRangeFilterNode(Node):
             sel_pts = np.vstack((x[mask], y[mask], z[mask])).T.astype(np.float32)
             out_msg = pc2.create_cloud_xyz32(header, sel_pts.tolist())
 
-        # Publish if enabled
-        if self.pub:
-            self.pub.publish(out_msg)
-
-        # Store filtered cloud in buffer
+        # Store filtered cloud in buffer first
         with self.buffer_lock:
             self._append_to_buffer(out_msg)
+            
+            # Publish accumulated or single frame based on settings
+            if self.pub:
+                if self.enable_accumulation:
+                    # Get clouds within accumulation window and merge them
+                    accumulated_cloud = self._get_accumulated_cloud()
+                    self.pub.publish(accumulated_cloud)
+                else:
+                    # Publish just the current frame
+                    self.pub.publish(out_msg)
 
     def _append_to_buffer(self, cloud: PointCloud2) -> None:
         """Append cloud to buffer and evict old entries beyond max_buffer_duration_sec."""
@@ -237,6 +248,33 @@ class LidarRangeFilterNode(Node):
                     self.cloud_buffer.popleft()
                 else:
                     break
+    
+    def _get_accumulated_cloud(self) -> PointCloud2:
+        """Get merged cloud from points within accumulation_window. Must be called with buffer_lock held."""
+        if len(self.cloud_buffer) == 0:
+            return PointCloud2()
+        
+        if len(self.cloud_buffer) == 1:
+            return self.cloud_buffer[0]
+        
+        # Get newest timestamp and calculate cutoff
+        newest_stamp = self.cloud_buffer[-1].header.stamp
+        newest_time_sec = newest_stamp.sec + newest_stamp.nanosec * 1e-9
+        cutoff_time_sec = newest_time_sec - self.accumulation_window
+        
+        # Select clouds within accumulation window
+        selected = []
+        for cloud in self.cloud_buffer:
+            stamp = cloud.header.stamp
+            time_sec = stamp.sec + stamp.nanosec * 1e-9
+            if time_sec >= cutoff_time_sec:
+                selected.append(cloud)
+        
+        if len(selected) == 0:
+            return PointCloud2()
+        
+        # Merge and return
+        return self._merge_clouds(selected)
 
     def handle_get_cloud_window(self, request, response):
         """Service handler: return windowed point clouds."""
