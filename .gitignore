@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 build
 log
 install
@@ -5,3 +6,34 @@ install
 *.pt
 *.venv
 *runs*
+=======
+# Virtual environment
+.venv/
+venv/
+
+# Python cache
+__pycache__/
+*.pyc
+*.pyo
+
+# Model weights / outputs
+*.pt
+*.onnx
+*.engine
+*.tflite
+runs/
+
+# Video / images (if re-generated)
+*.mp4
+*.mkv
+*.avi
+*.mov
+*.jpg
+*.jpeg
+*.png
+
+# IDE / OS junk
+.vscode/
+.idea/
+.DS_Store
+>>>>>>> e4d6815e18736dc835180c8693481d026535336b
