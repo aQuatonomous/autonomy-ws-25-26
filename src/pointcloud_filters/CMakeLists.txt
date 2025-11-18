@@ -6,6 +6,7 @@ find_package(ament_cmake REQUIRED)
 find_package(rosidl_default_generators REQUIRED)
 find_package(sensor_msgs REQUIRED)
 find_package(std_msgs REQUIRED)
+find_package(visualization_msgs REQUIRED)
 
 # Generate service and message interfaces
 rosidl_generate_interfaces(${PROJECT_NAME}
@@ -27,6 +28,13 @@ install(PROGRAMS
   pointcloud_filters/buoy_detector.py
   DESTINATION lib/${PROJECT_NAME}
   RENAME buoy_detector
+)
+
+# Install buoy_visualizer separately
+install(PROGRAMS
+  pointcloud_filters/buoy_visualizer.py
+  DESTINATION lib/${PROJECT_NAME}
+  RENAME buoy_visualizer
 )
 
 # Install Python module (without ament_python_install_package to avoid duplication)

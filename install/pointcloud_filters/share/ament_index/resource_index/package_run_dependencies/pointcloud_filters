@@ -1,1 +1,1 @@
-rclpy;sensor_msgs;std_msgs;geometry_msgs;tf2_ros;builtin_interfaces;python3-numpy;python3-sklearn;rosidl_default_runtime
+rclpy;sensor_msgs;std_msgs;geometry_msgs;tf2_ros;builtin_interfaces;visualization_msgs;python3-numpy;python3-sklearn;rosidl_default_runtime

@@ -396,6 +396,10 @@ if("x${CMAKE_INSTALL_COMPONENT}x" STREQUAL "xUnspecifiedx" OR NOT CMAKE_INSTALL_
 endif()
 
 if("x${CMAKE_INSTALL_COMPONENT}x" STREQUAL "xUnspecifiedx" OR NOT CMAKE_INSTALL_COMPONENT)
+  file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/lib/pointcloud_filters" TYPE PROGRAM RENAME "buoy_visualizer" FILES "/home/jacob/ros2_ws/src/pointcloud_filters/pointcloud_filters/buoy_visualizer.py")
+endif()
+
+if("x${CMAKE_INSTALL_COMPONENT}x" STREQUAL "xUnspecifiedx" OR NOT CMAKE_INSTALL_COMPONENT)
   file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/lib/python3.10/site-packages/pointcloud_filters" TYPE DIRECTORY FILES "/home/jacob/ros2_ws/src/pointcloud_filters/pointcloud_filters/" FILES_MATCHING REGEX "/[^/]*\\.py$")
 endif()
 
