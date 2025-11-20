@@ -8,5 +8,6 @@ ros2 run v4l2_camera v4l2_camera_node   --ros-args   -p video_device:=/dev/video
 
 check camera fps:
 
-ros2 topic hz /image_raw
+ros2 topic hz /camera0/image_raw
+
 
