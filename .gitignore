@@ -1,37 +1,38 @@
-build
-log
-install
+# build
+# log
+# install
 
-*.pt
-*.venv
-*runs*
-=======
-# Virtual environment
-.venv/
-venv/
+# *.pt
+# *.venv
+# *runs*
+*-env
+# =======
+# # Virtual environment
+# .venv/
+# venv/
 
-# Python cache
-__pycache__/
-*.pyc
-*.pyo
+# # Python cache
+# __pycache__/
+# *.pyc
+# *.pyo
 
-# Model weights / outputs
-*.pt
-*.onnx
-*.engine
-*.tflite
-runs/
+# # Model weights / outputs
+# *.pt
+# *.onnx
+# *.engine
+# *.tflite
+# runs/
 
-# Video / images (if re-generated)
-*.mp4
-*.mkv
-*.avi
-*.mov
-*.jpg
-*.jpeg
-*.png
+# # Video / images (if re-generated)
+# *.mp4
+# *.mkv
+# *.avi
+# *.mov
+# *.jpg
+# *.jpeg
+# *.png
 
-# IDE / OS junk
-.vscode/
-.idea/
-.DS_Store
+# # IDE / OS junk
+# .vscode/
+# .idea/
+# .DS_Store
