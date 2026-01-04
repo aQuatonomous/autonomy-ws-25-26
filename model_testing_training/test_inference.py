@@ -1,4 +1,31 @@
-# test_inference.py (FIXED VERSION WITH CUDA MEMORY MANAGEMENT)
+"""
+TensorRT YOLO Object Detection Inference Script
+
+WHAT THIS DOES:
+1. Loads a TensorRT engine (optimized YOLO model)
+2. Processes images/video through the model
+3. Detects objects and draws bounding boxes
+
+THE FLOW (Simple Version):
+   Image → Preprocess → Run Model → Postprocess → Draw Boxes → Display
+
+MAIN COMPONENTS:
+- CudaRuntime: Manages GPU memory (low-level, you can ignore)
+- TensorRTInference: The main class that does everything
+  - preprocess(): Prepares image for model
+  - infer(): Runs model on GPU
+  - postprocess_yolo(): Converts output to bounding boxes
+  - draw_detections(): Draws boxes on image
+
+FUNCTIONS YOU CAN USE:
+- test_single_image(): Test on one image file
+- test_video(): Test on a video file  
+- test_live_camera(): Test on live webcam feed (NEW!)
+
+QUICK START:
+  python test_inference.py --camera
+"""
+
 import tensorrt as trt
 import numpy as np
 import cv2
@@ -6,7 +33,11 @@ from typing import Tuple, List
 import time
 import ctypes
 
-# CUDA runtime functions via ctypes
+# ============================================================================
+# CUDA MEMORY MANAGEMENT (Low-level GPU stuff - you can ignore this)
+# ============================================================================
+# This class handles moving data between CPU and GPU memory
+# You don't need to understand this - it just makes GPU operations work
 class CudaRuntime:
     def __init__(self):
         try:
@@ -61,9 +92,22 @@ class CudaRuntime:
         self.cuda.cudaDeviceSynchronize()
 
 
+# ============================================================================
+# MAIN INFERENCE CLASS - This is what you actually use!
+# ============================================================================
 class TensorRTInference:
+    """
+    This class loads your YOLO model and runs object detection.
+    
+    HOW IT WORKS:
+    1. __init__: Loads the model file (one time setup)
+    2. preprocess: Converts your image to the format the model needs
+    3. infer: Runs the model on GPU (this is the actual detection)
+    4. postprocess_yolo: Converts model output to bounding boxes
+    5. draw_detections: Draws boxes on the image
+    """
     def __init__(self, engine_path: str):
-        """Initialize TensorRT engine and context"""
+        """Load the TensorRT model file (only called once)"""
         self.logger = trt.Logger(trt.Logger.WARNING)
         self.cuda = CudaRuntime()
         
@@ -112,8 +156,11 @@ class TensorRTInference:
                 self.cuda.free(self.d_output)
     
     def preprocess(self, image: np.ndarray) -> np.ndarray:
-        """Preprocess image for YOLO model"""
-        # Resize to 640x640
+        """
+        Prepares your image for the model.
+        Steps: resize → convert colors → normalize → reshape
+        """
+        # Resize to 640x640 (YOLO standard size)
         img_resized = cv2.resize(image, (640, 640))
         
         # Convert BGR to RGB
@@ -131,7 +178,10 @@ class TensorRTInference:
         return img_batch
     
     def infer(self, input_data: np.ndarray) -> np.ndarray:
-        """Run inference with proper GPU memory management"""
+        """
+        Runs the model on GPU - this is where the magic happens!
+        Returns raw model output (not human-readable yet)
+        """
         # Ensure input is contiguous and float32
         input_data = np.ascontiguousarray(input_data, dtype=np.float32)
         
@@ -161,7 +211,17 @@ class TensorRTInference:
         return output
     
     def postprocess_yolo(self, output: np.ndarray, conf_threshold=0.25, iou_threshold=0.45, debug=False) -> List:
-        """Post-process YOLO output to get detections"""
+        """
+        Converts raw model output into bounding boxes.
+        
+        This is the complex part - it:
+        1. Extracts boxes, scores, and classes from model output
+        2. Filters out low-confidence detections
+        3. Converts box coordinates to pixel positions
+        4. Removes duplicate boxes (NMS - Non-Maximum Suppression)
+        
+        Returns: List of detections, each with 'box', 'score', 'class_id'
+        """
         # Output shape: (1, 27, 8400) -> reshape to (8400, 27)
         predictions = output[0].transpose((1, 0))  # (8400, 27)
         
@@ -488,23 +548,142 @@ def test_video(video_path: str, engine_path: str = "model.engine", output_path: 
     print(f"Output saved to {output_path}")
 
 
+def test_live_camera(engine_path: str = "model.engine", camera_id: int = 0, conf_threshold: float = 0.25):
+    """
+    Run live inference on webcam feed!
+    
+    Args:
+        engine_path: Path to your .engine file
+        camera_id: Camera index (usually 0 for default webcam)
+        conf_threshold: Confidence threshold (0.0-1.0, lower = more detections)
+    
+    Press 'q' to quit!
+    """
+    print("Initializing model...")
+    inferencer = TensorRTInference(engine_path)
+    
+    print(f"Opening camera {camera_id}...")
+    cap = cv2.VideoCapture(camera_id)
+    
+    if not cap.isOpened():
+        print(f"Error: Could not open camera {camera_id}")
+        print("Try a different camera_id (0, 1, 2, etc.)")
+        return
+    
+    # Set camera resolution (optional - adjust if needed)
+    cap.set(cv2.CAP_PROP_FRAME_WIDTH, 1280)
+    cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 720)
+    
+    print("Camera ready! Press 'q' to quit")
+    print("Press 'd' to toggle debug mode")
+    
+    frame_count = 0
+    total_time = 0
+    debug_mode = False
+    
+    try:
+        while True:
+            ret, frame = cap.read()
+            if not ret:
+                print("Failed to read from camera")
+                break
+            
+            # Preprocess frame
+            input_data = inferencer.preprocess(frame)
+            
+            # Run inference
+            start_time = time.time()
+            output = inferencer.infer(input_data)
+            inference_time = time.time() - start_time
+            total_time += inference_time
+            frame_count += 1
+            
+            # Post-process
+            detections = inferencer.postprocess_yolo(
+                output, 
+                conf_threshold=conf_threshold, 
+                debug=debug_mode
+            )
+            
+            # Draw detections
+            result_frame = inferencer.draw_detections(frame, detections)
+            
+            # Add FPS counter
+            fps = 1.0 / inference_time if inference_time > 0 else 0
+            avg_fps = frame_count / total_time if total_time > 0 else 0
+            cv2.putText(result_frame, f"FPS: {fps:.1f} | Avg: {avg_fps:.1f} | Detections: {len(detections)}", 
+                       (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 255, 0), 2)
+            
+            # Show frame
+            cv2.imshow("Live Object Detection", result_frame)
+            
+            # Handle key presses
+            key = cv2.waitKey(1) & 0xFF
+            if key == ord('q'):
+                print("Quitting...")
+                break
+            elif key == ord('d'):
+                debug_mode = not debug_mode
+                print(f"Debug mode: {'ON' if debug_mode else 'OFF'}")
+    
+    except KeyboardInterrupt:
+        print("\nInterrupted by user")
+    
+    finally:
+        cap.release()
+        cv2.destroyAllWindows()
+        if frame_count > 0:
+            print(f"\nProcessed {frame_count} frames")
+            print(f"Average FPS: {frame_count/total_time:.2f}")
+
+
 if __name__ == "__main__":
     import sys
     
     if len(sys.argv) < 2:
-        print("Usage:")
-        print("  python test_inference.py <image_path>")
-        print("  python test_inference.py <video_path> --video")
-        print("\nExample:")
+        print("=" * 60)
+        print("TensorRT YOLO Object Detection")
+        print("=" * 60)
+        print("\nUsage:")
+        print("  # Test on a single image:")
+        print("  python test_inference.py <image_path> [engine_path]")
+        print("\n  # Test on a video file:")
+        print("  python test_inference.py <video_path> --video [engine_path]")
+        print("\n  # Live webcam inference:")
+        print("  python test_inference.py --camera [engine_path]")
+        print("\nExamples:")
         print("  python test_inference.py test.jpg")
         print("  python test_inference.py test.mp4 --video")
+        print("  python test_inference.py --camera")
+        print("  python test_inference.py --camera model.engine")
+        print("\nPress 'q' to quit live camera, 'd' to toggle debug")
         sys.exit(1)
     
-    file_path = sys.argv[1]
-    engine_path = sys.argv[2] if len(sys.argv) > 2 and sys.argv[2] != "--video" else "model.engine"
-    is_video = "--video" in sys.argv
-    
-    if is_video:
-        test_video(file_path, engine_path)
+    # Check for camera mode
+    if "--camera" in sys.argv:
+        engine_path = "model.engine"
+        # Find engine path if provided
+        for i, arg in enumerate(sys.argv):
+            if arg == "--camera" and i + 1 < len(sys.argv) and not sys.argv[i + 1].startswith("--"):
+                engine_path = sys.argv[i + 1]
+                break
+            elif not arg.startswith("--") and arg != sys.argv[0]:
+                engine_path = arg
+                break
+        test_live_camera(engine_path)
     else:
-        test_single_image(file_path, engine_path)
+        # File-based inference
+        file_path = sys.argv[1]
+        engine_path = "model.engine"
+        is_video = "--video" in sys.argv
+        
+        # Find engine path
+        for i, arg in enumerate(sys.argv[1:], 1):
+            if arg != "--video" and arg != file_path and not arg.startswith("--"):
+                engine_path = arg
+                break
+        
+        if is_video:
+            test_video(file_path, engine_path)
+        else:
+            test_single_image(file_path, engine_path)
