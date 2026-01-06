@@ -3,13 +3,3 @@
 venv/
 trt-env/
 
-# Video files
-*.mp4
-*.mkv
-*.avi
-*.mov
-
-# Image files
-*.jpg
-*.jpeg
-*.png
