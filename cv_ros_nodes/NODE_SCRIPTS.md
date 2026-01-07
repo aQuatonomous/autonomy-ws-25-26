@@ -15,8 +15,8 @@ ros2 run v4l2_camera v4l2_camera_node --ros-args -p video_device:=/dev/video2 -p
 
 ## CV Nodes
 ```bash
-python3 NODE_preprocessing.py  # Subscribes: /camera0/image_raw → Publishes: /camera0/image_preprocessed
-python3 NODE_inference.py       # Subscribes: /camera0/image_preprocessed
+python3 vision_preprocessing.py  # Subscribes: /camera0/image_raw → Publishes: /camera0/image_preprocessed
+python3 vision_inference.py       # Subscribes: /camera0/image_preprocessed
 ```
 
 ## Monitoring
