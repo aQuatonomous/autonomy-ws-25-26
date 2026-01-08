@@ -42,9 +42,17 @@ python3 vision_inference.py --camera_id 2  # /camera2/image_preprocessed → /ca
 # Combiner node (combines all camera detections)
 python3 vision_combiner.py  # Subscribes: /camera0/detection_info, /camera1/detection_info, /camera2/detection_info
                             # Publishes: /combined/detection_info
+                            # Default: Latest value approach with 1.0s staleness threshold
+
+# Custom staleness threshold (exclude cameras that haven't updated recently)
+python3 vision_combiner.py --staleness_threshold 0.5  # More strict (0.5s)
+python3 vision_combiner.py --staleness_threshold 2.0  # More lenient (2.0s)
 
 # Optional: Apply NMS across cameras to remove duplicates
 python3 vision_combiner.py --apply_nms --iou_threshold 0.5
+
+# Optional: Use timestamp-based synchronization (more complex)
+python3 vision_combiner.py --use_timestamp_sync --sync_window 0.05
 ```
 
 ## Monitoring
@@ -85,11 +93,34 @@ The combiner node publishes to `/combined/detection_info` with the following JSO
 {
   "timestamp": 1234567890.123,
   "num_cameras": 3,
+  "num_active_cameras": 2,
+  "num_stale_cameras": 1,
+  "num_no_data_cameras": 0,
+  "staleness_threshold": 1.0,
   "total_detections": 5,
   "camera_stats": {
-    "0": {"status": "active", "num_detections": 2, "fps": 30.5, "timestamp": 1234567890.1},
-    "1": {"status": "active", "num_detections": 2, "fps": 29.8, "timestamp": 1234567890.1},
-    "2": {"status": "active", "num_detections": 1, "fps": 30.2, "timestamp": 1234567890.1}
+    "0": {
+      "status": "active",
+      "num_detections": 2,
+      "fps": 30.5,
+      "timestamp": 1234567890.1,
+      "time_since_update": 0.023
+    },
+    "1": {
+      "status": "active",
+      "num_detections": 2,
+      "fps": 29.8,
+      "timestamp": 1234567890.1,
+      "time_since_update": 0.031
+    },
+    "2": {
+      "status": "stale",
+      "num_detections": 0,
+      "time_since_update": 1.234,
+      "staleness_threshold": 1.0,
+      "fps": 0.0,
+      "last_timestamp": 1234567888.9
+    }
   },
   "detections": [
     {
@@ -102,5 +133,16 @@ The combiner node publishes to `/combined/detection_info` with the following JSO
   ]
 }
 ```
+
+**Key Features:**
+- **Latest Value Approach**: Combines the most recent detection from each camera
+- **Staleness Filtering**: Automatically excludes cameras that haven't updated recently (configurable threshold)
+- **Camera Status**: Each camera has a status: `"active"`, `"stale"`, or `"no_data"`
+- **Health Monitoring**: Output includes counts of active/stale/no_data cameras
+
+**Staleness Detection:**
+- If a camera's latest detection is older than `staleness_threshold` seconds, it's marked as `"stale"` and excluded from the output
+- This helps detect camera failures, processing stalls, or network issues
+- Default threshold: 1.0 second (configurable with `--staleness_threshold`)
 
 Each detection includes its source `camera_id` for tracking which camera detected each object.

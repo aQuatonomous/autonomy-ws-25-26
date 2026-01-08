@@ -263,8 +263,11 @@ python3 vision_inference.py --camera_id 2 --engine_path model.engine --conf_thre
 **Class**: `DetectionCombiner`
 
 **Parameters** (Command Line):
+- `--staleness_threshold`: Float (default: 1.0) - Maximum age in seconds before excluding camera
 - `--apply_nms`: Boolean flag - Apply NMS across cameras to remove duplicates
 - `--iou_threshold`: Float (default: 0.5) - IoU threshold for NMS (0.0-1.0)
+- `--use_timestamp_sync`: Boolean flag - Enable timestamp-based synchronization (advanced)
+- `--sync_window`: Float (default: 0.05) - Time window for timestamp matching (seconds)
 
 **Subscriptions**:
 - `/camera0/detection_info` (std_msgs/String) - Queue size: 10
@@ -279,24 +282,35 @@ python3 vision_inference.py --camera_id 2 --engine_path model.engine --conf_thre
 
 **Functionality**:
 
-**a) Detection Aggregation**:
-- Maintains latest detections from each camera
-- Tracks update timestamps for staleness detection
+**a) Detection Aggregation (Latest Value Approach)**:
+- Maintains the most recent detection from each camera
 - Combines all active detections into single list
+- Simple and fast - no complex synchronization needed
+- Works well when cameras have slightly different frame rates
 
-**b) Optional Cross-Camera NMS**:
+**b) Staleness Filtering (Automatic Failure Detection)**:
+- Tracks update timestamps for each camera
+- Automatically excludes cameras whose latest detection is older than threshold
+- Configurable staleness threshold (default: 1.0 seconds)
+- Helps detect camera failures, processing stalls, or network issues
+- Camera status: `active` (fresh data), `stale` (too old), `no_data` (never received)
+
+**c) Optional Cross-Camera NMS**:
 - Calculates IoU between detections from different cameras
 - Removes overlapping detections (keeps highest confidence)
 - Useful when cameras have overlapping fields of view
+- Only applied if `--apply_nms` flag is used
 
-**c) Health Monitoring**:
+**d) Health Monitoring**:
 - Tracks camera status: `active`, `no_data`, `stale`
 - Reports FPS and detection counts per camera
-- Timeout: 1.0 second (configurable)
+- Output includes counts: `num_active_cameras`, `num_stale_cameras`, `num_no_data_cameras`
+- Logs warnings when cameras become stale
 
-**d) Temporal Smoothing**:
+**e) Temporal Smoothing**:
 - Timer-based publishing ensures output even if cameras are slow
 - Prevents gaps in detection stream
+- Publishes at ~30 Hz regardless of camera update rates
 
 **Performance Characteristics**:
 - Processing time: <1 ms per update
@@ -305,12 +319,27 @@ python3 vision_inference.py --camera_id 2 --engine_path model.engine --conf_thre
 
 **Launch Command**:
 ```bash
-# Basic mode (no NMS)
+# Basic mode: Latest value with staleness filtering (default 1.0s threshold)
 python3 vision_combiner.py
 
-# With NMS to remove duplicates
+# Custom staleness threshold (more strict - 0.5s)
+python3 vision_combiner.py --staleness_threshold 0.5
+
+# More lenient threshold (2.0s - allows slower cameras)
+python3 vision_combiner.py --staleness_threshold 2.0
+
+# With NMS to remove duplicates across cameras
 python3 vision_combiner.py --apply_nms --iou_threshold 0.5
+
+# Advanced: Timestamp-based synchronization (more complex)
+python3 vision_combiner.py --use_timestamp_sync --sync_window 0.05
 ```
+
+**Staleness Filtering Example**:
+- Camera0: Last update 0.02s ago → **INCLUDED** (active)
+- Camera1: Last update 0.05s ago → **INCLUDED** (active)
+- Camera2: Last update 1.5s ago → **EXCLUDED** (stale, threshold=1.0s)
+- Output: Only detections from Camera0 and Camera1
 
 ---
 
@@ -428,24 +457,33 @@ python3 vision_combiner.py --apply_nms --iou_threshold 0.5
 {
   "timestamp": 1234567890.123456,
   "num_cameras": 3,
-  "total_detections": 8,
+  "num_active_cameras": 2,
+  "num_stale_cameras": 1,
+  "num_no_data_cameras": 0,
+  "staleness_threshold": 1.0,
+  "total_detections": 5,
   "camera_stats": {
     "0": {
       "status": "active",
       "num_detections": 3,
       "fps": 32.5,
-      "timestamp": 1234567890.123
+      "timestamp": 1234567890.123,
+      "time_since_update": 0.023
     },
     "1": {
       "status": "active",
       "num_detections": 2,
       "fps": 31.8,
-      "timestamp": 1234567890.124
+      "timestamp": 1234567890.124,
+      "time_since_update": 0.031
     },
     "2": {
       "status": "stale",
       "num_detections": 0,
-      "time_since_update": 1.5
+      "time_since_update": 1.234,
+      "staleness_threshold": 1.0,
+      "fps": 0.0,
+      "last_timestamp": 1234567888.9
     }
   },
   "detections": [
@@ -460,23 +498,31 @@ python3 vision_combiner.py --apply_nms --iou_threshold 0.5
       "class_id": 5,
       "score": 0.78,
       "bbox": [300, 400, 350, 450]
-    },
-    ...
-  ]
+    }
+  ],
+  "synchronized": null
 }
 ```
 
 **Field Descriptions**:
 - `timestamp`: Current system timestamp
 - `num_cameras`: Total number of cameras (always 3)
-- `total_detections`: Total number of detections across all cameras
+- `num_active_cameras`: Number of cameras with fresh data (included in output)
+- `num_stale_cameras`: Number of cameras with stale data (excluded from output)
+- `num_no_data_cameras`: Number of cameras that never sent data
+- `staleness_threshold`: Configured threshold for staleness detection (seconds)
+- `total_detections`: Total number of detections from active cameras only
 - `camera_stats`: Per-camera health and statistics
-  - `status`: `"active"`, `"no_data"`, or `"stale"`
-  - `num_detections`: Detections from this camera
+  - `status`: `"active"` (fresh data), `"no_data"` (never received), or `"stale"` (too old)
+  - `num_detections`: Detections from this camera (0 if stale/no_data)
   - `fps`: Camera processing rate
   - `timestamp`: Last update timestamp (if active)
-  - `time_since_update`: Seconds since last update (if stale)
+  - `time_since_update`: Seconds since last update
+  - `staleness_threshold`: Threshold used (if stale)
+  - `last_timestamp`: Last detection timestamp (if stale)
 - `detections`: Combined array with `camera_id` field added to each detection
+  - **Note**: Only includes detections from `active` cameras (stale cameras excluded)
+- `synchronized`: `true` if timestamp sync used, `null` if latest value approach
 
 ---
 
