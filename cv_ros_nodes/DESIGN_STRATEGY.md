@@ -12,7 +12,8 @@
 9. [Deployment Architecture](#deployment-architecture)
 10. [Failure Modes and Mitigation](#failure-modes-and-mitigation)
 11. [Configuration Parameters](#configuration-parameters)
-12. [Monitoring and Diagnostics](#monitoring-and-diagnostics)
+12. [Task-Specific Computer Vision Requirements](#task-specific-computer-vision-requirements)
+13. [Monitoring and Diagnostics](#monitoring-and-diagnostics)
 
 ---
 
@@ -1427,6 +1428,449 @@ performance:
     combiner: [8, 9]
 ```
 
+### Class Mapping Configuration
+
+**File**: `config/class_mapping.yaml`
+
+Maps class IDs (as output by the YOLO model) to human-readable object names.
+
+```yaml
+classes:
+  0: black_buoy
+  1: green_buoy
+  2: green_pole_buoy
+  3: red_buoy
+  4: red_pole_buoy
+  5: yellow_buoy
+  6: cross
+  7: dock
+  8: triangle
+```
+
+**Usage**: The `class_utils.py` module provides utilities to convert between class IDs and names:
+```python
+from class_utils import class_id_to_name, class_name_to_id, is_buoy_class
+
+# Convert class ID to name
+name = class_id_to_name(3)  # Returns "red_buoy"
+
+# Convert name to ID
+class_id = class_name_to_id("red_buoy")  # Returns 3
+
+# Check if class is a buoy
+is_buoy = is_buoy_class(3)  # Returns True
+```
+
+---
+
+## Task-Specific Computer Vision Requirements
+
+### Overview
+
+The computer vision pipeline provides the foundational perception capabilities required for all RoboBoat 2025 autonomy tasks. This section details how the vision system supports each task, what objects must be detected, and the specific computer vision capabilities required.
+
+**Key Vision Capabilities Across All Tasks:**
+- **Buoy Detection**: Red, green, black, and yellow buoys of various sizes
+- **Color Indicator Detection**: Red/green color indicators mounted on custom buoys
+- **Vessel Detection**: Yellow and black stationary vessels
+- **Shape Detection**: Triangles, crosses/plus signs, and dock numbers
+- **Spatial Understanding**: Bounding box coordinates for navigation and targeting
+
+**Integration with Task Execution:**
+- Vision detections are published to `/combined/detection_info` topic
+- Task-specific nodes subscribe to detections and execute task logic
+- Color indicator state detection is handled by a separate module (see `task_vision_processor.py` documentation)
+- Real-time detection enables dynamic navigation and decision-making
+
+---
+
+### Task 1: Evacuation Route & Return
+
+**Objective**: Navigate through entry and exit gates marked by pairs of red and green buoys.
+
+**Computer Vision Requirements:**
+
+**Primary Detections:**
+- **Red Buoys** (class_id: 3): Port marker buoys (Taylor Made Sur-Mark, 39in height, 18in diameter)
+- **Green Buoys** (class_id: 1): Starboard marker buoys (Taylor Made Sur-Mark, 39in height, 18in diameter)
+
+**Vision Processing:**
+1. **Gate Detection**: Identify pairs of red and green buoys forming navigation gates
+   - Minimum detection range: 6 ft before first gate (autonomous navigation start point)
+   - Must detect both buoys in a pair to identify gate center
+   - Calculate gate centerline for navigation path planning
+
+2. **Spatial Analysis**:
+   - Estimate distance to buoys using bounding box size and camera calibration
+   - Calculate relative position (port/starboard) for gate alignment
+   - Monitor ASV position relative to gate centerline
+
+3. **Safety Monitoring**:
+   - Continuous detection of all gate buoys during transit
+   - Alert if ASV trajectory would cause collision
+   - Verify complete passage through gate (both buoys behind ASV)
+
+**Output Requirements:**
+- Real-time detection of red/green gate buoys
+- Bounding box coordinates for navigation planning
+- Gate centerline calculation
+- Completion verification (entry and exit gates)
+
+**Performance Targets:**
+- Detection range: >20 meters
+- Update rate: ≥30 Hz for real-time navigation
+- False positive rate: <5% (critical for collision avoidance)
+
+---
+
+### Task 2: Debris Clearance
+
+**Objective**: Navigate through channel, enter debris field, identify hazards/survivors, and return.
+
+**Computer Vision Requirements:**
+
+**Primary Detections:**
+- **Gate Buoys**: Red (class_id: 3) and green (class_id: 1) buoys marking channel entrance/exit
+- **Black Buoys** (class_id: 0): Obstacle buoys representing debris (Polyform A-0, 0.5ft height)
+- **Color Indicator Buoys**: Red or green indicators on custom buoys
+  - Red indicator = hazard to avoid and report
+  - Green indicator = survivor to rescue, circle, and report
+
+**Vision Processing:**
+
+1. **Channel Navigation**:
+   - Detect red/green gate buoys forming channel boundaries
+   - Maintain position within channel (between gate pairs)
+   - Avoid contact with channel markers
+
+2. **Debris Field Scanning**:
+   - Detect all black obstacle buoys (debris)
+   - Detect color indicator buoys and classify color (red/green)
+   - Estimate positions of all detected objects for reporting
+
+3. **Color Indicator Classification**:
+   - Detect custom buoy with color indicator
+   - Classify indicator color (red vs green) - see Color Indicator Detection section
+   - Determine if indicator requires action (green = circle, red = avoid)
+
+4. **Spatial Mapping**:
+   - Build map of debris field with all object positions
+   - Calculate relative positions for navigation planning
+   - Identify safe paths through debris field
+
+**Output Requirements:**
+- Detection of all gate buoys (red/green)
+- Detection of all black obstacle buoys
+- Detection and color classification of color indicator buoys
+- Position estimates (lat/long) for all detected objects
+- Real-time obstacle map for path planning
+
+**Performance Targets:**
+- Detection range: >30 meters for debris field scanning
+- Color classification accuracy: >95% (critical for survivor identification)
+- Position estimation accuracy: ±1 meter (for reporting requirements)
+
+---
+
+### Task 3: Emergency Response Sprint
+
+**Objective**: Pass through gate, circle yellow buoy in direction indicated by color indicator, exit through gate.
+
+**Computer Vision Requirements:**
+
+**Primary Detections:**
+- **Gate Buoys**: Red (class_id: 3) and green (class_id: 1) buoys (Polyform A-2, 1ft height)
+- **Yellow Buoy** (class_id: 5): Target buoy to circle (Polyform A-2, 1ft height)
+- **Color Indicator Buoy**: Red or green indicator determining circling direction
+  - Red = circle counter-clockwise (right side)
+  - Green = circle clockwise (left side)
+
+**Vision Processing:**
+
+1. **Gate Detection and Transit**:
+   - Detect entry gate (red/green buoys)
+   - Navigate through gate centerline
+   - Detect exit gate for return path
+
+2. **Yellow Buoy Detection and Tracking**:
+   - Detect yellow buoy in field of view
+   - Track yellow buoy position continuously
+   - Estimate distance and bearing for approach
+
+3. **Color Indicator Classification**:
+   - Detect color indicator on custom buoy
+   - Classify as red or green (determines circling direction)
+   - Verify indicator state before initiating circle maneuver
+
+4. **Circling Maneuver Guidance**:
+   - Monitor ASV position relative to yellow buoy
+   - Provide real-time feedback for circle completion
+   - Verify correct direction (clockwise vs counter-clockwise)
+
+**Output Requirements:**
+- Gate buoy detections (entry and exit)
+- Yellow buoy detection with position tracking
+- Color indicator detection and classification (red/green)
+- Real-time position feedback during circling maneuver
+- Completion verification
+
+**Performance Targets:**
+- Yellow buoy detection range: >25 meters
+- Color indicator classification: >98% accuracy (critical for direction)
+- Update rate: ≥30 Hz for high-speed maneuvering
+- Low latency: <50ms end-to-end for responsive control
+
+---
+
+### Task 4: Supply Drop
+
+**Objective**: Deliver water to yellow vessels (black triangle target) or racquetball to black vessels (black plus/cross target).
+
+**Computer Vision Requirements:**
+
+**Primary Detections:**
+- **Yellow Vessels** (class_id: 7 with shape detection): Stationary vessels with black triangle on both sides
+- **Black Vessels** (class_id: 7 with shape detection): Stationary vessels with black plus/cross on both sides
+- **Triangle Shapes** (class_id: 8): Black triangle targets on yellow vessels
+- **Cross/Plus Shapes** (class_id: 6): Black plus targets on black vessels
+
+**Vision Processing:**
+
+1. **Vessel Detection**:
+   - Detect yellow stationary vessels (up to 3)
+   - Detect black stationary vessels (up to 3)
+   - Estimate vessel position and orientation
+
+2. **Target Shape Detection**:
+   - **Yellow Vessels**: Detect black triangle shape on vessel side
+   - **Black Vessels**: Detect black plus/cross shape on vessel side
+   - Calculate target center coordinates for aiming
+
+3. **Aiming and Delivery**:
+   - Track target shape position in real-time
+   - Calculate aim point for water stream or ball delivery
+   - Verify target hit (water stream on triangle or ball in vessel)
+
+4. **Multi-Vessel Management**:
+   - Identify all available vessels (yellow and black)
+   - Prioritize delivery order
+   - Track completion status for each vessel
+
+**Output Requirements:**
+- Yellow vessel detection with position
+- Black vessel detection with position
+- Triangle shape detection on yellow vessels (target center)
+- Plus/cross shape detection on black vessels (target center)
+- Real-time target tracking for aiming
+- Delivery verification (hit confirmation)
+
+**Performance Targets:**
+- Vessel detection range: >30 meters
+- Shape detection accuracy: >90% (for precise aiming)
+- Target center estimation: ±5cm accuracy (for water/ball delivery)
+- Real-time tracking: ≥30 Hz for dynamic aiming
+
+**Special Considerations:**
+- Must detect shapes on both sides of vessels (approach from any angle)
+- Robust detection in varying lighting conditions (water reflection)
+- Handle partial occlusions (vessel may be partially visible)
+
+---
+
+### Task 5: Navigate the Marina
+
+**Objective**: Dock in available slip with lowest number, indicated by green color indicator.
+
+**Computer Vision Requirements:**
+
+**Primary Detections:**
+- **Dock Structure** (class_id: 7): Floating dock with multiple slips
+- **Color Indicators**: Red or green indicators on dock slips
+  - Green = available slip
+  - Red = occupied slip
+- **Number Signs**: Black number banners (1, 2, or 3) on dock slips
+- **Stationary Vessels**: Yellow/black vessels in occupied slips
+
+**Vision Processing:**
+
+1. **Dock Detection and Approach**:
+   - Detect dock structure in marina
+   - Identify dock orientation and slip layout
+   - Plan approach path to marina
+
+2. **Slip Availability Detection**:
+   - Detect color indicators on each slip
+   - Classify as green (available) or red (occupied)
+   - Identify all available slips
+
+3. **Number Sign Recognition**:
+   - Detect number banners on dock slips
+   - Recognize numbers 1, 2, or 3
+   - Associate numbers with slip positions
+
+4. **Slip Selection Logic**:
+   - Filter slips with green indicators (available)
+   - Identify lowest number among available slips
+   - Select target slip for docking
+
+5. **Docking Guidance**:
+   - Track target slip position
+   - Provide real-time position feedback for docking maneuver
+   - Verify successful docking in selected slip
+
+**Output Requirements:**
+- Dock structure detection
+- Color indicator detection and classification (red/green) for each slip
+- Number sign detection and recognition (1, 2, 3)
+- Available slip identification with numbers
+- Target slip selection (lowest number available)
+- Real-time docking guidance
+
+**Performance Targets:**
+- Dock detection range: >40 meters
+- Color indicator classification: >95% accuracy
+- Number recognition accuracy: >90% (OCR or template matching)
+- Slip identification: 100% accuracy (critical for correct docking)
+
+**Special Considerations:**
+- Must handle multiple slips simultaneously
+- Robust number recognition in varying lighting/angles
+- Handle cases where slip has red indicator but no vessel
+- Accurate slip numbering is critical (docking in wrong slip = failure)
+
+---
+
+### Task 6: Harbor Alert
+
+**Objective**: Detect audible signal and navigate to emergency zone (1 blast) or return to marina (2 blasts).
+
+**Computer Vision Requirements:**
+
+**Note**: This task is primarily audio-based (sound signal detection). Computer vision supports navigation to assigned zones but is not required for signal detection.
+
+**Supporting Vision Requirements:**
+- **Yellow Buoy Detection** (class_id: 5): Emergency response zone marker (Task 3 location)
+- **Marina Detection** (class_id: 7): Dock structure for return navigation (Task 5 location)
+
+**Vision Processing:**
+1. **Emergency Zone Navigation** (1-blast signal):
+   - Detect yellow buoy at Task 3 location
+   - Navigate to yellow buoy position
+   - Verify arrival at emergency zone
+
+2. **Marina Return Navigation** (2-blast signal):
+   - Detect dock structure (Task 5)
+   - Navigate to marina entrance
+   - Support docking if required
+
+**Output Requirements:**
+- Yellow buoy detection for emergency zone
+- Dock detection for marina return
+- Navigation guidance to assigned zone
+
+**Performance Targets:**
+- Detection range: >30 meters
+- Fast response: <2 seconds from signal to navigation start
+
+---
+
+### Color Indicator Detection
+
+**Overview**: Color indicators are 3D-printed cylinders that change between red and green, mounted on custom buoys. They are used across multiple tasks (Tasks 2, 3, 5) to provide dynamic state information.
+
+**Technical Specifications:**
+- **Appearance**: Single-colored cylinder (red OR green), visible 360° horizontally
+- **Mounting**: Custom buoy base (~18 inches across)
+- **State**: Binary (red or green, not both simultaneously)
+- **Visibility**: Horizontal plane only (not visible from above/below)
+
+**Computer Vision Approach:**
+
+**Note**: Color indicator state detection is handled by a dedicated module (`task_vision_processor.py` - see separate documentation). The primary vision pipeline detects the custom buoy, and the task processor extracts and classifies the color indicator state.
+
+**Detection Pipeline:**
+
+1. **Buoy Detection**:
+   - Primary vision pipeline detects custom buoy (class_id: 7 or specialized class)
+   - Identifies bounding box of buoy structure
+
+2. **Color Indicator Extraction**:
+   - Extract region of interest (ROI) containing color indicator cylinder
+   - Apply color space analysis (HSV recommended for robustness)
+   - Handle varying lighting conditions (sunlight, water reflection)
+
+3. **Color Classification**:
+   - Classify indicator as red or green
+   - Use temporal smoothing to handle transient detection errors
+   - Maintain state history for robust classification
+
+4. **State Reporting**:
+   - Publish indicator state (red/green) to task-specific topics
+   - Include confidence score for state classification
+   - Report position of indicator for task execution
+
+**Challenges and Solutions:**
+
+**Challenge 1: Lighting Variations**
+- **Solution**: Use HSV color space, adaptive thresholds, histogram analysis
+- **Solution**: Temporal smoothing with state history (similar to light detection approach)
+
+**Challenge 2: Partial Occlusion**
+- **Solution**: Multi-camera fusion increases detection probability
+- **Solution**: Confidence-based state reporting
+
+**Challenge 3: Similar Colors (Red vs Green)**
+- **Solution**: Precise color space thresholds
+- **Solution**: Machine learning classifier if needed
+
+**Performance Requirements:**
+- Classification accuracy: >95% (critical for task decisions)
+- Update rate: ≥10 Hz (sufficient for task execution)
+- Detection range: >25 meters
+- Robust to lighting: Works in direct sunlight, overcast, water reflection
+
+**Integration:**
+- Color indicator detection runs as separate processing module
+- Subscribes to `/combined/detection_info` for buoy detections
+- Publishes to `/task/color_indicator_state` with indicator states
+- Task execution nodes subscribe to indicator states for decision-making
+
+---
+
+### Task Integration Summary
+
+**Common Vision Capabilities Across Tasks:**
+
+| Object Type | Class ID | Tasks Using | Critical Requirements |
+|-------------|----------|-------------|----------------------|
+| Red Buoy | 3 | 1, 2, 3 | Gate detection, navigation |
+| Green Buoy | 1 | 1, 2, 3 | Gate detection, navigation |
+| Black Buoy | 0 | 2 | Obstacle avoidance |
+| Yellow Buoy | 5 | 3, 6 | Target identification |
+| Yellow Vessel | 7 | 4 | Supply delivery target |
+| Black Vessel | 7 | 4 | Supply delivery target |
+| Dock | 7 | 5 | Marina navigation |
+| Triangle | 8 | 4 | Water delivery target |
+| Cross/Plus | 6 | 4 | Ball delivery target |
+| Color Indicator | Special | 2, 3, 5 | Dynamic state detection |
+
+**Task Execution Flow:**
+
+```
+Vision Pipeline → /combined/detection_info
+                    ↓
+        Task-Specific Processors
+                    ↓
+    Task Execution Nodes (Navigation, Delivery, etc.)
+```
+
+**Key Design Decisions:**
+
+1. **Separation of Concerns**: Primary vision pipeline focuses on object detection; task-specific processors handle task logic
+2. **Modularity**: Each task can be developed/tested independently
+3. **Reusability**: Common objects (buoys, vessels) detected once, used by multiple tasks
+4. **Real-time Performance**: Combined detections enable fast task execution decisions
+
 ---
 
 ## Monitoring and Diagnostics
@@ -1615,14 +2059,23 @@ ros2 trace analyze vision_pipeline
 
 ### Appendix C: Class ID Mapping
 
-**Example Class IDs** (YOLO COCO dataset):
-- 0: person
-- 1: bicycle
-- 2: car
-- 3: motorcycle
-- 4: airplane
-- 5: bus
-- ... (80 total classes)
+**Maritime Object Detection Class IDs**:
+
+| Class ID | Class Name | Category | Dataset Count |
+|----------|------------|----------|---------------|
+| 0 | black_buoy | Buoy | 4,931 |
+| 1 | green_buoy | Buoy | 9,007 |
+| 2 | green_pole_buoy | Buoy | 7,533 |
+| 3 | red_buoy | Buoy | 8,760 |
+| 4 | red_pole_buoy | Buoy | 6,767 |
+| 5 | yellow_buoy | Buoy | 4,938 |
+| 6 | cross | Navigation Marker | 3,311 |
+| 7 | dock | Infrastructure | 4,991 |
+| 8 | triangle | Navigation Marker | 3,345 |
+
+**Total Classes**: 9
+
+**Configuration File**: `config/class_mapping.yaml`
 
 **Custom Mapping**: Define in model training documentation
 
