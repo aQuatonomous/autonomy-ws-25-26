@@ -1,9 +1,11 @@
 """
 TensorRT YOLO Inference ROS2 Node
 
-Subscribes to: /camera0/image_preprocessed
-Publishes to: /camera0/detections (Image with bounding boxes)
-              /camera0/detection_info (String with detection details)
+Subscribes to: /camera{N}/image_preprocessed
+Publishes to: /camera{N}/detections (Image with bounding boxes)
+              /camera{N}/detection_info (String with detection details)
+
+Usage: python3 vision_inference.py --camera_id 0
 """
 
 import rclpy
@@ -18,6 +20,7 @@ from typing import List
 import ctypes
 import time
 import json
+import argparse
 
 
 # ============================================================================
@@ -319,8 +322,9 @@ class TensorRTInference:
 # ============================================================================
 class InferenceNode(Node):
     
-    def __init__(self, engine_path: str = "model.engine", conf_threshold: float = 0.25):
-        super().__init__('inference_node')
+    def __init__(self, camera_id: int, engine_path: str = "model.engine", conf_threshold: float = 0.25):
+        super().__init__(f'inference_node_camera{camera_id}')
+        self.camera_id = camera_id
         
         # Initialize TensorRT engine
         self.get_logger().info(f'Loading TensorRT engine from {engine_path}...')
@@ -336,7 +340,7 @@ class InferenceNode(Node):
         # Subscribe to preprocessed images
         self.subscription = self.create_subscription(
             Image,
-            '/camera0/image_preprocessed',
+            f'/camera{camera_id}/image_preprocessed',
             self.image_callback,
             10
         )
@@ -344,20 +348,20 @@ class InferenceNode(Node):
         # Publisher for images with bounding boxes
         self.detection_image_pub = self.create_publisher(
             Image,
-            '/camera0/detections',
+            f'/camera{camera_id}/detections',
             10
         )
         
         # Publisher for detection information (JSON)
         self.detection_info_pub = self.create_publisher(
             String,
-            '/camera0/detection_info',
+            f'/camera{camera_id}/detection_info',
             10
         )
         
-        self.get_logger().info('Inference node ready!')
-        self.get_logger().info('Subscribed to: /camera0/image_preprocessed')
-        self.get_logger().info('Publishing to: /camera0/detections, /camera0/detection_info')
+        self.get_logger().info(f'Inference node for camera{camera_id} ready!')
+        self.get_logger().info(f'Subscribed to: /camera{camera_id}/image_preprocessed')
+        self.get_logger().info(f'Publishing to: /camera{camera_id}/detections, /camera{camera_id}/detection_info')
     
     def image_callback(self, msg: Image):
         """Process incoming images and run inference"""
@@ -399,6 +403,7 @@ class InferenceNode(Node):
             
             # Publish detection info as JSON
             detection_info = {
+                'camera_id': self.camera_id,
                 'timestamp': msg.header.stamp.sec + msg.header.stamp.nanosec * 1e-9,
                 'frame_id': msg.header.frame_id,
                 'num_detections': len(detections),
@@ -432,11 +437,25 @@ class InferenceNode(Node):
 def main(args=None):
     rclpy.init(args=args)
     
-    # You can change these parameters as needed
-    engine_path = "model.engine"  # Path to your TensorRT engine file
-    conf_threshold = 0.25  # Confidence threshold (0.0-1.0)
+    # Parse command line arguments
+    parser = argparse.ArgumentParser(description='ROS2 TensorRT Inference Node')
+    parser.add_argument('--camera_id', type=int, default=0,
+                       help='Camera ID (0, 1, or 2)')
+    parser.add_argument('--engine_path', type=str, default='model.engine',
+                       help='Path to TensorRT engine file')
+    parser.add_argument('--conf_threshold', type=float, default=0.25,
+                       help='Confidence threshold (0.0-1.0)')
+    args_parsed = parser.parse_args(args)
     
-    node = InferenceNode(engine_path=engine_path, conf_threshold=conf_threshold)
+    if args_parsed.camera_id not in [0, 1, 2]:
+        print("Error: camera_id must be 0, 1, or 2")
+        return
+    
+    node = InferenceNode(
+        camera_id=args_parsed.camera_id,
+        engine_path=args_parsed.engine_path,
+        conf_threshold=args_parsed.conf_threshold
+    )
     
     try:
         rclpy.spin(node)

@@ -3,19 +3,21 @@ from rclpy.node import Node
 from sensor_msgs.msg import Image
 from cv_bridge import CvBridge
 import cv2
+import argparse
 
 
-class PreprocessCamera0(Node):
+class PreprocessCamera(Node):
     
-    def __init__(self):
-        super().__init__('preprocess_camera0')
+    def __init__(self, camera_id: int):
+        super().__init__(f'preprocess_camera{camera_id}')
+        self.camera_id = camera_id
         self.bridge = CvBridge()
         self.frame_count = 0
 
         # Subscribe to raw camera images
         self.subscription = self.create_subscription(
             Image,
-            '/camera0/image_raw',
+            f'/camera{camera_id}/image_raw',
             self.image_callback,
             10
         )
@@ -23,9 +25,13 @@ class PreprocessCamera0(Node):
         # Publisher for processed images
         self.publisher = self.create_publisher(
             Image,
-            '/camera0/image_preprocessed',
+            f'/camera{camera_id}/image_preprocessed',
             10
         )
+        
+        self.get_logger().info(f'Preprocessing node for camera{camera_id} initialized')
+        self.get_logger().info(f'Subscribed to: /camera{camera_id}/image_raw')
+        self.get_logger().info(f'Publishing to: /camera{camera_id}/image_preprocessed')
         
     def image_callback(self, msg: Image):
         # 1) ROS2 Image -> OpenCV image
@@ -53,7 +59,18 @@ class PreprocessCamera0(Node):
 
 def main(args=None):
     rclpy.init(args=args)
-    node = PreprocessCamera0()
+    
+    # Parse command line arguments
+    parser = argparse.ArgumentParser(description='ROS2 Camera Preprocessing Node')
+    parser.add_argument('--camera_id', type=int, default=0,
+                       help='Camera ID (0, 1, or 2)')
+    args_parsed = parser.parse_args(args)
+    
+    if args_parsed.camera_id not in [0, 1, 2]:
+        print("Error: camera_id must be 0, 1, or 2")
+        return
+    
+    node = PreprocessCamera(camera_id=args_parsed.camera_id)
     try:
         rclpy.spin(node)
     except KeyboardInterrupt:
