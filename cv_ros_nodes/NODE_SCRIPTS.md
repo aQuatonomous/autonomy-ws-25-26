@@ -48,8 +48,11 @@ python3 vision_combiner.py  # Subscribes: /camera0/detection_info, /camera1/dete
 python3 vision_combiner.py --staleness_threshold 0.5  # More strict (0.5s)
 python3 vision_combiner.py --staleness_threshold 2.0  # More lenient (2.0s)
 
-# Optional: Apply NMS across cameras to remove duplicates
-python3 vision_combiner.py --apply_nms --iou_threshold 0.5
+# Enable overlap deduplication (recommended for side-by-side cameras with 15° overlap)
+python3 vision_combiner.py --deduplicate_overlap
+
+# Overlap deduplication with custom parameters
+python3 vision_combiner.py --deduplicate_overlap --overlap_zone_width 0.20 --overlap_y_tolerance 0.15
 
 # Optional: Use timestamp-based synchronization (more complex)
 python3 vision_combiner.py --use_timestamp_sync --sync_window 0.05

@@ -64,7 +64,6 @@ This document describes the complete design strategy for a multi-camera computer
                     │      Detection Combiner Node                    │
                     │      (vision_combiner)                          │
                     │      - Aggregates all detections                │
-                    │      - Optional NMS across cameras              │
                     │      - Health monitoring                        │
                     └───────────────────┬────────────────────────────┘
                                         │
@@ -92,8 +91,8 @@ This document describes the complete design strategy for a multi-camera computer
 
 **Stage 4: Aggregation**
 - Combines detections from all cameras
-- Optional NMS to remove duplicates across camera views
 - Output: Unified detection list with camera source tracking
+- All detections from all cameras are preserved (no deduplication)
 
 ---
 
@@ -104,6 +103,12 @@ This document describes the complete design strategy for a multi-camera computer
 **Node Name**: `v4l2_camera_node` (3 instances with different namespaces)
 
 **Purpose**: Interface with V4L2-compatible USB cameras
+
+**Physical Configuration**:
+- **Camera arrangement**: 3 cameras mounted side-by-side
+- **Field of view per camera**: 85 degrees (horizontal)
+- **Overlap between adjacent cameras**: 15 degrees
+- **Total horizontal coverage**: ~245 degrees
 
 **Instances**:
 - `/camera0/v4l2_camera_node` (video0)
@@ -265,10 +270,11 @@ python3 vision_inference.py --camera_id 2 --engine_path model.engine --conf_thre
 
 **Parameters** (Command Line):
 - `--staleness_threshold`: Float (default: 1.0) - Maximum age in seconds before excluding camera
-- `--apply_nms`: Boolean flag - Apply NMS across cameras to remove duplicates
-- `--iou_threshold`: Float (default: 0.5) - IoU threshold for NMS (0.0-1.0)
 - `--use_timestamp_sync`: Boolean flag - Enable timestamp-based synchronization (advanced)
 - `--sync_window`: Float (default: 0.05) - Time window for timestamp matching (seconds)
+- `--deduplicate_overlap`: Boolean flag - Enable overlap zone deduplication (default: disabled)
+- `--overlap_zone_width`: Float (default: 0.15) - Fraction of frame width for overlap zone (0.15 = 15%)
+- `--overlap_y_tolerance`: Float (default: 0.1) - Fraction of frame height for y-coordinate matching (0.1 = 10%)
 
 **Subscriptions**:
 - `/camera0/detection_info` (std_msgs/String) - Queue size: 10
@@ -296,11 +302,22 @@ python3 vision_inference.py --camera_id 2 --engine_path model.engine --conf_thre
 - Helps detect camera failures, processing stalls, or network issues
 - Camera status: `active` (fresh data), `stale` (too old), `no_data` (never received)
 
-**c) Optional Cross-Camera NMS**:
-- Calculates IoU between detections from different cameras
-- Removes overlapping detections (keeps highest confidence)
-- Useful when cameras have overlapping fields of view
-- Only applied if `--apply_nms` flag is used
+**c) Overlap Zone Deduplication (Optional)**:
+- **Default behavior**: All detections from all cameras are preserved - no deduplication
+- **Optional feature**: Enable with `--deduplicate_overlap` flag
+- For side-by-side camera geometry (85° FOV, 15° overlap):
+  - Camera 0 right edge overlaps with Camera 1 left edge
+  - Camera 1 right edge overlaps with Camera 2 left edge
+- **Matching criteria** (when deduplication enabled):
+  - Same `class_id`
+  - Similar vertical position (y-coordinate within tolerance)
+  - Both detections in overlap zones of their respective cameras
+- **Selection**: Keeps detection with higher confidence score
+- **Configuration**:
+  - `--overlap_zone_width`: Fraction of frame width for overlap zone (default: 0.15 = 15%)
+  - `--overlap_y_tolerance`: Fraction of frame height for y-coordinate matching (default: 0.1 = 10%)
+- **When to use**: Enable if you want to reduce duplicate detections in overlap zones
+- **When not to use**: Keep disabled if you want all detections for redundancy or if objects are very close together
 
 **d) Health Monitoring**:
 - Tracks camera status: `active`, `no_data`, `stale`
@@ -329,8 +346,11 @@ python3 vision_combiner.py --staleness_threshold 0.5
 # More lenient threshold (2.0s - allows slower cameras)
 python3 vision_combiner.py --staleness_threshold 2.0
 
-# With NMS to remove duplicates across cameras
-python3 vision_combiner.py --apply_nms --iou_threshold 0.5
+# Enable overlap deduplication (recommended for side-by-side cameras with 15° overlap)
+python3 vision_combiner.py --deduplicate_overlap
+
+# Overlap deduplication with custom parameters
+python3 vision_combiner.py --deduplicate_overlap --overlap_zone_width 0.20 --overlap_y_tolerance 0.15
 
 # Advanced: Timestamp-based synchronization (more complex)
 python3 vision_combiner.py --use_timestamp_sync --sync_window 0.05
@@ -760,7 +780,7 @@ python test_inference.py --camera 0
 - **TC-COMB-001**: Verify detection aggregation from 3 cameras
 - **TC-COMB-002**: Test with missing camera data
 - **TC-COMB-003**: Test staleness detection
-- **TC-COMB-004**: Verify NMS functionality (if enabled)
+- **TC-COMB-004**: Verify all detections from all cameras are preserved
 - **TC-COMB-005**: Test output format correctness
 
 **Test Script**: `test_combiner.py` (to be created)
@@ -1406,11 +1426,14 @@ inference:
 
 ```yaml
 combiner:
-  apply_nms: false
-  iou_threshold: 0.5
-  detection_timeout: 1.0  # seconds
+  staleness_threshold: 1.0  # seconds
   publish_rate: 30.0  # Hz
   queue_size: 10
+  deduplicate_overlap: false  # Enable to remove duplicates in 15° overlap zones
+  overlap_zone_width: 0.15  # Fraction of frame width (15% = right/left edge)
+  overlap_y_tolerance: 0.1  # Fraction of frame height for y-coordinate matching (10%)
+  # Note: When deduplicate_overlap is false, all detections from all cameras are preserved
+  # When enabled, detections in overlap zones are deduplicated based on class_id and position
 ```
 
 ### Performance Configuration

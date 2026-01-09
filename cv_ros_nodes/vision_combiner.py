@@ -4,8 +4,15 @@ Multi-Camera Detection Combiner ROS2 Node
 Subscribes to: /camera0/detection_info, /camera1/detection_info, /camera2/detection_info
 Publishes to: /combined/detection_info (String with all detections from all cameras)
 
-This node combines detections from all 3 cameras into a single detection list.
-Each detection includes its source camera_id for tracking.
+WHAT THIS NODE DOES:
+This node combines detections from all 3 side-by-side cameras into a single unified list.
+Each detection includes its source camera_id (0, 1, or 2) so you know which camera saw it.
+
+HOW IT WORKS:
+1. Subscribes to detection_info from all 3 cameras
+2. Collects ALL detections from each active camera
+3. Adds camera_id to each detection
+4. Publishes combined list at ~30 Hz
 
 OPERATION MODE:
 - Latest Value Approach (default): Combines the most recent detection from each camera,
@@ -15,9 +22,20 @@ OPERATION MODE:
   updated recently. If a camera's latest detection is older than the staleness threshold,
   it's excluded from the output (indicating the camera may have failed or stalled).
 
+OVERLAP DEDUPLICATION:
+For side-by-side cameras with 15° overlap, detections in overlap zones can be deduplicated.
+- Camera 0 overlaps with Camera 1: right edge of Camera 0, left edge of Camera 1
+- Camera 1 overlaps with Camera 2: right edge of Camera 1, left edge of Camera 2
+- Overlap zones are defined as a percentage of frame width (configurable, default ~15%)
+- Matching criteria: same class_id, similar vertical position (y-coordinate), both in overlap zones
+- Keeps detection with higher confidence score
+
 Usage:
-    # Default: Latest value with 1.0s staleness threshold
+    # Default: Combines all 3 cameras, 1.0s staleness threshold, NO overlap deduplication
     python3 vision_combiner.py
+    
+    # Enable overlap deduplication (recommended for side-by-side cameras)
+    python3 vision_combiner.py --deduplicate_overlap --overlap_zone_width 0.15 --overlap_y_tolerance 0.1
     
     # Custom staleness threshold (0.5s - more strict)
     python3 vision_combiner.py --staleness_threshold 0.5
@@ -39,16 +57,21 @@ import time
 
 class DetectionCombiner(Node):
     
-    def __init__(self, apply_nms: bool = False, iou_threshold: float = 0.5, 
-                 sync_window: float = 0.05, use_timestamp_sync: bool = False,
-                 staleness_threshold: float = 1.0):
+    def __init__(self, sync_window: float = 0.05, use_timestamp_sync: bool = False,
+                 staleness_threshold: float = 1.0, deduplicate_overlap: bool = False,
+                 overlap_zone_width: float = 0.15, overlap_y_tolerance: float = 0.1):
         super().__init__('detection_combiner')
         
-        self.apply_nms = apply_nms
-        self.iou_threshold = iou_threshold
         self.use_timestamp_sync = use_timestamp_sync
         self.sync_window = sync_window  # Time window for timestamp matching (seconds)
         self.staleness_threshold = staleness_threshold  # Max age for detections (seconds)
+        self.deduplicate_overlap = deduplicate_overlap  # Enable overlap zone deduplication
+        self.overlap_zone_width = overlap_zone_width  # Fraction of frame width for overlap zone (0.15 = 15%)
+        self.overlap_y_tolerance = overlap_y_tolerance  # Fraction of frame height for y-coordinate matching (0.1 = 10%)
+        
+        # Preprocessed image dimensions (640x480)
+        self.frame_width = 640
+        self.frame_height = 480
         
         # Store latest detections from each camera
         self.detections = {
@@ -108,7 +131,7 @@ class DetectionCombiner(Node):
             if self.use_timestamp_sync:
                 self._try_synchronize_and_publish(detection_timestamp, camera_id, detection_data)
             else:
-                # Old behavior: immediately publish when new data arrives
+                # Immediately publish when new data arrives
                 self.publish_combined()
             
         except json.JSONDecodeError as e:
@@ -154,54 +177,136 @@ class DetectionCombiner(Node):
         # Otherwise, if this is the first camera or others are too far off, 
         # we'll wait for timer-based publishing
     
-    def calculate_iou(self, box1: List[float], box2: List[float]) -> float:
-        """Calculate Intersection over Union (IoU) between two bounding boxes"""
-        # Box format: [x1, y1, x2, y2]
-        x1_1, y1_1, x2_1, y2_1 = box1
-        x1_2, y1_2, x2_2, y2_2 = box2
+    def _is_in_overlap_zone(self, bbox: List[float], camera_id: int, is_left: bool) -> bool:
+        """
+        Check if a detection is in the overlap zone of a camera.
         
-        # Calculate intersection
-        x1_i = max(x1_1, x1_2)
-        y1_i = max(y1_1, y1_2)
-        x2_i = min(x2_1, x2_2)
-        y2_i = min(y2_1, y2_2)
+        Args:
+            bbox: [x1, y1, x2, y2] bounding box coordinates
+            camera_id: Camera ID (0, 1, or 2)
+            is_left: True if checking left edge, False if checking right edge
         
-        if x2_i <= x1_i or y2_i <= y1_i:
-            return 0.0
+        Returns:
+            True if detection is in the overlap zone
+        """
+        x1, y1, x2, y2 = bbox
+        bbox_center_x = (x1 + x2) / 2.0
         
-        intersection = (x2_i - x1_i) * (y2_i - y1_i)
-        
-        # Calculate union
-        area1 = (x2_1 - x1_1) * (y2_1 - y1_1)
-        area2 = (x2_2 - x1_2) * (y2_2 - y1_2)
-        union = area1 + area2 - intersection
-        
-        if union == 0:
-            return 0.0
-        
-        return intersection / union
+        if is_left:
+            # Left edge overlap zone (for Camera 1 and Camera 2)
+            overlap_threshold = self.frame_width * self.overlap_zone_width
+            return bbox_center_x < overlap_threshold
+        else:
+            # Right edge overlap zone (for Camera 0 and Camera 1)
+            overlap_threshold = self.frame_width * (1.0 - self.overlap_zone_width)
+            return bbox_center_x > overlap_threshold
     
-    def apply_nms_across_cameras(self, all_detections: List[Dict]) -> List[Dict]:
-        """Apply Non-Maximum Suppression across detections from all cameras"""
+    def _detections_match(self, det1: Dict, det2: Dict) -> bool:
+        """
+        Check if two detections from adjacent cameras match (same object in overlap zone).
+        
+        Matching criteria:
+        1. Same class_id
+        2. Similar vertical position (y-coordinate within tolerance)
+        3. Both in overlap zones of their respective cameras
+        
+        Args:
+            det1: First detection with camera_id and bbox
+            det2: Second detection with camera_id and bbox
+        
+        Returns:
+            True if detections likely represent the same object
+        """
+        # Must be same class
+        if det1.get('class_id') != det2.get('class_id'):
+            return False
+        
+        # Must be from adjacent cameras
+        cam1_id = det1.get('camera_id')
+        cam2_id = det2.get('camera_id')
+        if abs(cam1_id - cam2_id) != 1:
+            return False
+        
+        bbox1 = det1.get('bbox', [])
+        bbox2 = det2.get('bbox', [])
+        if len(bbox1) != 4 or len(bbox2) != 4:
+            return False
+        
+        # Check if both are in overlap zones
+        # Camera 0 overlaps with Camera 1: right edge of Camera 0, left edge of Camera 1
+        # Camera 1 overlaps with Camera 2: right edge of Camera 1, left edge of Camera 2
+        if cam1_id == 0 and cam2_id == 1:
+            # Camera 0 (right edge) and Camera 1 (left edge)
+            in_overlap1 = self._is_in_overlap_zone(bbox1, cam1_id, is_left=False)
+            in_overlap2 = self._is_in_overlap_zone(bbox2, cam2_id, is_left=True)
+        elif cam1_id == 1 and cam2_id == 0:
+            # Camera 1 (left edge) and Camera 0 (right edge)
+            in_overlap1 = self._is_in_overlap_zone(bbox1, cam1_id, is_left=True)
+            in_overlap2 = self._is_in_overlap_zone(bbox2, cam2_id, is_left=False)
+        elif cam1_id == 1 and cam2_id == 2:
+            # Camera 1 (right edge) and Camera 2 (left edge)
+            in_overlap1 = self._is_in_overlap_zone(bbox1, cam1_id, is_left=False)
+            in_overlap2 = self._is_in_overlap_zone(bbox2, cam2_id, is_left=True)
+        elif cam1_id == 2 and cam2_id == 1:
+            # Camera 2 (left edge) and Camera 1 (right edge)
+            in_overlap1 = self._is_in_overlap_zone(bbox1, cam1_id, is_left=True)
+            in_overlap2 = self._is_in_overlap_zone(bbox2, cam2_id, is_left=False)
+        else:
+            return False
+        
+        if not (in_overlap1 and in_overlap2):
+            return False
+        
+        # Check vertical position similarity (y-coordinate)
+        y1_center = (bbox1[1] + bbox1[3]) / 2.0
+        y2_center = (bbox2[1] + bbox2[3]) / 2.0
+        y_diff = abs(y1_center - y2_center)
+        y_tolerance = self.frame_height * self.overlap_y_tolerance
+        
+        return y_diff <= y_tolerance
+    
+    def _deduplicate_overlap_zones(self, all_detections: List[Dict]) -> List[Dict]:
+        """
+        Remove duplicate detections in overlap zones between adjacent cameras.
+        
+        For side-by-side cameras with 15° overlap:
+        - Camera 0 right edge overlaps with Camera 1 left edge
+        - Camera 1 right edge overlaps with Camera 2 left edge
+        
+        When two detections match (same class, similar position, both in overlap zones),
+        keeps the one with higher confidence score.
+        
+        Args:
+            all_detections: List of all detections from all cameras
+        
+        Returns:
+            Filtered list with duplicates removed
+        """
         if not all_detections:
             return []
         
-        # Sort by confidence (highest first)
-        sorted_detections = sorted(all_detections, key=lambda x: x['score'], reverse=True)
+        # Sort by confidence (highest first) so we keep the best detections
+        sorted_detections = sorted(all_detections, key=lambda x: x.get('score', 0.0), reverse=True)
         
         kept = []
-        while sorted_detections:
-            # Keep the highest confidence detection
-            current = sorted_detections.pop(0)
-            kept.append(current)
+        removed_count = 0
+        
+        for current_det in sorted_detections:
+            is_duplicate = False
             
-            # Remove overlapping detections
-            remaining = []
-            for det in sorted_detections:
-                iou = self.calculate_iou(current['bbox'], det['bbox'])
-                if iou < self.iou_threshold:
-                    remaining.append(det)
-            sorted_detections = remaining
+            # Check against all already-kept detections
+            for kept_det in kept:
+                if self._detections_match(current_det, kept_det):
+                    # Found a match - this is a duplicate
+                    is_duplicate = True
+                    removed_count += 1
+                    break
+            
+            if not is_duplicate:
+                kept.append(current_det)
+        
+        if removed_count > 0:
+            self.get_logger().debug(f'Overlap deduplication: removed {removed_count} duplicate detection(s)')
         
         return kept
     
@@ -218,6 +323,10 @@ class DetectionCombiner(Node):
                 det_with_camera = det.copy()
                 det_with_camera['camera_id'] = camera_id
                 all_detections.append(det_with_camera)
+        
+        # Apply overlap deduplication if enabled
+        if self.deduplicate_overlap and len(all_detections) > 0:
+            all_detections = self._deduplicate_overlap_zones(all_detections)
             
             camera_stats[camera_id] = {
                 'status': 'active',
@@ -232,7 +341,7 @@ class DetectionCombiner(Node):
                 time_since_update = current_time - self.last_update_times[camera_id]
                 if self.detections[camera_id] is None:
                     camera_stats[camera_id] = {'status': 'no_data', 'num_detections': 0}
-                elif time_since_update > self.detection_timeout:
+                elif time_since_update > self.staleness_threshold:
                     camera_stats[camera_id] = {
                         'status': 'stale',
                         'num_detections': 0,
@@ -245,10 +354,6 @@ class DetectionCombiner(Node):
                         'num_detections': 0,
                         'time_since_update': time_since_update
                     }
-        
-        # Apply NMS if requested
-        if self.apply_nms and all_detections:
-            all_detections = self.apply_nms_across_cameras(all_detections)
         
         # Calculate average timestamp of matched detections
         avg_timestamp = sum(matched_timestamps.values()) / len(matched_timestamps) if matched_timestamps else current_time
@@ -271,9 +376,15 @@ class DetectionCombiner(Node):
     
     def publish_combined(self):
         """
-        Combine detections from all cameras and publish.
+        Combine detections from all 3 cameras and publish.
         Uses latest value approach with staleness filtering.
         Only includes detections from cameras that have updated recently.
+        
+        This is the main function that combines all camera views:
+        - Loops through all 3 cameras (0, 1, 2)
+        - Collects ALL detections from each active camera
+        - Adds camera_id to each detection
+        - Publishes unified list
         """
         current_time = time.time()
         all_detections = []
@@ -282,7 +393,7 @@ class DetectionCombiner(Node):
         stale_cameras = 0
         no_data_cameras = 0
         
-        # Collect detections from all cameras
+        # Collect detections from all 3 cameras (side-by-side configuration)
         for camera_id in [0, 1, 2]:
             detection_data = self.detections[camera_id]
             
@@ -317,13 +428,17 @@ class DetectionCombiner(Node):
                 )
                 continue
             
-            # Camera is active and fresh - include its detections
+            # Camera is active and fresh - include ALL its detections
             active_cameras += 1
             detections = detection_data.get('detections', [])
             for det in detections:
                 det_with_camera = det.copy()
-                det_with_camera['camera_id'] = camera_id
-                all_detections.append(det_with_camera)
+                det_with_camera['camera_id'] = camera_id  # Tag each detection with source camera
+                all_detections.append(det_with_camera)  # Add to combined list
+        
+        # Apply overlap deduplication if enabled
+        if self.deduplicate_overlap and len(all_detections) > 0:
+            all_detections = self._deduplicate_overlap_zones(all_detections)
             
             camera_stats[camera_id] = {
                 'status': 'active',
@@ -332,10 +447,6 @@ class DetectionCombiner(Node):
                 'timestamp': detection_data.get('timestamp', 0.0),
                 'time_since_update': round(time_since_update, 3)
             }
-        
-        # Apply NMS if requested
-        if self.apply_nms and all_detections:
-            all_detections = self.apply_nms_across_cameras(all_detections)
         
         # Create combined detection info
         combined_info = {
@@ -376,22 +487,6 @@ class DetectionCombiner(Node):
                     f'Camera1: {camera_stats[1]["num_detections"]}, '
                     f'Camera2: {camera_stats[2]["num_detections"]}'
                 )
-        
-        # Log periodically
-        if hasattr(self, '_log_counter'):
-            self._log_counter += 1
-        else:
-            self._log_counter = 0
-        
-        if self._log_counter % 90 == 0:  # Log every ~3 seconds at 30Hz
-            active_cameras = sum(1 for stat in camera_stats.values() if stat['status'] == 'active')
-            self.get_logger().info(
-                f'Combined detections: {len(all_detections)} total | '
-                f'Active cameras: {active_cameras}/3 | '
-                f'Camera0: {camera_stats[0]["num_detections"]}, '
-                f'Camera1: {camera_stats[1]["num_detections"]}, '
-                f'Camera2: {camera_stats[2]["num_detections"]}'
-            )
 
 
 def main(args=None):
@@ -399,24 +494,27 @@ def main(args=None):
     
     import argparse
     parser = argparse.ArgumentParser(description='ROS2 Multi-Camera Detection Combiner')
-    parser.add_argument('--apply_nms', action='store_true',
-                       help='Apply Non-Maximum Suppression across cameras to remove duplicates')
-    parser.add_argument('--iou_threshold', type=float, default=0.5,
-                       help='IoU threshold for NMS (0.0-1.0)')
     parser.add_argument('--staleness_threshold', type=float, default=1.0,
                        help='Maximum age (seconds) for detections before excluding camera (default: 1.0s)')
     parser.add_argument('--sync_window', type=float, default=0.05,
                        help='Time window (seconds) for timestamp-based synchronization (default: 0.05 = 50ms)')
     parser.add_argument('--use_timestamp_sync', action='store_true',
                        help='Enable timestamp-based synchronization (default: latest value approach)')
+    parser.add_argument('--deduplicate_overlap', action='store_true',
+                       help='Enable overlap zone deduplication for side-by-side cameras (default: disabled)')
+    parser.add_argument('--overlap_zone_width', type=float, default=0.15,
+                       help='Fraction of frame width for overlap zone (default: 0.15 = 15%%)')
+    parser.add_argument('--overlap_y_tolerance', type=float, default=0.1,
+                       help='Fraction of frame height for y-coordinate matching tolerance (default: 0.1 = 10%%)')
     args_parsed = parser.parse_args(args)
     
     node = DetectionCombiner(
-        apply_nms=args_parsed.apply_nms,
-        iou_threshold=args_parsed.iou_threshold,
         sync_window=args_parsed.sync_window,
         use_timestamp_sync=args_parsed.use_timestamp_sync,
-        staleness_threshold=args_parsed.staleness_threshold
+        staleness_threshold=args_parsed.staleness_threshold,
+        deduplicate_overlap=args_parsed.deduplicate_overlap,
+        overlap_zone_width=args_parsed.overlap_zone_width,
+        overlap_y_tolerance=args_parsed.overlap_y_tolerance
     )
     
     try:
