@@ -480,13 +480,13 @@ class DetectionCombiner(Node):
                     f'{no_data_cameras} no data | Total detections: {len(all_detections)}'
                 )
             else:
-                self.get_logger().info(
-                    f'Combined detections: {len(all_detections)} total | '
-                    f'Active cameras: {active_cameras}/3 | '
-                    f'Camera0: {camera_stats[0]["num_detections"]}, '
-                    f'Camera1: {camera_stats[1]["num_detections"]}, '
-                    f'Camera2: {camera_stats[2]["num_detections"]}'
-                )
+            self.get_logger().info(
+                f'Combined detections: {len(all_detections)} total | '
+                f'Active cameras: {active_cameras}/3 | '
+                f'Camera0: {camera_stats[0]["num_detections"]}, '
+                f'Camera1: {camera_stats[1]["num_detections"]}, '
+                f'Camera2: {camera_stats[2]["num_detections"]}'
+            )
 
 
 def main(args=None):

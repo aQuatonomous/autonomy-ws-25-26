@@ -58,6 +58,39 @@ python3 vision_combiner.py --deduplicate_overlap --overlap_zone_width 0.20 --ove
 python3 vision_combiner.py --use_timestamp_sync --sync_window 0.05
 ```
 
+## Camera Viewer Node (Image Saving)
+
+The camera viewer node saves camera images to disk for debugging, monitoring, or offline analysis.
+
+```bash
+# View camera 0 (default, saves to ./camera_images/)
+python3 camera_viewer.py
+
+# View a specific camera
+python3 camera_viewer.py --camera_id 0  # /camera0/image_raw → cam0.jpg
+python3 camera_viewer.py --camera_id 1  # /camera1/image_raw → cam1.jpg
+python3 camera_viewer.py --camera_id 2  # /camera2/image_raw → cam2.jpg
+
+# Specify custom output directory
+python3 camera_viewer.py --camera_id 0 --output_dir /path/to/images
+
+# View all cameras (run in separate terminals)
+python3 camera_viewer.py --camera_id 0 --output_dir ./camera_images
+python3 camera_viewer.py --camera_id 1 --output_dir ./camera_images
+python3 camera_viewer.py --camera_id 2 --output_dir ./camera_images
+```
+
+**Features:**
+- Subscribes to `/camera{N}/image_raw` topics
+- Saves each frame as `cam{N}.jpg` in the output directory
+- Uses atomic file operations (write to `.tmp.jpg` then rename) to avoid partial files
+- Automatically creates output directory if it doesn't exist
+- Default output directory: `./camera_images/`
+
+**Output:**
+- Each camera saves its latest frame as `cam{N}.jpg` (overwrites previous frame)
+- Files are saved atomically to prevent reading partial images
+
 ## Monitoring
 ```bash
 # Check all camera feeds
