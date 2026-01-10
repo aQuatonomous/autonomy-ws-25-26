@@ -440,10 +440,8 @@ class TensorRTInference:
             # Draw rectangle
             cv2.rectangle(img_copy, (x1, y1), (x2, y2), (0, 255, 0), 2)
             
-            # Draw label
-            label = f"Class {class_id}: {score:.2f}"
-            cv2.putText(img_copy, label, (x1, y1 - 10),
-                       cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 2)
+            # Print detection info to console instead of drawing on image
+            print(f"Detection: Class {class_id}, Confidence: {score:.3f}, Box: ({x1}, {y1}, {x2}, {y2})")
         
         return img_copy
 
@@ -608,11 +606,14 @@ def test_live_camera(engine_path: str = "model.engine", camera_id: int = 0, conf
             # Draw detections
             result_frame = inferencer.draw_detections(frame, detections)
             
-            # Add FPS counter
+            # Add FPS counter with better visibility
             fps = 1.0 / inference_time if inference_time > 0 else 0
             avg_fps = frame_count / total_time if total_time > 0 else 0
+            h, w = result_frame.shape[:2]
+            font_scale = max(0.8, min(w, h) / 1000.0)
+            thickness = max(2, int(font_scale * 3))
             cv2.putText(result_frame, f"FPS: {fps:.1f} | Avg: {avg_fps:.1f} | Detections: {len(detections)}", 
-                       (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 255, 0), 2)
+                       (10, 30), cv2.FONT_HERSHEY_SIMPLEX, font_scale, (0, 255, 0), thickness, cv2.LINE_AA)
             
             # Show frame
             cv2.imshow("Live Object Detection", result_frame)
