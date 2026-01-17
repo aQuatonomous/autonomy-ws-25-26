@@ -18,7 +18,7 @@ Camera2: /camera2/image_raw → preprocessing2 → /camera2/image_preprocessed �
 # Start all 3 camera nodes
 ros2 run v4l2_camera v4l2_camera_node --ros-args -p video_device:=/dev/video0 -p image_size:="[1920,1200]" -p framerate:=30.0 -r __ns:=/camera0
 ros2 run v4l2_camera v4l2_camera_node --ros-args -p video_device:=/dev/video2 -p image_size:="[1920,1200]" -p framerate:=30.0 -r __ns:=/camera1
-ros2 run v4l2_camera v4l2_camera_node --ros-args -p video_device:=/dev/video5 -p image_size:="[1920,1200]" -p framerate:=30.0 -r __ns:=/camera2
+ros2 run v4l2_camera v4l2_camera_node --ros-args -p video_device:=/dev/video4 -p image_size:="[1920,1200]" -p framerate:=30.0 -r __ns:=/camera2
 ```
 
 ## CV Nodes (Per Camera)

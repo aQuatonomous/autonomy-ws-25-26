@@ -409,15 +409,26 @@ class InferenceNode(Node):
                 'num_detections': len(detections),
                 'inference_time_ms': inference_time * 1000,
                 'fps': fps,
-                'detections': [
-                    {
-                        'class_id': det['class_id'],
-                        'score': det['score'],
-                        'bbox': det['box'].tolist()
-                    }
-                    for det in detections
-                ]
+                'detections': []
             }
+            
+            # Extract detailed information for each detection
+            for det in detections:
+                x1, y1, x2, y2 = det['box']
+                width = float(x2 - x1)
+                height = float(y2 - y1)
+                
+                detection_info['detections'].append({
+                    'class_id': int(det['class_id']),
+                    'score': float(det['score']),
+                    'x1': float(x1),
+                    'y1': float(y1),
+                    'x2': float(x2),
+                    'y2': float(y2),
+                    'width': width,
+                    'height': height,
+                    'bbox': det['box'].tolist()  # Keep for backward compatibility
+                })
             info_msg = String()
             info_msg.data = json.dumps(detection_info)
             self.detection_info_pub.publish(info_msg)
