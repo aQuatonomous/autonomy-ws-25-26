@@ -22,11 +22,20 @@ OPERATION MODE:
   updated recently. If a camera's latest detection is older than the staleness threshold,
   it's excluded from the output (indicating the camera may have failed or stalled).
 
-NOTE: All detections from all active cameras are kept - no deduplication is performed.
+OVERLAP DEDUPLICATION:
+For side-by-side cameras with 15° overlap, detections in overlap zones can be deduplicated.
+- Camera 0 overlaps with Camera 1: right edge of Camera 0, left edge of Camera 1
+- Camera 1 overlaps with Camera 2: right edge of Camera 1, left edge of Camera 2
+- Overlap zones are defined as a percentage of frame width (configurable, default ~15%)
+- Matching criteria: same class_id, similar vertical position (y-coordinate), both in overlap zones
+- Keeps detection with higher confidence score
 
 Usage:
-    # Default: Combines all 3 cameras, 1.0s staleness threshold
+    # Default: Combines all 3 cameras, 1.0s staleness threshold, NO overlap deduplication
     python3 vision_combiner.py
+    
+    # Enable overlap deduplication (recommended for side-by-side cameras)
+    python3 vision_combiner.py --deduplicate_overlap --overlap_zone_width 0.15 --overlap_y_tolerance 0.1
     
     # Custom staleness threshold (0.5s - more strict)
     python3 vision_combiner.py --staleness_threshold 0.5
@@ -49,12 +58,20 @@ import time
 class DetectionCombiner(Node):
     
     def __init__(self, sync_window: float = 0.05, use_timestamp_sync: bool = False,
-                 staleness_threshold: float = 1.0):
+                 staleness_threshold: float = 1.0, deduplicate_overlap: bool = False,
+                 overlap_zone_width: float = 0.15, overlap_y_tolerance: float = 0.1):
         super().__init__('detection_combiner')
         
         self.use_timestamp_sync = use_timestamp_sync
         self.sync_window = sync_window  # Time window for timestamp matching (seconds)
         self.staleness_threshold = staleness_threshold  # Max age for detections (seconds)
+        self.deduplicate_overlap = deduplicate_overlap  # Enable overlap zone deduplication
+        self.overlap_zone_width = overlap_zone_width  # Fraction of frame width for overlap zone (0.15 = 15%)
+        self.overlap_y_tolerance = overlap_y_tolerance  # Fraction of frame height for y-coordinate matching (0.1 = 10%)
+        
+        # Preprocessed image dimensions (640x480)
+        self.frame_width = 640
+        self.frame_height = 480
         
         # Store latest detections from each camera
         self.detections = {
@@ -160,6 +177,139 @@ class DetectionCombiner(Node):
         # Otherwise, if this is the first camera or others are too far off, 
         # we'll wait for timer-based publishing
     
+    def _is_in_overlap_zone(self, bbox: List[float], camera_id: int, is_left: bool) -> bool:
+        """
+        Check if a detection is in the overlap zone of a camera.
+        
+        Args:
+            bbox: [x1, y1, x2, y2] bounding box coordinates
+            camera_id: Camera ID (0, 1, or 2)
+            is_left: True if checking left edge, False if checking right edge
+        
+        Returns:
+            True if detection is in the overlap zone
+        """
+        x1, y1, x2, y2 = bbox
+        bbox_center_x = (x1 + x2) / 2.0
+        
+        if is_left:
+            # Left edge overlap zone (for Camera 1 and Camera 2)
+            overlap_threshold = self.frame_width * self.overlap_zone_width
+            return bbox_center_x < overlap_threshold
+        else:
+            # Right edge overlap zone (for Camera 0 and Camera 1)
+            overlap_threshold = self.frame_width * (1.0 - self.overlap_zone_width)
+            return bbox_center_x > overlap_threshold
+    
+    def _detections_match(self, det1: Dict, det2: Dict) -> bool:
+        """
+        Check if two detections from adjacent cameras match (same object in overlap zone).
+        
+        Matching criteria:
+        1. Same class_id
+        2. Similar vertical position (y-coordinate within tolerance)
+        3. Both in overlap zones of their respective cameras
+        
+        Args:
+            det1: First detection with camera_id and bbox
+            det2: Second detection with camera_id and bbox
+        
+        Returns:
+            True if detections likely represent the same object
+        """
+        # Must be same class
+        if det1.get('class_id') != det2.get('class_id'):
+            return False
+        
+        # Must be from adjacent cameras
+        cam1_id = det1.get('camera_id')
+        cam2_id = det2.get('camera_id')
+        if abs(cam1_id - cam2_id) != 1:
+            return False
+        
+        bbox1 = det1.get('bbox', [])
+        bbox2 = det2.get('bbox', [])
+        if len(bbox1) != 4 or len(bbox2) != 4:
+            return False
+        
+        # Check if both are in overlap zones
+        # Camera 0 overlaps with Camera 1: right edge of Camera 0, left edge of Camera 1
+        # Camera 1 overlaps with Camera 2: right edge of Camera 1, left edge of Camera 2
+        if cam1_id == 0 and cam2_id == 1:
+            # Camera 0 (right edge) and Camera 1 (left edge)
+            in_overlap1 = self._is_in_overlap_zone(bbox1, cam1_id, is_left=False)
+            in_overlap2 = self._is_in_overlap_zone(bbox2, cam2_id, is_left=True)
+        elif cam1_id == 1 and cam2_id == 0:
+            # Camera 1 (left edge) and Camera 0 (right edge)
+            in_overlap1 = self._is_in_overlap_zone(bbox1, cam1_id, is_left=True)
+            in_overlap2 = self._is_in_overlap_zone(bbox2, cam2_id, is_left=False)
+        elif cam1_id == 1 and cam2_id == 2:
+            # Camera 1 (right edge) and Camera 2 (left edge)
+            in_overlap1 = self._is_in_overlap_zone(bbox1, cam1_id, is_left=False)
+            in_overlap2 = self._is_in_overlap_zone(bbox2, cam2_id, is_left=True)
+        elif cam1_id == 2 and cam2_id == 1:
+            # Camera 2 (left edge) and Camera 1 (right edge)
+            in_overlap1 = self._is_in_overlap_zone(bbox1, cam1_id, is_left=True)
+            in_overlap2 = self._is_in_overlap_zone(bbox2, cam2_id, is_left=False)
+        else:
+            return False
+        
+        if not (in_overlap1 and in_overlap2):
+            return False
+        
+        # Check vertical position similarity (y-coordinate)
+        y1_center = (bbox1[1] + bbox1[3]) / 2.0
+        y2_center = (bbox2[1] + bbox2[3]) / 2.0
+        y_diff = abs(y1_center - y2_center)
+        y_tolerance = self.frame_height * self.overlap_y_tolerance
+        
+        return y_diff <= y_tolerance
+    
+    def _deduplicate_overlap_zones(self, all_detections: List[Dict]) -> List[Dict]:
+        """
+        Remove duplicate detections in overlap zones between adjacent cameras.
+        
+        For side-by-side cameras with 15° overlap:
+        - Camera 0 right edge overlaps with Camera 1 left edge
+        - Camera 1 right edge overlaps with Camera 2 left edge
+        
+        When two detections match (same class, similar position, both in overlap zones),
+        keeps the one with higher confidence score.
+        
+        Args:
+            all_detections: List of all detections from all cameras
+        
+        Returns:
+            Filtered list with duplicates removed
+        """
+        if not all_detections:
+            return []
+        
+        # Sort by confidence (highest first) so we keep the best detections
+        sorted_detections = sorted(all_detections, key=lambda x: x.get('score', 0.0), reverse=True)
+        
+        kept = []
+        removed_count = 0
+        
+        for current_det in sorted_detections:
+            is_duplicate = False
+            
+            # Check against all already-kept detections
+            for kept_det in kept:
+                if self._detections_match(current_det, kept_det):
+                    # Found a match - this is a duplicate
+                    is_duplicate = True
+                    removed_count += 1
+                    break
+            
+            if not is_duplicate:
+                kept.append(current_det)
+        
+        if removed_count > 0:
+            self.get_logger().debug(f'Overlap deduplication: removed {removed_count} duplicate detection(s)')
+        
+        return kept
+    
     def _publish_synchronized(self, matched_detections: dict, matched_timestamps: dict):
         """Publish synchronized detections from matched cameras"""
         all_detections = []
@@ -173,8 +323,11 @@ class DetectionCombiner(Node):
                 det_with_camera = det.copy()
                 det_with_camera['camera_id'] = camera_id
                 all_detections.append(det_with_camera)
+        
+        # Apply overlap deduplication if enabled
+        if self.deduplicate_overlap and len(all_detections) > 0:
+            all_detections = self._deduplicate_overlap_zones(all_detections)
             
-            # Set camera stats for matched cameras
             camera_stats[camera_id] = {
                 'status': 'active',
                 'num_detections': len(detections),
@@ -282,8 +435,11 @@ class DetectionCombiner(Node):
                 det_with_camera = det.copy()
                 det_with_camera['camera_id'] = camera_id  # Tag each detection with source camera
                 all_detections.append(det_with_camera)  # Add to combined list
+        
+        # Apply overlap deduplication if enabled
+        if self.deduplicate_overlap and len(all_detections) > 0:
+            all_detections = self._deduplicate_overlap_zones(all_detections)
             
-            # Set camera stats for active cameras
             camera_stats[camera_id] = {
                 'status': 'active',
                 'num_detections': len(detections),
@@ -344,12 +500,21 @@ def main(args=None):
                        help='Time window (seconds) for timestamp-based synchronization (default: 0.05 = 50ms)')
     parser.add_argument('--use_timestamp_sync', action='store_true',
                        help='Enable timestamp-based synchronization (default: latest value approach)')
+    parser.add_argument('--deduplicate_overlap', action='store_true',
+                       help='Enable overlap zone deduplication for side-by-side cameras (default: disabled)')
+    parser.add_argument('--overlap_zone_width', type=float, default=0.15,
+                       help='Fraction of frame width for overlap zone (default: 0.15 = 15%%)')
+    parser.add_argument('--overlap_y_tolerance', type=float, default=0.1,
+                       help='Fraction of frame height for y-coordinate matching tolerance (default: 0.1 = 10%%)')
     args_parsed = parser.parse_args(args)
     
     node = DetectionCombiner(
         sync_window=args_parsed.sync_window,
         use_timestamp_sync=args_parsed.use_timestamp_sync,
-        staleness_threshold=args_parsed.staleness_threshold
+        staleness_threshold=args_parsed.staleness_threshold,
+        deduplicate_overlap=args_parsed.deduplicate_overlap,
+        overlap_zone_width=args_parsed.overlap_zone_width,
+        overlap_y_tolerance=args_parsed.overlap_y_tolerance
     )
     
     try:
