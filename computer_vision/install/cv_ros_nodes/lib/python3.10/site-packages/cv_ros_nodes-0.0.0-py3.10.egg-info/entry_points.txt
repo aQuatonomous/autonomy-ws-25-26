@@ -1,0 +1,6 @@
+[console_scripts]
+camera_viewer = cv_ros_nodes.camera_viewer:main
+vision_combiner = cv_ros_nodes.vision_combiner:main
+vision_inference = cv_ros_nodes.vision_inference:main
+vision_preprocessing = cv_ros_nodes.vision_preprocessing:main
+

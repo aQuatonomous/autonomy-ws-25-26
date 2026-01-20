@@ -1,0 +1,51 @@
+[1.558s] Invoking command in '/home/lorenzo/autonomy-ws-25-26/computer_vision/src/cv_ros_nodes': PYTHONPATH=/home/lorenzo/autonomy-ws-25-26/computer_vision/build/cv_ros_nodes/prefix_override:/usr/lib/python3/dist-packages/colcon_core/task/python/colcon_distutils_commands:/home/lorenzo/autonomy-ws-25-26/computer_vision/install/cv_ros_nodes/lib/python3.10/site-packages:${PYTHONPATH} /usr/bin/python3 -W ignore:setup.py install is deprecated -W ignore:easy_install command is deprecated setup.py egg_info --egg-base ../../build/cv_ros_nodes build --build-base /home/lorenzo/autonomy-ws-25-26/computer_vision/build/cv_ros_nodes/build install --record /home/lorenzo/autonomy-ws-25-26/computer_vision/build/cv_ros_nodes/install.log --single-version-externally-managed install_data
+[2.129s] running egg_info
+[2.130s] creating ../../build/cv_ros_nodes/cv_ros_nodes.egg-info
+[2.131s] writing ../../build/cv_ros_nodes/cv_ros_nodes.egg-info/PKG-INFO
+[2.132s] writing dependency_links to ../../build/cv_ros_nodes/cv_ros_nodes.egg-info/dependency_links.txt
+[2.132s] writing entry points to ../../build/cv_ros_nodes/cv_ros_nodes.egg-info/entry_points.txt
+[2.132s] writing requirements to ../../build/cv_ros_nodes/cv_ros_nodes.egg-info/requires.txt
+[2.133s] writing top-level names to ../../build/cv_ros_nodes/cv_ros_nodes.egg-info/top_level.txt
+[2.133s] writing manifest file '../../build/cv_ros_nodes/cv_ros_nodes.egg-info/SOURCES.txt'
+[2.136s] reading manifest file '../../build/cv_ros_nodes/cv_ros_nodes.egg-info/SOURCES.txt'
+[2.138s] writing manifest file '../../build/cv_ros_nodes/cv_ros_nodes.egg-info/SOURCES.txt'
+[2.139s] running build
+[2.140s] running build_py
+[2.140s] creating /home/lorenzo/autonomy-ws-25-26/computer_vision/build/cv_ros_nodes/build
+[2.140s] creating /home/lorenzo/autonomy-ws-25-26/computer_vision/build/cv_ros_nodes/build/lib
+[2.141s] creating /home/lorenzo/autonomy-ws-25-26/computer_vision/build/cv_ros_nodes/build/lib/cv_ros_nodes
+[2.141s] copying cv_ros_nodes/vision_inference.py -> /home/lorenzo/autonomy-ws-25-26/computer_vision/build/cv_ros_nodes/build/lib/cv_ros_nodes
+[2.141s] copying cv_ros_nodes/vision_combiner.py -> /home/lorenzo/autonomy-ws-25-26/computer_vision/build/cv_ros_nodes/build/lib/cv_ros_nodes
+[2.141s] copying cv_ros_nodes/camera_viewer.py -> /home/lorenzo/autonomy-ws-25-26/computer_vision/build/cv_ros_nodes/build/lib/cv_ros_nodes
+[2.142s] copying cv_ros_nodes/vision_preprocessing.py -> /home/lorenzo/autonomy-ws-25-26/computer_vision/build/cv_ros_nodes/build/lib/cv_ros_nodes
+[2.142s] copying cv_ros_nodes/__init__.py -> /home/lorenzo/autonomy-ws-25-26/computer_vision/build/cv_ros_nodes/build/lib/cv_ros_nodes
+[2.142s] running install
+[2.142s] running install_lib
+[2.143s] creating /home/lorenzo/autonomy-ws-25-26/computer_vision/install/cv_ros_nodes/lib/python3.10/site-packages/cv_ros_nodes
+[2.143s] copying /home/lorenzo/autonomy-ws-25-26/computer_vision/build/cv_ros_nodes/build/lib/cv_ros_nodes/vision_inference.py -> /home/lorenzo/autonomy-ws-25-26/computer_vision/install/cv_ros_nodes/lib/python3.10/site-packages/cv_ros_nodes
+[2.144s] copying /home/lorenzo/autonomy-ws-25-26/computer_vision/build/cv_ros_nodes/build/lib/cv_ros_nodes/vision_combiner.py -> /home/lorenzo/autonomy-ws-25-26/computer_vision/install/cv_ros_nodes/lib/python3.10/site-packages/cv_ros_nodes
+[2.144s] copying /home/lorenzo/autonomy-ws-25-26/computer_vision/build/cv_ros_nodes/build/lib/cv_ros_nodes/camera_viewer.py -> /home/lorenzo/autonomy-ws-25-26/computer_vision/install/cv_ros_nodes/lib/python3.10/site-packages/cv_ros_nodes
+[2.144s] copying /home/lorenzo/autonomy-ws-25-26/computer_vision/build/cv_ros_nodes/build/lib/cv_ros_nodes/vision_preprocessing.py -> /home/lorenzo/autonomy-ws-25-26/computer_vision/install/cv_ros_nodes/lib/python3.10/site-packages/cv_ros_nodes
+[2.144s] copying /home/lorenzo/autonomy-ws-25-26/computer_vision/build/cv_ros_nodes/build/lib/cv_ros_nodes/__init__.py -> /home/lorenzo/autonomy-ws-25-26/computer_vision/install/cv_ros_nodes/lib/python3.10/site-packages/cv_ros_nodes
+[2.145s] byte-compiling /home/lorenzo/autonomy-ws-25-26/computer_vision/install/cv_ros_nodes/lib/python3.10/site-packages/cv_ros_nodes/vision_inference.py to vision_inference.cpython-310.pyc
+[2.152s] byte-compiling /home/lorenzo/autonomy-ws-25-26/computer_vision/install/cv_ros_nodes/lib/python3.10/site-packages/cv_ros_nodes/vision_combiner.py to vision_combiner.cpython-310.pyc
+[2.156s] byte-compiling /home/lorenzo/autonomy-ws-25-26/computer_vision/install/cv_ros_nodes/lib/python3.10/site-packages/cv_ros_nodes/camera_viewer.py to camera_viewer.cpython-310.pyc
+[2.157s] byte-compiling /home/lorenzo/autonomy-ws-25-26/computer_vision/install/cv_ros_nodes/lib/python3.10/site-packages/cv_ros_nodes/vision_preprocessing.py to vision_preprocessing.cpython-310.pyc
+[2.159s] byte-compiling /home/lorenzo/autonomy-ws-25-26/computer_vision/install/cv_ros_nodes/lib/python3.10/site-packages/cv_ros_nodes/__init__.py to __init__.cpython-310.pyc
+[2.160s] running install_data
+[2.160s] creating /home/lorenzo/autonomy-ws-25-26/computer_vision/install/cv_ros_nodes/share/ament_index
+[2.160s] creating /home/lorenzo/autonomy-ws-25-26/computer_vision/install/cv_ros_nodes/share/ament_index/resource_index
+[2.161s] creating /home/lorenzo/autonomy-ws-25-26/computer_vision/install/cv_ros_nodes/share/ament_index/resource_index/packages
+[2.161s] copying resource/cv_ros_nodes -> /home/lorenzo/autonomy-ws-25-26/computer_vision/install/cv_ros_nodes/share/ament_index/resource_index/packages
+[2.161s] copying package.xml -> /home/lorenzo/autonomy-ws-25-26/computer_vision/install/cv_ros_nodes/share/cv_ros_nodes
+[2.161s] creating /home/lorenzo/autonomy-ws-25-26/computer_vision/install/cv_ros_nodes/share/cv_ros_nodes/launch
+[2.162s] copying cv_ros_nodes/launch/launch_cv.py -> /home/lorenzo/autonomy-ws-25-26/computer_vision/install/cv_ros_nodes/share/cv_ros_nodes/launch
+[2.162s] running install_egg_info
+[2.164s] Copying ../../build/cv_ros_nodes/cv_ros_nodes.egg-info to /home/lorenzo/autonomy-ws-25-26/computer_vision/install/cv_ros_nodes/lib/python3.10/site-packages/cv_ros_nodes-0.0.0-py3.10.egg-info
+[2.166s] running install_scripts
+[2.212s] Installing camera_viewer script to /home/lorenzo/autonomy-ws-25-26/computer_vision/install/cv_ros_nodes/lib/cv_ros_nodes
+[2.212s] Installing vision_combiner script to /home/lorenzo/autonomy-ws-25-26/computer_vision/install/cv_ros_nodes/lib/cv_ros_nodes
+[2.213s] Installing vision_inference script to /home/lorenzo/autonomy-ws-25-26/computer_vision/install/cv_ros_nodes/lib/cv_ros_nodes
+[2.213s] Installing vision_preprocessing script to /home/lorenzo/autonomy-ws-25-26/computer_vision/install/cv_ros_nodes/lib/cv_ros_nodes
+[2.213s] writing list of installed files to '/home/lorenzo/autonomy-ws-25-26/computer_vision/build/cv_ros_nodes/install.log'
+[2.282s] Invoked command in '/home/lorenzo/autonomy-ws-25-26/computer_vision/src/cv_ros_nodes' returned '0': PYTHONPATH=/home/lorenzo/autonomy-ws-25-26/computer_vision/build/cv_ros_nodes/prefix_override:/usr/lib/python3/dist-packages/colcon_core/task/python/colcon_distutils_commands:/home/lorenzo/autonomy-ws-25-26/computer_vision/install/cv_ros_nodes/lib/python3.10/site-packages:${PYTHONPATH} /usr/bin/python3 -W ignore:setup.py install is deprecated -W ignore:easy_install command is deprecated setup.py egg_info --egg-base ../../build/cv_ros_nodes build --build-base /home/lorenzo/autonomy-ws-25-26/computer_vision/build/cv_ros_nodes/build install --record /home/lorenzo/autonomy-ws-25-26/computer_vision/build/cv_ros_nodes/install.log --single-version-externally-managed install_data
