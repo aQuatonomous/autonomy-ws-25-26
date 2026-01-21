@@ -3,4 +3,7 @@
 venv/
 trt-env/
 
-src
+
+log
+build
+install
