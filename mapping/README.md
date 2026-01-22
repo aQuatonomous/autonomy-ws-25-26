@@ -1,8 +1,3 @@
-<<<<<<< HEAD
-# Autonomy 2025/26
-
-This is the workspace containing all our 2025-26 packages 
-=======
 # mapping-25-26
 
 ROS 2 perception pipeline for autonomous surface vehicle navigation using LiDAR-based buoy detection and tracking.
@@ -96,4 +91,3 @@ ros2 launch pointcloud_filters buoy_detector.launch.py
 - Polar output format matches navigation system requirements
 - Thread-safe buffering with automatic eviction of stale data
 - Designed for water environments with sparse returns and reflections
->>>>>>> other/main
