@@ -1,0 +1,1651 @@
+[0.000000] (-) TimerEvent: {}
+[0.003501] (my_lidar_pkg) JobQueued: {'identifier': 'my_lidar_pkg', 'dependencies': OrderedDict()}
+[0.004074] (pointcloud_filters) JobQueued: {'identifier': 'pointcloud_filters', 'dependencies': OrderedDict()}
+[0.004608] (my_lidar_pkg) JobStarted: {'identifier': 'my_lidar_pkg'}
+[0.095728] (-) TimerEvent: {}
+[0.166472] (pointcloud_filters) JobStarted: {'identifier': 'pointcloud_filters'}
+[0.195905] (-) TimerEvent: {}
+[0.298106] (-) TimerEvent: {}
+[0.311875] (my_lidar_pkg) JobProgress: {'identifier': 'my_lidar_pkg', 'progress': 'cmake'}
+[0.321458] (my_lidar_pkg) Command: {'cmd': ['/usr/bin/cmake', '/mnt/c/Users/jcube/OneDrive/Desktop/Jacob/School/Queens/Year 5/Extra Curricular/aQuatonomous/Lidar Bagging Data/mapping-25-26/src/my_lidar_pkg', '-DCMAKE_INSTALL_PREFIX=/mnt/c/Users/jcube/OneDrive/Desktop/Jacob/School/Queens/Year 5/Extra Curricular/aQuatonomous/Lidar Bagging Data/mapping-25-26/install/my_lidar_pkg'], 'cwd': '/mnt/c/Users/jcube/OneDrive/Desktop/Jacob/School/Queens/Year 5/Extra Curricular/aQuatonomous/Lidar Bagging Data/mapping-25-26/build/my_lidar_pkg', 'env': OrderedDict([('LESSOPEN', '| /usr/bin/lesspipe %s'), ('USER', 'jcube05'), ('SHLVL', '1'), ('LD_LIBRARY_PATH', '/mnt/c/Users/jcube/OneDrive/Desktop/Jacob/School/Queens/Year 5/Extra Curricular/aQuatonomous/Lidar Bagging Data/mapping-25-26/install/pointcloud_filters/lib:/opt/ros/humble/opt/rviz_ogre_vendor/lib:/opt/ros/humble/lib/x86_64-linux-gnu:/opt/ros/humble/lib'), ('MOTD_SHOWN', 'update-motd'), ('HOME', '/home/jcube05'), ('ROS_PYTHON_VERSION', '3'), ('HOMEBREW_PREFIX', '/home/linuxbrew/.linuxbrew'), ('DBUS_SESSION_BUS_ADDRESS', 'unix:path=/run/user/1000/bus'), ('WSL_DISTRO_NAME', 'Ubuntu-22.04'), ('WAYLAND_DISPLAY', 'wayland-0'), ('COLCON_PREFIX_PATH', '/mnt/c/Users/jcube/OneDrive/Desktop/Jacob/School/Queens/Year 5/Extra Curricular/aQuatonomous/Lidar Bagging Data/mapping-25-26/install'), ('INFOPATH', '/home/linuxbrew/.linuxbrew/share/info:'), ('ROS_DISTRO', 'humble'), ('LOGNAME', 'jcube05'), ('NAME', 'Jcube05'), ('WSL_INTEROP', '/run/WSL/207016_interop'), ('PULSE_SERVER', 'unix:/mnt/wslg/PulseServer'), ('_', '/usr/bin/colcon'), ('ROS_VERSION', '2'), ('TERM', 'xterm-256color'), ('ROS_LOCALHOST_ONLY', '1'), ('PATH', '/home/jcube05/.local/bin:/opt/ros/humble/bin:/home/linuxbrew/.linuxbrew/bin:/home/linuxbrew/.linuxbrew/sbin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/usr/lib/wsl/lib:/mnt/c/Python313/Scripts/:/mnt/c/Python313/:/mnt/c/Program Files/Common Files/Oracle/Java/javapath:/mnt/c/Program Files (x86)/Common Files/Oracle/Java/java8path:/mnt/c/Program Files (x86)/Common Files/Oracle/Java/javapath:/mnt/c/Program Files (x86)/Razer Chroma SDK/bin:/mnt/c/Program Files/Razer Chroma SDK/bin:/mnt/c/Windows/system32:/mnt/c/Windows:/mnt/c/Windows/System32/Wbem:/mnt/c/Windows/System32/WindowsPowerShell/v1.0/:/mnt/c/Windows/System32/OpenSSH/:/mnt/c/Program Files/Git/cmd:/mnt/c/ProgramData/chocolatey/bin:/mnt/c/Windows/system32/config/systemprofile/AppData/Local/Microsoft/WindowsApps:/mnt/c/Program Files (x86)/Razer/ChromaBroadcast/bin:/mnt/c/Program Files/Razer/ChromaBroadcast/bin:/mnt/c/Users/jcube/AppData/Local/Programs/Python/Python311/Scripts/:/mnt/c/Users/jcube/AppData/Local/Programs/Python/Python311/:/mnt/c/Users/jcube/AppData/Local/Microsoft/WindowsApps:/mnt/c/Users/jcube/AppData/Local/Programs/Microsoft VS Code/bin:/mnt/c/msys64/ucrt64/bin:/mnt/c/intelFPGA_lite/18.1/modelsim_ase/win32aloem:/mnt/c/Program Files/dotnet/:/mnt/c/Program Files/Java/jdk-23/bin:/mnt/c/Program Files/apache-maven-3.9.9/bin:/mnt/c/Program Files/nodejs/:/mnt/c/WINDOWS/system32:/mnt/c/WINDOWS:/mnt/c/WINDOWS/System32/Wbem:/mnt/c/WINDOWS/System32/WindowsPowerShell/v1.0/:/mnt/c/WINDOWS/System32/OpenSSH/:/mnt/c/Program Files/MATLAB/R2025b/bin:/mnt/c/Program Files/Tailscale/:/mnt/c/Program Files/cursor/resources/app/bin:/mnt/c/Program Files/GitHub CLI/:/Docker/host/bin:/mnt/c/Program Files/usbipd-win/:/mnt/c/Users/jcube/AppData/Local/Programs/Python/Python311/Scripts/:/mnt/c/Users/jcube/AppData/Local/Programs/Python/Python311/:/mnt/c/Users/jcube/AppData/Local/Microsoft/WindowsApps:/mnt/c/Users/jcube/AppData/Local/Programs/Microsoft VS Code/bin:/mnt/c/msys64/ucrt64/bin:/mnt/c/Users/jcube/AppData/Roaming/npm:/mnt/c/Users/jcube/AppData/Roaming/Python/Python313/Scripts:/mnt/c/Users/jcube/AppData/Roaming/Python/Python313/Scripts:/mnt/c/Users/jcube/AppData/Local/Programs/Antigravity/bin:/snap/bin'), ('FASTRTPS_DEFAULT_PROFILES_FILE', '/home/jcube05/fastrtps_shm.xml'), ('HOMEBREW_CELLAR', '/home/linuxbrew/.linuxbrew/Cellar'), ('XDG_RUNTIME_DIR', '/run/user/1000/'), ('DISPLAY', ':0'), ('LANG', 'C.UTF-8'), ('RMW_IMPLEMENTATION', 'rmw_fastrtps_cpp'), ('LS_COLORS', 'rs=0:di=01;34:ln=01;36:mh=00:pi=40;33:so=01;35:do=01;35:bd=40;33;01:cd=40;33;01:or=40;31;01:mi=00:su=37;41:sg=30;43:ca=30;41:tw=30;42:ow=34;42:st=37;44:ex=01;32:*.tar=01;31:*.tgz=01;31:*.arc=01;31:*.arj=01;31:*.taz=01;31:*.lha=01;31:*.lz4=01;31:*.lzh=01;31:*.lzma=01;31:*.tlz=01;31:*.txz=01;31:*.tzo=01;31:*.t7z=01;31:*.zip=01;31:*.z=01;31:*.dz=01;31:*.gz=01;31:*.lrz=01;31:*.lz=01;31:*.lzo=01;31:*.xz=01;31:*.zst=01;31:*.tzst=01;31:*.bz2=01;31:*.bz=01;31:*.tbz=01;31:*.tbz2=01;31:*.tz=01;31:*.deb=01;31:*.rpm=01;31:*.jar=01;31:*.war=01;31:*.ear=01;31:*.sar=01;31:*.rar=01;31:*.alz=01;31:*.ace=01;31:*.zoo=01;31:*.cpio=01;31:*.7z=01;31:*.rz=01;31:*.cab=01;31:*.wim=01;31:*.swm=01;31:*.dwm=01;31:*.esd=01;31:*.jpg=01;35:*.jpeg=01;35:*.mjpg=01;35:*.mjpeg=01;35:*.gif=01;35:*.bmp=01;35:*.pbm=01;35:*.pgm=01;35:*.ppm=01;35:*.tga=01;35:*.xbm=01;35:*.xpm=01;35:*.tif=01;35:*.tiff=01;35:*.png=01;35:*.svg=01;35:*.svgz=01;35:*.mng=01;35:*.pcx=01;35:*.mov=01;35:*.mpg=01;35:*.mpeg=01;35:*.m2v=01;35:*.mkv=01;35:*.webm=01;35:*.webp=01;35:*.ogm=01;35:*.mp4=01;35:*.m4v=01;35:*.mp4v=01;35:*.vob=01;35:*.qt=01;35:*.nuv=01;35:*.wmv=01;35:*.asf=01;35:*.rm=01;35:*.rmvb=01;35:*.flc=01;35:*.avi=01;35:*.fli=01;35:*.flv=01;35:*.gl=01;35:*.dl=01;35:*.xcf=01;35:*.xwd=01;35:*.yuv=01;35:*.cgm=01;35:*.emf=01;35:*.ogv=01;35:*.ogx=01;35:*.aac=00;36:*.au=00;36:*.flac=00;36:*.m4a=00;36:*.mid=00;36:*.midi=00;36:*.mka=00;36:*.mp3=00;36:*.mpc=00;36:*.ogg=00;36:*.ra=00;36:*.wav=00;36:*.oga=00;36:*.opus=00;36:*.spx=00;36:*.xspf=00;36:'), ('ROS_DOMAIN_ID', '1'), ('AMENT_PREFIX_PATH', '/mnt/c/Users/jcube/OneDrive/Desktop/Jacob/School/Queens/Year 5/Extra Curricular/aQuatonomous/Lidar Bagging Data/mapping-25-26/install/unitree_lidar_ros2:/mnt/c/Users/jcube/OneDrive/Desktop/Jacob/School/Queens/Year 5/Extra Curricular/aQuatonomous/Lidar Bagging Data/mapping-25-26/install/pointcloud_filters:/opt/ros/humble'), ('SHELL', '/bin/bash'), ('LESSCLOSE', '/usr/bin/lesspipe %s %s'), ('PWD', '/mnt/c/Users/jcube/OneDrive/Desktop/Jacob/School/Queens/Year 5/Extra Curricular/aQuatonomous/Lidar Bagging Data/mapping-25-26/build/my_lidar_pkg'), ('XDG_DATA_DIRS', '/usr/local/share:/usr/share:/var/lib/snapd/desktop'), ('PYTHONPATH', '/mnt/c/Users/jcube/OneDrive/Desktop/Jacob/School/Queens/Year 5/Extra Curricular/aQuatonomous/Lidar Bagging Data/mapping-25-26/install/pointcloud_filters/local/lib/python3.10/dist-packages:/mnt/c/Users/jcube/OneDrive/Desktop/Jacob/School/Queens/Year 5/Extra Curricular/aQuatonomous/Lidar Bagging Data/mapping-25-26/install/pointcloud_filters/lib/python3.10/site-packages:/opt/ros/humble/lib/python3.10/site-packages:/opt/ros/humble/local/lib/python3.10/dist-packages'), ('HOMEBREW_REPOSITORY', '/home/linuxbrew/.linuxbrew/Homebrew'), ('COLCON', '1'), ('WSL2_GUI_APPS_ENABLED', '1'), ('MANPATH', '/home/linuxbrew/.linuxbrew/share/man:'), ('HOSTTYPE', 'x86_64'), ('CMAKE_PREFIX_PATH', '/mnt/c/Users/jcube/OneDrive/Desktop/Jacob/School/Queens/Year 5/Extra Curricular/aQuatonomous/Lidar Bagging Data/mapping-25-26/install/unitree_lidar_ros2:/mnt/c/Users/jcube/OneDrive/Desktop/Jacob/School/Queens/Year 5/Extra Curricular/aQuatonomous/Lidar Bagging Data/mapping-25-26/install/pointcloud_filters'), ('WSLENV', '')]), 'shell': False}
+[0.348322] (pointcloud_filters) JobProgress: {'identifier': 'pointcloud_filters', 'progress': 'cmake'}
+[0.357936] (pointcloud_filters) Command: {'cmd': ['/usr/bin/cmake', '/mnt/c/Users/jcube/OneDrive/Desktop/Jacob/School/Queens/Year 5/Extra Curricular/aQuatonomous/Lidar Bagging Data/mapping-25-26/src/pointcloud_filters', '-DCMAKE_INSTALL_PREFIX=/mnt/c/Users/jcube/OneDrive/Desktop/Jacob/School/Queens/Year 5/Extra Curricular/aQuatonomous/Lidar Bagging Data/mapping-25-26/install/pointcloud_filters'], 'cwd': '/mnt/c/Users/jcube/OneDrive/Desktop/Jacob/School/Queens/Year 5/Extra Curricular/aQuatonomous/Lidar Bagging Data/mapping-25-26/build/pointcloud_filters', 'env': OrderedDict([('LESSOPEN', '| /usr/bin/lesspipe %s'), ('USER', 'jcube05'), ('SHLVL', '1'), ('LD_LIBRARY_PATH', '/mnt/c/Users/jcube/OneDrive/Desktop/Jacob/School/Queens/Year 5/Extra Curricular/aQuatonomous/Lidar Bagging Data/mapping-25-26/install/pointcloud_filters/lib:/opt/ros/humble/opt/rviz_ogre_vendor/lib:/opt/ros/humble/lib/x86_64-linux-gnu:/opt/ros/humble/lib'), ('MOTD_SHOWN', 'update-motd'), ('HOME', '/home/jcube05'), ('ROS_PYTHON_VERSION', '3'), ('HOMEBREW_PREFIX', '/home/linuxbrew/.linuxbrew'), ('DBUS_SESSION_BUS_ADDRESS', 'unix:path=/run/user/1000/bus'), ('WSL_DISTRO_NAME', 'Ubuntu-22.04'), ('WAYLAND_DISPLAY', 'wayland-0'), ('COLCON_PREFIX_PATH', '/mnt/c/Users/jcube/OneDrive/Desktop/Jacob/School/Queens/Year 5/Extra Curricular/aQuatonomous/Lidar Bagging Data/mapping-25-26/install'), ('INFOPATH', '/home/linuxbrew/.linuxbrew/share/info:'), ('ROS_DISTRO', 'humble'), ('LOGNAME', 'jcube05'), ('NAME', 'Jcube05'), ('WSL_INTEROP', '/run/WSL/207016_interop'), ('PULSE_SERVER', 'unix:/mnt/wslg/PulseServer'), ('_', '/usr/bin/colcon'), ('ROS_VERSION', '2'), ('TERM', 'xterm-256color'), ('ROS_LOCALHOST_ONLY', '1'), ('PATH', '/home/jcube05/.local/bin:/opt/ros/humble/bin:/home/linuxbrew/.linuxbrew/bin:/home/linuxbrew/.linuxbrew/sbin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/usr/lib/wsl/lib:/mnt/c/Python313/Scripts/:/mnt/c/Python313/:/mnt/c/Program Files/Common Files/Oracle/Java/javapath:/mnt/c/Program Files (x86)/Common Files/Oracle/Java/java8path:/mnt/c/Program Files (x86)/Common Files/Oracle/Java/javapath:/mnt/c/Program Files (x86)/Razer Chroma SDK/bin:/mnt/c/Program Files/Razer Chroma SDK/bin:/mnt/c/Windows/system32:/mnt/c/Windows:/mnt/c/Windows/System32/Wbem:/mnt/c/Windows/System32/WindowsPowerShell/v1.0/:/mnt/c/Windows/System32/OpenSSH/:/mnt/c/Program Files/Git/cmd:/mnt/c/ProgramData/chocolatey/bin:/mnt/c/Windows/system32/config/systemprofile/AppData/Local/Microsoft/WindowsApps:/mnt/c/Program Files (x86)/Razer/ChromaBroadcast/bin:/mnt/c/Program Files/Razer/ChromaBroadcast/bin:/mnt/c/Users/jcube/AppData/Local/Programs/Python/Python311/Scripts/:/mnt/c/Users/jcube/AppData/Local/Programs/Python/Python311/:/mnt/c/Users/jcube/AppData/Local/Microsoft/WindowsApps:/mnt/c/Users/jcube/AppData/Local/Programs/Microsoft VS Code/bin:/mnt/c/msys64/ucrt64/bin:/mnt/c/intelFPGA_lite/18.1/modelsim_ase/win32aloem:/mnt/c/Program Files/dotnet/:/mnt/c/Program Files/Java/jdk-23/bin:/mnt/c/Program Files/apache-maven-3.9.9/bin:/mnt/c/Program Files/nodejs/:/mnt/c/WINDOWS/system32:/mnt/c/WINDOWS:/mnt/c/WINDOWS/System32/Wbem:/mnt/c/WINDOWS/System32/WindowsPowerShell/v1.0/:/mnt/c/WINDOWS/System32/OpenSSH/:/mnt/c/Program Files/MATLAB/R2025b/bin:/mnt/c/Program Files/Tailscale/:/mnt/c/Program Files/cursor/resources/app/bin:/mnt/c/Program Files/GitHub CLI/:/Docker/host/bin:/mnt/c/Program Files/usbipd-win/:/mnt/c/Users/jcube/AppData/Local/Programs/Python/Python311/Scripts/:/mnt/c/Users/jcube/AppData/Local/Programs/Python/Python311/:/mnt/c/Users/jcube/AppData/Local/Microsoft/WindowsApps:/mnt/c/Users/jcube/AppData/Local/Programs/Microsoft VS Code/bin:/mnt/c/msys64/ucrt64/bin:/mnt/c/Users/jcube/AppData/Roaming/npm:/mnt/c/Users/jcube/AppData/Roaming/Python/Python313/Scripts:/mnt/c/Users/jcube/AppData/Roaming/Python/Python313/Scripts:/mnt/c/Users/jcube/AppData/Local/Programs/Antigravity/bin:/snap/bin'), ('FASTRTPS_DEFAULT_PROFILES_FILE', '/home/jcube05/fastrtps_shm.xml'), ('HOMEBREW_CELLAR', '/home/linuxbrew/.linuxbrew/Cellar'), ('XDG_RUNTIME_DIR', '/run/user/1000/'), ('DISPLAY', ':0'), ('LANG', 'C.UTF-8'), ('RMW_IMPLEMENTATION', 'rmw_fastrtps_cpp'), ('LS_COLORS', 'rs=0:di=01;34:ln=01;36:mh=00:pi=40;33:so=01;35:do=01;35:bd=40;33;01:cd=40;33;01:or=40;31;01:mi=00:su=37;41:sg=30;43:ca=30;41:tw=30;42:ow=34;42:st=37;44:ex=01;32:*.tar=01;31:*.tgz=01;31:*.arc=01;31:*.arj=01;31:*.taz=01;31:*.lha=01;31:*.lz4=01;31:*.lzh=01;31:*.lzma=01;31:*.tlz=01;31:*.txz=01;31:*.tzo=01;31:*.t7z=01;31:*.zip=01;31:*.z=01;31:*.dz=01;31:*.gz=01;31:*.lrz=01;31:*.lz=01;31:*.lzo=01;31:*.xz=01;31:*.zst=01;31:*.tzst=01;31:*.bz2=01;31:*.bz=01;31:*.tbz=01;31:*.tbz2=01;31:*.tz=01;31:*.deb=01;31:*.rpm=01;31:*.jar=01;31:*.war=01;31:*.ear=01;31:*.sar=01;31:*.rar=01;31:*.alz=01;31:*.ace=01;31:*.zoo=01;31:*.cpio=01;31:*.7z=01;31:*.rz=01;31:*.cab=01;31:*.wim=01;31:*.swm=01;31:*.dwm=01;31:*.esd=01;31:*.jpg=01;35:*.jpeg=01;35:*.mjpg=01;35:*.mjpeg=01;35:*.gif=01;35:*.bmp=01;35:*.pbm=01;35:*.pgm=01;35:*.ppm=01;35:*.tga=01;35:*.xbm=01;35:*.xpm=01;35:*.tif=01;35:*.tiff=01;35:*.png=01;35:*.svg=01;35:*.svgz=01;35:*.mng=01;35:*.pcx=01;35:*.mov=01;35:*.mpg=01;35:*.mpeg=01;35:*.m2v=01;35:*.mkv=01;35:*.webm=01;35:*.webp=01;35:*.ogm=01;35:*.mp4=01;35:*.m4v=01;35:*.mp4v=01;35:*.vob=01;35:*.qt=01;35:*.nuv=01;35:*.wmv=01;35:*.asf=01;35:*.rm=01;35:*.rmvb=01;35:*.flc=01;35:*.avi=01;35:*.fli=01;35:*.flv=01;35:*.gl=01;35:*.dl=01;35:*.xcf=01;35:*.xwd=01;35:*.yuv=01;35:*.cgm=01;35:*.emf=01;35:*.ogv=01;35:*.ogx=01;35:*.aac=00;36:*.au=00;36:*.flac=00;36:*.m4a=00;36:*.mid=00;36:*.midi=00;36:*.mka=00;36:*.mp3=00;36:*.mpc=00;36:*.ogg=00;36:*.ra=00;36:*.wav=00;36:*.oga=00;36:*.opus=00;36:*.spx=00;36:*.xspf=00;36:'), ('ROS_DOMAIN_ID', '1'), ('AMENT_PREFIX_PATH', '/mnt/c/Users/jcube/OneDrive/Desktop/Jacob/School/Queens/Year 5/Extra Curricular/aQuatonomous/Lidar Bagging Data/mapping-25-26/install/unitree_lidar_ros2:/mnt/c/Users/jcube/OneDrive/Desktop/Jacob/School/Queens/Year 5/Extra Curricular/aQuatonomous/Lidar Bagging Data/mapping-25-26/install/pointcloud_filters:/opt/ros/humble'), ('SHELL', '/bin/bash'), ('LESSCLOSE', '/usr/bin/lesspipe %s %s'), ('PWD', '/mnt/c/Users/jcube/OneDrive/Desktop/Jacob/School/Queens/Year 5/Extra Curricular/aQuatonomous/Lidar Bagging Data/mapping-25-26/build/pointcloud_filters'), ('XDG_DATA_DIRS', '/usr/local/share:/usr/share:/var/lib/snapd/desktop'), ('PYTHONPATH', '/mnt/c/Users/jcube/OneDrive/Desktop/Jacob/School/Queens/Year 5/Extra Curricular/aQuatonomous/Lidar Bagging Data/mapping-25-26/install/pointcloud_filters/local/lib/python3.10/dist-packages:/mnt/c/Users/jcube/OneDrive/Desktop/Jacob/School/Queens/Year 5/Extra Curricular/aQuatonomous/Lidar Bagging Data/mapping-25-26/install/pointcloud_filters/lib/python3.10/site-packages:/opt/ros/humble/lib/python3.10/site-packages:/opt/ros/humble/local/lib/python3.10/dist-packages'), ('HOMEBREW_REPOSITORY', '/home/linuxbrew/.linuxbrew/Homebrew'), ('COLCON', '1'), ('WSL2_GUI_APPS_ENABLED', '1'), ('MANPATH', '/home/linuxbrew/.linuxbrew/share/man:'), ('HOSTTYPE', 'x86_64'), ('CMAKE_PREFIX_PATH', '/mnt/c/Users/jcube/OneDrive/Desktop/Jacob/School/Queens/Year 5/Extra Curricular/aQuatonomous/Lidar Bagging Data/mapping-25-26/install/unitree_lidar_ros2:/mnt/c/Users/jcube/OneDrive/Desktop/Jacob/School/Queens/Year 5/Extra Curricular/aQuatonomous/Lidar Bagging Data/mapping-25-26/install/pointcloud_filters'), ('WSLENV', '')]), 'shell': False}
+[0.398305] (-) TimerEvent: {}
+[0.499195] (-) TimerEvent: {}
+[0.600249] (-) TimerEvent: {}
+[0.701209] (-) TimerEvent: {}
+[0.802229] (-) TimerEvent: {}
+[0.903189] (-) TimerEvent: {}
+[1.004169] (-) TimerEvent: {}
+[1.105015] (-) TimerEvent: {}
+[1.206027] (-) TimerEvent: {}
+[1.307019] (-) TimerEvent: {}
+[1.407988] (-) TimerEvent: {}
+[1.409180] (my_lidar_pkg) StdoutLine: {'line': b'-- The C compiler identification is GNU 11.4.0\n'}
+[1.411203] (pointcloud_filters) StdoutLine: {'line': b'-- The C compiler identification is GNU 11.4.0\n'}
+[1.508200] (-) TimerEvent: {}
+[1.609205] (-) TimerEvent: {}
+[1.710350] (-) TimerEvent: {}
+[1.811315] (-) TimerEvent: {}
+[1.912179] (-) TimerEvent: {}
+[2.013089] (-) TimerEvent: {}
+[2.114062] (-) TimerEvent: {}
+[2.214991] (-) TimerEvent: {}
+[2.315988] (-) TimerEvent: {}
+[2.416939] (-) TimerEvent: {}
+[2.517879] (-) TimerEvent: {}
+[2.618712] (-) TimerEvent: {}
+[2.720584] (-) TimerEvent: {}
+[2.821505] (-) TimerEvent: {}
+[2.922565] (-) TimerEvent: {}
+[3.023716] (-) TimerEvent: {}
+[3.074870] (pointcloud_filters) StdoutLine: {'line': b'-- The CXX compiler identification is GNU 11.4.0\n'}
+[3.083382] (my_lidar_pkg) StdoutLine: {'line': b'-- The CXX compiler identification is GNU 11.4.0\n'}
+[3.123926] (-) TimerEvent: {}
+[3.224821] (-) TimerEvent: {}
+[3.325692] (-) TimerEvent: {}
+[3.426688] (-) TimerEvent: {}
+[3.527638] (-) TimerEvent: {}
+[3.628535] (-) TimerEvent: {}
+[3.729538] (-) TimerEvent: {}
+[3.830394] (-) TimerEvent: {}
+[3.931179] (-) TimerEvent: {}
+[4.032103] (-) TimerEvent: {}
+[4.075693] (pointcloud_filters) StdoutLine: {'line': b'-- Detecting C compiler ABI info\n'}
+[4.085660] (my_lidar_pkg) StdoutLine: {'line': b'-- Detecting C compiler ABI info\n'}
+[4.132286] (-) TimerEvent: {}
+[4.233221] (-) TimerEvent: {}
+[4.334213] (-) TimerEvent: {}
+[4.435119] (-) TimerEvent: {}
+[4.536003] (-) TimerEvent: {}
+[4.636810] (-) TimerEvent: {}
+[4.737753] (-) TimerEvent: {}
+[4.838705] (-) TimerEvent: {}
+[4.939765] (-) TimerEvent: {}
+[5.040714] (-) TimerEvent: {}
+[5.141645] (-) TimerEvent: {}
+[5.242831] (-) TimerEvent: {}
+[5.343707] (-) TimerEvent: {}
+[5.444678] (-) TimerEvent: {}
+[5.545544] (-) TimerEvent: {}
+[5.552137] (my_lidar_pkg) StdoutLine: {'line': b'-- Detecting C compiler ABI info - done\n'}
+[5.559493] (pointcloud_filters) StdoutLine: {'line': b'-- Detecting C compiler ABI info - done\n'}
+[5.606505] (my_lidar_pkg) StdoutLine: {'line': b'-- Check for working C compiler: /usr/bin/cc - skipped\n'}
+[5.608429] (my_lidar_pkg) StdoutLine: {'line': b'-- Detecting C compile features\n'}
+[5.609969] (my_lidar_pkg) StdoutLine: {'line': b'-- Detecting C compile features - done\n'}
+[5.614808] (pointcloud_filters) StdoutLine: {'line': b'-- Check for working C compiler: /usr/bin/cc - skipped\n'}
+[5.616830] (pointcloud_filters) StdoutLine: {'line': b'-- Detecting C compile features\n'}
+[5.618243] (pointcloud_filters) StdoutLine: {'line': b'-- Detecting C compile features - done\n'}
+[5.645807] (-) TimerEvent: {}
+[5.715115] (my_lidar_pkg) StdoutLine: {'line': b'-- Detecting CXX compiler ABI info\n'}
+[5.720631] (pointcloud_filters) StdoutLine: {'line': b'-- Detecting CXX compiler ABI info\n'}
+[5.746001] (-) TimerEvent: {}
+[5.847004] (-) TimerEvent: {}
+[5.948013] (-) TimerEvent: {}
+[6.048884] (-) TimerEvent: {}
+[6.149866] (-) TimerEvent: {}
+[6.250757] (-) TimerEvent: {}
+[6.351737] (-) TimerEvent: {}
+[6.452612] (-) TimerEvent: {}
+[6.553483] (-) TimerEvent: {}
+[6.654313] (-) TimerEvent: {}
+[6.755331] (-) TimerEvent: {}
+[6.856440] (-) TimerEvent: {}
+[6.957289] (-) TimerEvent: {}
+[7.058218] (-) TimerEvent: {}
+[7.158027] (my_lidar_pkg) StdoutLine: {'line': b'-- Detecting CXX compiler ABI info - done\n'}
+[7.159879] (-) TimerEvent: {}
+[7.186819] (pointcloud_filters) StdoutLine: {'line': b'-- Detecting CXX compiler ABI info - done\n'}
+[7.211630] (my_lidar_pkg) StdoutLine: {'line': b'-- Check for working CXX compiler: /usr/bin/c++ - skipped\n'}
+[7.213482] (my_lidar_pkg) StdoutLine: {'line': b'-- Detecting CXX compile features\n'}
+[7.215385] (my_lidar_pkg) StdoutLine: {'line': b'-- Detecting CXX compile features - done\n'}
+[7.235672] (pointcloud_filters) StdoutLine: {'line': b'-- Check for working CXX compiler: /usr/bin/c++ - skipped\n'}
+[7.237530] (pointcloud_filters) StdoutLine: {'line': b'-- Detecting CXX compile features\n'}
+[7.239070] (pointcloud_filters) StdoutLine: {'line': b'-- Detecting CXX compile features - done\n'}
+[7.260078] (-) TimerEvent: {}
+[7.335503] (pointcloud_filters) StdoutLine: {'line': b'-- Found ament_cmake: 1.3.12 (/opt/ros/humble/share/ament_cmake/cmake)\n'}
+[7.337305] (my_lidar_pkg) StdoutLine: {'line': b'-- Found ament_cmake: 1.3.12 (/opt/ros/humble/share/ament_cmake/cmake)\n'}
+[7.360288] (-) TimerEvent: {}
+[7.461145] (-) TimerEvent: {}
+[7.562247] (-) TimerEvent: {}
+[7.663073] (-) TimerEvent: {}
+[7.763988] (-) TimerEvent: {}
+[7.840238] (my_lidar_pkg) StdoutLine: {'line': b'-- Found Python3: /usr/bin/python3 (found version "3.10.12") found components: Interpreter \n'}
+[7.846014] (pointcloud_filters) StdoutLine: {'line': b'-- Found Python3: /usr/bin/python3 (found version "3.10.12") found components: Interpreter \n'}
+[7.864150] (-) TimerEvent: {}
+[7.964953] (-) TimerEvent: {}
+[8.066149] (-) TimerEvent: {}
+[8.167097] (-) TimerEvent: {}
+[8.267922] (-) TimerEvent: {}
+[8.290449] (pointcloud_filters) StdoutLine: {'line': b'-- Found rosidl_default_generators: 1.2.0 (/opt/ros/humble/share/rosidl_default_generators/cmake)\n'}
+[8.312615] (pointcloud_filters) StdoutLine: {'line': b'-- Using all available rosidl_typesupport_c: rosidl_typesupport_fastrtps_c;rosidl_typesupport_introspection_c\n'}
+[8.340754] (pointcloud_filters) StdoutLine: {'line': b'-- Found rosidl_adapter: 3.1.7 (/opt/ros/humble/share/rosidl_adapter/cmake)\n'}
+[8.368112] (-) TimerEvent: {}
+[8.469030] (-) TimerEvent: {}
+[8.569948] (-) TimerEvent: {}
+[8.670985] (-) TimerEvent: {}
+[8.771931] (-) TimerEvent: {}
+[8.873296] (-) TimerEvent: {}
+[8.900324] (pointcloud_filters) StdoutLine: {'line': b'-- Using all available rosidl_typesupport_cpp: rosidl_typesupport_fastrtps_cpp;rosidl_typesupport_introspection_cpp\n'}
+[8.973537] (-) TimerEvent: {}
+[9.042403] (pointcloud_filters) StdoutLine: {'line': b'-- Found sensor_msgs: 4.9.0 (/opt/ros/humble/share/sensor_msgs/cmake)\n'}
+[9.073829] (-) TimerEvent: {}
+[9.174966] (-) TimerEvent: {}
+[9.227336] (pointcloud_filters) StdoutLine: {'line': b'-- Found visualization_msgs: 4.9.0 (/opt/ros/humble/share/visualization_msgs/cmake)\n'}
+[9.275155] (-) TimerEvent: {}
+[9.375996] (-) TimerEvent: {}
+[9.476903] (-) TimerEvent: {}
+[9.577930] (-) TimerEvent: {}
+[9.648835] (my_lidar_pkg) StdoutLine: {'line': b'-- Configuring done\n'}
+[9.678102] (-) TimerEvent: {}
+[9.778954] (-) TimerEvent: {}
+[9.879887] (-) TimerEvent: {}
+[9.980865] (-) TimerEvent: {}
+[10.081868] (-) TimerEvent: {}
+[10.182737] (-) TimerEvent: {}
+[10.283645] (-) TimerEvent: {}
+[10.384599] (-) TimerEvent: {}
+[10.402731] (my_lidar_pkg) StdoutLine: {'line': b'-- Generating done\n'}
+[10.484787] (-) TimerEvent: {}
+[10.585807] (-) TimerEvent: {}
+[10.587579] (my_lidar_pkg) StdoutLine: {'line': b'-- Build files have been written to: /mnt/c/Users/jcube/OneDrive/Desktop/Jacob/School/Queens/Year 5/Extra Curricular/aQuatonomous/Lidar Bagging Data/mapping-25-26/build/my_lidar_pkg\n'}
+[10.598073] (my_lidar_pkg) CommandEnded: {'returncode': 0}
+[10.604440] (my_lidar_pkg) JobProgress: {'identifier': 'my_lidar_pkg', 'progress': 'build'}
+[10.614207] (my_lidar_pkg) Command: {'cmd': ['/usr/bin/cmake', '--build', '/mnt/c/Users/jcube/OneDrive/Desktop/Jacob/School/Queens/Year 5/Extra Curricular/aQuatonomous/Lidar Bagging Data/mapping-25-26/build/my_lidar_pkg', '--', '-j16', '-l16'], 'cwd': '/mnt/c/Users/jcube/OneDrive/Desktop/Jacob/School/Queens/Year 5/Extra Curricular/aQuatonomous/Lidar Bagging Data/mapping-25-26/build/my_lidar_pkg', 'env': OrderedDict([('LESSOPEN', '| /usr/bin/lesspipe %s'), ('USER', 'jcube05'), ('SHLVL', '1'), ('LD_LIBRARY_PATH', '/mnt/c/Users/jcube/OneDrive/Desktop/Jacob/School/Queens/Year 5/Extra Curricular/aQuatonomous/Lidar Bagging Data/mapping-25-26/install/pointcloud_filters/lib:/opt/ros/humble/opt/rviz_ogre_vendor/lib:/opt/ros/humble/lib/x86_64-linux-gnu:/opt/ros/humble/lib'), ('MOTD_SHOWN', 'update-motd'), ('HOME', '/home/jcube05'), ('ROS_PYTHON_VERSION', '3'), ('HOMEBREW_PREFIX', '/home/linuxbrew/.linuxbrew'), ('DBUS_SESSION_BUS_ADDRESS', 'unix:path=/run/user/1000/bus'), ('WSL_DISTRO_NAME', 'Ubuntu-22.04'), ('WAYLAND_DISPLAY', 'wayland-0'), ('COLCON_PREFIX_PATH', '/mnt/c/Users/jcube/OneDrive/Desktop/Jacob/School/Queens/Year 5/Extra Curricular/aQuatonomous/Lidar Bagging Data/mapping-25-26/install'), ('INFOPATH', '/home/linuxbrew/.linuxbrew/share/info:'), ('ROS_DISTRO', 'humble'), ('LOGNAME', 'jcube05'), ('NAME', 'Jcube05'), ('WSL_INTEROP', '/run/WSL/207016_interop'), ('PULSE_SERVER', 'unix:/mnt/wslg/PulseServer'), ('_', '/usr/bin/colcon'), ('ROS_VERSION', '2'), ('TERM', 'xterm-256color'), ('ROS_LOCALHOST_ONLY', '1'), ('PATH', '/home/jcube05/.local/bin:/opt/ros/humble/bin:/home/linuxbrew/.linuxbrew/bin:/home/linuxbrew/.linuxbrew/sbin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/usr/lib/wsl/lib:/mnt/c/Python313/Scripts/:/mnt/c/Python313/:/mnt/c/Program Files/Common Files/Oracle/Java/javapath:/mnt/c/Program Files (x86)/Common Files/Oracle/Java/java8path:/mnt/c/Program Files (x86)/Common Files/Oracle/Java/javapath:/mnt/c/Program Files (x86)/Razer Chroma SDK/bin:/mnt/c/Program Files/Razer Chroma SDK/bin:/mnt/c/Windows/system32:/mnt/c/Windows:/mnt/c/Windows/System32/Wbem:/mnt/c/Windows/System32/WindowsPowerShell/v1.0/:/mnt/c/Windows/System32/OpenSSH/:/mnt/c/Program Files/Git/cmd:/mnt/c/ProgramData/chocolatey/bin:/mnt/c/Windows/system32/config/systemprofile/AppData/Local/Microsoft/WindowsApps:/mnt/c/Program Files (x86)/Razer/ChromaBroadcast/bin:/mnt/c/Program Files/Razer/ChromaBroadcast/bin:/mnt/c/Users/jcube/AppData/Local/Programs/Python/Python311/Scripts/:/mnt/c/Users/jcube/AppData/Local/Programs/Python/Python311/:/mnt/c/Users/jcube/AppData/Local/Microsoft/WindowsApps:/mnt/c/Users/jcube/AppData/Local/Programs/Microsoft VS Code/bin:/mnt/c/msys64/ucrt64/bin:/mnt/c/intelFPGA_lite/18.1/modelsim_ase/win32aloem:/mnt/c/Program Files/dotnet/:/mnt/c/Program Files/Java/jdk-23/bin:/mnt/c/Program Files/apache-maven-3.9.9/bin:/mnt/c/Program Files/nodejs/:/mnt/c/WINDOWS/system32:/mnt/c/WINDOWS:/mnt/c/WINDOWS/System32/Wbem:/mnt/c/WINDOWS/System32/WindowsPowerShell/v1.0/:/mnt/c/WINDOWS/System32/OpenSSH/:/mnt/c/Program Files/MATLAB/R2025b/bin:/mnt/c/Program Files/Tailscale/:/mnt/c/Program Files/cursor/resources/app/bin:/mnt/c/Program Files/GitHub CLI/:/Docker/host/bin:/mnt/c/Program Files/usbipd-win/:/mnt/c/Users/jcube/AppData/Local/Programs/Python/Python311/Scripts/:/mnt/c/Users/jcube/AppData/Local/Programs/Python/Python311/:/mnt/c/Users/jcube/AppData/Local/Microsoft/WindowsApps:/mnt/c/Users/jcube/AppData/Local/Programs/Microsoft VS Code/bin:/mnt/c/msys64/ucrt64/bin:/mnt/c/Users/jcube/AppData/Roaming/npm:/mnt/c/Users/jcube/AppData/Roaming/Python/Python313/Scripts:/mnt/c/Users/jcube/AppData/Roaming/Python/Python313/Scripts:/mnt/c/Users/jcube/AppData/Local/Programs/Antigravity/bin:/snap/bin'), ('FASTRTPS_DEFAULT_PROFILES_FILE', '/home/jcube05/fastrtps_shm.xml'), ('HOMEBREW_CELLAR', '/home/linuxbrew/.linuxbrew/Cellar'), ('XDG_RUNTIME_DIR', '/run/user/1000/'), ('DISPLAY', ':0'), ('LANG', 'C.UTF-8'), ('RMW_IMPLEMENTATION', 'rmw_fastrtps_cpp'), ('LS_COLORS', 'rs=0:di=01;34:ln=01;36:mh=00:pi=40;33:so=01;35:do=01;35:bd=40;33;01:cd=40;33;01:or=40;31;01:mi=00:su=37;41:sg=30;43:ca=30;41:tw=30;42:ow=34;42:st=37;44:ex=01;32:*.tar=01;31:*.tgz=01;31:*.arc=01;31:*.arj=01;31:*.taz=01;31:*.lha=01;31:*.lz4=01;31:*.lzh=01;31:*.lzma=01;31:*.tlz=01;31:*.txz=01;31:*.tzo=01;31:*.t7z=01;31:*.zip=01;31:*.z=01;31:*.dz=01;31:*.gz=01;31:*.lrz=01;31:*.lz=01;31:*.lzo=01;31:*.xz=01;31:*.zst=01;31:*.tzst=01;31:*.bz2=01;31:*.bz=01;31:*.tbz=01;31:*.tbz2=01;31:*.tz=01;31:*.deb=01;31:*.rpm=01;31:*.jar=01;31:*.war=01;31:*.ear=01;31:*.sar=01;31:*.rar=01;31:*.alz=01;31:*.ace=01;31:*.zoo=01;31:*.cpio=01;31:*.7z=01;31:*.rz=01;31:*.cab=01;31:*.wim=01;31:*.swm=01;31:*.dwm=01;31:*.esd=01;31:*.jpg=01;35:*.jpeg=01;35:*.mjpg=01;35:*.mjpeg=01;35:*.gif=01;35:*.bmp=01;35:*.pbm=01;35:*.pgm=01;35:*.ppm=01;35:*.tga=01;35:*.xbm=01;35:*.xpm=01;35:*.tif=01;35:*.tiff=01;35:*.png=01;35:*.svg=01;35:*.svgz=01;35:*.mng=01;35:*.pcx=01;35:*.mov=01;35:*.mpg=01;35:*.mpeg=01;35:*.m2v=01;35:*.mkv=01;35:*.webm=01;35:*.webp=01;35:*.ogm=01;35:*.mp4=01;35:*.m4v=01;35:*.mp4v=01;35:*.vob=01;35:*.qt=01;35:*.nuv=01;35:*.wmv=01;35:*.asf=01;35:*.rm=01;35:*.rmvb=01;35:*.flc=01;35:*.avi=01;35:*.fli=01;35:*.flv=01;35:*.gl=01;35:*.dl=01;35:*.xcf=01;35:*.xwd=01;35:*.yuv=01;35:*.cgm=01;35:*.emf=01;35:*.ogv=01;35:*.ogx=01;35:*.aac=00;36:*.au=00;36:*.flac=00;36:*.m4a=00;36:*.mid=00;36:*.midi=00;36:*.mka=00;36:*.mp3=00;36:*.mpc=00;36:*.ogg=00;36:*.ra=00;36:*.wav=00;36:*.oga=00;36:*.opus=00;36:*.spx=00;36:*.xspf=00;36:'), ('ROS_DOMAIN_ID', '1'), ('AMENT_PREFIX_PATH', '/mnt/c/Users/jcube/OneDrive/Desktop/Jacob/School/Queens/Year 5/Extra Curricular/aQuatonomous/Lidar Bagging Data/mapping-25-26/install/unitree_lidar_ros2:/mnt/c/Users/jcube/OneDrive/Desktop/Jacob/School/Queens/Year 5/Extra Curricular/aQuatonomous/Lidar Bagging Data/mapping-25-26/install/pointcloud_filters:/opt/ros/humble'), ('SHELL', '/bin/bash'), ('LESSCLOSE', '/usr/bin/lesspipe %s %s'), ('PWD', '/mnt/c/Users/jcube/OneDrive/Desktop/Jacob/School/Queens/Year 5/Extra Curricular/aQuatonomous/Lidar Bagging Data/mapping-25-26/build/my_lidar_pkg'), ('XDG_DATA_DIRS', '/usr/local/share:/usr/share:/var/lib/snapd/desktop'), ('PYTHONPATH', '/mnt/c/Users/jcube/OneDrive/Desktop/Jacob/School/Queens/Year 5/Extra Curricular/aQuatonomous/Lidar Bagging Data/mapping-25-26/install/pointcloud_filters/local/lib/python3.10/dist-packages:/mnt/c/Users/jcube/OneDrive/Desktop/Jacob/School/Queens/Year 5/Extra Curricular/aQuatonomous/Lidar Bagging Data/mapping-25-26/install/pointcloud_filters/lib/python3.10/site-packages:/opt/ros/humble/lib/python3.10/site-packages:/opt/ros/humble/local/lib/python3.10/dist-packages'), ('HOMEBREW_REPOSITORY', '/home/linuxbrew/.linuxbrew/Homebrew'), ('COLCON', '1'), ('WSL2_GUI_APPS_ENABLED', '1'), ('MANPATH', '/home/linuxbrew/.linuxbrew/share/man:'), ('HOSTTYPE', 'x86_64'), ('CMAKE_PREFIX_PATH', '/mnt/c/Users/jcube/OneDrive/Desktop/Jacob/School/Queens/Year 5/Extra Curricular/aQuatonomous/Lidar Bagging Data/mapping-25-26/install/unitree_lidar_ros2:/mnt/c/Users/jcube/OneDrive/Desktop/Jacob/School/Queens/Year 5/Extra Curricular/aQuatonomous/Lidar Bagging Data/mapping-25-26/install/pointcloud_filters'), ('WSLENV', '')]), 'shell': False}
+[10.685990] (-) TimerEvent: {}
+[10.786894] (-) TimerEvent: {}
+[10.887662] (-) TimerEvent: {}
+[10.988503] (-) TimerEvent: {}
+[11.089332] (-) TimerEvent: {}
+[11.190240] (-) TimerEvent: {}
+[11.238189] (my_lidar_pkg) StdoutLine: {'line': b'Built target ament_cmake_python_copy_my_lidar_pkg_setup\n'}
+[11.290424] (-) TimerEvent: {}
+[11.391362] (-) TimerEvent: {}
+[11.420460] (my_lidar_pkg) StdoutLine: {'line': b'Built target ament_cmake_python_copy_my_lidar_pkg\n'}
+[11.491550] (-) TimerEvent: {}
+[11.592374] (-) TimerEvent: {}
+[11.693288] (-) TimerEvent: {}
+[11.794272] (-) TimerEvent: {}
+[11.895224] (-) TimerEvent: {}
+[11.996201] (-) TimerEvent: {}
+[12.097090] (-) TimerEvent: {}
+[12.158392] (my_lidar_pkg) StderrLine: {'line': b"/usr/lib/python3/dist-packages/setuptools/dist.py:723: UserWarning: Usage of dash-separated 'script-dir' will not be supported in future versions. Please use the underscore name 'script_dir' instead\n"}
+[12.160414] (my_lidar_pkg) StderrLine: {'line': b'  warnings.warn(\n'}
+[12.162196] (my_lidar_pkg) StderrLine: {'line': b"/usr/lib/python3/dist-packages/setuptools/dist.py:723: UserWarning: Usage of dash-separated 'install-scripts' will not be supported in future versions. Please use the underscore name 'install_scripts' instead\n"}
+[12.163662] (my_lidar_pkg) StderrLine: {'line': b'  warnings.warn(\n'}
+[12.197254] (my_lidar_pkg) StdoutLine: {'line': b'running egg_info\n'}
+[12.199048] (-) TimerEvent: {}
+[12.199658] (my_lidar_pkg) StdoutLine: {'line': b'creating my_lidar_pkg.egg-info\n'}
+[12.204687] (my_lidar_pkg) StdoutLine: {'line': b'writing my_lidar_pkg.egg-info/PKG-INFO\n'}
+[12.212706] (my_lidar_pkg) StdoutLine: {'line': b'writing dependency_links to my_lidar_pkg.egg-info/dependency_links.txt\n'}
+[12.223746] (my_lidar_pkg) StdoutLine: {'line': b'writing top-level names to my_lidar_pkg.egg-info/top_level.txt\n'}
+[12.231332] (my_lidar_pkg) StdoutLine: {'line': b"writing manifest file 'my_lidar_pkg.egg-info/SOURCES.txt'\n"}
+[12.264802] (my_lidar_pkg) StdoutLine: {'line': b"reading manifest file 'my_lidar_pkg.egg-info/SOURCES.txt'\n"}
+[12.299215] (-) TimerEvent: {}
+[12.302390] (my_lidar_pkg) StdoutLine: {'line': b"writing manifest file 'my_lidar_pkg.egg-info/SOURCES.txt'\n"}
+[12.399424] (-) TimerEvent: {}
+[12.408076] (my_lidar_pkg) StdoutLine: {'line': b'Built target ament_cmake_python_build_my_lidar_pkg_egg\n'}
+[12.483817] (my_lidar_pkg) CommandEnded: {'returncode': 0}
+[12.499618] (-) TimerEvent: {}
+[12.600411] (-) TimerEvent: {}
+[12.701232] (-) TimerEvent: {}
+[12.802171] (-) TimerEvent: {}
+[12.903052] (-) TimerEvent: {}
+[12.966272] (my_lidar_pkg) JobProgress: {'identifier': 'my_lidar_pkg', 'progress': 'install'}
+[13.003227] (-) TimerEvent: {}
+[13.011589] (my_lidar_pkg) Command: {'cmd': ['/usr/bin/cmake', '--install', '/mnt/c/Users/jcube/OneDrive/Desktop/Jacob/School/Queens/Year 5/Extra Curricular/aQuatonomous/Lidar Bagging Data/mapping-25-26/build/my_lidar_pkg'], 'cwd': '/mnt/c/Users/jcube/OneDrive/Desktop/Jacob/School/Queens/Year 5/Extra Curricular/aQuatonomous/Lidar Bagging Data/mapping-25-26/build/my_lidar_pkg', 'env': OrderedDict([('LESSOPEN', '| /usr/bin/lesspipe %s'), ('USER', 'jcube05'), ('SHLVL', '1'), ('LD_LIBRARY_PATH', '/mnt/c/Users/jcube/OneDrive/Desktop/Jacob/School/Queens/Year 5/Extra Curricular/aQuatonomous/Lidar Bagging Data/mapping-25-26/install/pointcloud_filters/lib:/opt/ros/humble/opt/rviz_ogre_vendor/lib:/opt/ros/humble/lib/x86_64-linux-gnu:/opt/ros/humble/lib'), ('MOTD_SHOWN', 'update-motd'), ('HOME', '/home/jcube05'), ('ROS_PYTHON_VERSION', '3'), ('HOMEBREW_PREFIX', '/home/linuxbrew/.linuxbrew'), ('DBUS_SESSION_BUS_ADDRESS', 'unix:path=/run/user/1000/bus'), ('WSL_DISTRO_NAME', 'Ubuntu-22.04'), ('WAYLAND_DISPLAY', 'wayland-0'), ('COLCON_PREFIX_PATH', '/mnt/c/Users/jcube/OneDrive/Desktop/Jacob/School/Queens/Year 5/Extra Curricular/aQuatonomous/Lidar Bagging Data/mapping-25-26/install'), ('INFOPATH', '/home/linuxbrew/.linuxbrew/share/info:'), ('ROS_DISTRO', 'humble'), ('LOGNAME', 'jcube05'), ('NAME', 'Jcube05'), ('WSL_INTEROP', '/run/WSL/207016_interop'), ('PULSE_SERVER', 'unix:/mnt/wslg/PulseServer'), ('_', '/usr/bin/colcon'), ('ROS_VERSION', '2'), ('TERM', 'xterm-256color'), ('ROS_LOCALHOST_ONLY', '1'), ('PATH', '/home/jcube05/.local/bin:/opt/ros/humble/bin:/home/linuxbrew/.linuxbrew/bin:/home/linuxbrew/.linuxbrew/sbin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/usr/lib/wsl/lib:/mnt/c/Python313/Scripts/:/mnt/c/Python313/:/mnt/c/Program Files/Common Files/Oracle/Java/javapath:/mnt/c/Program Files (x86)/Common Files/Oracle/Java/java8path:/mnt/c/Program Files (x86)/Common Files/Oracle/Java/javapath:/mnt/c/Program Files (x86)/Razer Chroma SDK/bin:/mnt/c/Program Files/Razer Chroma SDK/bin:/mnt/c/Windows/system32:/mnt/c/Windows:/mnt/c/Windows/System32/Wbem:/mnt/c/Windows/System32/WindowsPowerShell/v1.0/:/mnt/c/Windows/System32/OpenSSH/:/mnt/c/Program Files/Git/cmd:/mnt/c/ProgramData/chocolatey/bin:/mnt/c/Windows/system32/config/systemprofile/AppData/Local/Microsoft/WindowsApps:/mnt/c/Program Files (x86)/Razer/ChromaBroadcast/bin:/mnt/c/Program Files/Razer/ChromaBroadcast/bin:/mnt/c/Users/jcube/AppData/Local/Programs/Python/Python311/Scripts/:/mnt/c/Users/jcube/AppData/Local/Programs/Python/Python311/:/mnt/c/Users/jcube/AppData/Local/Microsoft/WindowsApps:/mnt/c/Users/jcube/AppData/Local/Programs/Microsoft VS Code/bin:/mnt/c/msys64/ucrt64/bin:/mnt/c/intelFPGA_lite/18.1/modelsim_ase/win32aloem:/mnt/c/Program Files/dotnet/:/mnt/c/Program Files/Java/jdk-23/bin:/mnt/c/Program Files/apache-maven-3.9.9/bin:/mnt/c/Program Files/nodejs/:/mnt/c/WINDOWS/system32:/mnt/c/WINDOWS:/mnt/c/WINDOWS/System32/Wbem:/mnt/c/WINDOWS/System32/WindowsPowerShell/v1.0/:/mnt/c/WINDOWS/System32/OpenSSH/:/mnt/c/Program Files/MATLAB/R2025b/bin:/mnt/c/Program Files/Tailscale/:/mnt/c/Program Files/cursor/resources/app/bin:/mnt/c/Program Files/GitHub CLI/:/Docker/host/bin:/mnt/c/Program Files/usbipd-win/:/mnt/c/Users/jcube/AppData/Local/Programs/Python/Python311/Scripts/:/mnt/c/Users/jcube/AppData/Local/Programs/Python/Python311/:/mnt/c/Users/jcube/AppData/Local/Microsoft/WindowsApps:/mnt/c/Users/jcube/AppData/Local/Programs/Microsoft VS Code/bin:/mnt/c/msys64/ucrt64/bin:/mnt/c/Users/jcube/AppData/Roaming/npm:/mnt/c/Users/jcube/AppData/Roaming/Python/Python313/Scripts:/mnt/c/Users/jcube/AppData/Roaming/Python/Python313/Scripts:/mnt/c/Users/jcube/AppData/Local/Programs/Antigravity/bin:/snap/bin'), ('FASTRTPS_DEFAULT_PROFILES_FILE', '/home/jcube05/fastrtps_shm.xml'), ('HOMEBREW_CELLAR', '/home/linuxbrew/.linuxbrew/Cellar'), ('XDG_RUNTIME_DIR', '/run/user/1000/'), ('DISPLAY', ':0'), ('LANG', 'C.UTF-8'), ('RMW_IMPLEMENTATION', 'rmw_fastrtps_cpp'), ('LS_COLORS', 'rs=0:di=01;34:ln=01;36:mh=00:pi=40;33:so=01;35:do=01;35:bd=40;33;01:cd=40;33;01:or=40;31;01:mi=00:su=37;41:sg=30;43:ca=30;41:tw=30;42:ow=34;42:st=37;44:ex=01;32:*.tar=01;31:*.tgz=01;31:*.arc=01;31:*.arj=01;31:*.taz=01;31:*.lha=01;31:*.lz4=01;31:*.lzh=01;31:*.lzma=01;31:*.tlz=01;31:*.txz=01;31:*.tzo=01;31:*.t7z=01;31:*.zip=01;31:*.z=01;31:*.dz=01;31:*.gz=01;31:*.lrz=01;31:*.lz=01;31:*.lzo=01;31:*.xz=01;31:*.zst=01;31:*.tzst=01;31:*.bz2=01;31:*.bz=01;31:*.tbz=01;31:*.tbz2=01;31:*.tz=01;31:*.deb=01;31:*.rpm=01;31:*.jar=01;31:*.war=01;31:*.ear=01;31:*.sar=01;31:*.rar=01;31:*.alz=01;31:*.ace=01;31:*.zoo=01;31:*.cpio=01;31:*.7z=01;31:*.rz=01;31:*.cab=01;31:*.wim=01;31:*.swm=01;31:*.dwm=01;31:*.esd=01;31:*.jpg=01;35:*.jpeg=01;35:*.mjpg=01;35:*.mjpeg=01;35:*.gif=01;35:*.bmp=01;35:*.pbm=01;35:*.pgm=01;35:*.ppm=01;35:*.tga=01;35:*.xbm=01;35:*.xpm=01;35:*.tif=01;35:*.tiff=01;35:*.png=01;35:*.svg=01;35:*.svgz=01;35:*.mng=01;35:*.pcx=01;35:*.mov=01;35:*.mpg=01;35:*.mpeg=01;35:*.m2v=01;35:*.mkv=01;35:*.webm=01;35:*.webp=01;35:*.ogm=01;35:*.mp4=01;35:*.m4v=01;35:*.mp4v=01;35:*.vob=01;35:*.qt=01;35:*.nuv=01;35:*.wmv=01;35:*.asf=01;35:*.rm=01;35:*.rmvb=01;35:*.flc=01;35:*.avi=01;35:*.fli=01;35:*.flv=01;35:*.gl=01;35:*.dl=01;35:*.xcf=01;35:*.xwd=01;35:*.yuv=01;35:*.cgm=01;35:*.emf=01;35:*.ogv=01;35:*.ogx=01;35:*.aac=00;36:*.au=00;36:*.flac=00;36:*.m4a=00;36:*.mid=00;36:*.midi=00;36:*.mka=00;36:*.mp3=00;36:*.mpc=00;36:*.ogg=00;36:*.ra=00;36:*.wav=00;36:*.oga=00;36:*.opus=00;36:*.spx=00;36:*.xspf=00;36:'), ('ROS_DOMAIN_ID', '1'), ('AMENT_PREFIX_PATH', '/mnt/c/Users/jcube/OneDrive/Desktop/Jacob/School/Queens/Year 5/Extra Curricular/aQuatonomous/Lidar Bagging Data/mapping-25-26/install/unitree_lidar_ros2:/mnt/c/Users/jcube/OneDrive/Desktop/Jacob/School/Queens/Year 5/Extra Curricular/aQuatonomous/Lidar Bagging Data/mapping-25-26/install/pointcloud_filters:/opt/ros/humble'), ('SHELL', '/bin/bash'), ('LESSCLOSE', '/usr/bin/lesspipe %s %s'), ('PWD', '/mnt/c/Users/jcube/OneDrive/Desktop/Jacob/School/Queens/Year 5/Extra Curricular/aQuatonomous/Lidar Bagging Data/mapping-25-26/build/my_lidar_pkg'), ('XDG_DATA_DIRS', '/usr/local/share:/usr/share:/var/lib/snapd/desktop'), ('PYTHONPATH', '/mnt/c/Users/jcube/OneDrive/Desktop/Jacob/School/Queens/Year 5/Extra Curricular/aQuatonomous/Lidar Bagging Data/mapping-25-26/install/pointcloud_filters/local/lib/python3.10/dist-packages:/mnt/c/Users/jcube/OneDrive/Desktop/Jacob/School/Queens/Year 5/Extra Curricular/aQuatonomous/Lidar Bagging Data/mapping-25-26/install/pointcloud_filters/lib/python3.10/site-packages:/opt/ros/humble/lib/python3.10/site-packages:/opt/ros/humble/local/lib/python3.10/dist-packages'), ('HOMEBREW_REPOSITORY', '/home/linuxbrew/.linuxbrew/Homebrew'), ('COLCON', '1'), ('WSL2_GUI_APPS_ENABLED', '1'), ('MANPATH', '/home/linuxbrew/.linuxbrew/share/man:'), ('HOSTTYPE', 'x86_64'), ('CMAKE_PREFIX_PATH', '/mnt/c/Users/jcube/OneDrive/Desktop/Jacob/School/Queens/Year 5/Extra Curricular/aQuatonomous/Lidar Bagging Data/mapping-25-26/install/unitree_lidar_ros2:/mnt/c/Users/jcube/OneDrive/Desktop/Jacob/School/Queens/Year 5/Extra Curricular/aQuatonomous/Lidar Bagging Data/mapping-25-26/install/pointcloud_filters'), ('WSLENV', '')]), 'shell': False}
+[13.057875] (my_lidar_pkg) StdoutLine: {'line': b'-- Install configuration: ""\n'}
+[13.103399] (-) TimerEvent: {}
+[13.104012] (my_lidar_pkg) StdoutLine: {'line': b'-- Installing: /mnt/c/Users/jcube/OneDrive/Desktop/Jacob/School/Queens/Year 5/Extra Curricular/aQuatonomous/Lidar Bagging Data/mapping-25-26/install/my_lidar_pkg/share/my_lidar_pkg/environment/pythonpath.sh\n'}
+[13.203606] (-) TimerEvent: {}
+[13.221961] (my_lidar_pkg) StdoutLine: {'line': b'-- Installing: /mnt/c/Users/jcube/OneDrive/Desktop/Jacob/School/Queens/Year 5/Extra Curricular/aQuatonomous/Lidar Bagging Data/mapping-25-26/install/my_lidar_pkg/share/my_lidar_pkg/environment/pythonpath.dsv\n'}
+[13.303812] (-) TimerEvent: {}
+[13.327104] (my_lidar_pkg) StdoutLine: {'line': b'-- Installing: /mnt/c/Users/jcube/OneDrive/Desktop/Jacob/School/Queens/Year 5/Extra Curricular/aQuatonomous/Lidar Bagging Data/mapping-25-26/install/my_lidar_pkg/local/lib/python3.10/dist-packages/my_lidar_pkg-0.1.0-py3.10.egg-info\n'}
+[13.403182] (my_lidar_pkg) StdoutLine: {'line': b'-- Installing: /mnt/c/Users/jcube/OneDrive/Desktop/Jacob/School/Queens/Year 5/Extra Curricular/aQuatonomous/Lidar Bagging Data/mapping-25-26/install/my_lidar_pkg/local/lib/python3.10/dist-packages/my_lidar_pkg-0.1.0-py3.10.egg-info/dependency_links.txt\n'}
+[13.404807] (-) TimerEvent: {}
+[13.505606] (-) TimerEvent: {}
+[13.559382] (my_lidar_pkg) StdoutLine: {'line': b'-- Installing: /mnt/c/Users/jcube/OneDrive/Desktop/Jacob/School/Queens/Year 5/Extra Curricular/aQuatonomous/Lidar Bagging Data/mapping-25-26/install/my_lidar_pkg/local/lib/python3.10/dist-packages/my_lidar_pkg-0.1.0-py3.10.egg-info/PKG-INFO\n'}
+[13.605827] (-) TimerEvent: {}
+[13.706711] (-) TimerEvent: {}
+[13.711833] (my_lidar_pkg) StdoutLine: {'line': b'-- Installing: /mnt/c/Users/jcube/OneDrive/Desktop/Jacob/School/Queens/Year 5/Extra Curricular/aQuatonomous/Lidar Bagging Data/mapping-25-26/install/my_lidar_pkg/local/lib/python3.10/dist-packages/my_lidar_pkg-0.1.0-py3.10.egg-info/SOURCES.txt\n'}
+[13.806906] (-) TimerEvent: {}
+[13.858502] (my_lidar_pkg) StdoutLine: {'line': b'-- Installing: /mnt/c/Users/jcube/OneDrive/Desktop/Jacob/School/Queens/Year 5/Extra Curricular/aQuatonomous/Lidar Bagging Data/mapping-25-26/install/my_lidar_pkg/local/lib/python3.10/dist-packages/my_lidar_pkg-0.1.0-py3.10.egg-info/top_level.txt\n'}
+[13.907099] (-) TimerEvent: {}
+[13.997948] (my_lidar_pkg) StdoutLine: {'line': b'-- Installing: /mnt/c/Users/jcube/OneDrive/Desktop/Jacob/School/Queens/Year 5/Extra Curricular/aQuatonomous/Lidar Bagging Data/mapping-25-26/install/my_lidar_pkg/local/lib/python3.10/dist-packages/my_lidar_pkg\n'}
+[14.007244] (-) TimerEvent: {}
+[14.069573] (my_lidar_pkg) StdoutLine: {'line': b'-- Installing: /mnt/c/Users/jcube/OneDrive/Desktop/Jacob/School/Queens/Year 5/Extra Curricular/aQuatonomous/Lidar Bagging Data/mapping-25-26/install/my_lidar_pkg/local/lib/python3.10/dist-packages/my_lidar_pkg/lidar_subscriber.py\n'}
+[14.107454] (-) TimerEvent: {}
+[14.208462] (-) TimerEvent: {}
+[14.210818] (my_lidar_pkg) StdoutLine: {'line': b'-- Installing: /mnt/c/Users/jcube/OneDrive/Desktop/Jacob/School/Queens/Year 5/Extra Curricular/aQuatonomous/Lidar Bagging Data/mapping-25-26/install/my_lidar_pkg/local/lib/python3.10/dist-packages/my_lidar_pkg/__init__.py\n'}
+[14.308692] (-) TimerEvent: {}
+[14.409605] (-) TimerEvent: {}
+[14.510500] (-) TimerEvent: {}
+[14.611332] (-) TimerEvent: {}
+[14.667616] (my_lidar_pkg) StdoutLine: {'line': b"Listing '/mnt/c/Users/jcube/OneDrive/Desktop/Jacob/School/Queens/Year 5/Extra Curricular/aQuatonomous/Lidar Bagging Data/mapping-25-26/install/my_lidar_pkg/local/lib/python3.10/dist-packages/my_lidar_pkg'...\n"}
+[14.669550] (my_lidar_pkg) StdoutLine: {'line': b"Compiling '/mnt/c/Users/jcube/OneDrive/Desktop/Jacob/School/Queens/Year 5/Extra Curricular/aQuatonomous/Lidar Bagging Data/mapping-25-26/install/my_lidar_pkg/local/lib/python3.10/dist-packages/my_lidar_pkg/__init__.py'...\n"}
+[14.671278] (my_lidar_pkg) StdoutLine: {'line': b"Compiling '/mnt/c/Users/jcube/OneDrive/Desktop/Jacob/School/Queens/Year 5/Extra Curricular/aQuatonomous/Lidar Bagging Data/mapping-25-26/install/my_lidar_pkg/local/lib/python3.10/dist-packages/my_lidar_pkg/lidar_subscriber.py'...\n"}
+[14.711524] (-) TimerEvent: {}
+[14.741457] (my_lidar_pkg) StdoutLine: {'line': b'-- Installing: /mnt/c/Users/jcube/OneDrive/Desktop/Jacob/School/Queens/Year 5/Extra Curricular/aQuatonomous/Lidar Bagging Data/mapping-25-26/install/my_lidar_pkg/share/ament_index/resource_index/package_run_dependencies/my_lidar_pkg\n'}
+[14.811735] (-) TimerEvent: {}
+[14.912631] (-) TimerEvent: {}
+[14.926176] (my_lidar_pkg) StdoutLine: {'line': b'-- Installing: /mnt/c/Users/jcube/OneDrive/Desktop/Jacob/School/Queens/Year 5/Extra Curricular/aQuatonomous/Lidar Bagging Data/mapping-25-26/install/my_lidar_pkg/share/ament_index/resource_index/parent_prefix_path/my_lidar_pkg\n'}
+[15.012828] (-) TimerEvent: {}
+[15.068488] (my_lidar_pkg) StdoutLine: {'line': b'-- Installing: /mnt/c/Users/jcube/OneDrive/Desktop/Jacob/School/Queens/Year 5/Extra Curricular/aQuatonomous/Lidar Bagging Data/mapping-25-26/install/my_lidar_pkg/share/my_lidar_pkg/environment/ament_prefix_path.sh\n'}
+[15.113010] (-) TimerEvent: {}
+[15.171327] (my_lidar_pkg) StdoutLine: {'line': b'-- Installing: /mnt/c/Users/jcube/OneDrive/Desktop/Jacob/School/Queens/Year 5/Extra Curricular/aQuatonomous/Lidar Bagging Data/mapping-25-26/install/my_lidar_pkg/share/my_lidar_pkg/environment/ament_prefix_path.dsv\n'}
+[15.213210] (-) TimerEvent: {}
+[15.278992] (my_lidar_pkg) StdoutLine: {'line': b'-- Installing: /mnt/c/Users/jcube/OneDrive/Desktop/Jacob/School/Queens/Year 5/Extra Curricular/aQuatonomous/Lidar Bagging Data/mapping-25-26/install/my_lidar_pkg/share/my_lidar_pkg/environment/path.sh\n'}
+[15.313401] (-) TimerEvent: {}
+[15.386644] (my_lidar_pkg) StdoutLine: {'line': b'-- Installing: /mnt/c/Users/jcube/OneDrive/Desktop/Jacob/School/Queens/Year 5/Extra Curricular/aQuatonomous/Lidar Bagging Data/mapping-25-26/install/my_lidar_pkg/share/my_lidar_pkg/environment/path.dsv\n'}
+[15.413581] (-) TimerEvent: {}
+[15.499886] (my_lidar_pkg) StdoutLine: {'line': b'-- Installing: /mnt/c/Users/jcube/OneDrive/Desktop/Jacob/School/Queens/Year 5/Extra Curricular/aQuatonomous/Lidar Bagging Data/mapping-25-26/install/my_lidar_pkg/share/my_lidar_pkg/local_setup.bash\n'}
+[15.513814] (-) TimerEvent: {}
+[15.600091] (my_lidar_pkg) StdoutLine: {'line': b'-- Installing: /mnt/c/Users/jcube/OneDrive/Desktop/Jacob/School/Queens/Year 5/Extra Curricular/aQuatonomous/Lidar Bagging Data/mapping-25-26/install/my_lidar_pkg/share/my_lidar_pkg/local_setup.sh\n'}
+[15.614001] (-) TimerEvent: {}
+[15.705199] (my_lidar_pkg) StdoutLine: {'line': b'-- Installing: /mnt/c/Users/jcube/OneDrive/Desktop/Jacob/School/Queens/Year 5/Extra Curricular/aQuatonomous/Lidar Bagging Data/mapping-25-26/install/my_lidar_pkg/share/my_lidar_pkg/local_setup.zsh\n'}
+[15.714133] (-) TimerEvent: {}
+[15.808661] (my_lidar_pkg) StdoutLine: {'line': b'-- Installing: /mnt/c/Users/jcube/OneDrive/Desktop/Jacob/School/Queens/Year 5/Extra Curricular/aQuatonomous/Lidar Bagging Data/mapping-25-26/install/my_lidar_pkg/share/my_lidar_pkg/local_setup.dsv\n'}
+[15.814339] (-) TimerEvent: {}
+[15.911205] (my_lidar_pkg) StdoutLine: {'line': b'-- Installing: /mnt/c/Users/jcube/OneDrive/Desktop/Jacob/School/Queens/Year 5/Extra Curricular/aQuatonomous/Lidar Bagging Data/mapping-25-26/install/my_lidar_pkg/share/my_lidar_pkg/package.dsv\n'}
+[15.914477] (-) TimerEvent: {}
+[16.015292] (-) TimerEvent: {}
+[16.053122] (my_lidar_pkg) StdoutLine: {'line': b'-- Installing: /mnt/c/Users/jcube/OneDrive/Desktop/Jacob/School/Queens/Year 5/Extra Curricular/aQuatonomous/Lidar Bagging Data/mapping-25-26/install/my_lidar_pkg/share/ament_index/resource_index/packages/my_lidar_pkg\n'}
+[16.115475] (-) TimerEvent: {}
+[16.210873] (my_lidar_pkg) StdoutLine: {'line': b'-- Installing: /mnt/c/Users/jcube/OneDrive/Desktop/Jacob/School/Queens/Year 5/Extra Curricular/aQuatonomous/Lidar Bagging Data/mapping-25-26/install/my_lidar_pkg/share/my_lidar_pkg/cmake/my_lidar_pkgConfig.cmake\n'}
+[16.215594] (-) TimerEvent: {}
+[16.239798] (pointcloud_filters) StdoutLine: {'line': b'-- Found ament_cmake_ros: 0.10.0 (/opt/ros/humble/share/ament_cmake_ros/cmake)\n'}
+[16.313755] (my_lidar_pkg) StdoutLine: {'line': b'-- Installing: /mnt/c/Users/jcube/OneDrive/Desktop/Jacob/School/Queens/Year 5/Extra Curricular/aQuatonomous/Lidar Bagging Data/mapping-25-26/install/my_lidar_pkg/share/my_lidar_pkg/cmake/my_lidar_pkgConfig-version.cmake\n'}
+[16.315732] (-) TimerEvent: {}
+[16.416458] (-) TimerEvent: {}
+[16.432934] (my_lidar_pkg) StdoutLine: {'line': b'-- Installing: /mnt/c/Users/jcube/OneDrive/Desktop/Jacob/School/Queens/Year 5/Extra Curricular/aQuatonomous/Lidar Bagging Data/mapping-25-26/install/my_lidar_pkg/share/my_lidar_pkg/package.xml\n'}
+[16.516651] (-) TimerEvent: {}
+[16.527474] (my_lidar_pkg) CommandEnded: {'returncode': 0}
+[16.616898] (-) TimerEvent: {}
+[16.717848] (-) TimerEvent: {}
+[16.818781] (-) TimerEvent: {}
+[16.919679] (-) TimerEvent: {}
+[17.020495] (-) TimerEvent: {}
+[17.121454] (-) TimerEvent: {}
+[17.143462] (my_lidar_pkg) JobEnded: {'identifier': 'my_lidar_pkg', 'rc': 0}
+[17.221741] (-) TimerEvent: {}
+[17.322713] (-) TimerEvent: {}
+[17.423806] (-) TimerEvent: {}
+[17.524779] (-) TimerEvent: {}
+[17.626008] (-) TimerEvent: {}
+[17.727008] (-) TimerEvent: {}
+[17.827854] (-) TimerEvent: {}
+[17.928794] (-) TimerEvent: {}
+[18.029683] (-) TimerEvent: {}
+[18.130685] (-) TimerEvent: {}
+[18.231698] (-) TimerEvent: {}
+[18.332560] (-) TimerEvent: {}
+[18.433354] (-) TimerEvent: {}
+[18.534355] (-) TimerEvent: {}
+[18.635220] (-) TimerEvent: {}
+[18.736362] (-) TimerEvent: {}
+[18.837337] (-) TimerEvent: {}
+[18.938331] (-) TimerEvent: {}
+[19.039305] (-) TimerEvent: {}
+[19.140161] (-) TimerEvent: {}
+[19.241295] (-) TimerEvent: {}
+[19.342275] (-) TimerEvent: {}
+[19.443369] (-) TimerEvent: {}
+[19.544218] (-) TimerEvent: {}
+[19.645264] (-) TimerEvent: {}
+[19.746273] (-) TimerEvent: {}
+[19.847105] (-) TimerEvent: {}
+[19.948094] (-) TimerEvent: {}
+[20.049211] (-) TimerEvent: {}
+[20.150208] (-) TimerEvent: {}
+[20.251137] (-) TimerEvent: {}
+[20.352136] (-) TimerEvent: {}
+[20.453113] (-) TimerEvent: {}
+[20.553982] (-) TimerEvent: {}
+[20.654807] (-) TimerEvent: {}
+[20.755826] (-) TimerEvent: {}
+[20.856699] (-) TimerEvent: {}
+[20.957480] (-) TimerEvent: {}
+[21.058285] (-) TimerEvent: {}
+[21.159227] (-) TimerEvent: {}
+[21.260598] (-) TimerEvent: {}
+[21.361658] (-) TimerEvent: {}
+[21.462807] (-) TimerEvent: {}
+[21.563714] (-) TimerEvent: {}
+[21.664659] (-) TimerEvent: {}
+[21.765616] (-) TimerEvent: {}
+[21.866765] (-) TimerEvent: {}
+[21.967632] (-) TimerEvent: {}
+[22.068602] (-) TimerEvent: {}
+[22.169918] (-) TimerEvent: {}
+[22.270784] (-) TimerEvent: {}
+[22.371781] (-) TimerEvent: {}
+[22.472639] (-) TimerEvent: {}
+[22.573460] (-) TimerEvent: {}
+[22.674474] (-) TimerEvent: {}
+[22.775627] (-) TimerEvent: {}
+[22.876589] (-) TimerEvent: {}
+[22.977792] (-) TimerEvent: {}
+[23.078722] (-) TimerEvent: {}
+[23.179957] (-) TimerEvent: {}
+[23.281001] (-) TimerEvent: {}
+[23.381942] (-) TimerEvent: {}
+[23.483100] (-) TimerEvent: {}
+[23.583915] (-) TimerEvent: {}
+[23.684785] (-) TimerEvent: {}
+[23.785867] (-) TimerEvent: {}
+[23.886947] (-) TimerEvent: {}
+[23.987933] (-) TimerEvent: {}
+[24.088868] (-) TimerEvent: {}
+[24.189911] (-) TimerEvent: {}
+[24.290739] (-) TimerEvent: {}
+[24.391780] (-) TimerEvent: {}
+[24.492671] (-) TimerEvent: {}
+[24.593646] (-) TimerEvent: {}
+[24.694708] (-) TimerEvent: {}
+[24.795637] (-) TimerEvent: {}
+[24.896568] (-) TimerEvent: {}
+[24.997560] (-) TimerEvent: {}
+[25.098430] (-) TimerEvent: {}
+[25.199246] (-) TimerEvent: {}
+[25.300239] (-) TimerEvent: {}
+[25.401201] (-) TimerEvent: {}
+[25.502288] (-) TimerEvent: {}
+[25.603239] (-) TimerEvent: {}
+[25.704178] (-) TimerEvent: {}
+[25.805061] (-) TimerEvent: {}
+[25.905949] (-) TimerEvent: {}
+[26.007064] (-) TimerEvent: {}
+[26.107871] (-) TimerEvent: {}
+[26.208833] (-) TimerEvent: {}
+[26.309831] (-) TimerEvent: {}
+[26.410862] (-) TimerEvent: {}
+[26.511828] (-) TimerEvent: {}
+[26.612879] (-) TimerEvent: {}
+[26.713834] (-) TimerEvent: {}
+[26.814662] (-) TimerEvent: {}
+[26.915601] (-) TimerEvent: {}
+[27.016539] (-) TimerEvent: {}
+[27.117448] (-) TimerEvent: {}
+[27.218409] (-) TimerEvent: {}
+[27.319316] (-) TimerEvent: {}
+[27.420222] (-) TimerEvent: {}
+[27.521041] (-) TimerEvent: {}
+[27.621999] (-) TimerEvent: {}
+[27.723048] (-) TimerEvent: {}
+[27.824131] (-) TimerEvent: {}
+[27.925120] (-) TimerEvent: {}
+[28.026081] (-) TimerEvent: {}
+[28.126978] (-) TimerEvent: {}
+[28.227819] (-) TimerEvent: {}
+[28.328806] (-) TimerEvent: {}
+[28.429942] (-) TimerEvent: {}
+[28.530844] (-) TimerEvent: {}
+[28.631790] (-) TimerEvent: {}
+[28.732948] (-) TimerEvent: {}
+[28.834111] (-) TimerEvent: {}
+[28.935063] (-) TimerEvent: {}
+[29.036376] (-) TimerEvent: {}
+[29.137350] (-) TimerEvent: {}
+[29.238323] (-) TimerEvent: {}
+[29.339202] (-) TimerEvent: {}
+[29.440074] (-) TimerEvent: {}
+[29.541007] (-) TimerEvent: {}
+[29.641863] (-) TimerEvent: {}
+[29.742683] (-) TimerEvent: {}
+[29.843614] (-) TimerEvent: {}
+[29.944602] (-) TimerEvent: {}
+[30.045615] (-) TimerEvent: {}
+[30.131446] (pointcloud_filters) StdoutLine: {'line': b'-- Using all available rosidl_typesupport_c: rosidl_typesupport_fastrtps_c;rosidl_typesupport_introspection_c\n'}
+[30.145765] (-) TimerEvent: {}
+[30.246678] (-) TimerEvent: {}
+[30.347506] (-) TimerEvent: {}
+[30.448357] (-) TimerEvent: {}
+[30.549231] (-) TimerEvent: {}
+[30.650108] (-) TimerEvent: {}
+[30.751137] (-) TimerEvent: {}
+[30.852277] (-) TimerEvent: {}
+[30.953255] (-) TimerEvent: {}
+[31.054305] (-) TimerEvent: {}
+[31.155322] (-) TimerEvent: {}
+[31.256140] (-) TimerEvent: {}
+[31.357069] (-) TimerEvent: {}
+[31.458036] (-) TimerEvent: {}
+[31.558865] (-) TimerEvent: {}
+[31.659784] (-) TimerEvent: {}
+[31.760665] (-) TimerEvent: {}
+[31.861557] (-) TimerEvent: {}
+[31.962557] (-) TimerEvent: {}
+[32.063350] (-) TimerEvent: {}
+[32.164332] (-) TimerEvent: {}
+[32.265175] (-) TimerEvent: {}
+[32.366180] (-) TimerEvent: {}
+[32.467100] (-) TimerEvent: {}
+[32.567910] (-) TimerEvent: {}
+[32.668780] (-) TimerEvent: {}
+[32.769647] (-) TimerEvent: {}
+[32.870546] (-) TimerEvent: {}
+[32.971424] (-) TimerEvent: {}
+[33.072477] (-) TimerEvent: {}
+[33.173433] (-) TimerEvent: {}
+[33.274297] (-) TimerEvent: {}
+[33.375143] (-) TimerEvent: {}
+[33.476030] (-) TimerEvent: {}
+[33.576879] (-) TimerEvent: {}
+[33.677821] (-) TimerEvent: {}
+[33.778815] (-) TimerEvent: {}
+[33.879755] (-) TimerEvent: {}
+[33.980639] (-) TimerEvent: {}
+[34.081698] (-) TimerEvent: {}
+[34.182668] (-) TimerEvent: {}
+[34.283625] (-) TimerEvent: {}
+[34.384655] (-) TimerEvent: {}
+[34.485843] (-) TimerEvent: {}
+[34.586928] (-) TimerEvent: {}
+[34.687893] (-) TimerEvent: {}
+[34.788811] (-) TimerEvent: {}
+[34.889787] (-) TimerEvent: {}
+[34.990794] (-) TimerEvent: {}
+[35.091794] (-) TimerEvent: {}
+[35.192936] (-) TimerEvent: {}
+[35.293877] (-) TimerEvent: {}
+[35.394762] (-) TimerEvent: {}
+[35.495723] (-) TimerEvent: {}
+[35.596754] (-) TimerEvent: {}
+[35.697675] (-) TimerEvent: {}
+[35.798583] (-) TimerEvent: {}
+[35.899483] (-) TimerEvent: {}
+[36.000428] (-) TimerEvent: {}
+[36.101318] (-) TimerEvent: {}
+[36.202155] (-) TimerEvent: {}
+[36.303064] (-) TimerEvent: {}
+[36.404126] (-) TimerEvent: {}
+[36.505050] (-) TimerEvent: {}
+[36.605922] (-) TimerEvent: {}
+[36.706899] (-) TimerEvent: {}
+[36.807788] (-) TimerEvent: {}
+[36.908679] (-) TimerEvent: {}
+[37.009783] (-) TimerEvent: {}
+[37.110705] (-) TimerEvent: {}
+[37.211708] (-) TimerEvent: {}
+[37.312507] (-) TimerEvent: {}
+[37.413310] (-) TimerEvent: {}
+[37.514356] (-) TimerEvent: {}
+[37.615367] (-) TimerEvent: {}
+[37.716250] (-) TimerEvent: {}
+[37.817131] (-) TimerEvent: {}
+[37.918073] (-) TimerEvent: {}
+[38.018985] (-) TimerEvent: {}
+[38.120184] (-) TimerEvent: {}
+[38.221192] (-) TimerEvent: {}
+[38.322181] (-) TimerEvent: {}
+[38.423072] (-) TimerEvent: {}
+[38.524088] (-) TimerEvent: {}
+[38.624995] (-) TimerEvent: {}
+[38.726049] (-) TimerEvent: {}
+[38.827044] (-) TimerEvent: {}
+[38.927933] (-) TimerEvent: {}
+[39.028849] (-) TimerEvent: {}
+[39.129818] (-) TimerEvent: {}
+[39.230794] (-) TimerEvent: {}
+[39.331702] (-) TimerEvent: {}
+[39.432596] (-) TimerEvent: {}
+[39.533408] (-) TimerEvent: {}
+[39.634228] (-) TimerEvent: {}
+[39.735184] (-) TimerEvent: {}
+[39.836109] (-) TimerEvent: {}
+[39.937109] (-) TimerEvent: {}
+[40.038052] (-) TimerEvent: {}
+[40.139024] (-) TimerEvent: {}
+[40.239924] (-) TimerEvent: {}
+[40.340729] (-) TimerEvent: {}
+[40.441656] (-) TimerEvent: {}
+[40.542567] (-) TimerEvent: {}
+[40.643523] (-) TimerEvent: {}
+[40.744400] (-) TimerEvent: {}
+[40.845332] (-) TimerEvent: {}
+[40.946228] (-) TimerEvent: {}
+[41.047273] (-) TimerEvent: {}
+[41.148367] (-) TimerEvent: {}
+[41.249200] (-) TimerEvent: {}
+[41.350211] (-) TimerEvent: {}
+[41.451314] (-) TimerEvent: {}
+[41.552373] (-) TimerEvent: {}
+[41.653327] (-) TimerEvent: {}
+[41.754439] (-) TimerEvent: {}
+[41.855396] (-) TimerEvent: {}
+[41.956188] (-) TimerEvent: {}
+[42.057015] (-) TimerEvent: {}
+[42.158025] (-) TimerEvent: {}
+[42.259148] (-) TimerEvent: {}
+[42.360202] (-) TimerEvent: {}
+[42.461266] (-) TimerEvent: {}
+[42.562226] (-) TimerEvent: {}
+[42.663213] (-) TimerEvent: {}
+[42.764274] (-) TimerEvent: {}
+[42.865447] (-) TimerEvent: {}
+[42.966414] (-) TimerEvent: {}
+[43.067358] (-) TimerEvent: {}
+[43.168502] (-) TimerEvent: {}
+[43.269464] (-) TimerEvent: {}
+[43.370325] (-) TimerEvent: {}
+[43.471161] (-) TimerEvent: {}
+[43.572292] (-) TimerEvent: {}
+[43.673333] (-) TimerEvent: {}
+[43.774211] (-) TimerEvent: {}
+[43.875273] (-) TimerEvent: {}
+[43.976173] (-) TimerEvent: {}
+[44.077076] (-) TimerEvent: {}
+[44.177951] (-) TimerEvent: {}
+[44.278841] (-) TimerEvent: {}
+[44.379827] (-) TimerEvent: {}
+[44.480703] (-) TimerEvent: {}
+[44.581864] (-) TimerEvent: {}
+[44.682967] (-) TimerEvent: {}
+[44.783822] (-) TimerEvent: {}
+[44.885001] (-) TimerEvent: {}
+[44.985986] (-) TimerEvent: {}
+[45.086908] (-) TimerEvent: {}
+[45.187761] (-) TimerEvent: {}
+[45.288653] (-) TimerEvent: {}
+[45.389655] (-) TimerEvent: {}
+[45.490850] (-) TimerEvent: {}
+[45.592120] (-) TimerEvent: {}
+[45.693009] (-) TimerEvent: {}
+[45.793964] (-) TimerEvent: {}
+[45.894832] (-) TimerEvent: {}
+[45.995825] (-) TimerEvent: {}
+[46.096635] (-) TimerEvent: {}
+[46.197582] (-) TimerEvent: {}
+[46.298459] (-) TimerEvent: {}
+[46.399387] (-) TimerEvent: {}
+[46.500171] (-) TimerEvent: {}
+[46.601203] (-) TimerEvent: {}
+[46.702168] (-) TimerEvent: {}
+[46.803115] (-) TimerEvent: {}
+[46.903998] (-) TimerEvent: {}
+[47.005113] (-) TimerEvent: {}
+[47.105946] (-) TimerEvent: {}
+[47.206939] (-) TimerEvent: {}
+[47.307817] (-) TimerEvent: {}
+[47.408777] (-) TimerEvent: {}
+[47.509795] (-) TimerEvent: {}
+[47.611493] (-) TimerEvent: {}
+[47.712430] (-) TimerEvent: {}
+[47.813416] (-) TimerEvent: {}
+[47.914429] (-) TimerEvent: {}
+[48.015302] (-) TimerEvent: {}
+[48.116245] (-) TimerEvent: {}
+[48.217334] (-) TimerEvent: {}
+[48.318353] (-) TimerEvent: {}
+[48.419284] (-) TimerEvent: {}
+[48.520189] (-) TimerEvent: {}
+[48.621254] (-) TimerEvent: {}
+[48.722186] (-) TimerEvent: {}
+[48.782402] (pointcloud_filters) StdoutLine: {'line': b'-- Using all available rosidl_typesupport_cpp: rosidl_typesupport_fastrtps_cpp;rosidl_typesupport_introspection_cpp\n'}
+[48.822367] (-) TimerEvent: {}
+[48.923170] (-) TimerEvent: {}
+[49.024089] (-) TimerEvent: {}
+[49.124886] (-) TimerEvent: {}
+[49.191568] (pointcloud_filters) StdoutLine: {'line': b'-- Found PythonInterp: /usr/bin/python3 (found suitable version "3.10.12", minimum required is "3.6") \n'}
+[49.208967] (pointcloud_filters) StdoutLine: {'line': b'-- Found python_cmake_module: 0.10.0 (/opt/ros/humble/share/python_cmake_module/cmake)\n'}
+[49.225017] (-) TimerEvent: {}
+[49.325861] (-) TimerEvent: {}
+[49.426804] (-) TimerEvent: {}
+[49.527827] (-) TimerEvent: {}
+[49.628653] (-) TimerEvent: {}
+[49.729471] (-) TimerEvent: {}
+[49.830304] (-) TimerEvent: {}
+[49.931261] (-) TimerEvent: {}
+[50.032217] (-) TimerEvent: {}
+[50.133182] (-) TimerEvent: {}
+[50.234071] (-) TimerEvent: {}
+[50.334877] (-) TimerEvent: {}
+[50.363115] (pointcloud_filters) StdoutLine: {'line': b'-- Found PythonLibs: /usr/lib/x86_64-linux-gnu/libpython3.10.so (found suitable version "3.10.12", minimum required is "3.5") \n'}
+[50.364458] (pointcloud_filters) StdoutLine: {'line': b'-- Using PYTHON_EXECUTABLE: /usr/bin/python3\n'}
+[50.366067] (pointcloud_filters) StdoutLine: {'line': b'-- Using PYTHON_INCLUDE_DIRS: /usr/include/python3.10\n'}
+[50.367672] (pointcloud_filters) StdoutLine: {'line': b'-- Using PYTHON_LIBRARIES: /usr/lib/x86_64-linux-gnu/libpython3.10.so\n'}
+[50.435089] (-) TimerEvent: {}
+[50.439257] (pointcloud_filters) StdoutLine: {'line': b'-- Found PythonExtra: .so  \n'}
+[50.535293] (-) TimerEvent: {}
+[50.636121] (-) TimerEvent: {}
+[50.736931] (-) TimerEvent: {}
+[50.837803] (-) TimerEvent: {}
+[50.938666] (-) TimerEvent: {}
+[51.039538] (-) TimerEvent: {}
+[51.140362] (-) TimerEvent: {}
+[51.241239] (-) TimerEvent: {}
+[51.342113] (-) TimerEvent: {}
+[51.443233] (-) TimerEvent: {}
+[51.544075] (-) TimerEvent: {}
+[51.644939] (-) TimerEvent: {}
+[51.745746] (-) TimerEvent: {}
+[51.846689] (-) TimerEvent: {}
+[51.947661] (-) TimerEvent: {}
+[52.048641] (-) TimerEvent: {}
+[52.149452] (-) TimerEvent: {}
+[52.250586] (-) TimerEvent: {}
+[52.351393] (-) TimerEvent: {}
+[52.452409] (-) TimerEvent: {}
+[52.553418] (-) TimerEvent: {}
+[52.654275] (-) TimerEvent: {}
+[52.755208] (-) TimerEvent: {}
+[52.856242] (-) TimerEvent: {}
+[52.957339] (-) TimerEvent: {}
+[53.058260] (-) TimerEvent: {}
+[53.159543] (-) TimerEvent: {}
+[53.260698] (-) TimerEvent: {}
+[53.361576] (-) TimerEvent: {}
+[53.462714] (-) TimerEvent: {}
+[53.563720] (-) TimerEvent: {}
+[53.664868] (-) TimerEvent: {}
+[53.765810] (-) TimerEvent: {}
+[53.866795] (-) TimerEvent: {}
+[53.967676] (-) TimerEvent: {}
+[54.068693] (-) TimerEvent: {}
+[54.169784] (-) TimerEvent: {}
+[54.270674] (-) TimerEvent: {}
+[54.371565] (-) TimerEvent: {}
+[54.472452] (-) TimerEvent: {}
+[54.573369] (-) TimerEvent: {}
+[54.674425] (-) TimerEvent: {}
+[54.775385] (-) TimerEvent: {}
+[54.876395] (-) TimerEvent: {}
+[54.977345] (-) TimerEvent: {}
+[55.078261] (-) TimerEvent: {}
+[55.179106] (-) TimerEvent: {}
+[55.279974] (-) TimerEvent: {}
+[55.381061] (-) TimerEvent: {}
+[55.481876] (-) TimerEvent: {}
+[55.582787] (-) TimerEvent: {}
+[55.683733] (-) TimerEvent: {}
+[55.784604] (-) TimerEvent: {}
+[55.885569] (-) TimerEvent: {}
+[55.986370] (-) TimerEvent: {}
+[56.087287] (-) TimerEvent: {}
+[56.188167] (-) TimerEvent: {}
+[56.288948] (-) TimerEvent: {}
+[56.389909] (-) TimerEvent: {}
+[56.490699] (-) TimerEvent: {}
+[56.591614] (-) TimerEvent: {}
+[56.692489] (-) TimerEvent: {}
+[56.757061] (pointcloud_filters) StdoutLine: {'line': b'-- Configuring done\n'}
+[56.792684] (-) TimerEvent: {}
+[56.893581] (-) TimerEvent: {}
+[56.994431] (-) TimerEvent: {}
+[57.095267] (-) TimerEvent: {}
+[57.196118] (-) TimerEvent: {}
+[57.296936] (-) TimerEvent: {}
+[57.397818] (-) TimerEvent: {}
+[57.498705] (-) TimerEvent: {}
+[57.599536] (-) TimerEvent: {}
+[57.700567] (-) TimerEvent: {}
+[57.801405] (-) TimerEvent: {}
+[57.902322] (-) TimerEvent: {}
+[58.003155] (-) TimerEvent: {}
+[58.104045] (-) TimerEvent: {}
+[58.205023] (-) TimerEvent: {}
+[58.306226] (-) TimerEvent: {}
+[58.407046] (-) TimerEvent: {}
+[58.507921] (-) TimerEvent: {}
+[58.608843] (-) TimerEvent: {}
+[58.709823] (-) TimerEvent: {}
+[58.810620] (-) TimerEvent: {}
+[58.911465] (-) TimerEvent: {}
+[59.012475] (-) TimerEvent: {}
+[59.113246] (-) TimerEvent: {}
+[59.214221] (-) TimerEvent: {}
+[59.315143] (-) TimerEvent: {}
+[59.416233] (-) TimerEvent: {}
+[59.517036] (-) TimerEvent: {}
+[59.617844] (-) TimerEvent: {}
+[59.718785] (-) TimerEvent: {}
+[59.819666] (-) TimerEvent: {}
+[59.920585] (-) TimerEvent: {}
+[60.021670] (-) TimerEvent: {}
+[60.122729] (-) TimerEvent: {}
+[60.223594] (-) TimerEvent: {}
+[60.295808] (pointcloud_filters) StdoutLine: {'line': b'-- Generating done\n'}
+[60.323788] (-) TimerEvent: {}
+[60.424702] (-) TimerEvent: {}
+[60.525535] (-) TimerEvent: {}
+[60.626572] (-) TimerEvent: {}
+[60.727477] (-) TimerEvent: {}
+[60.738439] (pointcloud_filters) StdoutLine: {'line': b'-- Build files have been written to: /mnt/c/Users/jcube/OneDrive/Desktop/Jacob/School/Queens/Year 5/Extra Curricular/aQuatonomous/Lidar Bagging Data/mapping-25-26/build/pointcloud_filters\n'}
+[60.780576] (pointcloud_filters) CommandEnded: {'returncode': 0}
+[60.789519] (pointcloud_filters) JobProgress: {'identifier': 'pointcloud_filters', 'progress': 'build'}
+[60.799551] (pointcloud_filters) Command: {'cmd': ['/usr/bin/cmake', '--build', '/mnt/c/Users/jcube/OneDrive/Desktop/Jacob/School/Queens/Year 5/Extra Curricular/aQuatonomous/Lidar Bagging Data/mapping-25-26/build/pointcloud_filters', '--', '-j16', '-l16'], 'cwd': '/mnt/c/Users/jcube/OneDrive/Desktop/Jacob/School/Queens/Year 5/Extra Curricular/aQuatonomous/Lidar Bagging Data/mapping-25-26/build/pointcloud_filters', 'env': OrderedDict([('LESSOPEN', '| /usr/bin/lesspipe %s'), ('USER', 'jcube05'), ('SHLVL', '1'), ('LD_LIBRARY_PATH', '/mnt/c/Users/jcube/OneDrive/Desktop/Jacob/School/Queens/Year 5/Extra Curricular/aQuatonomous/Lidar Bagging Data/mapping-25-26/install/pointcloud_filters/lib:/opt/ros/humble/opt/rviz_ogre_vendor/lib:/opt/ros/humble/lib/x86_64-linux-gnu:/opt/ros/humble/lib'), ('MOTD_SHOWN', 'update-motd'), ('HOME', '/home/jcube05'), ('ROS_PYTHON_VERSION', '3'), ('HOMEBREW_PREFIX', '/home/linuxbrew/.linuxbrew'), ('DBUS_SESSION_BUS_ADDRESS', 'unix:path=/run/user/1000/bus'), ('WSL_DISTRO_NAME', 'Ubuntu-22.04'), ('WAYLAND_DISPLAY', 'wayland-0'), ('COLCON_PREFIX_PATH', '/mnt/c/Users/jcube/OneDrive/Desktop/Jacob/School/Queens/Year 5/Extra Curricular/aQuatonomous/Lidar Bagging Data/mapping-25-26/install'), ('INFOPATH', '/home/linuxbrew/.linuxbrew/share/info:'), ('ROS_DISTRO', 'humble'), ('LOGNAME', 'jcube05'), ('NAME', 'Jcube05'), ('WSL_INTEROP', '/run/WSL/207016_interop'), ('PULSE_SERVER', 'unix:/mnt/wslg/PulseServer'), ('_', '/usr/bin/colcon'), ('ROS_VERSION', '2'), ('TERM', 'xterm-256color'), ('ROS_LOCALHOST_ONLY', '1'), ('PATH', '/home/jcube05/.local/bin:/opt/ros/humble/bin:/home/linuxbrew/.linuxbrew/bin:/home/linuxbrew/.linuxbrew/sbin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/usr/lib/wsl/lib:/mnt/c/Python313/Scripts/:/mnt/c/Python313/:/mnt/c/Program Files/Common Files/Oracle/Java/javapath:/mnt/c/Program Files (x86)/Common Files/Oracle/Java/java8path:/mnt/c/Program Files (x86)/Common Files/Oracle/Java/javapath:/mnt/c/Program Files (x86)/Razer Chroma SDK/bin:/mnt/c/Program Files/Razer Chroma SDK/bin:/mnt/c/Windows/system32:/mnt/c/Windows:/mnt/c/Windows/System32/Wbem:/mnt/c/Windows/System32/WindowsPowerShell/v1.0/:/mnt/c/Windows/System32/OpenSSH/:/mnt/c/Program Files/Git/cmd:/mnt/c/ProgramData/chocolatey/bin:/mnt/c/Windows/system32/config/systemprofile/AppData/Local/Microsoft/WindowsApps:/mnt/c/Program Files (x86)/Razer/ChromaBroadcast/bin:/mnt/c/Program Files/Razer/ChromaBroadcast/bin:/mnt/c/Users/jcube/AppData/Local/Programs/Python/Python311/Scripts/:/mnt/c/Users/jcube/AppData/Local/Programs/Python/Python311/:/mnt/c/Users/jcube/AppData/Local/Microsoft/WindowsApps:/mnt/c/Users/jcube/AppData/Local/Programs/Microsoft VS Code/bin:/mnt/c/msys64/ucrt64/bin:/mnt/c/intelFPGA_lite/18.1/modelsim_ase/win32aloem:/mnt/c/Program Files/dotnet/:/mnt/c/Program Files/Java/jdk-23/bin:/mnt/c/Program Files/apache-maven-3.9.9/bin:/mnt/c/Program Files/nodejs/:/mnt/c/WINDOWS/system32:/mnt/c/WINDOWS:/mnt/c/WINDOWS/System32/Wbem:/mnt/c/WINDOWS/System32/WindowsPowerShell/v1.0/:/mnt/c/WINDOWS/System32/OpenSSH/:/mnt/c/Program Files/MATLAB/R2025b/bin:/mnt/c/Program Files/Tailscale/:/mnt/c/Program Files/cursor/resources/app/bin:/mnt/c/Program Files/GitHub CLI/:/Docker/host/bin:/mnt/c/Program Files/usbipd-win/:/mnt/c/Users/jcube/AppData/Local/Programs/Python/Python311/Scripts/:/mnt/c/Users/jcube/AppData/Local/Programs/Python/Python311/:/mnt/c/Users/jcube/AppData/Local/Microsoft/WindowsApps:/mnt/c/Users/jcube/AppData/Local/Programs/Microsoft VS Code/bin:/mnt/c/msys64/ucrt64/bin:/mnt/c/Users/jcube/AppData/Roaming/npm:/mnt/c/Users/jcube/AppData/Roaming/Python/Python313/Scripts:/mnt/c/Users/jcube/AppData/Roaming/Python/Python313/Scripts:/mnt/c/Users/jcube/AppData/Local/Programs/Antigravity/bin:/snap/bin'), ('FASTRTPS_DEFAULT_PROFILES_FILE', '/home/jcube05/fastrtps_shm.xml'), ('HOMEBREW_CELLAR', '/home/linuxbrew/.linuxbrew/Cellar'), ('XDG_RUNTIME_DIR', '/run/user/1000/'), ('DISPLAY', ':0'), ('LANG', 'C.UTF-8'), ('RMW_IMPLEMENTATION', 'rmw_fastrtps_cpp'), ('LS_COLORS', 'rs=0:di=01;34:ln=01;36:mh=00:pi=40;33:so=01;35:do=01;35:bd=40;33;01:cd=40;33;01:or=40;31;01:mi=00:su=37;41:sg=30;43:ca=30;41:tw=30;42:ow=34;42:st=37;44:ex=01;32:*.tar=01;31:*.tgz=01;31:*.arc=01;31:*.arj=01;31:*.taz=01;31:*.lha=01;31:*.lz4=01;31:*.lzh=01;31:*.lzma=01;31:*.tlz=01;31:*.txz=01;31:*.tzo=01;31:*.t7z=01;31:*.zip=01;31:*.z=01;31:*.dz=01;31:*.gz=01;31:*.lrz=01;31:*.lz=01;31:*.lzo=01;31:*.xz=01;31:*.zst=01;31:*.tzst=01;31:*.bz2=01;31:*.bz=01;31:*.tbz=01;31:*.tbz2=01;31:*.tz=01;31:*.deb=01;31:*.rpm=01;31:*.jar=01;31:*.war=01;31:*.ear=01;31:*.sar=01;31:*.rar=01;31:*.alz=01;31:*.ace=01;31:*.zoo=01;31:*.cpio=01;31:*.7z=01;31:*.rz=01;31:*.cab=01;31:*.wim=01;31:*.swm=01;31:*.dwm=01;31:*.esd=01;31:*.jpg=01;35:*.jpeg=01;35:*.mjpg=01;35:*.mjpeg=01;35:*.gif=01;35:*.bmp=01;35:*.pbm=01;35:*.pgm=01;35:*.ppm=01;35:*.tga=01;35:*.xbm=01;35:*.xpm=01;35:*.tif=01;35:*.tiff=01;35:*.png=01;35:*.svg=01;35:*.svgz=01;35:*.mng=01;35:*.pcx=01;35:*.mov=01;35:*.mpg=01;35:*.mpeg=01;35:*.m2v=01;35:*.mkv=01;35:*.webm=01;35:*.webp=01;35:*.ogm=01;35:*.mp4=01;35:*.m4v=01;35:*.mp4v=01;35:*.vob=01;35:*.qt=01;35:*.nuv=01;35:*.wmv=01;35:*.asf=01;35:*.rm=01;35:*.rmvb=01;35:*.flc=01;35:*.avi=01;35:*.fli=01;35:*.flv=01;35:*.gl=01;35:*.dl=01;35:*.xcf=01;35:*.xwd=01;35:*.yuv=01;35:*.cgm=01;35:*.emf=01;35:*.ogv=01;35:*.ogx=01;35:*.aac=00;36:*.au=00;36:*.flac=00;36:*.m4a=00;36:*.mid=00;36:*.midi=00;36:*.mka=00;36:*.mp3=00;36:*.mpc=00;36:*.ogg=00;36:*.ra=00;36:*.wav=00;36:*.oga=00;36:*.opus=00;36:*.spx=00;36:*.xspf=00;36:'), ('ROS_DOMAIN_ID', '1'), ('AMENT_PREFIX_PATH', '/mnt/c/Users/jcube/OneDrive/Desktop/Jacob/School/Queens/Year 5/Extra Curricular/aQuatonomous/Lidar Bagging Data/mapping-25-26/install/unitree_lidar_ros2:/mnt/c/Users/jcube/OneDrive/Desktop/Jacob/School/Queens/Year 5/Extra Curricular/aQuatonomous/Lidar Bagging Data/mapping-25-26/install/pointcloud_filters:/opt/ros/humble'), ('SHELL', '/bin/bash'), ('LESSCLOSE', '/usr/bin/lesspipe %s %s'), ('PWD', '/mnt/c/Users/jcube/OneDrive/Desktop/Jacob/School/Queens/Year 5/Extra Curricular/aQuatonomous/Lidar Bagging Data/mapping-25-26/build/pointcloud_filters'), ('XDG_DATA_DIRS', '/usr/local/share:/usr/share:/var/lib/snapd/desktop'), ('PYTHONPATH', '/mnt/c/Users/jcube/OneDrive/Desktop/Jacob/School/Queens/Year 5/Extra Curricular/aQuatonomous/Lidar Bagging Data/mapping-25-26/install/pointcloud_filters/local/lib/python3.10/dist-packages:/mnt/c/Users/jcube/OneDrive/Desktop/Jacob/School/Queens/Year 5/Extra Curricular/aQuatonomous/Lidar Bagging Data/mapping-25-26/install/pointcloud_filters/lib/python3.10/site-packages:/opt/ros/humble/lib/python3.10/site-packages:/opt/ros/humble/local/lib/python3.10/dist-packages'), ('HOMEBREW_REPOSITORY', '/home/linuxbrew/.linuxbrew/Homebrew'), ('COLCON', '1'), ('WSL2_GUI_APPS_ENABLED', '1'), ('MANPATH', '/home/linuxbrew/.linuxbrew/share/man:'), ('HOSTTYPE', 'x86_64'), ('CMAKE_PREFIX_PATH', '/mnt/c/Users/jcube/OneDrive/Desktop/Jacob/School/Queens/Year 5/Extra Curricular/aQuatonomous/Lidar Bagging Data/mapping-25-26/install/unitree_lidar_ros2:/mnt/c/Users/jcube/OneDrive/Desktop/Jacob/School/Queens/Year 5/Extra Curricular/aQuatonomous/Lidar Bagging Data/mapping-25-26/install/pointcloud_filters'), ('WSLENV', '')]), 'shell': False}
+[60.827660] (-) TimerEvent: {}
+[60.928595] (-) TimerEvent: {}
+[61.029487] (-) TimerEvent: {}
+[61.130369] (-) TimerEvent: {}
+[61.231211] (-) TimerEvent: {}
+[61.332153] (-) TimerEvent: {}
+[61.433153] (-) TimerEvent: {}
+[61.436207] (pointcloud_filters) StdoutLine: {'line': b'[  1%] \x1b[34m\x1b[1mGenerating C code for ROS interfaces\x1b[0m\n'}
+[61.533312] (-) TimerEvent: {}
+[61.567753] (pointcloud_filters) StdoutLine: {'line': b'[  3%] \x1b[34m\x1b[1mGenerating C++ code for ROS interfaces\x1b[0m\n'}
+[61.601278] (pointcloud_filters) StdoutLine: {'line': b'[  3%] Built target ament_cmake_python_copy_pointcloud_filters\n'}
+[61.633490] (-) TimerEvent: {}
+[61.734371] (-) TimerEvent: {}
+[61.835159] (-) TimerEvent: {}
+[61.935961] (-) TimerEvent: {}
+[62.036819] (-) TimerEvent: {}
+[62.137836] (-) TimerEvent: {}
+[62.238856] (-) TimerEvent: {}
+[62.339932] (-) TimerEvent: {}
+[62.440845] (-) TimerEvent: {}
+[62.541646] (-) TimerEvent: {}
+[62.642482] (-) TimerEvent: {}
+[62.743448] (-) TimerEvent: {}
+[62.793221] (pointcloud_filters) StdoutLine: {'line': b'running egg_info\n'}
+[62.795489] (pointcloud_filters) StdoutLine: {'line': b'creating pointcloud_filters.egg-info\n'}
+[62.799897] (pointcloud_filters) StdoutLine: {'line': b'writing pointcloud_filters.egg-info/PKG-INFO\n'}
+[62.807541] (pointcloud_filters) StdoutLine: {'line': b'writing dependency_links to pointcloud_filters.egg-info/dependency_links.txt\n'}
+[62.818181] (pointcloud_filters) StdoutLine: {'line': b'writing top-level names to pointcloud_filters.egg-info/top_level.txt\n'}
+[62.825493] (pointcloud_filters) StdoutLine: {'line': b"writing manifest file 'pointcloud_filters.egg-info/SOURCES.txt'\n"}
+[62.843649] (-) TimerEvent: {}
+[62.853605] (pointcloud_filters) StdoutLine: {'line': b"reading manifest file 'pointcloud_filters.egg-info/SOURCES.txt'\n"}
+[62.891313] (pointcloud_filters) StdoutLine: {'line': b"writing manifest file 'pointcloud_filters.egg-info/SOURCES.txt'\n"}
+[62.943850] (-) TimerEvent: {}
+[63.004657] (pointcloud_filters) StdoutLine: {'line': b'[  3%] Built target ament_cmake_python_build_pointcloud_filters_egg\n'}
+[63.044047] (-) TimerEvent: {}
+[63.144967] (-) TimerEvent: {}
+[63.245879] (-) TimerEvent: {}
+[63.347248] (-) TimerEvent: {}
+[63.448110] (-) TimerEvent: {}
+[63.548941] (-) TimerEvent: {}
+[63.572178] (pointcloud_filters) StdoutLine: {'line': b'[  3%] Built target pointcloud_filters__cpp\n'}
+[63.649124] (-) TimerEvent: {}
+[63.678475] (pointcloud_filters) StdoutLine: {'line': b'[  4%] \x1b[34m\x1b[1mGenerating C++ type support dispatch for ROS interfaces\x1b[0m\n'}
+[63.688127] (pointcloud_filters) StdoutLine: {'line': b'[  6%] \x1b[34m\x1b[1mGenerating C++ introspection for ROS interfaces\x1b[0m\n'}
+[63.723798] (pointcloud_filters) StdoutLine: {'line': b'[  7%] \x1b[34m\x1b[1mGenerating C++ type support for eProsima Fast-RTPS\x1b[0m\n'}
+[63.749325] (-) TimerEvent: {}
+[63.803406] (pointcloud_filters) StdoutLine: {'line': b'[  9%] \x1b[32mBuilding C object CMakeFiles/pointcloud_filters__rosidl_generator_c.dir/rosidl_generator_c/pointcloud_filters/srv/detail/get_cloud_window__functions.c.o\x1b[0m\n'}
+[63.813151] (pointcloud_filters) StdoutLine: {'line': b'[ 11%] \x1b[32mBuilding C object CMakeFiles/pointcloud_filters__rosidl_generator_c.dir/rosidl_generator_c/pointcloud_filters/msg/detail/buoy_detection_array__functions.c.o\x1b[0m\n'}
+[63.820490] (pointcloud_filters) StdoutLine: {'line': b'[ 12%] \x1b[32mBuilding C object CMakeFiles/pointcloud_filters__rosidl_generator_c.dir/rosidl_generator_c/pointcloud_filters/msg/detail/buoy_detection__functions.c.o\x1b[0m\n'}
+[63.828959] (pointcloud_filters) StdoutLine: {'line': b'[ 14%] \x1b[32mBuilding C object CMakeFiles/pointcloud_filters__rosidl_generator_c.dir/rosidl_generator_c/pointcloud_filters/msg/detail/tracked_buoy__functions.c.o\x1b[0m\n'}
+[63.849506] (-) TimerEvent: {}
+[63.861816] (pointcloud_filters) StdoutLine: {'line': b'[ 15%] \x1b[32mBuilding C object CMakeFiles/pointcloud_filters__rosidl_generator_c.dir/rosidl_generator_c/pointcloud_filters/msg/detail/tracked_buoy_array__functions.c.o\x1b[0m\n'}
+[63.949764] (-) TimerEvent: {}
+[64.050874] (-) TimerEvent: {}
+[64.152258] (-) TimerEvent: {}
+[64.253560] (-) TimerEvent: {}
+[64.354945] (-) TimerEvent: {}
+[64.443551] (pointcloud_filters) StdoutLine: {'line': b'[ 17%] \x1b[32m\x1b[1mLinking C shared library libpointcloud_filters__rosidl_generator_c.so\x1b[0m\n'}
+[64.455115] (-) TimerEvent: {}
+[64.556033] (-) TimerEvent: {}
+[64.657011] (-) TimerEvent: {}
+[64.757882] (-) TimerEvent: {}
+[64.858978] (-) TimerEvent: {}
+[64.959901] (-) TimerEvent: {}
+[65.060876] (-) TimerEvent: {}
+[65.161852] (-) TimerEvent: {}
+[65.262662] (-) TimerEvent: {}
+[65.337033] (pointcloud_filters) StdoutLine: {'line': b'[ 17%] Built target pointcloud_filters__rosidl_generator_c\n'}
+[65.362853] (-) TimerEvent: {}
+[65.463761] (-) TimerEvent: {}
+[65.478067] (pointcloud_filters) StdoutLine: {'line': b'[ 23%] \x1b[34m\x1b[1mGenerating C introspection for ROS interfaces\x1b[0m\n'}
+[65.480485] (pointcloud_filters) StdoutLine: {'line': b'[ 23%] \x1b[34m\x1b[1mGenerating C type support for eProsima Fast-RTPS\x1b[0m\n'}
+[65.483108] (pointcloud_filters) StdoutLine: {'line': b'[ 23%] \x1b[32mBuilding CXX object CMakeFiles/pointcloud_filters__rosidl_typesupport_cpp.dir/rosidl_typesupport_cpp/pointcloud_filters/srv/get_cloud_window__type_support.cpp.o\x1b[0m\n'}
+[65.485953] (pointcloud_filters) StdoutLine: {'line': b'[ 23%] \x1b[32mBuilding CXX object CMakeFiles/pointcloud_filters__rosidl_typesupport_cpp.dir/rosidl_typesupport_cpp/pointcloud_filters/msg/buoy_detection__type_support.cpp.o\x1b[0m\n'}
+[65.490269] (pointcloud_filters) StdoutLine: {'line': b'[ 26%] \x1b[34m\x1b[1mGenerating C type support dispatch for ROS interfaces\x1b[0m\n'}
+[65.494331] (pointcloud_filters) StdoutLine: {'line': b'[ 26%] \x1b[32mBuilding CXX object CMakeFiles/pointcloud_filters__rosidl_typesupport_cpp.dir/rosidl_typesupport_cpp/pointcloud_filters/msg/buoy_detection_array__type_support.cpp.o\x1b[0m\n'}
+[65.528622] (pointcloud_filters) StdoutLine: {'line': b'[ 28%] \x1b[32mBuilding CXX object CMakeFiles/pointcloud_filters__rosidl_typesupport_cpp.dir/rosidl_typesupport_cpp/pointcloud_filters/msg/tracked_buoy__type_support.cpp.o\x1b[0m\n'}
+[65.539309] (pointcloud_filters) StdoutLine: {'line': b'[ 30%] \x1b[32mBuilding CXX object CMakeFiles/pointcloud_filters__rosidl_typesupport_cpp.dir/rosidl_typesupport_cpp/pointcloud_filters/msg/tracked_buoy_array__type_support.cpp.o\x1b[0m\n'}
+[65.563946] (-) TimerEvent: {}
+[65.665161] (-) TimerEvent: {}
+[65.770680] (-) TimerEvent: {}
+[65.871843] (-) TimerEvent: {}
+[65.898853] (pointcloud_filters) StdoutLine: {'line': b'[ 31%] \x1b[32mBuilding CXX object CMakeFiles/pointcloud_filters__rosidl_typesupport_introspection_cpp.dir/rosidl_typesupport_introspection_cpp/pointcloud_filters/srv/detail/get_cloud_window__type_support.cpp.o\x1b[0m\n'}
+[65.917222] (pointcloud_filters) StdoutLine: {'line': b'[ 33%] \x1b[32mBuilding CXX object CMakeFiles/pointcloud_filters__rosidl_typesupport_introspection_cpp.dir/rosidl_typesupport_introspection_cpp/pointcloud_filters/msg/detail/buoy_detection__type_support.cpp.o\x1b[0m\n'}
+[65.937334] (pointcloud_filters) StdoutLine: {'line': b'[ 34%] \x1b[32mBuilding CXX object CMakeFiles/pointcloud_filters__rosidl_typesupport_introspection_cpp.dir/rosidl_typesupport_introspection_cpp/pointcloud_filters/msg/detail/buoy_detection_array__type_support.cpp.o\x1b[0m\n'}
+[65.946145] (pointcloud_filters) StdoutLine: {'line': b'[ 36%] \x1b[32mBuilding CXX object CMakeFiles/pointcloud_filters__rosidl_typesupport_introspection_cpp.dir/rosidl_typesupport_introspection_cpp/pointcloud_filters/msg/detail/tracked_buoy_array__type_support.cpp.o\x1b[0m\n'}
+[65.958213] (pointcloud_filters) StdoutLine: {'line': b'[ 38%] \x1b[32mBuilding CXX object CMakeFiles/pointcloud_filters__rosidl_typesupport_introspection_cpp.dir/rosidl_typesupport_introspection_cpp/pointcloud_filters/msg/detail/tracked_buoy__type_support.cpp.o\x1b[0m\n'}
+[65.972124] (-) TimerEvent: {}
+[66.073250] (-) TimerEvent: {}
+[66.174671] (-) TimerEvent: {}
+[66.185286] (pointcloud_filters) StdoutLine: {'line': b'[ 39%] \x1b[32mBuilding CXX object CMakeFiles/pointcloud_filters__rosidl_typesupport_fastrtps_cpp.dir/rosidl_typesupport_fastrtps_cpp/pointcloud_filters/srv/detail/dds_fastrtps/get_cloud_window__type_support.cpp.o\x1b[0m\n'}
+[66.205426] (pointcloud_filters) StdoutLine: {'line': b'[ 42%] \x1b[32mBuilding CXX object CMakeFiles/pointcloud_filters__rosidl_typesupport_fastrtps_cpp.dir/rosidl_typesupport_fastrtps_cpp/pointcloud_filters/msg/detail/dds_fastrtps/buoy_detection__type_support.cpp.o\x1b[0m\n'}
+[66.212174] (pointcloud_filters) StdoutLine: {'line': b'[ 42%] \x1b[32mBuilding CXX object CMakeFiles/pointcloud_filters__rosidl_typesupport_fastrtps_cpp.dir/rosidl_typesupport_fastrtps_cpp/pointcloud_filters/msg/detail/dds_fastrtps/buoy_detection_array__type_support.cpp.o\x1b[0m\n'}
+[66.274893] (-) TimerEvent: {}
+[66.376014] (-) TimerEvent: {}
+[66.477394] (-) TimerEvent: {}
+[66.578733] (-) TimerEvent: {}
+[66.679992] (-) TimerEvent: {}
+[66.781987] (-) TimerEvent: {}
+[66.883279] (-) TimerEvent: {}
+[66.987013] (-) TimerEvent: {}
+[67.088958] (-) TimerEvent: {}
+[67.191069] (-) TimerEvent: {}
+[67.253449] (pointcloud_filters) StdoutLine: {'line': b'[ 44%] \x1b[32mBuilding CXX object CMakeFiles/pointcloud_filters__rosidl_typesupport_fastrtps_cpp.dir/rosidl_typesupport_fastrtps_cpp/pointcloud_filters/msg/detail/dds_fastrtps/tracked_buoy_array__type_support.cpp.o\x1b[0m\n'}
+[67.273996] (pointcloud_filters) StdoutLine: {'line': b'[ 46%] \x1b[32mBuilding CXX object CMakeFiles/pointcloud_filters__rosidl_typesupport_fastrtps_cpp.dir/rosidl_typesupport_fastrtps_cpp/pointcloud_filters/msg/detail/dds_fastrtps/tracked_buoy__type_support.cpp.o\x1b[0m\n'}
+[67.291320] (-) TimerEvent: {}
+[67.292079] (pointcloud_filters) StdoutLine: {'line': b'[ 47%] \x1b[32m\x1b[1mLinking CXX shared library libpointcloud_filters__rosidl_typesupport_cpp.so\x1b[0m\n'}
+[67.392254] (-) TimerEvent: {}
+[67.493386] (-) TimerEvent: {}
+[67.595011] (-) TimerEvent: {}
+[67.696679] (-) TimerEvent: {}
+[67.797844] (-) TimerEvent: {}
+[67.901021] (-) TimerEvent: {}
+[68.005004] (-) TimerEvent: {}
+[68.108556] (-) TimerEvent: {}
+[68.211603] (-) TimerEvent: {}
+[68.314081] (-) TimerEvent: {}
+[68.416561] (-) TimerEvent: {}
+[68.520153] (-) TimerEvent: {}
+[68.609260] (pointcloud_filters) StdoutLine: {'line': b'[ 49%] \x1b[32mBuilding CXX object CMakeFiles/pointcloud_filters__rosidl_typesupport_c.dir/rosidl_typesupport_c/pointcloud_filters/srv/get_cloud_window__type_support.cpp.o\x1b[0m\n'}
+[68.620398] (-) TimerEvent: {}
+[68.653253] (pointcloud_filters) StdoutLine: {'line': b'[ 52%] \x1b[32mBuilding CXX object CMakeFiles/pointcloud_filters__rosidl_typesupport_c.dir/rosidl_typesupport_c/pointcloud_filters/msg/buoy_detection__type_support.cpp.o\x1b[0m\n'}
+[68.661206] (pointcloud_filters) StdoutLine: {'line': b'[ 52%] \x1b[32mBuilding CXX object CMakeFiles/pointcloud_filters__rosidl_typesupport_c.dir/rosidl_typesupport_c/pointcloud_filters/msg/buoy_detection_array__type_support.cpp.o\x1b[0m\n'}
+[68.681167] (pointcloud_filters) StdoutLine: {'line': b'[ 55%] \x1b[32mBuilding CXX object CMakeFiles/pointcloud_filters__rosidl_typesupport_c.dir/rosidl_typesupport_c/pointcloud_filters/msg/tracked_buoy_array__type_support.cpp.o\x1b[0m\n'}
+[68.686744] (pointcloud_filters) StdoutLine: {'line': b'[ 55%] \x1b[32mBuilding CXX object CMakeFiles/pointcloud_filters__rosidl_typesupport_c.dir/rosidl_typesupport_c/pointcloud_filters/msg/tracked_buoy__type_support.cpp.o\x1b[0m\n'}
+[68.720728] (-) TimerEvent: {}
+[68.822095] (-) TimerEvent: {}
+[68.923695] (-) TimerEvent: {}
+[69.025063] (-) TimerEvent: {}
+[69.126716] (-) TimerEvent: {}
+[69.157623] (pointcloud_filters) StdoutLine: {'line': b'[ 57%] \x1b[32m\x1b[1mLinking CXX shared library libpointcloud_filters__rosidl_typesupport_introspection_cpp.so\x1b[0m\n'}
+[69.172786] (pointcloud_filters) StdoutLine: {'line': b'[ 58%] \x1b[32mBuilding C object CMakeFiles/pointcloud_filters__rosidl_typesupport_introspection_c.dir/rosidl_typesupport_introspection_c/pointcloud_filters/msg/detail/buoy_detection__type_support.c.o\x1b[0m\n'}
+[69.183828] (pointcloud_filters) StdoutLine: {'line': b'[ 60%] \x1b[32mBuilding C object CMakeFiles/pointcloud_filters__rosidl_typesupport_introspection_c.dir/rosidl_typesupport_introspection_c/pointcloud_filters/srv/detail/get_cloud_window__type_support.c.o\x1b[0m\n'}
+[69.208191] (pointcloud_filters) StdoutLine: {'line': b'[ 60%] Built target pointcloud_filters__rosidl_typesupport_cpp\n'}
+[69.219878] (pointcloud_filters) StdoutLine: {'line': b'[ 61%] \x1b[32mBuilding C object CMakeFiles/pointcloud_filters__rosidl_typesupport_introspection_c.dir/rosidl_typesupport_introspection_c/pointcloud_filters/msg/detail/buoy_detection_array__type_support.c.o\x1b[0m\n'}
+[69.226932] (-) TimerEvent: {}
+[69.234755] (pointcloud_filters) StdoutLine: {'line': b'[ 66%] \x1b[32mBuilding CXX object CMakeFiles/pointcloud_filters__rosidl_typesupport_fastrtps_c.dir/rosidl_typesupport_fastrtps_c/pointcloud_filters/srv/detail/get_cloud_window__type_support_c.cpp.o\x1b[0m\n'}
+[69.237435] (pointcloud_filters) StdoutLine: {'line': b'[ 66%] \x1b[32mBuilding C object CMakeFiles/pointcloud_filters__rosidl_typesupport_introspection_c.dir/rosidl_typesupport_introspection_c/pointcloud_filters/msg/detail/tracked_buoy_array__type_support.c.o\x1b[0m\n'}
+[69.240139] (pointcloud_filters) StdoutLine: {'line': b'[ 66%] \x1b[32mBuilding C object CMakeFiles/pointcloud_filters__rosidl_typesupport_introspection_c.dir/rosidl_typesupport_introspection_c/pointcloud_filters/msg/detail/tracked_buoy__type_support.c.o\x1b[0m\n'}
+[69.250741] (pointcloud_filters) StdoutLine: {'line': b'[ 69%] \x1b[32m\x1b[1mLinking CXX shared library libpointcloud_filters__rosidl_typesupport_c.so\x1b[0m\n'}
+[69.261120] (pointcloud_filters) StdoutLine: {'line': b'[ 69%] \x1b[32mBuilding CXX object CMakeFiles/pointcloud_filters__rosidl_typesupport_fastrtps_c.dir/rosidl_typesupport_fastrtps_c/pointcloud_filters/msg/detail/buoy_detection__type_support_c.cpp.o\x1b[0m\n'}
+[69.293316] (pointcloud_filters) StdoutLine: {'line': b'[ 73%] \x1b[32mBuilding CXX object CMakeFiles/pointcloud_filters__rosidl_typesupport_fastrtps_c.dir/rosidl_typesupport_fastrtps_c/pointcloud_filters/msg/detail/buoy_detection_array__type_support_c.cpp.o\x1b[0m\n'}
+[69.298132] (pointcloud_filters) StdoutLine: {'line': b'[ 73%] \x1b[32mBuilding CXX object CMakeFiles/pointcloud_filters__rosidl_typesupport_fastrtps_c.dir/rosidl_typesupport_fastrtps_c/pointcloud_filters/msg/detail/tracked_buoy__type_support_c.cpp.o\x1b[0m\n'}
+[69.310738] (pointcloud_filters) StdoutLine: {'line': b'[ 74%] \x1b[32mBuilding CXX object CMakeFiles/pointcloud_filters__rosidl_typesupport_fastrtps_c.dir/rosidl_typesupport_fastrtps_c/pointcloud_filters/msg/detail/tracked_buoy_array__type_support_c.cpp.o\x1b[0m\n'}
+[69.327297] (-) TimerEvent: {}
+[69.428839] (-) TimerEvent: {}
+[69.530580] (-) TimerEvent: {}
+[69.632149] (-) TimerEvent: {}
+[69.733414] (-) TimerEvent: {}
+[69.834843] (-) TimerEvent: {}
+[69.935846] (-) TimerEvent: {}
+[69.956197] (pointcloud_filters) StdoutLine: {'line': b'[ 76%] \x1b[32m\x1b[1mLinking C shared library libpointcloud_filters__rosidl_typesupport_introspection_c.so\x1b[0m\n'}
+[70.036068] (-) TimerEvent: {}
+[70.137645] (-) TimerEvent: {}
+[70.238721] (-) TimerEvent: {}
+[70.287362] (pointcloud_filters) StdoutLine: {'line': b'[ 77%] \x1b[32m\x1b[1mLinking CXX shared library libpointcloud_filters__rosidl_typesupport_fastrtps_cpp.so\x1b[0m\n'}
+[70.338920] (-) TimerEvent: {}
+[70.419569] (pointcloud_filters) StdoutLine: {'line': b'[ 77%] Built target pointcloud_filters__rosidl_typesupport_c\n'}
+[70.439158] (-) TimerEvent: {}
+[70.540248] (-) TimerEvent: {}
+[70.641599] (-) TimerEvent: {}
+[70.742488] (-) TimerEvent: {}
+[70.795673] (pointcloud_filters) StdoutLine: {'line': b'[ 77%] Built target pointcloud_filters__rosidl_typesupport_introspection_cpp\n'}
+[70.842731] (-) TimerEvent: {}
+[70.943860] (-) TimerEvent: {}
+[71.021394] (pointcloud_filters) StdoutLine: {'line': b'[ 77%] Built target pointcloud_filters__rosidl_typesupport_introspection_c\n'}
+[71.044056] (-) TimerEvent: {}
+[71.144902] (-) TimerEvent: {}
+[71.232824] (pointcloud_filters) StdoutLine: {'line': b'[ 79%] \x1b[32m\x1b[1mLinking CXX shared library libpointcloud_filters__rosidl_typesupport_fastrtps_c.so\x1b[0m\n'}
+[71.245071] (-) TimerEvent: {}
+[71.345849] (-) TimerEvent: {}
+[71.446823] (-) TimerEvent: {}
+[71.547845] (-) TimerEvent: {}
+[71.648998] (-) TimerEvent: {}
+[71.671141] (pointcloud_filters) StdoutLine: {'line': b'[ 79%] Built target pointcloud_filters__rosidl_typesupport_fastrtps_cpp\n'}
+[71.749260] (-) TimerEvent: {}
+[71.850652] (-) TimerEvent: {}
+[71.951797] (-) TimerEvent: {}
+[72.052876] (-) TimerEvent: {}
+[72.153925] (-) TimerEvent: {}
+[72.255065] (-) TimerEvent: {}
+[72.356320] (-) TimerEvent: {}
+[72.457514] (-) TimerEvent: {}
+[72.524986] (pointcloud_filters) StdoutLine: {'line': b'[ 79%] Built target pointcloud_filters__rosidl_typesupport_fastrtps_c\n'}
+[72.557797] (-) TimerEvent: {}
+[72.658688] (-) TimerEvent: {}
+[72.759531] (-) TimerEvent: {}
+[72.799030] (pointcloud_filters) StdoutLine: {'line': b'[ 79%] Built target pointcloud_filters\n'}
+[72.859709] (-) TimerEvent: {}
+[72.960628] (-) TimerEvent: {}
+[73.061446] (-) TimerEvent: {}
+[73.081685] (pointcloud_filters) StdoutLine: {'line': b'[ 80%] \x1b[34m\x1b[1mGenerating Python code for ROS interfaces\x1b[0m\n'}
+[73.161674] (-) TimerEvent: {}
+[73.262758] (-) TimerEvent: {}
+[73.363776] (-) TimerEvent: {}
+[73.465101] (-) TimerEvent: {}
+[73.566121] (-) TimerEvent: {}
+[73.687210] (-) TimerEvent: {}
+[73.788320] (-) TimerEvent: {}
+[73.889402] (-) TimerEvent: {}
+[73.990383] (-) TimerEvent: {}
+[74.091351] (-) TimerEvent: {}
+[74.192645] (-) TimerEvent: {}
+[74.293618] (-) TimerEvent: {}
+[74.394780] (-) TimerEvent: {}
+[74.495881] (-) TimerEvent: {}
+[74.597239] (-) TimerEvent: {}
+[74.698148] (-) TimerEvent: {}
+[74.799127] (-) TimerEvent: {}
+[74.900161] (-) TimerEvent: {}
+[75.001366] (-) TimerEvent: {}
+[75.102483] (-) TimerEvent: {}
+[75.203525] (-) TimerEvent: {}
+[75.304405] (-) TimerEvent: {}
+[75.405498] (-) TimerEvent: {}
+[75.506482] (-) TimerEvent: {}
+[75.607508] (-) TimerEvent: {}
+[75.708582] (-) TimerEvent: {}
+[75.809606] (-) TimerEvent: {}
+[75.910526] (-) TimerEvent: {}
+[76.011784] (-) TimerEvent: {}
+[76.112860] (-) TimerEvent: {}
+[76.173070] (pointcloud_filters) StdoutLine: {'line': b'[ 80%] Built target pointcloud_filters__py\n'}
+[76.213090] (-) TimerEvent: {}
+[76.313922] (-) TimerEvent: {}
+[76.414825] (-) TimerEvent: {}
+[76.460445] (pointcloud_filters) StdoutLine: {'line': b'[ 84%] \x1b[32mBuilding C object CMakeFiles/pointcloud_filters__rosidl_generator_py.dir/rosidl_generator_py/pointcloud_filters/srv/_get_cloud_window_s.c.o\x1b[0m\n'}
+[76.462737] (pointcloud_filters) StdoutLine: {'line': b'[ 84%] \x1b[32mBuilding C object CMakeFiles/pointcloud_filters__rosidl_generator_py.dir/rosidl_generator_py/pointcloud_filters/msg/_buoy_detection_s.c.o\x1b[0m\n'}
+[76.469220] (pointcloud_filters) StdoutLine: {'line': b'[ 85%] \x1b[32mBuilding C object CMakeFiles/pointcloud_filters__rosidl_generator_py.dir/rosidl_generator_py/pointcloud_filters/msg/_buoy_detection_array_s.c.o\x1b[0m\n'}
+[76.476874] (pointcloud_filters) StdoutLine: {'line': b'[ 87%] \x1b[32mBuilding C object CMakeFiles/pointcloud_filters__rosidl_generator_py.dir/rosidl_generator_py/pointcloud_filters/msg/_tracked_buoy_s.c.o\x1b[0m\n'}
+[76.490458] (pointcloud_filters) StdoutLine: {'line': b'[ 88%] \x1b[32mBuilding C object CMakeFiles/pointcloud_filters__rosidl_generator_py.dir/rosidl_generator_py/pointcloud_filters/msg/_tracked_buoy_array_s.c.o\x1b[0m\n'}
+[76.514999] (-) TimerEvent: {}
+[76.615929] (-) TimerEvent: {}
+[76.716724] (-) TimerEvent: {}
+[76.817550] (-) TimerEvent: {}
+[76.918360] (-) TimerEvent: {}
+[77.019141] (-) TimerEvent: {}
+[77.120122] (-) TimerEvent: {}
+[77.220999] (-) TimerEvent: {}
+[77.233175] (pointcloud_filters) StdoutLine: {'line': b'[ 90%] \x1b[32m\x1b[1mLinking C shared library rosidl_generator_py/pointcloud_filters/libpointcloud_filters__rosidl_generator_py.so\x1b[0m\n'}
+[77.321221] (-) TimerEvent: {}
+[77.422246] (-) TimerEvent: {}
+[77.523047] (-) TimerEvent: {}
+[77.623882] (-) TimerEvent: {}
+[77.724861] (-) TimerEvent: {}
+[77.825680] (-) TimerEvent: {}
+[77.926639] (-) TimerEvent: {}
+[78.027520] (-) TimerEvent: {}
+[78.033612] (pointcloud_filters) StdoutLine: {'line': b'[ 90%] Built target pointcloud_filters__rosidl_generator_py\n'}
+[78.127701] (-) TimerEvent: {}
+[78.228566] (-) TimerEvent: {}
+[78.236851] (pointcloud_filters) StdoutLine: {'line': b'[ 93%] \x1b[32mBuilding C object CMakeFiles/pointcloud_filters__rosidl_typesupport_fastrtps_c__pyext.dir/rosidl_generator_py/pointcloud_filters/_pointcloud_filters_s.ep.rosidl_typesupport_fastrtps_c.c.o\x1b[0m\n'}
+[78.238753] (pointcloud_filters) StdoutLine: {'line': b'[ 93%] \x1b[32mBuilding C object CMakeFiles/pointcloud_filters__rosidl_typesupport_c__pyext.dir/rosidl_generator_py/pointcloud_filters/_pointcloud_filters_s.ep.rosidl_typesupport_c.c.o\x1b[0m\n'}
+[78.249949] (pointcloud_filters) StdoutLine: {'line': b'[ 95%] \x1b[32mBuilding C object CMakeFiles/pointcloud_filters__rosidl_typesupport_introspection_c__pyext.dir/rosidl_generator_py/pointcloud_filters/_pointcloud_filters_s.ep.rosidl_typesupport_introspection_c.c.o\x1b[0m\n'}
+[78.328760] (-) TimerEvent: {}
+[78.429626] (-) TimerEvent: {}
+[78.530602] (-) TimerEvent: {}
+[78.631585] (-) TimerEvent: {}
+[78.732501] (-) TimerEvent: {}
+[78.833441] (-) TimerEvent: {}
+[78.934481] (-) TimerEvent: {}
+[79.035408] (-) TimerEvent: {}
+[79.136317] (-) TimerEvent: {}
+[79.178093] (pointcloud_filters) StdoutLine: {'line': b'[ 96%] \x1b[32m\x1b[1mLinking C shared library rosidl_generator_py/pointcloud_filters/pointcloud_filters_s__rosidl_typesupport_c.cpython-310-x86_64-linux-gnu.so\x1b[0m\n'}
+[79.236477] (-) TimerEvent: {}
+[79.267049] (pointcloud_filters) StdoutLine: {'line': b'[100%] \x1b[32m\x1b[1mLinking C shared library rosidl_generator_py/pointcloud_filters/pointcloud_filters_s__rosidl_typesupport_fastrtps_c.cpython-310-x86_64-linux-gnu.so\x1b[0m\n'}
+[79.269655] (pointcloud_filters) StdoutLine: {'line': b'[100%] \x1b[32m\x1b[1mLinking C shared library rosidl_generator_py/pointcloud_filters/pointcloud_filters_s__rosidl_typesupport_introspection_c.cpython-310-x86_64-linux-gnu.so\x1b[0m\n'}
+[79.336686] (-) TimerEvent: {}
+[79.437638] (-) TimerEvent: {}
+[79.538626] (-) TimerEvent: {}
+[79.639814] (-) TimerEvent: {}
+[79.740766] (-) TimerEvent: {}
+[79.841839] (-) TimerEvent: {}
+[79.943031] (-) TimerEvent: {}
+[80.046352] (-) TimerEvent: {}
+[80.054028] (pointcloud_filters) StdoutLine: {'line': b'[100%] Built target pointcloud_filters__rosidl_typesupport_fastrtps_c__pyext\n'}
+[80.074088] (pointcloud_filters) StdoutLine: {'line': b'[100%] Built target pointcloud_filters__rosidl_typesupport_c__pyext\n'}
+[80.146634] (-) TimerEvent: {}
+[80.248348] (-) TimerEvent: {}
+[80.252009] (pointcloud_filters) StdoutLine: {'line': b'[100%] Built target pointcloud_filters__rosidl_typesupport_introspection_c__pyext\n'}
+[80.348563] (-) TimerEvent: {}
+[80.449490] (-) TimerEvent: {}
+[80.550496] (-) TimerEvent: {}
+[80.651332] (-) TimerEvent: {}
+[80.751466] (pointcloud_filters) CommandEnded: {'returncode': 0}
+[80.753610] (-) TimerEvent: {}
+[80.854356] (-) TimerEvent: {}
+[80.955233] (-) TimerEvent: {}
+[81.056157] (-) TimerEvent: {}
+[81.157028] (-) TimerEvent: {}
+[81.257987] (-) TimerEvent: {}
+[81.359458] (-) TimerEvent: {}
+[81.460632] (-) TimerEvent: {}
+[81.561860] (-) TimerEvent: {}
+[81.662956] (-) TimerEvent: {}
+[81.763950] (-) TimerEvent: {}
+[81.864877] (-) TimerEvent: {}
+[81.965951] (-) TimerEvent: {}
+[82.066794] (-) TimerEvent: {}
+[82.167678] (-) TimerEvent: {}
+[82.268515] (-) TimerEvent: {}
+[82.369438] (-) TimerEvent: {}
+[82.470410] (-) TimerEvent: {}
+[82.571654] (-) TimerEvent: {}
+[82.672742] (-) TimerEvent: {}
+[82.773654] (-) TimerEvent: {}
+[82.874722] (-) TimerEvent: {}
+[82.975594] (-) TimerEvent: {}
+[83.076425] (-) TimerEvent: {}
+[83.177319] (-) TimerEvent: {}
+[83.278174] (-) TimerEvent: {}
+[83.379227] (-) TimerEvent: {}
+[83.480006] (-) TimerEvent: {}
+[83.580847] (-) TimerEvent: {}
+[83.681822] (-) TimerEvent: {}
+[83.782677] (-) TimerEvent: {}
+[83.883526] (-) TimerEvent: {}
+[83.984435] (-) TimerEvent: {}
+[84.085256] (-) TimerEvent: {}
+[84.186233] (-) TimerEvent: {}
+[84.287008] (-) TimerEvent: {}
+[84.387899] (-) TimerEvent: {}
+[84.488668] (-) TimerEvent: {}
+[84.589518] (-) TimerEvent: {}
+[84.689039] (pointcloud_filters) JobProgress: {'identifier': 'pointcloud_filters', 'progress': 'install'}
+[84.689650] (-) TimerEvent: {}
+[84.698373] (pointcloud_filters) Command: {'cmd': ['/usr/bin/cmake', '--install', '/mnt/c/Users/jcube/OneDrive/Desktop/Jacob/School/Queens/Year 5/Extra Curricular/aQuatonomous/Lidar Bagging Data/mapping-25-26/build/pointcloud_filters'], 'cwd': '/mnt/c/Users/jcube/OneDrive/Desktop/Jacob/School/Queens/Year 5/Extra Curricular/aQuatonomous/Lidar Bagging Data/mapping-25-26/build/pointcloud_filters', 'env': OrderedDict([('LESSOPEN', '| /usr/bin/lesspipe %s'), ('USER', 'jcube05'), ('SHLVL', '1'), ('LD_LIBRARY_PATH', '/mnt/c/Users/jcube/OneDrive/Desktop/Jacob/School/Queens/Year 5/Extra Curricular/aQuatonomous/Lidar Bagging Data/mapping-25-26/install/pointcloud_filters/lib:/opt/ros/humble/opt/rviz_ogre_vendor/lib:/opt/ros/humble/lib/x86_64-linux-gnu:/opt/ros/humble/lib'), ('MOTD_SHOWN', 'update-motd'), ('HOME', '/home/jcube05'), ('ROS_PYTHON_VERSION', '3'), ('HOMEBREW_PREFIX', '/home/linuxbrew/.linuxbrew'), ('DBUS_SESSION_BUS_ADDRESS', 'unix:path=/run/user/1000/bus'), ('WSL_DISTRO_NAME', 'Ubuntu-22.04'), ('WAYLAND_DISPLAY', 'wayland-0'), ('COLCON_PREFIX_PATH', '/mnt/c/Users/jcube/OneDrive/Desktop/Jacob/School/Queens/Year 5/Extra Curricular/aQuatonomous/Lidar Bagging Data/mapping-25-26/install'), ('INFOPATH', '/home/linuxbrew/.linuxbrew/share/info:'), ('ROS_DISTRO', 'humble'), ('LOGNAME', 'jcube05'), ('NAME', 'Jcube05'), ('WSL_INTEROP', '/run/WSL/207016_interop'), ('PULSE_SERVER', 'unix:/mnt/wslg/PulseServer'), ('_', '/usr/bin/colcon'), ('ROS_VERSION', '2'), ('TERM', 'xterm-256color'), ('ROS_LOCALHOST_ONLY', '1'), ('PATH', '/home/jcube05/.local/bin:/opt/ros/humble/bin:/home/linuxbrew/.linuxbrew/bin:/home/linuxbrew/.linuxbrew/sbin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/usr/lib/wsl/lib:/mnt/c/Python313/Scripts/:/mnt/c/Python313/:/mnt/c/Program Files/Common Files/Oracle/Java/javapath:/mnt/c/Program Files (x86)/Common Files/Oracle/Java/java8path:/mnt/c/Program Files (x86)/Common Files/Oracle/Java/javapath:/mnt/c/Program Files (x86)/Razer Chroma SDK/bin:/mnt/c/Program Files/Razer Chroma SDK/bin:/mnt/c/Windows/system32:/mnt/c/Windows:/mnt/c/Windows/System32/Wbem:/mnt/c/Windows/System32/WindowsPowerShell/v1.0/:/mnt/c/Windows/System32/OpenSSH/:/mnt/c/Program Files/Git/cmd:/mnt/c/ProgramData/chocolatey/bin:/mnt/c/Windows/system32/config/systemprofile/AppData/Local/Microsoft/WindowsApps:/mnt/c/Program Files (x86)/Razer/ChromaBroadcast/bin:/mnt/c/Program Files/Razer/ChromaBroadcast/bin:/mnt/c/Users/jcube/AppData/Local/Programs/Python/Python311/Scripts/:/mnt/c/Users/jcube/AppData/Local/Programs/Python/Python311/:/mnt/c/Users/jcube/AppData/Local/Microsoft/WindowsApps:/mnt/c/Users/jcube/AppData/Local/Programs/Microsoft VS Code/bin:/mnt/c/msys64/ucrt64/bin:/mnt/c/intelFPGA_lite/18.1/modelsim_ase/win32aloem:/mnt/c/Program Files/dotnet/:/mnt/c/Program Files/Java/jdk-23/bin:/mnt/c/Program Files/apache-maven-3.9.9/bin:/mnt/c/Program Files/nodejs/:/mnt/c/WINDOWS/system32:/mnt/c/WINDOWS:/mnt/c/WINDOWS/System32/Wbem:/mnt/c/WINDOWS/System32/WindowsPowerShell/v1.0/:/mnt/c/WINDOWS/System32/OpenSSH/:/mnt/c/Program Files/MATLAB/R2025b/bin:/mnt/c/Program Files/Tailscale/:/mnt/c/Program Files/cursor/resources/app/bin:/mnt/c/Program Files/GitHub CLI/:/Docker/host/bin:/mnt/c/Program Files/usbipd-win/:/mnt/c/Users/jcube/AppData/Local/Programs/Python/Python311/Scripts/:/mnt/c/Users/jcube/AppData/Local/Programs/Python/Python311/:/mnt/c/Users/jcube/AppData/Local/Microsoft/WindowsApps:/mnt/c/Users/jcube/AppData/Local/Programs/Microsoft VS Code/bin:/mnt/c/msys64/ucrt64/bin:/mnt/c/Users/jcube/AppData/Roaming/npm:/mnt/c/Users/jcube/AppData/Roaming/Python/Python313/Scripts:/mnt/c/Users/jcube/AppData/Roaming/Python/Python313/Scripts:/mnt/c/Users/jcube/AppData/Local/Programs/Antigravity/bin:/snap/bin'), ('FASTRTPS_DEFAULT_PROFILES_FILE', '/home/jcube05/fastrtps_shm.xml'), ('HOMEBREW_CELLAR', '/home/linuxbrew/.linuxbrew/Cellar'), ('XDG_RUNTIME_DIR', '/run/user/1000/'), ('DISPLAY', ':0'), ('LANG', 'C.UTF-8'), ('RMW_IMPLEMENTATION', 'rmw_fastrtps_cpp'), ('LS_COLORS', 'rs=0:di=01;34:ln=01;36:mh=00:pi=40;33:so=01;35:do=01;35:bd=40;33;01:cd=40;33;01:or=40;31;01:mi=00:su=37;41:sg=30;43:ca=30;41:tw=30;42:ow=34;42:st=37;44:ex=01;32:*.tar=01;31:*.tgz=01;31:*.arc=01;31:*.arj=01;31:*.taz=01;31:*.lha=01;31:*.lz4=01;31:*.lzh=01;31:*.lzma=01;31:*.tlz=01;31:*.txz=01;31:*.tzo=01;31:*.t7z=01;31:*.zip=01;31:*.z=01;31:*.dz=01;31:*.gz=01;31:*.lrz=01;31:*.lz=01;31:*.lzo=01;31:*.xz=01;31:*.zst=01;31:*.tzst=01;31:*.bz2=01;31:*.bz=01;31:*.tbz=01;31:*.tbz2=01;31:*.tz=01;31:*.deb=01;31:*.rpm=01;31:*.jar=01;31:*.war=01;31:*.ear=01;31:*.sar=01;31:*.rar=01;31:*.alz=01;31:*.ace=01;31:*.zoo=01;31:*.cpio=01;31:*.7z=01;31:*.rz=01;31:*.cab=01;31:*.wim=01;31:*.swm=01;31:*.dwm=01;31:*.esd=01;31:*.jpg=01;35:*.jpeg=01;35:*.mjpg=01;35:*.mjpeg=01;35:*.gif=01;35:*.bmp=01;35:*.pbm=01;35:*.pgm=01;35:*.ppm=01;35:*.tga=01;35:*.xbm=01;35:*.xpm=01;35:*.tif=01;35:*.tiff=01;35:*.png=01;35:*.svg=01;35:*.svgz=01;35:*.mng=01;35:*.pcx=01;35:*.mov=01;35:*.mpg=01;35:*.mpeg=01;35:*.m2v=01;35:*.mkv=01;35:*.webm=01;35:*.webp=01;35:*.ogm=01;35:*.mp4=01;35:*.m4v=01;35:*.mp4v=01;35:*.vob=01;35:*.qt=01;35:*.nuv=01;35:*.wmv=01;35:*.asf=01;35:*.rm=01;35:*.rmvb=01;35:*.flc=01;35:*.avi=01;35:*.fli=01;35:*.flv=01;35:*.gl=01;35:*.dl=01;35:*.xcf=01;35:*.xwd=01;35:*.yuv=01;35:*.cgm=01;35:*.emf=01;35:*.ogv=01;35:*.ogx=01;35:*.aac=00;36:*.au=00;36:*.flac=00;36:*.m4a=00;36:*.mid=00;36:*.midi=00;36:*.mka=00;36:*.mp3=00;36:*.mpc=00;36:*.ogg=00;36:*.ra=00;36:*.wav=00;36:*.oga=00;36:*.opus=00;36:*.spx=00;36:*.xspf=00;36:'), ('ROS_DOMAIN_ID', '1'), ('AMENT_PREFIX_PATH', '/mnt/c/Users/jcube/OneDrive/Desktop/Jacob/School/Queens/Year 5/Extra Curricular/aQuatonomous/Lidar Bagging Data/mapping-25-26/install/unitree_lidar_ros2:/mnt/c/Users/jcube/OneDrive/Desktop/Jacob/School/Queens/Year 5/Extra Curricular/aQuatonomous/Lidar Bagging Data/mapping-25-26/install/pointcloud_filters:/opt/ros/humble'), ('SHELL', '/bin/bash'), ('LESSCLOSE', '/usr/bin/lesspipe %s %s'), ('PWD', '/mnt/c/Users/jcube/OneDrive/Desktop/Jacob/School/Queens/Year 5/Extra Curricular/aQuatonomous/Lidar Bagging Data/mapping-25-26/build/pointcloud_filters'), ('XDG_DATA_DIRS', '/usr/local/share:/usr/share:/var/lib/snapd/desktop'), ('PYTHONPATH', '/mnt/c/Users/jcube/OneDrive/Desktop/Jacob/School/Queens/Year 5/Extra Curricular/aQuatonomous/Lidar Bagging Data/mapping-25-26/install/pointcloud_filters/local/lib/python3.10/dist-packages:/mnt/c/Users/jcube/OneDrive/Desktop/Jacob/School/Queens/Year 5/Extra Curricular/aQuatonomous/Lidar Bagging Data/mapping-25-26/install/pointcloud_filters/lib/python3.10/site-packages:/opt/ros/humble/lib/python3.10/site-packages:/opt/ros/humble/local/lib/python3.10/dist-packages'), ('HOMEBREW_REPOSITORY', '/home/linuxbrew/.linuxbrew/Homebrew'), ('COLCON', '1'), ('WSL2_GUI_APPS_ENABLED', '1'), ('MANPATH', '/home/linuxbrew/.linuxbrew/share/man:'), ('HOSTTYPE', 'x86_64'), ('CMAKE_PREFIX_PATH', '/mnt/c/Users/jcube/OneDrive/Desktop/Jacob/School/Queens/Year 5/Extra Curricular/aQuatonomous/Lidar Bagging Data/mapping-25-26/install/unitree_lidar_ros2:/mnt/c/Users/jcube/OneDrive/Desktop/Jacob/School/Queens/Year 5/Extra Curricular/aQuatonomous/Lidar Bagging Data/mapping-25-26/install/pointcloud_filters'), ('WSLENV', '')]), 'shell': False}
+[84.744215] (pointcloud_filters) StdoutLine: {'line': b'-- Install configuration: ""\n'}
+[84.789863] (-) TimerEvent: {}
+[84.804582] (pointcloud_filters) StdoutLine: {'line': b'-- Installing: /mnt/c/Users/jcube/OneDrive/Desktop/Jacob/School/Queens/Year 5/Extra Curricular/aQuatonomous/Lidar Bagging Data/mapping-25-26/install/pointcloud_filters/share/ament_index/resource_index/rosidl_interfaces/pointcloud_filters\n'}
+[84.890061] (-) TimerEvent: {}
+[84.941461] (pointcloud_filters) StdoutLine: {'line': b'-- Installing: /mnt/c/Users/jcube/OneDrive/Desktop/Jacob/School/Queens/Year 5/Extra Curricular/aQuatonomous/Lidar Bagging Data/mapping-25-26/install/pointcloud_filters/include/pointcloud_filters/pointcloud_filters\n'}
+[84.991184] (pointcloud_filters) StdoutLine: {'line': b'-- Installing: /mnt/c/Users/jcube/OneDrive/Desktop/Jacob/School/Queens/Year 5/Extra Curricular/aQuatonomous/Lidar Bagging Data/mapping-25-26/install/pointcloud_filters/include/pointcloud_filters/pointcloud_filters/msg\n'}
+[84.992781] (-) TimerEvent: {}
+[85.050236] (pointcloud_filters) StdoutLine: {'line': b'-- Installing: /mnt/c/Users/jcube/OneDrive/Desktop/Jacob/School/Queens/Year 5/Extra Curricular/aQuatonomous/Lidar Bagging Data/mapping-25-26/install/pointcloud_filters/include/pointcloud_filters/pointcloud_filters/msg/buoy_detection.h\n'}
+[85.093007] (-) TimerEvent: {}
+[85.188063] (pointcloud_filters) StdoutLine: {'line': b'-- Installing: /mnt/c/Users/jcube/OneDrive/Desktop/Jacob/School/Queens/Year 5/Extra Curricular/aQuatonomous/Lidar Bagging Data/mapping-25-26/install/pointcloud_filters/include/pointcloud_filters/pointcloud_filters/msg/buoy_detection_array.h\n'}
+[85.193130] (-) TimerEvent: {}
+[85.293922] (-) TimerEvent: {}
+[85.326281] (pointcloud_filters) StdoutLine: {'line': b'-- Installing: /mnt/c/Users/jcube/OneDrive/Desktop/Jacob/School/Queens/Year 5/Extra Curricular/aQuatonomous/Lidar Bagging Data/mapping-25-26/install/pointcloud_filters/include/pointcloud_filters/pointcloud_filters/msg/detail\n'}
+[85.394108] (-) TimerEvent: {}
+[85.407721] (pointcloud_filters) StdoutLine: {'line': b'-- Installing: /mnt/c/Users/jcube/OneDrive/Desktop/Jacob/School/Queens/Year 5/Extra Curricular/aQuatonomous/Lidar Bagging Data/mapping-25-26/install/pointcloud_filters/include/pointcloud_filters/pointcloud_filters/msg/detail/buoy_detection_array__functions.c\n'}
+[85.494292] (-) TimerEvent: {}
+[85.581423] (pointcloud_filters) StdoutLine: {'line': b'-- Installing: /mnt/c/Users/jcube/OneDrive/Desktop/Jacob/School/Queens/Year 5/Extra Curricular/aQuatonomous/Lidar Bagging Data/mapping-25-26/install/pointcloud_filters/include/pointcloud_filters/pointcloud_filters/msg/detail/buoy_detection_array__functions.h\n'}
+[85.594456] (-) TimerEvent: {}
+[85.695332] (-) TimerEvent: {}
+[85.765214] (pointcloud_filters) StdoutLine: {'line': b'-- Installing: /mnt/c/Users/jcube/OneDrive/Desktop/Jacob/School/Queens/Year 5/Extra Curricular/aQuatonomous/Lidar Bagging Data/mapping-25-26/install/pointcloud_filters/include/pointcloud_filters/pointcloud_filters/msg/detail/buoy_detection_array__struct.h\n'}
+[85.795554] (-) TimerEvent: {}
+[85.896611] (-) TimerEvent: {}
+[85.941456] (pointcloud_filters) StdoutLine: {'line': b'-- Installing: /mnt/c/Users/jcube/OneDrive/Desktop/Jacob/School/Queens/Year 5/Extra Curricular/aQuatonomous/Lidar Bagging Data/mapping-25-26/install/pointcloud_filters/include/pointcloud_filters/pointcloud_filters/msg/detail/buoy_detection_array__type_support.h\n'}
+[85.996805] (-) TimerEvent: {}
+[86.097771] (-) TimerEvent: {}
+[86.107774] (pointcloud_filters) StdoutLine: {'line': b'-- Installing: /mnt/c/Users/jcube/OneDrive/Desktop/Jacob/School/Queens/Year 5/Extra Curricular/aQuatonomous/Lidar Bagging Data/mapping-25-26/install/pointcloud_filters/include/pointcloud_filters/pointcloud_filters/msg/detail/buoy_detection__functions.c\n'}
+[86.197922] (-) TimerEvent: {}
+[86.285191] (pointcloud_filters) StdoutLine: {'line': b'-- Installing: /mnt/c/Users/jcube/OneDrive/Desktop/Jacob/School/Queens/Year 5/Extra Curricular/aQuatonomous/Lidar Bagging Data/mapping-25-26/install/pointcloud_filters/include/pointcloud_filters/pointcloud_filters/msg/detail/buoy_detection__functions.h\n'}
+[86.298128] (-) TimerEvent: {}
+[86.399046] (-) TimerEvent: {}
+[86.459719] (pointcloud_filters) StdoutLine: {'line': b'-- Installing: /mnt/c/Users/jcube/OneDrive/Desktop/Jacob/School/Queens/Year 5/Extra Curricular/aQuatonomous/Lidar Bagging Data/mapping-25-26/install/pointcloud_filters/include/pointcloud_filters/pointcloud_filters/msg/detail/buoy_detection__struct.h\n'}
+[86.499219] (-) TimerEvent: {}
+[86.600023] (-) TimerEvent: {}
+[86.613106] (pointcloud_filters) StdoutLine: {'line': b'-- Installing: /mnt/c/Users/jcube/OneDrive/Desktop/Jacob/School/Queens/Year 5/Extra Curricular/aQuatonomous/Lidar Bagging Data/mapping-25-26/install/pointcloud_filters/include/pointcloud_filters/pointcloud_filters/msg/detail/buoy_detection__type_support.h\n'}
+[86.700224] (-) TimerEvent: {}
+[86.777959] (pointcloud_filters) StdoutLine: {'line': b'-- Installing: /mnt/c/Users/jcube/OneDrive/Desktop/Jacob/School/Queens/Year 5/Extra Curricular/aQuatonomous/Lidar Bagging Data/mapping-25-26/install/pointcloud_filters/include/pointcloud_filters/pointcloud_filters/msg/detail/tracked_buoy_array__functions.c\n'}
+[86.800378] (-) TimerEvent: {}
+[86.901243] (-) TimerEvent: {}
+[86.917121] (pointcloud_filters) StdoutLine: {'line': b'-- Installing: /mnt/c/Users/jcube/OneDrive/Desktop/Jacob/School/Queens/Year 5/Extra Curricular/aQuatonomous/Lidar Bagging Data/mapping-25-26/install/pointcloud_filters/include/pointcloud_filters/pointcloud_filters/msg/detail/tracked_buoy_array__functions.h\n'}
+[87.001468] (-) TimerEvent: {}
+[87.056557] (pointcloud_filters) StdoutLine: {'line': b'-- Installing: /mnt/c/Users/jcube/OneDrive/Desktop/Jacob/School/Queens/Year 5/Extra Curricular/aQuatonomous/Lidar Bagging Data/mapping-25-26/install/pointcloud_filters/include/pointcloud_filters/pointcloud_filters/msg/detail/tracked_buoy_array__struct.h\n'}
+[87.101640] (-) TimerEvent: {}
+[87.202583] (-) TimerEvent: {}
+[87.203230] (pointcloud_filters) StdoutLine: {'line': b'-- Installing: /mnt/c/Users/jcube/OneDrive/Desktop/Jacob/School/Queens/Year 5/Extra Curricular/aQuatonomous/Lidar Bagging Data/mapping-25-26/install/pointcloud_filters/include/pointcloud_filters/pointcloud_filters/msg/detail/tracked_buoy_array__type_support.h\n'}
+[87.302769] (-) TimerEvent: {}
+[87.342373] (pointcloud_filters) StdoutLine: {'line': b'-- Installing: /mnt/c/Users/jcube/OneDrive/Desktop/Jacob/School/Queens/Year 5/Extra Curricular/aQuatonomous/Lidar Bagging Data/mapping-25-26/install/pointcloud_filters/include/pointcloud_filters/pointcloud_filters/msg/detail/tracked_buoy__functions.c\n'}
+[87.402943] (-) TimerEvent: {}
+[87.485373] (pointcloud_filters) StdoutLine: {'line': b'-- Installing: /mnt/c/Users/jcube/OneDrive/Desktop/Jacob/School/Queens/Year 5/Extra Curricular/aQuatonomous/Lidar Bagging Data/mapping-25-26/install/pointcloud_filters/include/pointcloud_filters/pointcloud_filters/msg/detail/tracked_buoy__functions.h\n'}
+[87.503063] (-) TimerEvent: {}
+[87.603768] (-) TimerEvent: {}
+[87.623723] (pointcloud_filters) StdoutLine: {'line': b'-- Installing: /mnt/c/Users/jcube/OneDrive/Desktop/Jacob/School/Queens/Year 5/Extra Curricular/aQuatonomous/Lidar Bagging Data/mapping-25-26/install/pointcloud_filters/include/pointcloud_filters/pointcloud_filters/msg/detail/tracked_buoy__struct.h\n'}
+[87.703963] (-) TimerEvent: {}
+[87.774501] (pointcloud_filters) StdoutLine: {'line': b'-- Installing: /mnt/c/Users/jcube/OneDrive/Desktop/Jacob/School/Queens/Year 5/Extra Curricular/aQuatonomous/Lidar Bagging Data/mapping-25-26/install/pointcloud_filters/include/pointcloud_filters/pointcloud_filters/msg/detail/tracked_buoy__type_support.h\n'}
+[87.804120] (-) TimerEvent: {}
+[87.905018] (-) TimerEvent: {}
+[87.916431] (pointcloud_filters) StdoutLine: {'line': b'-- Installing: /mnt/c/Users/jcube/OneDrive/Desktop/Jacob/School/Queens/Year 5/Extra Curricular/aQuatonomous/Lidar Bagging Data/mapping-25-26/install/pointcloud_filters/include/pointcloud_filters/pointcloud_filters/msg/rosidl_generator_c__visibility_control.h\n'}
+[88.005201] (-) TimerEvent: {}
+[88.044008] (pointcloud_filters) StdoutLine: {'line': b'-- Installing: /mnt/c/Users/jcube/OneDrive/Desktop/Jacob/School/Queens/Year 5/Extra Curricular/aQuatonomous/Lidar Bagging Data/mapping-25-26/install/pointcloud_filters/include/pointcloud_filters/pointcloud_filters/msg/tracked_buoy.h\n'}
+[88.105384] (-) TimerEvent: {}
+[88.160630] (pointcloud_filters) StdoutLine: {'line': b'-- Installing: /mnt/c/Users/jcube/OneDrive/Desktop/Jacob/School/Queens/Year 5/Extra Curricular/aQuatonomous/Lidar Bagging Data/mapping-25-26/install/pointcloud_filters/include/pointcloud_filters/pointcloud_filters/msg/tracked_buoy_array.h\n'}
+[88.205645] (-) TimerEvent: {}
+[88.274487] (pointcloud_filters) StdoutLine: {'line': b'-- Installing: /mnt/c/Users/jcube/OneDrive/Desktop/Jacob/School/Queens/Year 5/Extra Curricular/aQuatonomous/Lidar Bagging Data/mapping-25-26/install/pointcloud_filters/include/pointcloud_filters/pointcloud_filters/srv\n'}
+[88.305807] (-) TimerEvent: {}
+[88.318993] (pointcloud_filters) StdoutLine: {'line': b'-- Installing: /mnt/c/Users/jcube/OneDrive/Desktop/Jacob/School/Queens/Year 5/Extra Curricular/aQuatonomous/Lidar Bagging Data/mapping-25-26/install/pointcloud_filters/include/pointcloud_filters/pointcloud_filters/srv/detail\n'}
+[88.396570] (pointcloud_filters) StdoutLine: {'line': b'-- Installing: /mnt/c/Users/jcube/OneDrive/Desktop/Jacob/School/Queens/Year 5/Extra Curricular/aQuatonomous/Lidar Bagging Data/mapping-25-26/install/pointcloud_filters/include/pointcloud_filters/pointcloud_filters/srv/detail/get_cloud_window__functions.c\n'}
+[88.406085] (-) TimerEvent: {}
+[88.507241] (-) TimerEvent: {}
+[88.562845] (pointcloud_filters) StdoutLine: {'line': b'-- Installing: /mnt/c/Users/jcube/OneDrive/Desktop/Jacob/School/Queens/Year 5/Extra Curricular/aQuatonomous/Lidar Bagging Data/mapping-25-26/install/pointcloud_filters/include/pointcloud_filters/pointcloud_filters/srv/detail/get_cloud_window__functions.h\n'}
+[88.607412] (-) TimerEvent: {}
+[88.708365] (-) TimerEvent: {}
+[88.744151] (pointcloud_filters) StdoutLine: {'line': b'-- Installing: /mnt/c/Users/jcube/OneDrive/Desktop/Jacob/School/Queens/Year 5/Extra Curricular/aQuatonomous/Lidar Bagging Data/mapping-25-26/install/pointcloud_filters/include/pointcloud_filters/pointcloud_filters/srv/detail/get_cloud_window__struct.h\n'}
+[88.808551] (-) TimerEvent: {}
+[88.907283] (pointcloud_filters) StdoutLine: {'line': b'-- Installing: /mnt/c/Users/jcube/OneDrive/Desktop/Jacob/School/Queens/Year 5/Extra Curricular/aQuatonomous/Lidar Bagging Data/mapping-25-26/install/pointcloud_filters/include/pointcloud_filters/pointcloud_filters/srv/detail/get_cloud_window__type_support.h\n'}
+[88.908922] (-) TimerEvent: {}
+[89.009600] (-) TimerEvent: {}
+[89.067838] (pointcloud_filters) StdoutLine: {'line': b'-- Installing: /mnt/c/Users/jcube/OneDrive/Desktop/Jacob/School/Queens/Year 5/Extra Curricular/aQuatonomous/Lidar Bagging Data/mapping-25-26/install/pointcloud_filters/include/pointcloud_filters/pointcloud_filters/srv/get_cloud_window.h\n'}
+[89.109831] (-) TimerEvent: {}
+[89.210910] (-) TimerEvent: {}
+[89.214515] (pointcloud_filters) StdoutLine: {'line': b'-- Installing: /mnt/c/Users/jcube/OneDrive/Desktop/Jacob/School/Queens/Year 5/Extra Curricular/aQuatonomous/Lidar Bagging Data/mapping-25-26/install/pointcloud_filters/share/pointcloud_filters/environment/library_path.sh\n'}
+[89.311093] (-) TimerEvent: {}
+[89.325092] (pointcloud_filters) StdoutLine: {'line': b'-- Installing: /mnt/c/Users/jcube/OneDrive/Desktop/Jacob/School/Queens/Year 5/Extra Curricular/aQuatonomous/Lidar Bagging Data/mapping-25-26/install/pointcloud_filters/share/pointcloud_filters/environment/library_path.dsv\n'}
+[89.411283] (-) TimerEvent: {}
+[89.446507] (pointcloud_filters) StdoutLine: {'line': b'-- Installing: /mnt/c/Users/jcube/OneDrive/Desktop/Jacob/School/Queens/Year 5/Extra Curricular/aQuatonomous/Lidar Bagging Data/mapping-25-26/install/pointcloud_filters/lib/libpointcloud_filters__rosidl_generator_c.so\n'}
+[89.511475] (-) TimerEvent: {}
+[89.596997] (pointcloud_filters) StdoutLine: {'line': b'-- Set runtime path of "/mnt/c/Users/jcube/OneDrive/Desktop/Jacob/School/Queens/Year 5/Extra Curricular/aQuatonomous/Lidar Bagging Data/mapping-25-26/install/pointcloud_filters/lib/libpointcloud_filters__rosidl_generator_c.so" to ""\n'}
+[89.611605] (-) TimerEvent: {}
+[89.614469] (pointcloud_filters) StdoutLine: {'line': b'-- Up-to-date: /mnt/c/Users/jcube/OneDrive/Desktop/Jacob/School/Queens/Year 5/Extra Curricular/aQuatonomous/Lidar Bagging Data/mapping-25-26/install/pointcloud_filters/include/pointcloud_filters/pointcloud_filters\n'}
+[89.650173] (pointcloud_filters) StdoutLine: {'line': b'-- Up-to-date: /mnt/c/Users/jcube/OneDrive/Desktop/Jacob/School/Queens/Year 5/Extra Curricular/aQuatonomous/Lidar Bagging Data/mapping-25-26/install/pointcloud_filters/include/pointcloud_filters/pointcloud_filters/msg\n'}
+[89.691400] (pointcloud_filters) StdoutLine: {'line': b'-- Up-to-date: /mnt/c/Users/jcube/OneDrive/Desktop/Jacob/School/Queens/Year 5/Extra Curricular/aQuatonomous/Lidar Bagging Data/mapping-25-26/install/pointcloud_filters/include/pointcloud_filters/pointcloud_filters/msg/detail\n'}
+[89.711781] (-) TimerEvent: {}
+[89.745313] (pointcloud_filters) StdoutLine: {'line': b'-- Installing: /mnt/c/Users/jcube/OneDrive/Desktop/Jacob/School/Queens/Year 5/Extra Curricular/aQuatonomous/Lidar Bagging Data/mapping-25-26/install/pointcloud_filters/include/pointcloud_filters/pointcloud_filters/msg/detail/buoy_detection_array__rosidl_typesupport_fastrtps_c.h\n'}
+[89.811979] (-) TimerEvent: {}
+[89.905383] (pointcloud_filters) StdoutLine: {'line': b'-- Installing: /mnt/c/Users/jcube/OneDrive/Desktop/Jacob/School/Queens/Year 5/Extra Curricular/aQuatonomous/Lidar Bagging Data/mapping-25-26/install/pointcloud_filters/include/pointcloud_filters/pointcloud_filters/msg/detail/buoy_detection__rosidl_typesupport_fastrtps_c.h\n'}
+[89.912190] (-) TimerEvent: {}
+[90.013102] (-) TimerEvent: {}
+[90.087754] (pointcloud_filters) StdoutLine: {'line': b'-- Installing: /mnt/c/Users/jcube/OneDrive/Desktop/Jacob/School/Queens/Year 5/Extra Curricular/aQuatonomous/Lidar Bagging Data/mapping-25-26/install/pointcloud_filters/include/pointcloud_filters/pointcloud_filters/msg/detail/tracked_buoy_array__rosidl_typesupport_fastrtps_c.h\n'}
+[90.113280] (-) TimerEvent: {}
+[90.214245] (-) TimerEvent: {}
+[90.250871] (pointcloud_filters) StdoutLine: {'line': b'-- Installing: /mnt/c/Users/jcube/OneDrive/Desktop/Jacob/School/Queens/Year 5/Extra Curricular/aQuatonomous/Lidar Bagging Data/mapping-25-26/install/pointcloud_filters/include/pointcloud_filters/pointcloud_filters/msg/detail/tracked_buoy__rosidl_typesupport_fastrtps_c.h\n'}
+[90.314416] (-) TimerEvent: {}
+[90.390191] (pointcloud_filters) StdoutLine: {'line': b'-- Installing: /mnt/c/Users/jcube/OneDrive/Desktop/Jacob/School/Queens/Year 5/Extra Curricular/aQuatonomous/Lidar Bagging Data/mapping-25-26/install/pointcloud_filters/include/pointcloud_filters/pointcloud_filters/msg/rosidl_typesupport_fastrtps_c__visibility_control.h\n'}
+[90.414543] (-) TimerEvent: {}
+[90.515370] (pointcloud_filters) StdoutLine: {'line': b'-- Up-to-date: /mnt/c/Users/jcube/OneDrive/Desktop/Jacob/School/Queens/Year 5/Extra Curricular/aQuatonomous/Lidar Bagging Data/mapping-25-26/install/pointcloud_filters/include/pointcloud_filters/pointcloud_filters/srv\n'}
+[90.516825] (-) TimerEvent: {}
+[90.554743] (pointcloud_filters) StdoutLine: {'line': b'-- Up-to-date: /mnt/c/Users/jcube/OneDrive/Desktop/Jacob/School/Queens/Year 5/Extra Curricular/aQuatonomous/Lidar Bagging Data/mapping-25-26/install/pointcloud_filters/include/pointcloud_filters/pointcloud_filters/srv/detail\n'}
+[90.604687] (pointcloud_filters) StdoutLine: {'line': b'-- Installing: /mnt/c/Users/jcube/OneDrive/Desktop/Jacob/School/Queens/Year 5/Extra Curricular/aQuatonomous/Lidar Bagging Data/mapping-25-26/install/pointcloud_filters/include/pointcloud_filters/pointcloud_filters/srv/detail/get_cloud_window__rosidl_typesupport_fastrtps_c.h\n'}
+[90.617033] (-) TimerEvent: {}
+[90.718089] (-) TimerEvent: {}
+[90.746203] (pointcloud_filters) StdoutLine: {'line': b'-- Installing: /mnt/c/Users/jcube/OneDrive/Desktop/Jacob/School/Queens/Year 5/Extra Curricular/aQuatonomous/Lidar Bagging Data/mapping-25-26/install/pointcloud_filters/lib/libpointcloud_filters__rosidl_typesupport_fastrtps_c.so\n'}
+[90.818274] (-) TimerEvent: {}
+[90.900976] (pointcloud_filters) StdoutLine: {'line': b'-- Set runtime path of "/mnt/c/Users/jcube/OneDrive/Desktop/Jacob/School/Queens/Year 5/Extra Curricular/aQuatonomous/Lidar Bagging Data/mapping-25-26/install/pointcloud_filters/lib/libpointcloud_filters__rosidl_typesupport_fastrtps_c.so" to ""\n'}
+[90.917177] (pointcloud_filters) StdoutLine: {'line': b'-- Up-to-date: /mnt/c/Users/jcube/OneDrive/Desktop/Jacob/School/Queens/Year 5/Extra Curricular/aQuatonomous/Lidar Bagging Data/mapping-25-26/install/pointcloud_filters/include/pointcloud_filters/pointcloud_filters\n'}
+[90.918827] (-) TimerEvent: {}
+[90.951395] (pointcloud_filters) StdoutLine: {'line': b'-- Up-to-date: /mnt/c/Users/jcube/OneDrive/Desktop/Jacob/School/Queens/Year 5/Extra Curricular/aQuatonomous/Lidar Bagging Data/mapping-25-26/install/pointcloud_filters/include/pointcloud_filters/pointcloud_filters/msg\n'}
+[90.990141] (pointcloud_filters) StdoutLine: {'line': b'-- Up-to-date: /mnt/c/Users/jcube/OneDrive/Desktop/Jacob/School/Queens/Year 5/Extra Curricular/aQuatonomous/Lidar Bagging Data/mapping-25-26/install/pointcloud_filters/include/pointcloud_filters/pointcloud_filters/msg/detail\n'}
+[91.019001] (-) TimerEvent: {}
+[91.041222] (pointcloud_filters) StdoutLine: {'line': b'-- Installing: /mnt/c/Users/jcube/OneDrive/Desktop/Jacob/School/Queens/Year 5/Extra Curricular/aQuatonomous/Lidar Bagging Data/mapping-25-26/install/pointcloud_filters/include/pointcloud_filters/pointcloud_filters/msg/detail/buoy_detection_array__rosidl_typesupport_introspection_c.h\n'}
+[91.119270] (-) TimerEvent: {}
+[91.206069] (pointcloud_filters) StdoutLine: {'line': b'-- Installing: /mnt/c/Users/jcube/OneDrive/Desktop/Jacob/School/Queens/Year 5/Extra Curricular/aQuatonomous/Lidar Bagging Data/mapping-25-26/install/pointcloud_filters/include/pointcloud_filters/pointcloud_filters/msg/detail/buoy_detection_array__type_support.c\n'}
+[91.219530] (-) TimerEvent: {}
+[91.320484] (-) TimerEvent: {}
+[91.385314] (pointcloud_filters) StdoutLine: {'line': b'-- Installing: /mnt/c/Users/jcube/OneDrive/Desktop/Jacob/School/Queens/Year 5/Extra Curricular/aQuatonomous/Lidar Bagging Data/mapping-25-26/install/pointcloud_filters/include/pointcloud_filters/pointcloud_filters/msg/detail/buoy_detection__rosidl_typesupport_introspection_c.h\n'}
+[91.420688] (-) TimerEvent: {}
+[91.521644] (-) TimerEvent: {}
+[91.540828] (pointcloud_filters) StdoutLine: {'line': b'-- Installing: /mnt/c/Users/jcube/OneDrive/Desktop/Jacob/School/Queens/Year 5/Extra Curricular/aQuatonomous/Lidar Bagging Data/mapping-25-26/install/pointcloud_filters/include/pointcloud_filters/pointcloud_filters/msg/detail/buoy_detection__type_support.c\n'}
+[91.621874] (-) TimerEvent: {}
+[91.678264] (pointcloud_filters) StdoutLine: {'line': b'-- Installing: /mnt/c/Users/jcube/OneDrive/Desktop/Jacob/School/Queens/Year 5/Extra Curricular/aQuatonomous/Lidar Bagging Data/mapping-25-26/install/pointcloud_filters/include/pointcloud_filters/pointcloud_filters/msg/detail/tracked_buoy_array__rosidl_typesupport_introspection_c.h\n'}
+[91.722110] (-) TimerEvent: {}
+[91.822194] (pointcloud_filters) StdoutLine: {'line': b'-- Installing: /mnt/c/Users/jcube/OneDrive/Desktop/Jacob/School/Queens/Year 5/Extra Curricular/aQuatonomous/Lidar Bagging Data/mapping-25-26/install/pointcloud_filters/include/pointcloud_filters/pointcloud_filters/msg/detail/tracked_buoy_array__type_support.c\n'}
+[91.824824] (-) TimerEvent: {}
+[91.925494] (-) TimerEvent: {}
+[91.983606] (pointcloud_filters) StdoutLine: {'line': b'-- Installing: /mnt/c/Users/jcube/OneDrive/Desktop/Jacob/School/Queens/Year 5/Extra Curricular/aQuatonomous/Lidar Bagging Data/mapping-25-26/install/pointcloud_filters/include/pointcloud_filters/pointcloud_filters/msg/detail/tracked_buoy__rosidl_typesupport_introspection_c.h\n'}
+[92.025790] (-) TimerEvent: {}
+[92.126682] (-) TimerEvent: {}
+[92.153293] (pointcloud_filters) StdoutLine: {'line': b'-- Installing: /mnt/c/Users/jcube/OneDrive/Desktop/Jacob/School/Queens/Year 5/Extra Curricular/aQuatonomous/Lidar Bagging Data/mapping-25-26/install/pointcloud_filters/include/pointcloud_filters/pointcloud_filters/msg/detail/tracked_buoy__type_support.c\n'}
+[92.226899] (-) TimerEvent: {}
+[92.323031] (pointcloud_filters) StdoutLine: {'line': b'-- Installing: /mnt/c/Users/jcube/OneDrive/Desktop/Jacob/School/Queens/Year 5/Extra Curricular/aQuatonomous/Lidar Bagging Data/mapping-25-26/install/pointcloud_filters/include/pointcloud_filters/pointcloud_filters/msg/rosidl_typesupport_introspection_c__visibility_control.h\n'}
+[92.327038] (-) TimerEvent: {}
+[92.427874] (-) TimerEvent: {}
+[92.461959] (pointcloud_filters) StdoutLine: {'line': b'-- Up-to-date: /mnt/c/Users/jcube/OneDrive/Desktop/Jacob/School/Queens/Year 5/Extra Curricular/aQuatonomous/Lidar Bagging Data/mapping-25-26/install/pointcloud_filters/include/pointcloud_filters/pointcloud_filters/srv\n'}
+[92.515821] (pointcloud_filters) StdoutLine: {'line': b'-- Up-to-date: /mnt/c/Users/jcube/OneDrive/Desktop/Jacob/School/Queens/Year 5/Extra Curricular/aQuatonomous/Lidar Bagging Data/mapping-25-26/install/pointcloud_filters/include/pointcloud_filters/pointcloud_filters/srv/detail\n'}
+[92.528113] (-) TimerEvent: {}
+[92.589030] (pointcloud_filters) StdoutLine: {'line': b'-- Installing: /mnt/c/Users/jcube/OneDrive/Desktop/Jacob/School/Queens/Year 5/Extra Curricular/aQuatonomous/Lidar Bagging Data/mapping-25-26/install/pointcloud_filters/include/pointcloud_filters/pointcloud_filters/srv/detail/get_cloud_window__rosidl_typesupport_introspection_c.h\n'}
+[92.628316] (-) TimerEvent: {}
+[92.729214] (-) TimerEvent: {}
+[92.785579] (pointcloud_filters) StdoutLine: {'line': b'-- Installing: /mnt/c/Users/jcube/OneDrive/Desktop/Jacob/School/Queens/Year 5/Extra Curricular/aQuatonomous/Lidar Bagging Data/mapping-25-26/install/pointcloud_filters/include/pointcloud_filters/pointcloud_filters/srv/detail/get_cloud_window__type_support.c\n'}
+[92.829404] (-) TimerEvent: {}
+[92.930463] (-) TimerEvent: {}
+[92.962210] (pointcloud_filters) StdoutLine: {'line': b'-- Installing: /mnt/c/Users/jcube/OneDrive/Desktop/Jacob/School/Queens/Year 5/Extra Curricular/aQuatonomous/Lidar Bagging Data/mapping-25-26/install/pointcloud_filters/lib/libpointcloud_filters__rosidl_typesupport_introspection_c.so\n'}
+[93.030702] (-) TimerEvent: {}
+[93.117643] (pointcloud_filters) StdoutLine: {'line': b'-- Set runtime path of "/mnt/c/Users/jcube/OneDrive/Desktop/Jacob/School/Queens/Year 5/Extra Curricular/aQuatonomous/Lidar Bagging Data/mapping-25-26/install/pointcloud_filters/lib/libpointcloud_filters__rosidl_typesupport_introspection_c.so" to ""\n'}
+[93.130902] (-) TimerEvent: {}
+[93.144224] (pointcloud_filters) StdoutLine: {'line': b'-- Installing: /mnt/c/Users/jcube/OneDrive/Desktop/Jacob/School/Queens/Year 5/Extra Curricular/aQuatonomous/Lidar Bagging Data/mapping-25-26/install/pointcloud_filters/lib/libpointcloud_filters__rosidl_typesupport_c.so\n'}
+[93.231088] (-) TimerEvent: {}
+[93.292756] (pointcloud_filters) StdoutLine: {'line': b'-- Set runtime path of "/mnt/c/Users/jcube/OneDrive/Desktop/Jacob/School/Queens/Year 5/Extra Curricular/aQuatonomous/Lidar Bagging Data/mapping-25-26/install/pointcloud_filters/lib/libpointcloud_filters__rosidl_typesupport_c.so" to ""\n'}
+[93.312086] (pointcloud_filters) StdoutLine: {'line': b'-- Up-to-date: /mnt/c/Users/jcube/OneDrive/Desktop/Jacob/School/Queens/Year 5/Extra Curricular/aQuatonomous/Lidar Bagging Data/mapping-25-26/install/pointcloud_filters/include/pointcloud_filters/pointcloud_filters\n'}
+[93.331285] (-) TimerEvent: {}
+[93.357569] (pointcloud_filters) StdoutLine: {'line': b'-- Up-to-date: /mnt/c/Users/jcube/OneDrive/Desktop/Jacob/School/Queens/Year 5/Extra Curricular/aQuatonomous/Lidar Bagging Data/mapping-25-26/install/pointcloud_filters/include/pointcloud_filters/pointcloud_filters/msg\n'}
+[93.421381] (pointcloud_filters) StdoutLine: {'line': b'-- Installing: /mnt/c/Users/jcube/OneDrive/Desktop/Jacob/School/Queens/Year 5/Extra Curricular/aQuatonomous/Lidar Bagging Data/mapping-25-26/install/pointcloud_filters/include/pointcloud_filters/pointcloud_filters/msg/buoy_detection.hpp\n'}
+[93.431539] (-) TimerEvent: {}
+[93.532446] (-) TimerEvent: {}
+[93.562622] (pointcloud_filters) StdoutLine: {'line': b'-- Installing: /mnt/c/Users/jcube/OneDrive/Desktop/Jacob/School/Queens/Year 5/Extra Curricular/aQuatonomous/Lidar Bagging Data/mapping-25-26/install/pointcloud_filters/include/pointcloud_filters/pointcloud_filters/msg/buoy_detection_array.hpp\n'}
+[93.632642] (-) TimerEvent: {}
+[93.694286] (pointcloud_filters) StdoutLine: {'line': b'-- Up-to-date: /mnt/c/Users/jcube/OneDrive/Desktop/Jacob/School/Queens/Year 5/Extra Curricular/aQuatonomous/Lidar Bagging Data/mapping-25-26/install/pointcloud_filters/include/pointcloud_filters/pointcloud_filters/msg/detail\n'}
+[93.732852] (-) TimerEvent: {}
+[93.752952] (pointcloud_filters) StdoutLine: {'line': b'-- Installing: /mnt/c/Users/jcube/OneDrive/Desktop/Jacob/School/Queens/Year 5/Extra Curricular/aQuatonomous/Lidar Bagging Data/mapping-25-26/install/pointcloud_filters/include/pointcloud_filters/pointcloud_filters/msg/detail/buoy_detection_array__builder.hpp\n'}
+[93.833062] (-) TimerEvent: {}
+[93.904807] (pointcloud_filters) StdoutLine: {'line': b'-- Installing: /mnt/c/Users/jcube/OneDrive/Desktop/Jacob/School/Queens/Year 5/Extra Curricular/aQuatonomous/Lidar Bagging Data/mapping-25-26/install/pointcloud_filters/include/pointcloud_filters/pointcloud_filters/msg/detail/buoy_detection_array__struct.hpp\n'}
+[93.933268] (-) TimerEvent: {}
+[94.034139] (-) TimerEvent: {}
+[94.069906] (pointcloud_filters) StdoutLine: {'line': b'-- Installing: /mnt/c/Users/jcube/OneDrive/Desktop/Jacob/School/Queens/Year 5/Extra Curricular/aQuatonomous/Lidar Bagging Data/mapping-25-26/install/pointcloud_filters/include/pointcloud_filters/pointcloud_filters/msg/detail/buoy_detection_array__traits.hpp\n'}
+[94.134332] (-) TimerEvent: {}
+[94.233807] (pointcloud_filters) StdoutLine: {'line': b'-- Installing: /mnt/c/Users/jcube/OneDrive/Desktop/Jacob/School/Queens/Year 5/Extra Curricular/aQuatonomous/Lidar Bagging Data/mapping-25-26/install/pointcloud_filters/include/pointcloud_filters/pointcloud_filters/msg/detail/buoy_detection_array__type_support.hpp\n'}
+[94.235586] (-) TimerEvent: {}
+[94.336298] (-) TimerEvent: {}
+[94.391135] (pointcloud_filters) StdoutLine: {'line': b'-- Installing: /mnt/c/Users/jcube/OneDrive/Desktop/Jacob/School/Queens/Year 5/Extra Curricular/aQuatonomous/Lidar Bagging Data/mapping-25-26/install/pointcloud_filters/include/pointcloud_filters/pointcloud_filters/msg/detail/buoy_detection__builder.hpp\n'}
+[94.436497] (-) TimerEvent: {}
+[94.537385] (-) TimerEvent: {}
+[94.544217] (pointcloud_filters) StdoutLine: {'line': b'-- Installing: /mnt/c/Users/jcube/OneDrive/Desktop/Jacob/School/Queens/Year 5/Extra Curricular/aQuatonomous/Lidar Bagging Data/mapping-25-26/install/pointcloud_filters/include/pointcloud_filters/pointcloud_filters/msg/detail/buoy_detection__struct.hpp\n'}
+[94.637588] (-) TimerEvent: {}
+[94.693812] (pointcloud_filters) StdoutLine: {'line': b'-- Installing: /mnt/c/Users/jcube/OneDrive/Desktop/Jacob/School/Queens/Year 5/Extra Curricular/aQuatonomous/Lidar Bagging Data/mapping-25-26/install/pointcloud_filters/include/pointcloud_filters/pointcloud_filters/msg/detail/buoy_detection__traits.hpp\n'}
+[94.737861] (-) TimerEvent: {}
+[94.839280] (-) TimerEvent: {}
+[94.855469] (pointcloud_filters) StdoutLine: {'line': b'-- Installing: /mnt/c/Users/jcube/OneDrive/Desktop/Jacob/School/Queens/Year 5/Extra Curricular/aQuatonomous/Lidar Bagging Data/mapping-25-26/install/pointcloud_filters/include/pointcloud_filters/pointcloud_filters/msg/detail/buoy_detection__type_support.hpp\n'}
+[94.939480] (-) TimerEvent: {}
+[95.014708] (pointcloud_filters) StdoutLine: {'line': b'-- Installing: /mnt/c/Users/jcube/OneDrive/Desktop/Jacob/School/Queens/Year 5/Extra Curricular/aQuatonomous/Lidar Bagging Data/mapping-25-26/install/pointcloud_filters/include/pointcloud_filters/pointcloud_filters/msg/detail/tracked_buoy_array__builder.hpp\n'}
+[95.039683] (-) TimerEvent: {}
+[95.140534] (-) TimerEvent: {}
+[95.187055] (pointcloud_filters) StdoutLine: {'line': b'-- Installing: /mnt/c/Users/jcube/OneDrive/Desktop/Jacob/School/Queens/Year 5/Extra Curricular/aQuatonomous/Lidar Bagging Data/mapping-25-26/install/pointcloud_filters/include/pointcloud_filters/pointcloud_filters/msg/detail/tracked_buoy_array__struct.hpp\n'}
+[95.240819] (-) TimerEvent: {}
+[95.341975] (-) TimerEvent: {}
+[95.359729] (pointcloud_filters) StdoutLine: {'line': b'-- Installing: /mnt/c/Users/jcube/OneDrive/Desktop/Jacob/School/Queens/Year 5/Extra Curricular/aQuatonomous/Lidar Bagging Data/mapping-25-26/install/pointcloud_filters/include/pointcloud_filters/pointcloud_filters/msg/detail/tracked_buoy_array__traits.hpp\n'}
+[95.442181] (-) TimerEvent: {}
+[95.519530] (pointcloud_filters) StdoutLine: {'line': b'-- Installing: /mnt/c/Users/jcube/OneDrive/Desktop/Jacob/School/Queens/Year 5/Extra Curricular/aQuatonomous/Lidar Bagging Data/mapping-25-26/install/pointcloud_filters/include/pointcloud_filters/pointcloud_filters/msg/detail/tracked_buoy_array__type_support.hpp\n'}
+[95.542408] (-) TimerEvent: {}
+[95.643361] (-) TimerEvent: {}
+[95.678620] (pointcloud_filters) StdoutLine: {'line': b'-- Installing: /mnt/c/Users/jcube/OneDrive/Desktop/Jacob/School/Queens/Year 5/Extra Curricular/aQuatonomous/Lidar Bagging Data/mapping-25-26/install/pointcloud_filters/include/pointcloud_filters/pointcloud_filters/msg/detail/tracked_buoy__builder.hpp\n'}
+[95.743585] (-) TimerEvent: {}
+[95.844454] (-) TimerEvent: {}
+[95.848664] (pointcloud_filters) StdoutLine: {'line': b'-- Installing: /mnt/c/Users/jcube/OneDrive/Desktop/Jacob/School/Queens/Year 5/Extra Curricular/aQuatonomous/Lidar Bagging Data/mapping-25-26/install/pointcloud_filters/include/pointcloud_filters/pointcloud_filters/msg/detail/tracked_buoy__struct.hpp\n'}
+[95.944663] (-) TimerEvent: {}
+[96.034223] (pointcloud_filters) StdoutLine: {'line': b'-- Installing: /mnt/c/Users/jcube/OneDrive/Desktop/Jacob/School/Queens/Year 5/Extra Curricular/aQuatonomous/Lidar Bagging Data/mapping-25-26/install/pointcloud_filters/include/pointcloud_filters/pointcloud_filters/msg/detail/tracked_buoy__traits.hpp\n'}
+[96.044873] (-) TimerEvent: {}
+[96.146055] (-) TimerEvent: {}
+[96.211803] (pointcloud_filters) StdoutLine: {'line': b'-- Installing: /mnt/c/Users/jcube/OneDrive/Desktop/Jacob/School/Queens/Year 5/Extra Curricular/aQuatonomous/Lidar Bagging Data/mapping-25-26/install/pointcloud_filters/include/pointcloud_filters/pointcloud_filters/msg/detail/tracked_buoy__type_support.hpp\n'}
+[96.246210] (-) TimerEvent: {}
+[96.347095] (-) TimerEvent: {}
+[96.383081] (pointcloud_filters) StdoutLine: {'line': b'-- Installing: /mnt/c/Users/jcube/OneDrive/Desktop/Jacob/School/Queens/Year 5/Extra Curricular/aQuatonomous/Lidar Bagging Data/mapping-25-26/install/pointcloud_filters/include/pointcloud_filters/pointcloud_filters/msg/rosidl_generator_cpp__visibility_control.hpp\n'}
+[96.447294] (-) TimerEvent: {}
+[96.547473] (pointcloud_filters) StdoutLine: {'line': b'-- Installing: /mnt/c/Users/jcube/OneDrive/Desktop/Jacob/School/Queens/Year 5/Extra Curricular/aQuatonomous/Lidar Bagging Data/mapping-25-26/install/pointcloud_filters/include/pointcloud_filters/pointcloud_filters/msg/tracked_buoy.hpp\n'}
+[96.549059] (-) TimerEvent: {}
+[96.649838] (-) TimerEvent: {}
+[96.708202] (pointcloud_filters) StdoutLine: {'line': b'-- Installing: /mnt/c/Users/jcube/OneDrive/Desktop/Jacob/School/Queens/Year 5/Extra Curricular/aQuatonomous/Lidar Bagging Data/mapping-25-26/install/pointcloud_filters/include/pointcloud_filters/pointcloud_filters/msg/tracked_buoy_array.hpp\n'}
+[96.750060] (-) TimerEvent: {}
+[96.850960] (-) TimerEvent: {}
+[96.856305] (pointcloud_filters) StdoutLine: {'line': b'-- Up-to-date: /mnt/c/Users/jcube/OneDrive/Desktop/Jacob/School/Queens/Year 5/Extra Curricular/aQuatonomous/Lidar Bagging Data/mapping-25-26/install/pointcloud_filters/include/pointcloud_filters/pointcloud_filters/srv\n'}
+[96.913008] (pointcloud_filters) StdoutLine: {'line': b'-- Up-to-date: /mnt/c/Users/jcube/OneDrive/Desktop/Jacob/School/Queens/Year 5/Extra Curricular/aQuatonomous/Lidar Bagging Data/mapping-25-26/install/pointcloud_filters/include/pointcloud_filters/pointcloud_filters/srv/detail\n'}
+[96.951219] (-) TimerEvent: {}
+[96.978775] (pointcloud_filters) StdoutLine: {'line': b'-- Installing: /mnt/c/Users/jcube/OneDrive/Desktop/Jacob/School/Queens/Year 5/Extra Curricular/aQuatonomous/Lidar Bagging Data/mapping-25-26/install/pointcloud_filters/include/pointcloud_filters/pointcloud_filters/srv/detail/get_cloud_window__builder.hpp\n'}
+[97.051401] (-) TimerEvent: {}
+[97.115666] (pointcloud_filters) StdoutLine: {'line': b'-- Installing: /mnt/c/Users/jcube/OneDrive/Desktop/Jacob/School/Queens/Year 5/Extra Curricular/aQuatonomous/Lidar Bagging Data/mapping-25-26/install/pointcloud_filters/include/pointcloud_filters/pointcloud_filters/srv/detail/get_cloud_window__struct.hpp\n'}
+[97.151535] (-) TimerEvent: {}
+[97.252373] (-) TimerEvent: {}
+[97.269036] (pointcloud_filters) StdoutLine: {'line': b'-- Installing: /mnt/c/Users/jcube/OneDrive/Desktop/Jacob/School/Queens/Year 5/Extra Curricular/aQuatonomous/Lidar Bagging Data/mapping-25-26/install/pointcloud_filters/include/pointcloud_filters/pointcloud_filters/srv/detail/get_cloud_window__traits.hpp\n'}
+[97.352604] (-) TimerEvent: {}
+[97.424024] (pointcloud_filters) StdoutLine: {'line': b'-- Installing: /mnt/c/Users/jcube/OneDrive/Desktop/Jacob/School/Queens/Year 5/Extra Curricular/aQuatonomous/Lidar Bagging Data/mapping-25-26/install/pointcloud_filters/include/pointcloud_filters/pointcloud_filters/srv/detail/get_cloud_window__type_support.hpp\n'}
+[97.452806] (-) TimerEvent: {}
+[97.553755] (-) TimerEvent: {}
+[97.584214] (pointcloud_filters) StdoutLine: {'line': b'-- Installing: /mnt/c/Users/jcube/OneDrive/Desktop/Jacob/School/Queens/Year 5/Extra Curricular/aQuatonomous/Lidar Bagging Data/mapping-25-26/install/pointcloud_filters/include/pointcloud_filters/pointcloud_filters/srv/get_cloud_window.hpp\n'}
+[97.653955] (-) TimerEvent: {}
+[97.704371] (pointcloud_filters) StdoutLine: {'line': b'-- Up-to-date: /mnt/c/Users/jcube/OneDrive/Desktop/Jacob/School/Queens/Year 5/Extra Curricular/aQuatonomous/Lidar Bagging Data/mapping-25-26/install/pointcloud_filters/include/pointcloud_filters/pointcloud_filters\n'}
+[97.741761] (pointcloud_filters) StdoutLine: {'line': b'-- Up-to-date: /mnt/c/Users/jcube/OneDrive/Desktop/Jacob/School/Queens/Year 5/Extra Curricular/aQuatonomous/Lidar Bagging Data/mapping-25-26/install/pointcloud_filters/include/pointcloud_filters/pointcloud_filters/msg\n'}
+[97.754109] (-) TimerEvent: {}
+[97.784080] (pointcloud_filters) StdoutLine: {'line': b'-- Up-to-date: /mnt/c/Users/jcube/OneDrive/Desktop/Jacob/School/Queens/Year 5/Extra Curricular/aQuatonomous/Lidar Bagging Data/mapping-25-26/install/pointcloud_filters/include/pointcloud_filters/pointcloud_filters/msg/detail\n'}
+[97.846502] (pointcloud_filters) StdoutLine: {'line': b'-- Installing: /mnt/c/Users/jcube/OneDrive/Desktop/Jacob/School/Queens/Year 5/Extra Curricular/aQuatonomous/Lidar Bagging Data/mapping-25-26/install/pointcloud_filters/include/pointcloud_filters/pointcloud_filters/msg/detail/buoy_detection_array__rosidl_typesupport_fastrtps_cpp.hpp\n'}
+[97.854268] (-) TimerEvent: {}
+[97.955188] (-) TimerEvent: {}
+[98.035029] (pointcloud_filters) StdoutLine: {'line': b'-- Installing: /mnt/c/Users/jcube/OneDrive/Desktop/Jacob/School/Queens/Year 5/Extra Curricular/aQuatonomous/Lidar Bagging Data/mapping-25-26/install/pointcloud_filters/include/pointcloud_filters/pointcloud_filters/msg/detail/buoy_detection__rosidl_typesupport_fastrtps_cpp.hpp\n'}
+[98.055394] (-) TimerEvent: {}
+[98.156331] (-) TimerEvent: {}
+[98.192504] (pointcloud_filters) StdoutLine: {'line': b'-- Installing: /mnt/c/Users/jcube/OneDrive/Desktop/Jacob/School/Queens/Year 5/Extra Curricular/aQuatonomous/Lidar Bagging Data/mapping-25-26/install/pointcloud_filters/include/pointcloud_filters/pointcloud_filters/msg/detail/dds_fastrtps\n'}
+[98.256597] (-) TimerEvent: {}
+[98.292570] (pointcloud_filters) StdoutLine: {'line': b'-- Installing: /mnt/c/Users/jcube/OneDrive/Desktop/Jacob/School/Queens/Year 5/Extra Curricular/aQuatonomous/Lidar Bagging Data/mapping-25-26/install/pointcloud_filters/include/pointcloud_filters/pointcloud_filters/msg/detail/tracked_buoy_array__rosidl_typesupport_fastrtps_cpp.hpp\n'}
+[98.356776] (-) TimerEvent: {}
+[98.457650] (-) TimerEvent: {}
+[98.458413] (pointcloud_filters) StdoutLine: {'line': b'-- Installing: /mnt/c/Users/jcube/OneDrive/Desktop/Jacob/School/Queens/Year 5/Extra Curricular/aQuatonomous/Lidar Bagging Data/mapping-25-26/install/pointcloud_filters/include/pointcloud_filters/pointcloud_filters/msg/detail/tracked_buoy__rosidl_typesupport_fastrtps_cpp.hpp\n'}
+[98.557857] (-) TimerEvent: {}
+[98.607771] (pointcloud_filters) StdoutLine: {'line': b'-- Installing: /mnt/c/Users/jcube/OneDrive/Desktop/Jacob/School/Queens/Year 5/Extra Curricular/aQuatonomous/Lidar Bagging Data/mapping-25-26/install/pointcloud_filters/include/pointcloud_filters/pointcloud_filters/msg/rosidl_typesupport_fastrtps_cpp__visibility_control.h\n'}
+[98.658057] (-) TimerEvent: {}
+[98.732285] (pointcloud_filters) StdoutLine: {'line': b'-- Up-to-date: /mnt/c/Users/jcube/OneDrive/Desktop/Jacob/School/Queens/Year 5/Extra Curricular/aQuatonomous/Lidar Bagging Data/mapping-25-26/install/pointcloud_filters/include/pointcloud_filters/pointcloud_filters/srv\n'}
+[98.758329] (-) TimerEvent: {}
+[98.775136] (pointcloud_filters) StdoutLine: {'line': b'-- Up-to-date: /mnt/c/Users/jcube/OneDrive/Desktop/Jacob/School/Queens/Year 5/Extra Curricular/aQuatonomous/Lidar Bagging Data/mapping-25-26/install/pointcloud_filters/include/pointcloud_filters/pointcloud_filters/srv/detail\n'}
+[98.822604] (pointcloud_filters) StdoutLine: {'line': b'-- Installing: /mnt/c/Users/jcube/OneDrive/Desktop/Jacob/School/Queens/Year 5/Extra Curricular/aQuatonomous/Lidar Bagging Data/mapping-25-26/install/pointcloud_filters/include/pointcloud_filters/pointcloud_filters/srv/detail/dds_fastrtps\n'}
+[98.858566] (-) TimerEvent: {}
+[98.906685] (pointcloud_filters) StdoutLine: {'line': b'-- Installing: /mnt/c/Users/jcube/OneDrive/Desktop/Jacob/School/Queens/Year 5/Extra Curricular/aQuatonomous/Lidar Bagging Data/mapping-25-26/install/pointcloud_filters/include/pointcloud_filters/pointcloud_filters/srv/detail/get_cloud_window__rosidl_typesupport_fastrtps_cpp.hpp\n'}
+[98.958777] (-) TimerEvent: {}
+[99.049461] (pointcloud_filters) StdoutLine: {'line': b'-- Installing: /mnt/c/Users/jcube/OneDrive/Desktop/Jacob/School/Queens/Year 5/Extra Curricular/aQuatonomous/Lidar Bagging Data/mapping-25-26/install/pointcloud_filters/lib/libpointcloud_filters__rosidl_typesupport_fastrtps_cpp.so\n'}
+[99.058908] (-) TimerEvent: {}
+[99.159639] (-) TimerEvent: {}
+[99.218616] (pointcloud_filters) StdoutLine: {'line': b'-- Set runtime path of "/mnt/c/Users/jcube/OneDrive/Desktop/Jacob/School/Queens/Year 5/Extra Curricular/aQuatonomous/Lidar Bagging Data/mapping-25-26/install/pointcloud_filters/lib/libpointcloud_filters__rosidl_typesupport_fastrtps_cpp.so" to ""\n'}
+[99.237025] (pointcloud_filters) StdoutLine: {'line': b'-- Up-to-date: /mnt/c/Users/jcube/OneDrive/Desktop/Jacob/School/Queens/Year 5/Extra Curricular/aQuatonomous/Lidar Bagging Data/mapping-25-26/install/pointcloud_filters/include/pointcloud_filters/pointcloud_filters\n'}
+[99.259835] (-) TimerEvent: {}
+[99.274689] (pointcloud_filters) StdoutLine: {'line': b'-- Up-to-date: /mnt/c/Users/jcube/OneDrive/Desktop/Jacob/School/Queens/Year 5/Extra Curricular/aQuatonomous/Lidar Bagging Data/mapping-25-26/install/pointcloud_filters/include/pointcloud_filters/pointcloud_filters/msg\n'}
+[99.318113] (pointcloud_filters) StdoutLine: {'line': b'-- Up-to-date: /mnt/c/Users/jcube/OneDrive/Desktop/Jacob/School/Queens/Year 5/Extra Curricular/aQuatonomous/Lidar Bagging Data/mapping-25-26/install/pointcloud_filters/include/pointcloud_filters/pointcloud_filters/msg/detail\n'}
+[99.360039] (-) TimerEvent: {}
+[99.379961] (pointcloud_filters) StdoutLine: {'line': b'-- Installing: /mnt/c/Users/jcube/OneDrive/Desktop/Jacob/School/Queens/Year 5/Extra Curricular/aQuatonomous/Lidar Bagging Data/mapping-25-26/install/pointcloud_filters/include/pointcloud_filters/pointcloud_filters/msg/detail/buoy_detection_array__rosidl_typesupport_introspection_cpp.hpp\n'}
+[99.460243] (-) TimerEvent: {}
+[99.542774] (pointcloud_filters) StdoutLine: {'line': b'-- Installing: /mnt/c/Users/jcube/OneDrive/Desktop/Jacob/School/Queens/Year 5/Extra Curricular/aQuatonomous/Lidar Bagging Data/mapping-25-26/install/pointcloud_filters/include/pointcloud_filters/pointcloud_filters/msg/detail/buoy_detection_array__type_support.cpp\n'}
+[99.560422] (-) TimerEvent: {}
+[99.661267] (-) TimerEvent: {}
+[99.723139] (pointcloud_filters) StdoutLine: {'line': b'-- Installing: /mnt/c/Users/jcube/OneDrive/Desktop/Jacob/School/Queens/Year 5/Extra Curricular/aQuatonomous/Lidar Bagging Data/mapping-25-26/install/pointcloud_filters/include/pointcloud_filters/pointcloud_filters/msg/detail/buoy_detection__rosidl_typesupport_introspection_cpp.hpp\n'}
+[99.761519] (-) TimerEvent: {}
+[99.862323] (-) TimerEvent: {}
+[99.884935] (pointcloud_filters) StdoutLine: {'line': b'-- Installing: /mnt/c/Users/jcube/OneDrive/Desktop/Jacob/School/Queens/Year 5/Extra Curricular/aQuatonomous/Lidar Bagging Data/mapping-25-26/install/pointcloud_filters/include/pointcloud_filters/pointcloud_filters/msg/detail/buoy_detection__type_support.cpp\n'}
+[99.962533] (-) TimerEvent: {}
+[100.063456] (-) TimerEvent: {}
+[100.083845] (pointcloud_filters) StdoutLine: {'line': b'-- Installing: /mnt/c/Users/jcube/OneDrive/Desktop/Jacob/School/Queens/Year 5/Extra Curricular/aQuatonomous/Lidar Bagging Data/mapping-25-26/install/pointcloud_filters/include/pointcloud_filters/pointcloud_filters/msg/detail/tracked_buoy_array__rosidl_typesupport_introspection_cpp.hpp\n'}
+[100.163658] (-) TimerEvent: {}
+[100.264460] (-) TimerEvent: {}
+[100.271475] (pointcloud_filters) StdoutLine: {'line': b'-- Installing: /mnt/c/Users/jcube/OneDrive/Desktop/Jacob/School/Queens/Year 5/Extra Curricular/aQuatonomous/Lidar Bagging Data/mapping-25-26/install/pointcloud_filters/include/pointcloud_filters/pointcloud_filters/msg/detail/tracked_buoy_array__type_support.cpp\n'}
+[100.364700] (-) TimerEvent: {}
+[100.443755] (pointcloud_filters) StdoutLine: {'line': b'-- Installing: /mnt/c/Users/jcube/OneDrive/Desktop/Jacob/School/Queens/Year 5/Extra Curricular/aQuatonomous/Lidar Bagging Data/mapping-25-26/install/pointcloud_filters/include/pointcloud_filters/pointcloud_filters/msg/detail/tracked_buoy__rosidl_typesupport_introspection_cpp.hpp\n'}
+[100.464840] (-) TimerEvent: {}
+[100.565581] (-) TimerEvent: {}
+[100.604081] (pointcloud_filters) StdoutLine: {'line': b'-- Installing: /mnt/c/Users/jcube/OneDrive/Desktop/Jacob/School/Queens/Year 5/Extra Curricular/aQuatonomous/Lidar Bagging Data/mapping-25-26/install/pointcloud_filters/include/pointcloud_filters/pointcloud_filters/msg/detail/tracked_buoy__type_support.cpp\n'}
+[100.665832] (-) TimerEvent: {}
+[100.764259] (pointcloud_filters) StdoutLine: {'line': b'-- Up-to-date: /mnt/c/Users/jcube/OneDrive/Desktop/Jacob/School/Queens/Year 5/Extra Curricular/aQuatonomous/Lidar Bagging Data/mapping-25-26/install/pointcloud_filters/include/pointcloud_filters/pointcloud_filters/srv\n'}
+[100.765948] (-) TimerEvent: {}
+[100.815790] (pointcloud_filters) StdoutLine: {'line': b'-- Up-to-date: /mnt/c/Users/jcube/OneDrive/Desktop/Jacob/School/Queens/Year 5/Extra Curricular/aQuatonomous/Lidar Bagging Data/mapping-25-26/install/pointcloud_filters/include/pointcloud_filters/pointcloud_filters/srv/detail\n'}
+[100.866154] (-) TimerEvent: {}
+[100.882281] (pointcloud_filters) StdoutLine: {'line': b'-- Installing: /mnt/c/Users/jcube/OneDrive/Desktop/Jacob/School/Queens/Year 5/Extra Curricular/aQuatonomous/Lidar Bagging Data/mapping-25-26/install/pointcloud_filters/include/pointcloud_filters/pointcloud_filters/srv/detail/get_cloud_window__rosidl_typesupport_introspection_cpp.hpp\n'}
+[100.966466] (-) TimerEvent: {}
+[101.048023] (pointcloud_filters) StdoutLine: {'line': b'-- Installing: /mnt/c/Users/jcube/OneDrive/Desktop/Jacob/School/Queens/Year 5/Extra Curricular/aQuatonomous/Lidar Bagging Data/mapping-25-26/install/pointcloud_filters/include/pointcloud_filters/pointcloud_filters/srv/detail/get_cloud_window__type_support.cpp\n'}
+[101.066629] (-) TimerEvent: {}
+[101.167470] (-) TimerEvent: {}
+[101.199539] (pointcloud_filters) StdoutLine: {'line': b'-- Installing: /mnt/c/Users/jcube/OneDrive/Desktop/Jacob/School/Queens/Year 5/Extra Curricular/aQuatonomous/Lidar Bagging Data/mapping-25-26/install/pointcloud_filters/lib/libpointcloud_filters__rosidl_typesupport_introspection_cpp.so\n'}
+[101.267641] (-) TimerEvent: {}
+[101.358004] (pointcloud_filters) StdoutLine: {'line': b'-- Set runtime path of "/mnt/c/Users/jcube/OneDrive/Desktop/Jacob/School/Queens/Year 5/Extra Curricular/aQuatonomous/Lidar Bagging Data/mapping-25-26/install/pointcloud_filters/lib/libpointcloud_filters__rosidl_typesupport_introspection_cpp.so" to ""\n'}
+[101.367810] (-) TimerEvent: {}
+[101.382358] (pointcloud_filters) StdoutLine: {'line': b'-- Installing: /mnt/c/Users/jcube/OneDrive/Desktop/Jacob/School/Queens/Year 5/Extra Curricular/aQuatonomous/Lidar Bagging Data/mapping-25-26/install/pointcloud_filters/lib/libpointcloud_filters__rosidl_typesupport_cpp.so\n'}
+[101.468000] (-) TimerEvent: {}
+[101.514855] (pointcloud_filters) StdoutLine: {'line': b'-- Set runtime path of "/mnt/c/Users/jcube/OneDrive/Desktop/Jacob/School/Queens/Year 5/Extra Curricular/aQuatonomous/Lidar Bagging Data/mapping-25-26/install/pointcloud_filters/lib/libpointcloud_filters__rosidl_typesupport_cpp.so" to ""\n'}
+[101.542332] (pointcloud_filters) StdoutLine: {'line': b'-- Installing: /mnt/c/Users/jcube/OneDrive/Desktop/Jacob/School/Queens/Year 5/Extra Curricular/aQuatonomous/Lidar Bagging Data/mapping-25-26/install/pointcloud_filters/share/pointcloud_filters/environment/pythonpath.sh\n'}
+[101.568147] (-) TimerEvent: {}
+[101.648266] (pointcloud_filters) StdoutLine: {'line': b'-- Installing: /mnt/c/Users/jcube/OneDrive/Desktop/Jacob/School/Queens/Year 5/Extra Curricular/aQuatonomous/Lidar Bagging Data/mapping-25-26/install/pointcloud_filters/share/pointcloud_filters/environment/pythonpath.dsv\n'}
+[101.668383] (-) TimerEvent: {}
+[101.746442] (pointcloud_filters) StdoutLine: {'line': b'-- Installing: /mnt/c/Users/jcube/OneDrive/Desktop/Jacob/School/Queens/Year 5/Extra Curricular/aQuatonomous/Lidar Bagging Data/mapping-25-26/install/pointcloud_filters/local/lib/python3.10/dist-packages/pointcloud_filters-0.1.0-py3.10.egg-info\n'}
+[101.768573] (-) TimerEvent: {}
+[101.815832] (pointcloud_filters) StdoutLine: {'line': b'-- Installing: /mnt/c/Users/jcube/OneDrive/Desktop/Jacob/School/Queens/Year 5/Extra Curricular/aQuatonomous/Lidar Bagging Data/mapping-25-26/install/pointcloud_filters/local/lib/python3.10/dist-packages/pointcloud_filters-0.1.0-py3.10.egg-info/dependency_links.txt\n'}
+[101.868765] (-) TimerEvent: {}
+[101.951756] (pointcloud_filters) StdoutLine: {'line': b'-- Installing: /mnt/c/Users/jcube/OneDrive/Desktop/Jacob/School/Queens/Year 5/Extra Curricular/aQuatonomous/Lidar Bagging Data/mapping-25-26/install/pointcloud_filters/local/lib/python3.10/dist-packages/pointcloud_filters-0.1.0-py3.10.egg-info/PKG-INFO\n'}
+[101.968921] (-) TimerEvent: {}
+[102.069762] (-) TimerEvent: {}
+[102.101269] (pointcloud_filters) StdoutLine: {'line': b'-- Installing: /mnt/c/Users/jcube/OneDrive/Desktop/Jacob/School/Queens/Year 5/Extra Curricular/aQuatonomous/Lidar Bagging Data/mapping-25-26/install/pointcloud_filters/local/lib/python3.10/dist-packages/pointcloud_filters-0.1.0-py3.10.egg-info/SOURCES.txt\n'}
+[102.169908] (-) TimerEvent: {}
+[102.255023] (pointcloud_filters) StdoutLine: {'line': b'-- Installing: /mnt/c/Users/jcube/OneDrive/Desktop/Jacob/School/Queens/Year 5/Extra Curricular/aQuatonomous/Lidar Bagging Data/mapping-25-26/install/pointcloud_filters/local/lib/python3.10/dist-packages/pointcloud_filters-0.1.0-py3.10.egg-info/top_level.txt\n'}
+[102.270061] (-) TimerEvent: {}
+[102.370878] (-) TimerEvent: {}
+[102.394224] (pointcloud_filters) StdoutLine: {'line': b'-- Installing: /mnt/c/Users/jcube/OneDrive/Desktop/Jacob/School/Queens/Year 5/Extra Curricular/aQuatonomous/Lidar Bagging Data/mapping-25-26/install/pointcloud_filters/local/lib/python3.10/dist-packages/pointcloud_filters\n'}
+[102.461958] (pointcloud_filters) StdoutLine: {'line': b'-- Installing: /mnt/c/Users/jcube/OneDrive/Desktop/Jacob/School/Queens/Year 5/Extra Curricular/aQuatonomous/Lidar Bagging Data/mapping-25-26/install/pointcloud_filters/local/lib/python3.10/dist-packages/pointcloud_filters/libpointcloud_filters__rosidl_generator_py.so\n'}
+[102.471097] (-) TimerEvent: {}
+[102.571913] (-) TimerEvent: {}
+[102.593476] (pointcloud_filters) StdoutLine: {'line': b'-- Installing: /mnt/c/Users/jcube/OneDrive/Desktop/Jacob/School/Queens/Year 5/Extra Curricular/aQuatonomous/Lidar Bagging Data/mapping-25-26/install/pointcloud_filters/local/lib/python3.10/dist-packages/pointcloud_filters/msg\n'}
+[102.670782] (pointcloud_filters) StdoutLine: {'line': b'-- Installing: /mnt/c/Users/jcube/OneDrive/Desktop/Jacob/School/Queens/Year 5/Extra Curricular/aQuatonomous/Lidar Bagging Data/mapping-25-26/install/pointcloud_filters/local/lib/python3.10/dist-packages/pointcloud_filters/msg/_buoy_detection.py\n'}
+[102.672781] (-) TimerEvent: {}
+[102.773526] (-) TimerEvent: {}
+[102.859296] (pointcloud_filters) StdoutLine: {'line': b'-- Installing: /mnt/c/Users/jcube/OneDrive/Desktop/Jacob/School/Queens/Year 5/Extra Curricular/aQuatonomous/Lidar Bagging Data/mapping-25-26/install/pointcloud_filters/local/lib/python3.10/dist-packages/pointcloud_filters/msg/_buoy_detection_array.py\n'}
+[102.873768] (-) TimerEvent: {}
+[102.974656] (-) TimerEvent: {}
+[103.017200] (pointcloud_filters) StdoutLine: {'line': b'-- Installing: /mnt/c/Users/jcube/OneDrive/Desktop/Jacob/School/Queens/Year 5/Extra Curricular/aQuatonomous/Lidar Bagging Data/mapping-25-26/install/pointcloud_filters/local/lib/python3.10/dist-packages/pointcloud_filters/msg/_buoy_detection_array_s.c\n'}
+[103.074861] (-) TimerEvent: {}
+[103.164380] (pointcloud_filters) StdoutLine: {'line': b'-- Installing: /mnt/c/Users/jcube/OneDrive/Desktop/Jacob/School/Queens/Year 5/Extra Curricular/aQuatonomous/Lidar Bagging Data/mapping-25-26/install/pointcloud_filters/local/lib/python3.10/dist-packages/pointcloud_filters/msg/_buoy_detection_s.c\n'}
+[103.174996] (-) TimerEvent: {}
+[103.275871] (-) TimerEvent: {}
+[103.311745] (pointcloud_filters) StdoutLine: {'line': b'-- Installing: /mnt/c/Users/jcube/OneDrive/Desktop/Jacob/School/Queens/Year 5/Extra Curricular/aQuatonomous/Lidar Bagging Data/mapping-25-26/install/pointcloud_filters/local/lib/python3.10/dist-packages/pointcloud_filters/msg/_tracked_buoy.py\n'}
+[103.376089] (-) TimerEvent: {}
+[103.476996] (-) TimerEvent: {}
+[103.485247] (pointcloud_filters) StdoutLine: {'line': b'-- Installing: /mnt/c/Users/jcube/OneDrive/Desktop/Jacob/School/Queens/Year 5/Extra Curricular/aQuatonomous/Lidar Bagging Data/mapping-25-26/install/pointcloud_filters/local/lib/python3.10/dist-packages/pointcloud_filters/msg/_tracked_buoy_array.py\n'}
+[103.577198] (-) TimerEvent: {}
+[103.658146] (pointcloud_filters) StdoutLine: {'line': b'-- Installing: /mnt/c/Users/jcube/OneDrive/Desktop/Jacob/School/Queens/Year 5/Extra Curricular/aQuatonomous/Lidar Bagging Data/mapping-25-26/install/pointcloud_filters/local/lib/python3.10/dist-packages/pointcloud_filters/msg/_tracked_buoy_array_s.c\n'}
+[103.677352] (-) TimerEvent: {}
+[103.778297] (-) TimerEvent: {}
+[103.859629] (pointcloud_filters) StdoutLine: {'line': b'-- Installing: /mnt/c/Users/jcube/OneDrive/Desktop/Jacob/School/Queens/Year 5/Extra Curricular/aQuatonomous/Lidar Bagging Data/mapping-25-26/install/pointcloud_filters/local/lib/python3.10/dist-packages/pointcloud_filters/msg/_tracked_buoy_s.c\n'}
+[103.878560] (-) TimerEvent: {}
+[103.979890] (-) TimerEvent: {}
+[104.038486] (pointcloud_filters) StdoutLine: {'line': b'-- Installing: /mnt/c/Users/jcube/OneDrive/Desktop/Jacob/School/Queens/Year 5/Extra Curricular/aQuatonomous/Lidar Bagging Data/mapping-25-26/install/pointcloud_filters/local/lib/python3.10/dist-packages/pointcloud_filters/msg/__init__.py\n'}
+[104.080091] (-) TimerEvent: {}
+[104.180974] (-) TimerEvent: {}
+[104.209877] (pointcloud_filters) StdoutLine: {'line': b'-- Installing: /mnt/c/Users/jcube/OneDrive/Desktop/Jacob/School/Queens/Year 5/Extra Curricular/aQuatonomous/Lidar Bagging Data/mapping-25-26/install/pointcloud_filters/local/lib/python3.10/dist-packages/pointcloud_filters/pointcloud_filters_s__rosidl_typesupport_c.cpython-310-x86_64-linux-gnu.so\n'}
+[104.281213] (-) TimerEvent: {}
+[104.373149] (pointcloud_filters) StdoutLine: {'line': b'-- Installing: /mnt/c/Users/jcube/OneDrive/Desktop/Jacob/School/Queens/Year 5/Extra Curricular/aQuatonomous/Lidar Bagging Data/mapping-25-26/install/pointcloud_filters/local/lib/python3.10/dist-packages/pointcloud_filters/pointcloud_filters_s__rosidl_typesupport_fastrtps_c.cpython-310-x86_64-linux-gnu.so\n'}
+[104.381404] (-) TimerEvent: {}
+[104.482311] (-) TimerEvent: {}
+[104.538484] (pointcloud_filters) StdoutLine: {'line': b'-- Installing: /mnt/c/Users/jcube/OneDrive/Desktop/Jacob/School/Queens/Year 5/Extra Curricular/aQuatonomous/Lidar Bagging Data/mapping-25-26/install/pointcloud_filters/local/lib/python3.10/dist-packages/pointcloud_filters/pointcloud_filters_s__rosidl_typesupport_introspection_c.cpython-310-x86_64-linux-gnu.so\n'}
+[104.582506] (-) TimerEvent: {}
+[104.683423] (-) TimerEvent: {}
+[104.693053] (pointcloud_filters) StdoutLine: {'line': b'-- Installing: /mnt/c/Users/jcube/OneDrive/Desktop/Jacob/School/Queens/Year 5/Extra Curricular/aQuatonomous/Lidar Bagging Data/mapping-25-26/install/pointcloud_filters/local/lib/python3.10/dist-packages/pointcloud_filters/srv\n'}
+[104.782970] (pointcloud_filters) StdoutLine: {'line': b'-- Installing: /mnt/c/Users/jcube/OneDrive/Desktop/Jacob/School/Queens/Year 5/Extra Curricular/aQuatonomous/Lidar Bagging Data/mapping-25-26/install/pointcloud_filters/local/lib/python3.10/dist-packages/pointcloud_filters/srv/_get_cloud_window.py\n'}
+[104.784612] (-) TimerEvent: {}
+[104.885371] (-) TimerEvent: {}
+[104.957286] (pointcloud_filters) StdoutLine: {'line': b'-- Installing: /mnt/c/Users/jcube/OneDrive/Desktop/Jacob/School/Queens/Year 5/Extra Curricular/aQuatonomous/Lidar Bagging Data/mapping-25-26/install/pointcloud_filters/local/lib/python3.10/dist-packages/pointcloud_filters/srv/_get_cloud_window_s.c\n'}
+[104.985577] (-) TimerEvent: {}
+[105.086510] (-) TimerEvent: {}
+[105.145452] (pointcloud_filters) StdoutLine: {'line': b'-- Installing: /mnt/c/Users/jcube/OneDrive/Desktop/Jacob/School/Queens/Year 5/Extra Curricular/aQuatonomous/Lidar Bagging Data/mapping-25-26/install/pointcloud_filters/local/lib/python3.10/dist-packages/pointcloud_filters/srv/__init__.py\n'}
+[105.186776] (-) TimerEvent: {}
+[105.287783] (-) TimerEvent: {}
+[105.331300] (pointcloud_filters) StdoutLine: {'line': b'-- Installing: /mnt/c/Users/jcube/OneDrive/Desktop/Jacob/School/Queens/Year 5/Extra Curricular/aQuatonomous/Lidar Bagging Data/mapping-25-26/install/pointcloud_filters/local/lib/python3.10/dist-packages/pointcloud_filters/_pointcloud_filters_s.ep.rosidl_typesupport_c.c\n'}
+[105.388014] (-) TimerEvent: {}
+[105.488965] (-) TimerEvent: {}
+[105.497322] (pointcloud_filters) StdoutLine: {'line': b'-- Installing: /mnt/c/Users/jcube/OneDrive/Desktop/Jacob/School/Queens/Year 5/Extra Curricular/aQuatonomous/Lidar Bagging Data/mapping-25-26/install/pointcloud_filters/local/lib/python3.10/dist-packages/pointcloud_filters/_pointcloud_filters_s.ep.rosidl_typesupport_fastrtps_c.c\n'}
+[105.589170] (-) TimerEvent: {}
+[105.651352] (pointcloud_filters) StdoutLine: {'line': b'-- Installing: /mnt/c/Users/jcube/OneDrive/Desktop/Jacob/School/Queens/Year 5/Extra Curricular/aQuatonomous/Lidar Bagging Data/mapping-25-26/install/pointcloud_filters/local/lib/python3.10/dist-packages/pointcloud_filters/_pointcloud_filters_s.ep.rosidl_typesupport_introspection_c.c\n'}
+[105.689421] (-) TimerEvent: {}
+[105.788191] (pointcloud_filters) StdoutLine: {'line': b'-- Installing: /mnt/c/Users/jcube/OneDrive/Desktop/Jacob/School/Queens/Year 5/Extra Curricular/aQuatonomous/Lidar Bagging Data/mapping-25-26/install/pointcloud_filters/local/lib/python3.10/dist-packages/pointcloud_filters/__init__.py\n'}
+[105.789634] (-) TimerEvent: {}
+[105.890280] (-) TimerEvent: {}
+[105.991048] (-) TimerEvent: {}
+[106.091846] (-) TimerEvent: {}
+[106.192624] (-) TimerEvent: {}
+[106.293458] (-) TimerEvent: {}
+[106.394264] (-) TimerEvent: {}
+[106.495080] (-) TimerEvent: {}
+[106.596013] (-) TimerEvent: {}
+[106.696850] (-) TimerEvent: {}
+[106.797948] (-) TimerEvent: {}
+[106.898689] (-) TimerEvent: {}
+[106.999509] (-) TimerEvent: {}
+[107.100462] (-) TimerEvent: {}
+[107.201215] (-) TimerEvent: {}
+[107.279888] (pointcloud_filters) StdoutLine: {'line': b"Listing '/mnt/c/Users/jcube/OneDrive/Desktop/Jacob/School/Queens/Year 5/Extra Curricular/aQuatonomous/Lidar Bagging Data/mapping-25-26/install/pointcloud_filters/local/lib/python3.10/dist-packages/pointcloud_filters'...\n"}
+[107.281353] (pointcloud_filters) StdoutLine: {'line': b"Compiling '/mnt/c/Users/jcube/OneDrive/Desktop/Jacob/School/Queens/Year 5/Extra Curricular/aQuatonomous/Lidar Bagging Data/mapping-25-26/install/pointcloud_filters/local/lib/python3.10/dist-packages/pointcloud_filters/__init__.py'...\n"}
+[107.282479] (pointcloud_filters) StdoutLine: {'line': b"Listing '/mnt/c/Users/jcube/OneDrive/Desktop/Jacob/School/Queens/Year 5/Extra Curricular/aQuatonomous/Lidar Bagging Data/mapping-25-26/install/pointcloud_filters/local/lib/python3.10/dist-packages/pointcloud_filters/msg'...\n"}
+[107.283631] (pointcloud_filters) StdoutLine: {'line': b"Compiling '/mnt/c/Users/jcube/OneDrive/Desktop/Jacob/School/Queens/Year 5/Extra Curricular/aQuatonomous/Lidar Bagging Data/mapping-25-26/install/pointcloud_filters/local/lib/python3.10/dist-packages/pointcloud_filters/msg/__init__.py'...\n"}
+[107.284677] (pointcloud_filters) StdoutLine: {'line': b"Compiling '/mnt/c/Users/jcube/OneDrive/Desktop/Jacob/School/Queens/Year 5/Extra Curricular/aQuatonomous/Lidar Bagging Data/mapping-25-26/install/pointcloud_filters/local/lib/python3.10/dist-packages/pointcloud_filters/msg/_buoy_detection.py'...\n"}
+[107.285928] (pointcloud_filters) StdoutLine: {'line': b"Compiling '/mnt/c/Users/jcube/OneDrive/Desktop/Jacob/School/Queens/Year 5/Extra Curricular/aQuatonomous/Lidar Bagging Data/mapping-25-26/install/pointcloud_filters/local/lib/python3.10/dist-packages/pointcloud_filters/msg/_buoy_detection_array.py'...\n"}
+[107.287793] (pointcloud_filters) StdoutLine: {'line': b"Compiling '/mnt/c/Users/jcube/OneDrive/Desktop/Jacob/School/Queens/Year 5/Extra Curricular/aQuatonomous/Lidar Bagging Data/mapping-25-26/install/pointcloud_filters/local/lib/python3.10/dist-packages/pointcloud_filters/msg/_tracked_buoy.py'...\n"}
+[107.289298] (pointcloud_filters) StdoutLine: {'line': b"Compiling '/mnt/c/Users/jcube/OneDrive/Desktop/Jacob/School/Queens/Year 5/Extra Curricular/aQuatonomous/Lidar Bagging Data/mapping-25-26/install/pointcloud_filters/local/lib/python3.10/dist-packages/pointcloud_filters/msg/_tracked_buoy_array.py'...\n"}
+[107.290880] (pointcloud_filters) StdoutLine: {'line': b"Listing '/mnt/c/Users/jcube/OneDrive/Desktop/Jacob/School/Queens/Year 5/Extra Curricular/aQuatonomous/Lidar Bagging Data/mapping-25-26/install/pointcloud_filters/local/lib/python3.10/dist-packages/pointcloud_filters/srv'...\n"}
+[107.292371] (pointcloud_filters) StdoutLine: {'line': b"Compiling '/mnt/c/Users/jcube/OneDrive/Desktop/Jacob/School/Queens/Year 5/Extra Curricular/aQuatonomous/Lidar Bagging Data/mapping-25-26/install/pointcloud_filters/local/lib/python3.10/dist-packages/pointcloud_filters/srv/__init__.py'...\n"}
+[107.293617] (pointcloud_filters) StdoutLine: {'line': b"Compiling '/mnt/c/Users/jcube/OneDrive/Desktop/Jacob/School/Queens/Year 5/Extra Curricular/aQuatonomous/Lidar Bagging Data/mapping-25-26/install/pointcloud_filters/local/lib/python3.10/dist-packages/pointcloud_filters/srv/_get_cloud_window.py'...\n"}
+[107.301355] (-) TimerEvent: {}
+[107.377031] (pointcloud_filters) StdoutLine: {'line': b'-- Installing: /mnt/c/Users/jcube/OneDrive/Desktop/Jacob/School/Queens/Year 5/Extra Curricular/aQuatonomous/Lidar Bagging Data/mapping-25-26/install/pointcloud_filters/local/lib/python3.10/dist-packages/pointcloud_filters/pointcloud_filters_s__rosidl_typesupport_fastrtps_c.cpython-310-x86_64-linux-gnu.so\n'}
+[107.401502] (-) TimerEvent: {}
+[107.502183] (-) TimerEvent: {}
+[107.603081] (-) TimerEvent: {}
+[107.649406] (pointcloud_filters) StdoutLine: {'line': b'-- Set runtime path of "/mnt/c/Users/jcube/OneDrive/Desktop/Jacob/School/Queens/Year 5/Extra Curricular/aQuatonomous/Lidar Bagging Data/mapping-25-26/install/pointcloud_filters/local/lib/python3.10/dist-packages/pointcloud_filters/pointcloud_filters_s__rosidl_typesupport_fastrtps_c.cpython-310-x86_64-linux-gnu.so" to ""\n'}
+[107.703375] (-) TimerEvent: {}
+[107.751099] (pointcloud_filters) StdoutLine: {'line': b'-- Installing: /mnt/c/Users/jcube/OneDrive/Desktop/Jacob/School/Queens/Year 5/Extra Curricular/aQuatonomous/Lidar Bagging Data/mapping-25-26/install/pointcloud_filters/local/lib/python3.10/dist-packages/pointcloud_filters/pointcloud_filters_s__rosidl_typesupport_introspection_c.cpython-310-x86_64-linux-gnu.so\n'}
+[107.803626] (-) TimerEvent: {}
+[107.904422] (-) TimerEvent: {}
+[107.968734] (pointcloud_filters) StdoutLine: {'line': b'-- Set runtime path of "/mnt/c/Users/jcube/OneDrive/Desktop/Jacob/School/Queens/Year 5/Extra Curricular/aQuatonomous/Lidar Bagging Data/mapping-25-26/install/pointcloud_filters/local/lib/python3.10/dist-packages/pointcloud_filters/pointcloud_filters_s__rosidl_typesupport_introspection_c.cpython-310-x86_64-linux-gnu.so" to ""\n'}
+[108.004611] (-) TimerEvent: {}
+[108.068257] (pointcloud_filters) StdoutLine: {'line': b'-- Installing: /mnt/c/Users/jcube/OneDrive/Desktop/Jacob/School/Queens/Year 5/Extra Curricular/aQuatonomous/Lidar Bagging Data/mapping-25-26/install/pointcloud_filters/local/lib/python3.10/dist-packages/pointcloud_filters/pointcloud_filters_s__rosidl_typesupport_c.cpython-310-x86_64-linux-gnu.so\n'}
+[108.104808] (-) TimerEvent: {}
+[108.205779] (-) TimerEvent: {}
+[108.301086] (pointcloud_filters) StdoutLine: {'line': b'-- Set runtime path of "/mnt/c/Users/jcube/OneDrive/Desktop/Jacob/School/Queens/Year 5/Extra Curricular/aQuatonomous/Lidar Bagging Data/mapping-25-26/install/pointcloud_filters/local/lib/python3.10/dist-packages/pointcloud_filters/pointcloud_filters_s__rosidl_typesupport_c.cpython-310-x86_64-linux-gnu.so" to ""\n'}
+[108.305908] (-) TimerEvent: {}
+[108.339313] (pointcloud_filters) StdoutLine: {'line': b'-- Installing: /mnt/c/Users/jcube/OneDrive/Desktop/Jacob/School/Queens/Year 5/Extra Curricular/aQuatonomous/Lidar Bagging Data/mapping-25-26/install/pointcloud_filters/lib/libpointcloud_filters__rosidl_generator_py.so\n'}
+[108.406131] (-) TimerEvent: {}
+[108.507118] (-) TimerEvent: {}
+[108.522118] (pointcloud_filters) StdoutLine: {'line': b'-- Set runtime path of "/mnt/c/Users/jcube/OneDrive/Desktop/Jacob/School/Queens/Year 5/Extra Curricular/aQuatonomous/Lidar Bagging Data/mapping-25-26/install/pointcloud_filters/lib/libpointcloud_filters__rosidl_generator_py.so" to ""\n'}
+[108.587265] (pointcloud_filters) StdoutLine: {'line': b'-- Installing: /mnt/c/Users/jcube/OneDrive/Desktop/Jacob/School/Queens/Year 5/Extra Curricular/aQuatonomous/Lidar Bagging Data/mapping-25-26/install/pointcloud_filters/share/pointcloud_filters/srv/GetCloudWindow.idl\n'}
+[108.607293] (-) TimerEvent: {}
+[108.708177] (-) TimerEvent: {}
+[108.750875] (pointcloud_filters) StdoutLine: {'line': b'-- Installing: /mnt/c/Users/jcube/OneDrive/Desktop/Jacob/School/Queens/Year 5/Extra Curricular/aQuatonomous/Lidar Bagging Data/mapping-25-26/install/pointcloud_filters/share/pointcloud_filters/msg/BuoyDetection.idl\n'}
+[108.808373] (-) TimerEvent: {}
+[108.894253] (pointcloud_filters) StdoutLine: {'line': b'-- Installing: /mnt/c/Users/jcube/OneDrive/Desktop/Jacob/School/Queens/Year 5/Extra Curricular/aQuatonomous/Lidar Bagging Data/mapping-25-26/install/pointcloud_filters/share/pointcloud_filters/msg/BuoyDetectionArray.idl\n'}
+[108.908590] (-) TimerEvent: {}
+[109.009421] (-) TimerEvent: {}
+[109.027890] (pointcloud_filters) StdoutLine: {'line': b'-- Installing: /mnt/c/Users/jcube/OneDrive/Desktop/Jacob/School/Queens/Year 5/Extra Curricular/aQuatonomous/Lidar Bagging Data/mapping-25-26/install/pointcloud_filters/share/pointcloud_filters/msg/TrackedBuoy.idl\n'}
+[109.109658] (-) TimerEvent: {}
+[109.178621] (pointcloud_filters) StdoutLine: {'line': b'-- Installing: /mnt/c/Users/jcube/OneDrive/Desktop/Jacob/School/Queens/Year 5/Extra Curricular/aQuatonomous/Lidar Bagging Data/mapping-25-26/install/pointcloud_filters/share/pointcloud_filters/msg/TrackedBuoyArray.idl\n'}
+[109.209877] (-) TimerEvent: {}
+[109.310799] (-) TimerEvent: {}
+[109.316347] (pointcloud_filters) StdoutLine: {'line': b'-- Installing: /mnt/c/Users/jcube/OneDrive/Desktop/Jacob/School/Queens/Year 5/Extra Curricular/aQuatonomous/Lidar Bagging Data/mapping-25-26/install/pointcloud_filters/share/pointcloud_filters/srv/GetCloudWindow.srv\n'}
+[109.410979] (-) TimerEvent: {}
+[109.457323] (pointcloud_filters) StdoutLine: {'line': b'-- Installing: /mnt/c/Users/jcube/OneDrive/Desktop/Jacob/School/Queens/Year 5/Extra Curricular/aQuatonomous/Lidar Bagging Data/mapping-25-26/install/pointcloud_filters/share/pointcloud_filters/srv/GetCloudWindow_Request.msg\n'}
+[109.511178] (-) TimerEvent: {}
+[109.595000] (pointcloud_filters) StdoutLine: {'line': b'-- Installing: /mnt/c/Users/jcube/OneDrive/Desktop/Jacob/School/Queens/Year 5/Extra Curricular/aQuatonomous/Lidar Bagging Data/mapping-25-26/install/pointcloud_filters/share/pointcloud_filters/srv/GetCloudWindow_Response.msg\n'}
+[109.611315] (-) TimerEvent: {}
+[109.712073] (-) TimerEvent: {}
+[109.730639] (pointcloud_filters) StdoutLine: {'line': b'-- Installing: /mnt/c/Users/jcube/OneDrive/Desktop/Jacob/School/Queens/Year 5/Extra Curricular/aQuatonomous/Lidar Bagging Data/mapping-25-26/install/pointcloud_filters/share/pointcloud_filters/msg/BuoyDetection.msg\n'}
+[109.812296] (-) TimerEvent: {}
+[109.876829] (pointcloud_filters) StdoutLine: {'line': b'-- Installing: /mnt/c/Users/jcube/OneDrive/Desktop/Jacob/School/Queens/Year 5/Extra Curricular/aQuatonomous/Lidar Bagging Data/mapping-25-26/install/pointcloud_filters/share/pointcloud_filters/msg/BuoyDetectionArray.msg\n'}
+[109.912469] (-) TimerEvent: {}
+[110.011359] (pointcloud_filters) StdoutLine: {'line': b'-- Installing: /mnt/c/Users/jcube/OneDrive/Desktop/Jacob/School/Queens/Year 5/Extra Curricular/aQuatonomous/Lidar Bagging Data/mapping-25-26/install/pointcloud_filters/share/pointcloud_filters/msg/TrackedBuoy.msg\n'}
+[110.012900] (-) TimerEvent: {}
+[110.113678] (-) TimerEvent: {}
+[110.171559] (pointcloud_filters) StdoutLine: {'line': b'-- Installing: /mnt/c/Users/jcube/OneDrive/Desktop/Jacob/School/Queens/Year 5/Extra Curricular/aQuatonomous/Lidar Bagging Data/mapping-25-26/install/pointcloud_filters/share/pointcloud_filters/msg/TrackedBuoyArray.msg\n'}
+[110.213915] (-) TimerEvent: {}
+[110.312536] (pointcloud_filters) StdoutLine: {'line': b'-- Installing: /mnt/c/Users/jcube/OneDrive/Desktop/Jacob/School/Queens/Year 5/Extra Curricular/aQuatonomous/Lidar Bagging Data/mapping-25-26/install/pointcloud_filters/lib/pointcloud_filters/lidar_range_filter\n'}
+[110.314114] (-) TimerEvent: {}
+[110.414804] (-) TimerEvent: {}
+[110.444159] (pointcloud_filters) StdoutLine: {'line': b'-- Installing: /mnt/c/Users/jcube/OneDrive/Desktop/Jacob/School/Queens/Year 5/Extra Curricular/aQuatonomous/Lidar Bagging Data/mapping-25-26/install/pointcloud_filters/lib/pointcloud_filters/buoy_detector\n'}
+[110.514998] (-) TimerEvent: {}
+[110.572289] (pointcloud_filters) StdoutLine: {'line': b'-- Installing: /mnt/c/Users/jcube/OneDrive/Desktop/Jacob/School/Queens/Year 5/Extra Curricular/aQuatonomous/Lidar Bagging Data/mapping-25-26/install/pointcloud_filters/lib/pointcloud_filters/buoy_visualizer\n'}
+[110.615188] (-) TimerEvent: {}
+[110.693082] (pointcloud_filters) StdoutLine: {'line': b'-- Installing: /mnt/c/Users/jcube/OneDrive/Desktop/Jacob/School/Queens/Year 5/Extra Curricular/aQuatonomous/Lidar Bagging Data/mapping-25-26/install/pointcloud_filters/lib/pointcloud_filters/buoy_tracker\n'}
+[110.715371] (-) TimerEvent: {}
+[110.809790] (pointcloud_filters) StdoutLine: {'line': b'-- Installing: /mnt/c/Users/jcube/OneDrive/Desktop/Jacob/School/Queens/Year 5/Extra Curricular/aQuatonomous/Lidar Bagging Data/mapping-25-26/install/pointcloud_filters/lib/pointcloud_filters/tracked_buoy_visualizer\n'}
+[110.815502] (-) TimerEvent: {}
+[110.916241] (-) TimerEvent: {}
+[110.917023] (pointcloud_filters) StdoutLine: {'line': b'-- Installing: /mnt/c/Users/jcube/OneDrive/Desktop/Jacob/School/Queens/Year 5/Extra Curricular/aQuatonomous/Lidar Bagging Data/mapping-25-26/install/pointcloud_filters/lib/python3.10/site-packages/pointcloud_filters\n'}
+[110.971843] (pointcloud_filters) StdoutLine: {'line': b'-- Installing: /mnt/c/Users/jcube/OneDrive/Desktop/Jacob/School/Queens/Year 5/Extra Curricular/aQuatonomous/Lidar Bagging Data/mapping-25-26/install/pointcloud_filters/lib/python3.10/site-packages/pointcloud_filters/build\n'}
+[111.016458] (-) TimerEvent: {}
+[111.045538] (pointcloud_filters) StdoutLine: {'line': b'-- Installing: /mnt/c/Users/jcube/OneDrive/Desktop/Jacob/School/Queens/Year 5/Extra Curricular/aQuatonomous/Lidar Bagging Data/mapping-25-26/install/pointcloud_filters/lib/python3.10/site-packages/pointcloud_filters/buoy_detector.py\n'}
+[111.116639] (-) TimerEvent: {}
+[111.175845] (pointcloud_filters) StdoutLine: {'line': b'-- Installing: /mnt/c/Users/jcube/OneDrive/Desktop/Jacob/School/Queens/Year 5/Extra Curricular/aQuatonomous/Lidar Bagging Data/mapping-25-26/install/pointcloud_filters/lib/python3.10/site-packages/pointcloud_filters/buoy_tracker.py\n'}
+[111.216824] (-) TimerEvent: {}
+[111.308897] (pointcloud_filters) StdoutLine: {'line': b'-- Installing: /mnt/c/Users/jcube/OneDrive/Desktop/Jacob/School/Queens/Year 5/Extra Curricular/aQuatonomous/Lidar Bagging Data/mapping-25-26/install/pointcloud_filters/lib/python3.10/site-packages/pointcloud_filters/buoy_visualizer.py\n'}
+[111.316997] (-) TimerEvent: {}
+[111.417854] (-) TimerEvent: {}
+[111.446144] (pointcloud_filters) StdoutLine: {'line': b'-- Installing: /mnt/c/Users/jcube/OneDrive/Desktop/Jacob/School/Queens/Year 5/Extra Curricular/aQuatonomous/Lidar Bagging Data/mapping-25-26/install/pointcloud_filters/lib/python3.10/site-packages/pointcloud_filters/install\n'}
+[111.518049] (-) TimerEvent: {}
+[111.561345] (pointcloud_filters) StdoutLine: {'line': b'-- Installing: /mnt/c/Users/jcube/OneDrive/Desktop/Jacob/School/Queens/Year 5/Extra Curricular/aQuatonomous/Lidar Bagging Data/mapping-25-26/install/pointcloud_filters/lib/python3.10/site-packages/pointcloud_filters/install/_local_setup_util_ps1.py\n'}
+[111.618245] (-) TimerEvent: {}
+[111.719222] (pointcloud_filters) StdoutLine: {'line': b'-- Installing: /mnt/c/Users/jcube/OneDrive/Desktop/Jacob/School/Queens/Year 5/Extra Curricular/aQuatonomous/Lidar Bagging Data/mapping-25-26/install/pointcloud_filters/lib/python3.10/site-packages/pointcloud_filters/install/_local_setup_util_sh.py\n'}
+[111.720858] (-) TimerEvent: {}
+[111.821549] (-) TimerEvent: {}
+[111.872591] (pointcloud_filters) StdoutLine: {'line': b'-- Installing: /mnt/c/Users/jcube/OneDrive/Desktop/Jacob/School/Queens/Year 5/Extra Curricular/aQuatonomous/Lidar Bagging Data/mapping-25-26/install/pointcloud_filters/lib/python3.10/site-packages/pointcloud_filters/lidar_range_filter.py\n'}
+[111.921796] (-) TimerEvent: {}
+[112.009180] (pointcloud_filters) StdoutLine: {'line': b'-- Installing: /mnt/c/Users/jcube/OneDrive/Desktop/Jacob/School/Queens/Year 5/Extra Curricular/aQuatonomous/Lidar Bagging Data/mapping-25-26/install/pointcloud_filters/lib/python3.10/site-packages/pointcloud_filters/log\n'}
+[112.022006] (-) TimerEvent: {}
+[112.077788] (pointcloud_filters) StdoutLine: {'line': b'-- Installing: /mnt/c/Users/jcube/OneDrive/Desktop/Jacob/School/Queens/Year 5/Extra Curricular/aQuatonomous/Lidar Bagging Data/mapping-25-26/install/pointcloud_filters/lib/python3.10/site-packages/pointcloud_filters/log/build_2025-11-01_15-10-28\n'}
+[112.122270] (-) TimerEvent: {}
+[112.213903] (pointcloud_filters) StdoutLine: {'line': b'-- Installing: /mnt/c/Users/jcube/OneDrive/Desktop/Jacob/School/Queens/Year 5/Extra Curricular/aQuatonomous/Lidar Bagging Data/mapping-25-26/install/pointcloud_filters/lib/python3.10/site-packages/pointcloud_filters/tracked_buoy_visualizer.py\n'}
+[112.222487] (-) TimerEvent: {}
+[112.323431] (-) TimerEvent: {}
+[112.364035] (pointcloud_filters) StdoutLine: {'line': b'-- Installing: /mnt/c/Users/jcube/OneDrive/Desktop/Jacob/School/Queens/Year 5/Extra Curricular/aQuatonomous/Lidar Bagging Data/mapping-25-26/install/pointcloud_filters/lib/python3.10/site-packages/pointcloud_filters/__init__.py\n'}
+[112.423635] (-) TimerEvent: {}
+[112.512010] (pointcloud_filters) StdoutLine: {'line': b'-- Installing: /mnt/c/Users/jcube/OneDrive/Desktop/Jacob/School/Queens/Year 5/Extra Curricular/aQuatonomous/Lidar Bagging Data/mapping-25-26/install/pointcloud_filters/lib/python3.10/site-packages/pointcloud_filters/__pycache__\n'}
+[112.523787] (-) TimerEvent: {}
+[112.583472] (pointcloud_filters) StdoutLine: {'line': b'-- Installing: /mnt/c/Users/jcube/OneDrive/Desktop/Jacob/School/Queens/Year 5/Extra Curricular/aQuatonomous/Lidar Bagging Data/mapping-25-26/install/pointcloud_filters/share/pointcloud_filters/launch\n'}
+[112.623989] (-) TimerEvent: {}
+[112.649514] (pointcloud_filters) StdoutLine: {'line': b'-- Installing: /mnt/c/Users/jcube/OneDrive/Desktop/Jacob/School/Queens/Year 5/Extra Curricular/aQuatonomous/Lidar Bagging Data/mapping-25-26/install/pointcloud_filters/share/pointcloud_filters/launch/buoy_detector.launch.py\n'}
+[112.724212] (-) TimerEvent: {}
+[112.799707] (pointcloud_filters) StdoutLine: {'line': b'-- Installing: /mnt/c/Users/jcube/OneDrive/Desktop/Jacob/School/Queens/Year 5/Extra Curricular/aQuatonomous/Lidar Bagging Data/mapping-25-26/install/pointcloud_filters/share/pointcloud_filters/launch/lidar_range_filter.launch.py\n'}
+[112.824484] (-) TimerEvent: {}
+[112.925581] (-) TimerEvent: {}
+[112.984024] (pointcloud_filters) StdoutLine: {'line': b'-- Installing: /mnt/c/Users/jcube/OneDrive/Desktop/Jacob/School/Queens/Year 5/Extra Curricular/aQuatonomous/Lidar Bagging Data/mapping-25-26/install/pointcloud_filters/share/ament_index/resource_index/package_run_dependencies/pointcloud_filters\n'}
+[113.025857] (-) TimerEvent: {}
+[113.126844] (-) TimerEvent: {}
+[113.198430] (pointcloud_filters) StdoutLine: {'line': b'-- Installing: /mnt/c/Users/jcube/OneDrive/Desktop/Jacob/School/Queens/Year 5/Extra Curricular/aQuatonomous/Lidar Bagging Data/mapping-25-26/install/pointcloud_filters/share/ament_index/resource_index/parent_prefix_path/pointcloud_filters\n'}
+[113.227032] (-) TimerEvent: {}
+[113.327846] (-) TimerEvent: {}
+[113.335277] (pointcloud_filters) StdoutLine: {'line': b'-- Installing: /mnt/c/Users/jcube/OneDrive/Desktop/Jacob/School/Queens/Year 5/Extra Curricular/aQuatonomous/Lidar Bagging Data/mapping-25-26/install/pointcloud_filters/share/pointcloud_filters/environment/ament_prefix_path.sh\n'}
+[113.428064] (-) TimerEvent: {}
+[113.455389] (pointcloud_filters) StdoutLine: {'line': b'-- Installing: /mnt/c/Users/jcube/OneDrive/Desktop/Jacob/School/Queens/Year 5/Extra Curricular/aQuatonomous/Lidar Bagging Data/mapping-25-26/install/pointcloud_filters/share/pointcloud_filters/environment/ament_prefix_path.dsv\n'}
+[113.528303] (-) TimerEvent: {}
+[113.572652] (pointcloud_filters) StdoutLine: {'line': b'-- Installing: /mnt/c/Users/jcube/OneDrive/Desktop/Jacob/School/Queens/Year 5/Extra Curricular/aQuatonomous/Lidar Bagging Data/mapping-25-26/install/pointcloud_filters/share/pointcloud_filters/environment/path.sh\n'}
+[113.628478] (-) TimerEvent: {}
+[113.688831] (pointcloud_filters) StdoutLine: {'line': b'-- Installing: /mnt/c/Users/jcube/OneDrive/Desktop/Jacob/School/Queens/Year 5/Extra Curricular/aQuatonomous/Lidar Bagging Data/mapping-25-26/install/pointcloud_filters/share/pointcloud_filters/environment/path.dsv\n'}
+[113.728695] (-) TimerEvent: {}
+[113.815970] (pointcloud_filters) StdoutLine: {'line': b'-- Installing: /mnt/c/Users/jcube/OneDrive/Desktop/Jacob/School/Queens/Year 5/Extra Curricular/aQuatonomous/Lidar Bagging Data/mapping-25-26/install/pointcloud_filters/share/pointcloud_filters/local_setup.bash\n'}
+[113.828824] (-) TimerEvent: {}
+[113.912722] (pointcloud_filters) StdoutLine: {'line': b'-- Installing: /mnt/c/Users/jcube/OneDrive/Desktop/Jacob/School/Queens/Year 5/Extra Curricular/aQuatonomous/Lidar Bagging Data/mapping-25-26/install/pointcloud_filters/share/pointcloud_filters/local_setup.sh\n'}
+[113.929030] (-) TimerEvent: {}
+[114.023286] (pointcloud_filters) StdoutLine: {'line': b'-- Installing: /mnt/c/Users/jcube/OneDrive/Desktop/Jacob/School/Queens/Year 5/Extra Curricular/aQuatonomous/Lidar Bagging Data/mapping-25-26/install/pointcloud_filters/share/pointcloud_filters/local_setup.zsh\n'}
+[114.029143] (-) TimerEvent: {}
+[114.128133] (pointcloud_filters) StdoutLine: {'line': b'-- Installing: /mnt/c/Users/jcube/OneDrive/Desktop/Jacob/School/Queens/Year 5/Extra Curricular/aQuatonomous/Lidar Bagging Data/mapping-25-26/install/pointcloud_filters/share/pointcloud_filters/local_setup.dsv\n'}
+[114.129855] (-) TimerEvent: {}
+[114.229955] (pointcloud_filters) StdoutLine: {'line': b'-- Installing: /mnt/c/Users/jcube/OneDrive/Desktop/Jacob/School/Queens/Year 5/Extra Curricular/aQuatonomous/Lidar Bagging Data/mapping-25-26/install/pointcloud_filters/share/pointcloud_filters/package.dsv\n'}
+[114.231775] (-) TimerEvent: {}
+[114.332590] (-) TimerEvent: {}
+[114.370835] (pointcloud_filters) StdoutLine: {'line': b'-- Installing: /mnt/c/Users/jcube/OneDrive/Desktop/Jacob/School/Queens/Year 5/Extra Curricular/aQuatonomous/Lidar Bagging Data/mapping-25-26/install/pointcloud_filters/share/ament_index/resource_index/packages/pointcloud_filters\n'}
+[114.432840] (-) TimerEvent: {}
+[114.533863] (-) TimerEvent: {}
+[114.568538] (pointcloud_filters) StdoutLine: {'line': b'-- Installing: /mnt/c/Users/jcube/OneDrive/Desktop/Jacob/School/Queens/Year 5/Extra Curricular/aQuatonomous/Lidar Bagging Data/mapping-25-26/install/pointcloud_filters/share/pointcloud_filters/cmake/export_pointcloud_filters__rosidl_generator_cExport.cmake\n'}
+[114.634078] (-) TimerEvent: {}
+[114.727404] (pointcloud_filters) StdoutLine: {'line': b'-- Installing: /mnt/c/Users/jcube/OneDrive/Desktop/Jacob/School/Queens/Year 5/Extra Curricular/aQuatonomous/Lidar Bagging Data/mapping-25-26/install/pointcloud_filters/share/pointcloud_filters/cmake/export_pointcloud_filters__rosidl_generator_cExport-noconfig.cmake\n'}
+[114.734209] (-) TimerEvent: {}
+[114.834954] (-) TimerEvent: {}
+[114.891585] (pointcloud_filters) StdoutLine: {'line': b'-- Installing: /mnt/c/Users/jcube/OneDrive/Desktop/Jacob/School/Queens/Year 5/Extra Curricular/aQuatonomous/Lidar Bagging Data/mapping-25-26/install/pointcloud_filters/share/pointcloud_filters/cmake/export_pointcloud_filters__rosidl_typesupport_fastrtps_cExport.cmake\n'}
+[114.935211] (-) TimerEvent: {}
+[115.036400] (-) TimerEvent: {}
+[115.056050] (pointcloud_filters) StdoutLine: {'line': b'-- Installing: /mnt/c/Users/jcube/OneDrive/Desktop/Jacob/School/Queens/Year 5/Extra Curricular/aQuatonomous/Lidar Bagging Data/mapping-25-26/install/pointcloud_filters/share/pointcloud_filters/cmake/export_pointcloud_filters__rosidl_typesupport_fastrtps_cExport-noconfig.cmake\n'}
+[115.136619] (-) TimerEvent: {}
+[115.220234] (pointcloud_filters) StdoutLine: {'line': b'-- Installing: /mnt/c/Users/jcube/OneDrive/Desktop/Jacob/School/Queens/Year 5/Extra Curricular/aQuatonomous/Lidar Bagging Data/mapping-25-26/install/pointcloud_filters/share/pointcloud_filters/cmake/pointcloud_filters__rosidl_typesupport_introspection_cExport.cmake\n'}
+[115.236790] (-) TimerEvent: {}
+[115.337586] (-) TimerEvent: {}
+[115.364071] (pointcloud_filters) StdoutLine: {'line': b'-- Installing: /mnt/c/Users/jcube/OneDrive/Desktop/Jacob/School/Queens/Year 5/Extra Curricular/aQuatonomous/Lidar Bagging Data/mapping-25-26/install/pointcloud_filters/share/pointcloud_filters/cmake/pointcloud_filters__rosidl_typesupport_introspection_cExport-noconfig.cmake\n'}
+[115.437845] (-) TimerEvent: {}
+[115.503591] (pointcloud_filters) StdoutLine: {'line': b'-- Installing: /mnt/c/Users/jcube/OneDrive/Desktop/Jacob/School/Queens/Year 5/Extra Curricular/aQuatonomous/Lidar Bagging Data/mapping-25-26/install/pointcloud_filters/share/pointcloud_filters/cmake/pointcloud_filters__rosidl_typesupport_cExport.cmake\n'}
+[115.538005] (-) TimerEvent: {}
+[115.638772] (-) TimerEvent: {}
+[115.652481] (pointcloud_filters) StdoutLine: {'line': b'-- Installing: /mnt/c/Users/jcube/OneDrive/Desktop/Jacob/School/Queens/Year 5/Extra Curricular/aQuatonomous/Lidar Bagging Data/mapping-25-26/install/pointcloud_filters/share/pointcloud_filters/cmake/pointcloud_filters__rosidl_typesupport_cExport-noconfig.cmake\n'}
+[115.738969] (-) TimerEvent: {}
+[115.799410] (pointcloud_filters) StdoutLine: {'line': b'-- Installing: /mnt/c/Users/jcube/OneDrive/Desktop/Jacob/School/Queens/Year 5/Extra Curricular/aQuatonomous/Lidar Bagging Data/mapping-25-26/install/pointcloud_filters/share/pointcloud_filters/cmake/export_pointcloud_filters__rosidl_generator_cppExport.cmake\n'}
+[115.839155] (-) TimerEvent: {}
+[115.939992] (-) TimerEvent: {}
+[115.959112] (pointcloud_filters) StdoutLine: {'line': b'-- Installing: /mnt/c/Users/jcube/OneDrive/Desktop/Jacob/School/Queens/Year 5/Extra Curricular/aQuatonomous/Lidar Bagging Data/mapping-25-26/install/pointcloud_filters/share/pointcloud_filters/cmake/export_pointcloud_filters__rosidl_typesupport_fastrtps_cppExport.cmake\n'}
+[116.040190] (-) TimerEvent: {}
+[116.112221] (pointcloud_filters) StdoutLine: {'line': b'-- Installing: /mnt/c/Users/jcube/OneDrive/Desktop/Jacob/School/Queens/Year 5/Extra Curricular/aQuatonomous/Lidar Bagging Data/mapping-25-26/install/pointcloud_filters/share/pointcloud_filters/cmake/export_pointcloud_filters__rosidl_typesupport_fastrtps_cppExport-noconfig.cmake\n'}
+[116.140368] (-) TimerEvent: {}
+[116.241227] (-) TimerEvent: {}
+[116.274424] (pointcloud_filters) StdoutLine: {'line': b'-- Installing: /mnt/c/Users/jcube/OneDrive/Desktop/Jacob/School/Queens/Year 5/Extra Curricular/aQuatonomous/Lidar Bagging Data/mapping-25-26/install/pointcloud_filters/share/pointcloud_filters/cmake/pointcloud_filters__rosidl_typesupport_introspection_cppExport.cmake\n'}
+[116.341420] (-) TimerEvent: {}
+[116.426253] (pointcloud_filters) StdoutLine: {'line': b'-- Installing: /mnt/c/Users/jcube/OneDrive/Desktop/Jacob/School/Queens/Year 5/Extra Curricular/aQuatonomous/Lidar Bagging Data/mapping-25-26/install/pointcloud_filters/share/pointcloud_filters/cmake/pointcloud_filters__rosidl_typesupport_introspection_cppExport-noconfig.cmake\n'}
+[116.441549] (-) TimerEvent: {}
+[116.542325] (-) TimerEvent: {}
+[116.557091] (pointcloud_filters) StdoutLine: {'line': b'-- Installing: /mnt/c/Users/jcube/OneDrive/Desktop/Jacob/School/Queens/Year 5/Extra Curricular/aQuatonomous/Lidar Bagging Data/mapping-25-26/install/pointcloud_filters/share/pointcloud_filters/cmake/pointcloud_filters__rosidl_typesupport_cppExport.cmake\n'}
+[116.642507] (-) TimerEvent: {}
+[116.693128] (pointcloud_filters) StdoutLine: {'line': b'-- Installing: /mnt/c/Users/jcube/OneDrive/Desktop/Jacob/School/Queens/Year 5/Extra Curricular/aQuatonomous/Lidar Bagging Data/mapping-25-26/install/pointcloud_filters/share/pointcloud_filters/cmake/pointcloud_filters__rosidl_typesupport_cppExport-noconfig.cmake\n'}
+[116.742712] (-) TimerEvent: {}
+[116.841377] (pointcloud_filters) StdoutLine: {'line': b'-- Installing: /mnt/c/Users/jcube/OneDrive/Desktop/Jacob/School/Queens/Year 5/Extra Curricular/aQuatonomous/Lidar Bagging Data/mapping-25-26/install/pointcloud_filters/share/pointcloud_filters/cmake/export_pointcloud_filters__rosidl_generator_pyExport.cmake\n'}
+[116.842961] (-) TimerEvent: {}
+[116.943634] (-) TimerEvent: {}
+[116.971593] (pointcloud_filters) StdoutLine: {'line': b'-- Installing: /mnt/c/Users/jcube/OneDrive/Desktop/Jacob/School/Queens/Year 5/Extra Curricular/aQuatonomous/Lidar Bagging Data/mapping-25-26/install/pointcloud_filters/share/pointcloud_filters/cmake/export_pointcloud_filters__rosidl_generator_pyExport-noconfig.cmake\n'}
+[117.043830] (-) TimerEvent: {}
+[117.094032] (pointcloud_filters) StdoutLine: {'line': b'-- Installing: /mnt/c/Users/jcube/OneDrive/Desktop/Jacob/School/Queens/Year 5/Extra Curricular/aQuatonomous/Lidar Bagging Data/mapping-25-26/install/pointcloud_filters/share/pointcloud_filters/cmake/rosidl_cmake-extras.cmake\n'}
+[117.144017] (-) TimerEvent: {}
+[117.197843] (pointcloud_filters) StdoutLine: {'line': b'-- Installing: /mnt/c/Users/jcube/OneDrive/Desktop/Jacob/School/Queens/Year 5/Extra Curricular/aQuatonomous/Lidar Bagging Data/mapping-25-26/install/pointcloud_filters/share/pointcloud_filters/cmake/ament_cmake_export_dependencies-extras.cmake\n'}
+[117.244207] (-) TimerEvent: {}
+[117.308761] (pointcloud_filters) StdoutLine: {'line': b'-- Installing: /mnt/c/Users/jcube/OneDrive/Desktop/Jacob/School/Queens/Year 5/Extra Curricular/aQuatonomous/Lidar Bagging Data/mapping-25-26/install/pointcloud_filters/share/pointcloud_filters/cmake/ament_cmake_export_include_directories-extras.cmake\n'}
+[117.344387] (-) TimerEvent: {}
+[117.413160] (pointcloud_filters) StdoutLine: {'line': b'-- Installing: /mnt/c/Users/jcube/OneDrive/Desktop/Jacob/School/Queens/Year 5/Extra Curricular/aQuatonomous/Lidar Bagging Data/mapping-25-26/install/pointcloud_filters/share/pointcloud_filters/cmake/ament_cmake_export_libraries-extras.cmake\n'}
+[117.444575] (-) TimerEvent: {}
+[117.522963] (pointcloud_filters) StdoutLine: {'line': b'-- Installing: /mnt/c/Users/jcube/OneDrive/Desktop/Jacob/School/Queens/Year 5/Extra Curricular/aQuatonomous/Lidar Bagging Data/mapping-25-26/install/pointcloud_filters/share/pointcloud_filters/cmake/ament_cmake_export_targets-extras.cmake\n'}
+[117.544781] (-) TimerEvent: {}
+[117.645692] (-) TimerEvent: {}
+[117.651965] (pointcloud_filters) StdoutLine: {'line': b'-- Installing: /mnt/c/Users/jcube/OneDrive/Desktop/Jacob/School/Queens/Year 5/Extra Curricular/aQuatonomous/Lidar Bagging Data/mapping-25-26/install/pointcloud_filters/share/pointcloud_filters/cmake/rosidl_cmake_export_typesupport_targets-extras.cmake\n'}
+[117.745929] (-) TimerEvent: {}
+[117.785371] (pointcloud_filters) StdoutLine: {'line': b'-- Installing: /mnt/c/Users/jcube/OneDrive/Desktop/Jacob/School/Queens/Year 5/Extra Curricular/aQuatonomous/Lidar Bagging Data/mapping-25-26/install/pointcloud_filters/share/pointcloud_filters/cmake/rosidl_cmake_export_typesupport_libraries-extras.cmake\n'}
+[117.846092] (-) TimerEvent: {}
+[117.919681] (pointcloud_filters) StdoutLine: {'line': b'-- Installing: /mnt/c/Users/jcube/OneDrive/Desktop/Jacob/School/Queens/Year 5/Extra Curricular/aQuatonomous/Lidar Bagging Data/mapping-25-26/install/pointcloud_filters/share/pointcloud_filters/cmake/pointcloud_filtersConfig.cmake\n'}
+[117.946336] (-) TimerEvent: {}
+[118.034997] (pointcloud_filters) StdoutLine: {'line': b'-- Installing: /mnt/c/Users/jcube/OneDrive/Desktop/Jacob/School/Queens/Year 5/Extra Curricular/aQuatonomous/Lidar Bagging Data/mapping-25-26/install/pointcloud_filters/share/pointcloud_filters/cmake/pointcloud_filtersConfig-version.cmake\n'}
+[118.046446] (-) TimerEvent: {}
+[118.147128] (-) TimerEvent: {}
+[118.169801] (pointcloud_filters) StdoutLine: {'line': b'-- Installing: /mnt/c/Users/jcube/OneDrive/Desktop/Jacob/School/Queens/Year 5/Extra Curricular/aQuatonomous/Lidar Bagging Data/mapping-25-26/install/pointcloud_filters/share/pointcloud_filters/package.xml\n'}
+[118.247302] (-) TimerEvent: {}
+[118.296247] (pointcloud_filters) CommandEnded: {'returncode': 0}
+[118.347605] (-) TimerEvent: {}
+[118.448598] (-) TimerEvent: {}
+[118.549417] (-) TimerEvent: {}
+[118.650192] (-) TimerEvent: {}
+[118.751036] (-) TimerEvent: {}
+[118.851836] (-) TimerEvent: {}
+[118.952589] (-) TimerEvent: {}
+[119.053366] (-) TimerEvent: {}
+[119.154294] (-) TimerEvent: {}
+[119.255156] (-) TimerEvent: {}
+[119.355856] (-) TimerEvent: {}
+[119.456695] (-) TimerEvent: {}
+[119.557454] (-) TimerEvent: {}
+[119.658334] (-) TimerEvent: {}
+[119.675586] (pointcloud_filters) JobEnded: {'identifier': 'pointcloud_filters', 'rc': 0}
+[119.692126] (-) EventReactorShutdown: {}

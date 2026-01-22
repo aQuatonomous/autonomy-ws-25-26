@@ -7,8 +7,3 @@ source;share/pointcloud_filters/hook/ld_library_path_lib.sh
 source;share/pointcloud_filters/hook/pythonpath.ps1
 source;share/pointcloud_filters/hook/pythonpath.dsv
 source;share/pointcloud_filters/hook/pythonpath.sh
-source;share/pointcloud_filters/local_setup.bash
-source;share/pointcloud_filters/local_setup.dsv
-source;share/pointcloud_filters/local_setup.ps1
-source;share/pointcloud_filters/local_setup.sh
-source;share/pointcloud_filters/local_setup.zsh

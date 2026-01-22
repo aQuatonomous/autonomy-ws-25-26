@@ -1,0 +1,188 @@
+[2.833s] DEBUG:colcon:Command line arguments: ['/usr/bin/colcon', 'build', '--symlink-install']
+[2.834s] DEBUG:colcon:Parsed command line arguments: Namespace(log_base=None, log_level=None, verb_name='build', build_base='build', install_base='install', merge_install=False, symlink_install=True, test_result_base=None, continue_on_error=False, executor='parallel', parallel_workers=16, event_handlers=None, ignore_user_meta=False, metas=['./colcon.meta'], base_paths=['.'], packages_ignore=None, packages_ignore_regex=None, paths=None, packages_up_to=None, packages_up_to_regex=None, packages_above=None, packages_above_and_dependencies=None, packages_above_depth=None, packages_select_by_dep=None, packages_skip_by_dep=None, packages_skip_up_to=None, packages_select_build_failed=False, packages_skip_build_finished=False, packages_select_test_failures=False, packages_skip_test_passed=False, packages_select=None, packages_skip=None, packages_select_regex=None, packages_skip_regex=None, packages_start=None, packages_end=None, allow_overriding=[], cmake_args=None, cmake_target=None, cmake_target_skip_unavailable=False, cmake_clean_cache=False, cmake_clean_first=False, cmake_force_configure=False, verb_parser=<colcon_defaults.argument_parser.defaults.DefaultArgumentsDecorator object at 0x70305a135b40>, verb_extension=<colcon_core.verb.build.BuildVerb object at 0x70305a125f30>, main=<bound method BuildVerb.main of <colcon_core.verb.build.BuildVerb object at 0x70305a125f30>>)
+[3.021s] Level 1:colcon.colcon_core.package_discovery:discover_packages(colcon_meta) check parameters
+[3.022s] Level 1:colcon.colcon_core.package_discovery:discover_packages(recursive) check parameters
+[3.023s] Level 1:colcon.colcon_core.package_discovery:discover_packages(ignore) check parameters
+[3.023s] Level 1:colcon.colcon_core.package_discovery:discover_packages(path) check parameters
+[3.024s] Level 1:colcon.colcon_core.package_discovery:discover_packages(colcon_meta) discover
+[3.024s] Level 1:colcon.colcon_core.package_discovery:discover_packages(recursive) discover
+[3.025s] INFO:colcon.colcon_core.package_discovery:Crawling recursively for packages in '/mnt/c/Users/jcube/OneDrive/Desktop/Jacob/School/Queens/Year 5/Extra Curricular/aQuatonomous/Lidar Bagging Data/mapping-25-26'
+[3.027s] Level 1:colcon.colcon_core.package_identification:_identify(.) by extensions ['ignore']
+[3.028s] Level 1:colcon.colcon_core.package_identification:_identify(.) by extension 'ignore'
+[3.029s] Level 1:colcon.colcon_core.package_identification:_identify(.) by extensions ['colcon_pkg']
+[3.029s] Level 1:colcon.colcon_core.package_identification:_identify(.) by extension 'colcon_pkg'
+[3.030s] Level 1:colcon.colcon_core.package_identification:_identify(.) by extensions ['colcon_meta']
+[3.031s] Level 1:colcon.colcon_core.package_identification:_identify(.) by extension 'colcon_meta'
+[3.031s] Level 1:colcon.colcon_core.package_identification:_identify(.) by extensions ['cmake', 'python']
+[3.032s] Level 1:colcon.colcon_core.package_identification:_identify(.) by extension 'cmake'
+[3.033s] Level 1:colcon.colcon_core.package_identification:_identify(.) by extension 'python'
+[3.033s] Level 1:colcon.colcon_core.package_identification:_identify(.) by extensions ['python_setup_py']
+[3.034s] Level 1:colcon.colcon_core.package_identification:_identify(.) by extension 'python_setup_py'
+[3.038s] Level 1:colcon.colcon_core.package_identification:_identify(build) by extensions ['ignore']
+[3.039s] Level 1:colcon.colcon_core.package_identification:_identify(build) by extension 'ignore'
+[3.041s] Level 1:colcon.colcon_core.package_identification:_identify(build) ignored
+[3.045s] Level 1:colcon.colcon_core.package_identification:_identify(install) by extensions ['ignore']
+[3.046s] Level 1:colcon.colcon_core.package_identification:_identify(install) by extension 'ignore'
+[3.048s] Level 1:colcon.colcon_core.package_identification:_identify(install) ignored
+[3.051s] Level 1:colcon.colcon_core.package_identification:_identify(log) by extensions ['ignore']
+[3.052s] Level 1:colcon.colcon_core.package_identification:_identify(log) by extension 'ignore'
+[3.053s] Level 1:colcon.colcon_core.package_identification:_identify(log) ignored
+[3.057s] Level 1:colcon.colcon_core.package_identification:_identify(src) by extensions ['ignore']
+[3.058s] Level 1:colcon.colcon_core.package_identification:_identify(src) by extension 'ignore'
+[3.059s] Level 1:colcon.colcon_core.package_identification:_identify(src) by extensions ['colcon_pkg']
+[3.060s] Level 1:colcon.colcon_core.package_identification:_identify(src) by extension 'colcon_pkg'
+[3.061s] Level 1:colcon.colcon_core.package_identification:_identify(src) by extensions ['colcon_meta']
+[3.061s] Level 1:colcon.colcon_core.package_identification:_identify(src) by extension 'colcon_meta'
+[3.063s] Level 1:colcon.colcon_core.package_identification:_identify(src) by extensions ['cmake', 'python']
+[3.063s] Level 1:colcon.colcon_core.package_identification:_identify(src) by extension 'cmake'
+[3.065s] Level 1:colcon.colcon_core.package_identification:_identify(src) by extension 'python'
+[3.066s] Level 1:colcon.colcon_core.package_identification:_identify(src) by extensions ['python_setup_py']
+[3.066s] Level 1:colcon.colcon_core.package_identification:_identify(src) by extension 'python_setup_py'
+[3.076s] Level 1:colcon.colcon_core.package_identification:_identify(src/my_lidar_pkg) by extensions ['ignore']
+[3.077s] Level 1:colcon.colcon_core.package_identification:_identify(src/my_lidar_pkg) by extension 'ignore'
+[3.079s] Level 1:colcon.colcon_core.package_identification:_identify(src/my_lidar_pkg) by extensions ['colcon_pkg']
+[3.080s] Level 1:colcon.colcon_core.package_identification:_identify(src/my_lidar_pkg) by extension 'colcon_pkg'
+[3.082s] Level 1:colcon.colcon_core.package_identification:_identify(src/my_lidar_pkg) by extensions ['colcon_meta']
+[3.082s] Level 1:colcon.colcon_core.package_identification:_identify(src/my_lidar_pkg) by extension 'colcon_meta'
+[3.086s] Level 1:colcon.colcon_core.package_identification:_identify(src/my_lidar_pkg) by extensions ['cmake', 'python']
+[3.086s] Level 1:colcon.colcon_core.package_identification:_identify(src/my_lidar_pkg) by extension 'cmake'
+[3.513s] Level 1:colcon.colcon_core.package_identification:_identify(src/my_lidar_pkg) by extension 'python'
+[3.523s] DEBUG:colcon.colcon_core.package_identification:Python package in 'src/my_lidar_pkg' passes arguments to the setup() function which requires a different identification extension than 'python'
+[3.524s] DEBUG:colcon.colcon_core.package_identification:Package 'src/my_lidar_pkg' with type 'cmake' and name 'my_lidar_pkg'
+[3.531s] Level 1:colcon.colcon_core.package_identification:_identify(src/pointcloud_filters) by extensions ['ignore']
+[3.531s] Level 1:colcon.colcon_core.package_identification:_identify(src/pointcloud_filters) by extension 'ignore'
+[3.533s] Level 1:colcon.colcon_core.package_identification:_identify(src/pointcloud_filters) by extensions ['colcon_pkg']
+[3.534s] Level 1:colcon.colcon_core.package_identification:_identify(src/pointcloud_filters) by extension 'colcon_pkg'
+[3.536s] Level 1:colcon.colcon_core.package_identification:_identify(src/pointcloud_filters) by extensions ['colcon_meta']
+[3.537s] Level 1:colcon.colcon_core.package_identification:_identify(src/pointcloud_filters) by extension 'colcon_meta'
+[3.540s] Level 1:colcon.colcon_core.package_identification:_identify(src/pointcloud_filters) by extensions ['cmake', 'python']
+[3.540s] Level 1:colcon.colcon_core.package_identification:_identify(src/pointcloud_filters) by extension 'cmake'
+[8.561s] Level 1:colcon.colcon_core.package_identification:_identify(src/pointcloud_filters) by extension 'python'
+[8.564s] DEBUG:colcon.colcon_core.package_identification:Package 'src/pointcloud_filters' with type 'cmake' and name 'pointcloud_filters'
+[8.572s] Level 1:colcon.colcon_core.package_identification:_identify(src/ros_numpy) by extensions ['ignore']
+[8.572s] Level 1:colcon.colcon_core.package_identification:_identify(src/ros_numpy) by extension 'ignore'
+[8.575s] Level 1:colcon.colcon_core.package_identification:_identify(src/ros_numpy) by extensions ['colcon_pkg']
+[8.575s] Level 1:colcon.colcon_core.package_identification:_identify(src/ros_numpy) by extension 'colcon_pkg'
+[8.578s] Level 1:colcon.colcon_core.package_identification:_identify(src/ros_numpy) by extensions ['colcon_meta']
+[8.578s] Level 1:colcon.colcon_core.package_identification:_identify(src/ros_numpy) by extension 'colcon_meta'
+[8.582s] Level 1:colcon.colcon_core.package_identification:_identify(src/ros_numpy) by extensions ['cmake', 'python']
+[8.582s] Level 1:colcon.colcon_core.package_identification:_identify(src/ros_numpy) by extension 'cmake'
+[8.585s] Level 1:colcon.colcon_core.package_identification:_identify(src/ros_numpy) by extension 'python'
+[8.588s] Level 1:colcon.colcon_core.package_identification:_identify(src/ros_numpy) by extensions ['python_setup_py']
+[8.588s] Level 1:colcon.colcon_core.package_identification:_identify(src/ros_numpy) by extension 'python_setup_py'
+[8.597s] Level 1:colcon.colcon_core.package_identification:_identify(src/unilidar_sdk) by extensions ['ignore']
+[8.597s] Level 1:colcon.colcon_core.package_identification:_identify(src/unilidar_sdk) by extension 'ignore'
+[8.599s] Level 1:colcon.colcon_core.package_identification:_identify(src/unilidar_sdk) by extensions ['colcon_pkg']
+[8.600s] Level 1:colcon.colcon_core.package_identification:_identify(src/unilidar_sdk) by extension 'colcon_pkg'
+[8.602s] Level 1:colcon.colcon_core.package_identification:_identify(src/unilidar_sdk) by extensions ['colcon_meta']
+[8.602s] Level 1:colcon.colcon_core.package_identification:_identify(src/unilidar_sdk) by extension 'colcon_meta'
+[8.606s] Level 1:colcon.colcon_core.package_identification:_identify(src/unilidar_sdk) by extensions ['cmake', 'python']
+[8.606s] Level 1:colcon.colcon_core.package_identification:_identify(src/unilidar_sdk) by extension 'cmake'
+[8.608s] Level 1:colcon.colcon_core.package_identification:_identify(src/unilidar_sdk) by extension 'python'
+[8.611s] Level 1:colcon.colcon_core.package_identification:_identify(src/unilidar_sdk) by extensions ['python_setup_py']
+[8.611s] Level 1:colcon.colcon_core.package_identification:_identify(src/unilidar_sdk) by extension 'python_setup_py'
+[8.613s] Level 1:colcon.colcon_core.package_discovery:discover_packages(recursive) using defaults
+[8.613s] Level 1:colcon.colcon_core.package_discovery:discover_packages(ignore) discover
+[8.614s] Level 1:colcon.colcon_core.package_discovery:discover_packages(ignore) using defaults
+[8.614s] Level 1:colcon.colcon_core.package_discovery:discover_packages(path) discover
+[8.614s] Level 1:colcon.colcon_core.package_discovery:discover_packages(path) using defaults
+[8.871s] Level 1:colcon.colcon_core.package_discovery:discover_packages(prefix_path) check parameters
+[8.871s] Level 1:colcon.colcon_core.package_discovery:discover_packages(prefix_path) discover
+[8.961s] DEBUG:colcon.colcon_installed_package_information.package_discovery:Found 0 installed packages in /mnt/c/Users/jcube/OneDrive/Desktop/Jacob/School/Queens/Year 5/Extra Curricular/aQuatonomous/Lidar Bagging Data/mapping-25-26/install
+[8.961s] Level 1:colcon.colcon_core.package_discovery:discover_packages(prefix_path) using defaults
+[9.040s] Level 5:colcon.colcon_core.verb:set package 'my_lidar_pkg' build argument 'cmake_args' from command line to 'None'
+[9.040s] Level 5:colcon.colcon_core.verb:set package 'my_lidar_pkg' build argument 'cmake_target' from command line to 'None'
+[9.041s] Level 5:colcon.colcon_core.verb:set package 'my_lidar_pkg' build argument 'cmake_target_skip_unavailable' from command line to 'False'
+[9.041s] Level 5:colcon.colcon_core.verb:set package 'my_lidar_pkg' build argument 'cmake_clean_cache' from command line to 'False'
+[9.042s] Level 5:colcon.colcon_core.verb:set package 'my_lidar_pkg' build argument 'cmake_clean_first' from command line to 'False'
+[9.042s] Level 5:colcon.colcon_core.verb:set package 'my_lidar_pkg' build argument 'cmake_force_configure' from command line to 'False'
+[9.043s] DEBUG:colcon.colcon_core.verb:Building package 'my_lidar_pkg' with the following arguments: {'build_base': '/mnt/c/Users/jcube/OneDrive/Desktop/Jacob/School/Queens/Year 5/Extra Curricular/aQuatonomous/Lidar Bagging Data/mapping-25-26/build/my_lidar_pkg', 'cmake_args': None, 'cmake_clean_cache': False, 'cmake_clean_first': False, 'cmake_force_configure': False, 'cmake_target': None, 'cmake_target_skip_unavailable': False, 'install_base': '/mnt/c/Users/jcube/OneDrive/Desktop/Jacob/School/Queens/Year 5/Extra Curricular/aQuatonomous/Lidar Bagging Data/mapping-25-26/install/my_lidar_pkg', 'merge_install': False, 'path': '/mnt/c/Users/jcube/OneDrive/Desktop/Jacob/School/Queens/Year 5/Extra Curricular/aQuatonomous/Lidar Bagging Data/mapping-25-26/src/my_lidar_pkg', 'symlink_install': True, 'test_result_base': None}
+[9.082s] Level 5:colcon.colcon_core.verb:set package 'pointcloud_filters' build argument 'cmake_args' from command line to 'None'
+[9.083s] Level 5:colcon.colcon_core.verb:set package 'pointcloud_filters' build argument 'cmake_target' from command line to 'None'
+[9.083s] Level 5:colcon.colcon_core.verb:set package 'pointcloud_filters' build argument 'cmake_target_skip_unavailable' from command line to 'False'
+[9.084s] Level 5:colcon.colcon_core.verb:set package 'pointcloud_filters' build argument 'cmake_clean_cache' from command line to 'False'
+[9.084s] Level 5:colcon.colcon_core.verb:set package 'pointcloud_filters' build argument 'cmake_clean_first' from command line to 'False'
+[9.085s] Level 5:colcon.colcon_core.verb:set package 'pointcloud_filters' build argument 'cmake_force_configure' from command line to 'False'
+[9.085s] DEBUG:colcon.colcon_core.verb:Building package 'pointcloud_filters' with the following arguments: {'build_base': '/mnt/c/Users/jcube/OneDrive/Desktop/Jacob/School/Queens/Year 5/Extra Curricular/aQuatonomous/Lidar Bagging Data/mapping-25-26/build/pointcloud_filters', 'cmake_args': None, 'cmake_clean_cache': False, 'cmake_clean_first': False, 'cmake_force_configure': False, 'cmake_target': None, 'cmake_target_skip_unavailable': False, 'install_base': '/mnt/c/Users/jcube/OneDrive/Desktop/Jacob/School/Queens/Year 5/Extra Curricular/aQuatonomous/Lidar Bagging Data/mapping-25-26/install/pointcloud_filters', 'merge_install': False, 'path': '/mnt/c/Users/jcube/OneDrive/Desktop/Jacob/School/Queens/Year 5/Extra Curricular/aQuatonomous/Lidar Bagging Data/mapping-25-26/src/pointcloud_filters', 'symlink_install': True, 'test_result_base': None}
+[9.128s] INFO:colcon.colcon_core.executor:Executing jobs using 'parallel' executor
+[9.184s] DEBUG:colcon.colcon_parallel_executor.executor.parallel:run_until_complete
+[9.185s] INFO:colcon.colcon_cmake.task.cmake.build:Building CMake package in '/mnt/c/Users/jcube/OneDrive/Desktop/Jacob/School/Queens/Year 5/Extra Curricular/aQuatonomous/Lidar Bagging Data/mapping-25-26/src/my_lidar_pkg'
+[9.244s] INFO:colcon.colcon_core.plugin_system:Skipping extension 'colcon_core.shell.bat': Not used on non-Windows systems
+[9.245s] INFO:colcon.colcon_core.shell:Skip shell extension 'powershell' for command environment: Not usable outside of PowerShell
+[9.245s] DEBUG:colcon.colcon_core.shell:Skip shell extension 'dsv' for command environment
+[9.353s] INFO:colcon.colcon_cmake.task.cmake.build:Building CMake package in '/mnt/c/Users/jcube/OneDrive/Desktop/Jacob/School/Queens/Year 5/Extra Curricular/aQuatonomous/Lidar Bagging Data/mapping-25-26/src/pointcloud_filters'
+[9.390s] INFO:colcon.colcon_core.shell:Skip shell extension 'powershell' for command environment: Not usable outside of PowerShell
+[9.390s] DEBUG:colcon.colcon_core.shell:Skip shell extension 'dsv' for command environment
+[9.531s] DEBUG:colcon.colcon_core.event_handler.log_command:Invoking command in '/mnt/c/Users/jcube/OneDrive/Desktop/Jacob/School/Queens/Year 5/Extra Curricular/aQuatonomous/Lidar Bagging Data/mapping-25-26/build/my_lidar_pkg': /usr/bin/cmake /mnt/c/Users/jcube/OneDrive/Desktop/Jacob/School/Queens/Year 5/Extra Curricular/aQuatonomous/Lidar Bagging Data/mapping-25-26/src/my_lidar_pkg -DCMAKE_INSTALL_PREFIX=/mnt/c/Users/jcube/OneDrive/Desktop/Jacob/School/Queens/Year 5/Extra Curricular/aQuatonomous/Lidar Bagging Data/mapping-25-26/install/my_lidar_pkg
+[9.566s] DEBUG:colcon.colcon_core.event_handler.log_command:Invoking command in '/mnt/c/Users/jcube/OneDrive/Desktop/Jacob/School/Queens/Year 5/Extra Curricular/aQuatonomous/Lidar Bagging Data/mapping-25-26/build/pointcloud_filters': /usr/bin/cmake /mnt/c/Users/jcube/OneDrive/Desktop/Jacob/School/Queens/Year 5/Extra Curricular/aQuatonomous/Lidar Bagging Data/mapping-25-26/src/pointcloud_filters -DCMAKE_INSTALL_PREFIX=/mnt/c/Users/jcube/OneDrive/Desktop/Jacob/School/Queens/Year 5/Extra Curricular/aQuatonomous/Lidar Bagging Data/mapping-25-26/install/pointcloud_filters
+[19.785s] DEBUG:colcon.colcon_core.event_handler.log_command:Invoked command in '/mnt/c/Users/jcube/OneDrive/Desktop/Jacob/School/Queens/Year 5/Extra Curricular/aQuatonomous/Lidar Bagging Data/mapping-25-26/build/my_lidar_pkg' returned '0': /usr/bin/cmake /mnt/c/Users/jcube/OneDrive/Desktop/Jacob/School/Queens/Year 5/Extra Curricular/aQuatonomous/Lidar Bagging Data/mapping-25-26/src/my_lidar_pkg -DCMAKE_INSTALL_PREFIX=/mnt/c/Users/jcube/OneDrive/Desktop/Jacob/School/Queens/Year 5/Extra Curricular/aQuatonomous/Lidar Bagging Data/mapping-25-26/install/my_lidar_pkg
+[19.801s] DEBUG:colcon.colcon_core.event_handler.log_command:Invoking command in '/mnt/c/Users/jcube/OneDrive/Desktop/Jacob/School/Queens/Year 5/Extra Curricular/aQuatonomous/Lidar Bagging Data/mapping-25-26/build/my_lidar_pkg': /usr/bin/cmake --build /mnt/c/Users/jcube/OneDrive/Desktop/Jacob/School/Queens/Year 5/Extra Curricular/aQuatonomous/Lidar Bagging Data/mapping-25-26/build/my_lidar_pkg -- -j16 -l16
+[21.670s] DEBUG:colcon.colcon_core.event_handler.log_command:Invoked command in '/mnt/c/Users/jcube/OneDrive/Desktop/Jacob/School/Queens/Year 5/Extra Curricular/aQuatonomous/Lidar Bagging Data/mapping-25-26/build/my_lidar_pkg' returned '0': /usr/bin/cmake --build /mnt/c/Users/jcube/OneDrive/Desktop/Jacob/School/Queens/Year 5/Extra Curricular/aQuatonomous/Lidar Bagging Data/mapping-25-26/build/my_lidar_pkg -- -j16 -l16
+[22.200s] DEBUG:colcon.colcon_core.event_handler.log_command:Invoking command in '/mnt/c/Users/jcube/OneDrive/Desktop/Jacob/School/Queens/Year 5/Extra Curricular/aQuatonomous/Lidar Bagging Data/mapping-25-26/build/my_lidar_pkg': /usr/bin/cmake --install /mnt/c/Users/jcube/OneDrive/Desktop/Jacob/School/Queens/Year 5/Extra Curricular/aQuatonomous/Lidar Bagging Data/mapping-25-26/build/my_lidar_pkg
+[25.712s] Level 1:colcon.colcon_core.environment:create_environment_scripts_only(my_lidar_pkg)
+[25.714s] DEBUG:colcon.colcon_core.event_handler.log_command:Invoked command in '/mnt/c/Users/jcube/OneDrive/Desktop/Jacob/School/Queens/Year 5/Extra Curricular/aQuatonomous/Lidar Bagging Data/mapping-25-26/build/my_lidar_pkg' returned '0': /usr/bin/cmake --install /mnt/c/Users/jcube/OneDrive/Desktop/Jacob/School/Queens/Year 5/Extra Curricular/aQuatonomous/Lidar Bagging Data/mapping-25-26/build/my_lidar_pkg
+[25.762s] Level 1:colcon.colcon_core.environment:checking '/mnt/c/Users/jcube/OneDrive/Desktop/Jacob/School/Queens/Year 5/Extra Curricular/aQuatonomous/Lidar Bagging Data/mapping-25-26/install/my_lidar_pkg' for CMake module files
+[25.872s] Level 1:colcon.colcon_core.environment:checking '/mnt/c/Users/jcube/OneDrive/Desktop/Jacob/School/Queens/Year 5/Extra Curricular/aQuatonomous/Lidar Bagging Data/mapping-25-26/install/my_lidar_pkg' for CMake config files
+[26.033s] Level 1:colcon.colcon_core.shell:create_environment_hook('my_lidar_pkg', 'cmake_prefix_path')
+[26.064s] INFO:colcon.colcon_core.shell:Creating environment hook '/mnt/c/Users/jcube/OneDrive/Desktop/Jacob/School/Queens/Year 5/Extra Curricular/aQuatonomous/Lidar Bagging Data/mapping-25-26/install/my_lidar_pkg/share/my_lidar_pkg/hook/cmake_prefix_path.ps1'
+[26.094s] INFO:colcon.colcon_core.shell:Creating environment descriptor '/mnt/c/Users/jcube/OneDrive/Desktop/Jacob/School/Queens/Year 5/Extra Curricular/aQuatonomous/Lidar Bagging Data/mapping-25-26/install/my_lidar_pkg/share/my_lidar_pkg/hook/cmake_prefix_path.dsv'
+[26.120s] INFO:colcon.colcon_core.shell:Creating environment hook '/mnt/c/Users/jcube/OneDrive/Desktop/Jacob/School/Queens/Year 5/Extra Curricular/aQuatonomous/Lidar Bagging Data/mapping-25-26/install/my_lidar_pkg/share/my_lidar_pkg/hook/cmake_prefix_path.sh'
+[26.151s] Level 1:colcon.colcon_core.environment:checking '/mnt/c/Users/jcube/OneDrive/Desktop/Jacob/School/Queens/Year 5/Extra Curricular/aQuatonomous/Lidar Bagging Data/mapping-25-26/install/my_lidar_pkg/bin'
+[26.153s] Level 1:colcon.colcon_core.environment:checking '/mnt/c/Users/jcube/OneDrive/Desktop/Jacob/School/Queens/Year 5/Extra Curricular/aQuatonomous/Lidar Bagging Data/mapping-25-26/install/my_lidar_pkg/lib/pkgconfig/my_lidar_pkg.pc'
+[26.157s] Level 1:colcon.colcon_core.environment:checking '/mnt/c/Users/jcube/OneDrive/Desktop/Jacob/School/Queens/Year 5/Extra Curricular/aQuatonomous/Lidar Bagging Data/mapping-25-26/install/my_lidar_pkg/lib/python3.10/site-packages'
+[26.159s] Level 1:colcon.colcon_core.environment:checking '/mnt/c/Users/jcube/OneDrive/Desktop/Jacob/School/Queens/Year 5/Extra Curricular/aQuatonomous/Lidar Bagging Data/mapping-25-26/install/my_lidar_pkg/bin'
+[26.193s] INFO:colcon.colcon_core.shell:Creating package script '/mnt/c/Users/jcube/OneDrive/Desktop/Jacob/School/Queens/Year 5/Extra Curricular/aQuatonomous/Lidar Bagging Data/mapping-25-26/install/my_lidar_pkg/share/my_lidar_pkg/package.ps1'
+[26.214s] INFO:colcon.colcon_core.shell:Creating package descriptor '/mnt/c/Users/jcube/OneDrive/Desktop/Jacob/School/Queens/Year 5/Extra Curricular/aQuatonomous/Lidar Bagging Data/mapping-25-26/install/my_lidar_pkg/share/my_lidar_pkg/package.dsv'
+[26.236s] INFO:colcon.colcon_core.shell:Creating package script '/mnt/c/Users/jcube/OneDrive/Desktop/Jacob/School/Queens/Year 5/Extra Curricular/aQuatonomous/Lidar Bagging Data/mapping-25-26/install/my_lidar_pkg/share/my_lidar_pkg/package.sh'
+[26.258s] INFO:colcon.colcon_core.shell:Creating package script '/mnt/c/Users/jcube/OneDrive/Desktop/Jacob/School/Queens/Year 5/Extra Curricular/aQuatonomous/Lidar Bagging Data/mapping-25-26/install/my_lidar_pkg/share/my_lidar_pkg/package.bash'
+[26.280s] INFO:colcon.colcon_core.shell:Creating package script '/mnt/c/Users/jcube/OneDrive/Desktop/Jacob/School/Queens/Year 5/Extra Curricular/aQuatonomous/Lidar Bagging Data/mapping-25-26/install/my_lidar_pkg/share/my_lidar_pkg/package.zsh'
+[26.301s] Level 1:colcon.colcon_core.environment:create_file_with_runtime_dependencies(/mnt/c/Users/jcube/OneDrive/Desktop/Jacob/School/Queens/Year 5/Extra Curricular/aQuatonomous/Lidar Bagging Data/mapping-25-26/install/my_lidar_pkg/share/colcon-core/packages/my_lidar_pkg)
+[69.966s] DEBUG:colcon.colcon_core.event_handler.log_command:Invoked command in '/mnt/c/Users/jcube/OneDrive/Desktop/Jacob/School/Queens/Year 5/Extra Curricular/aQuatonomous/Lidar Bagging Data/mapping-25-26/build/pointcloud_filters' returned '0': /usr/bin/cmake /mnt/c/Users/jcube/OneDrive/Desktop/Jacob/School/Queens/Year 5/Extra Curricular/aQuatonomous/Lidar Bagging Data/mapping-25-26/src/pointcloud_filters -DCMAKE_INSTALL_PREFIX=/mnt/c/Users/jcube/OneDrive/Desktop/Jacob/School/Queens/Year 5/Extra Curricular/aQuatonomous/Lidar Bagging Data/mapping-25-26/install/pointcloud_filters
+[69.984s] DEBUG:colcon.colcon_core.event_handler.log_command:Invoking command in '/mnt/c/Users/jcube/OneDrive/Desktop/Jacob/School/Queens/Year 5/Extra Curricular/aQuatonomous/Lidar Bagging Data/mapping-25-26/build/pointcloud_filters': /usr/bin/cmake --build /mnt/c/Users/jcube/OneDrive/Desktop/Jacob/School/Queens/Year 5/Extra Curricular/aQuatonomous/Lidar Bagging Data/mapping-25-26/build/pointcloud_filters -- -j16 -l16
+[89.934s] DEBUG:colcon.colcon_core.event_handler.log_command:Invoked command in '/mnt/c/Users/jcube/OneDrive/Desktop/Jacob/School/Queens/Year 5/Extra Curricular/aQuatonomous/Lidar Bagging Data/mapping-25-26/build/pointcloud_filters' returned '0': /usr/bin/cmake --build /mnt/c/Users/jcube/OneDrive/Desktop/Jacob/School/Queens/Year 5/Extra Curricular/aQuatonomous/Lidar Bagging Data/mapping-25-26/build/pointcloud_filters -- -j16 -l16
+[93.881s] DEBUG:colcon.colcon_core.event_handler.log_command:Invoking command in '/mnt/c/Users/jcube/OneDrive/Desktop/Jacob/School/Queens/Year 5/Extra Curricular/aQuatonomous/Lidar Bagging Data/mapping-25-26/build/pointcloud_filters': /usr/bin/cmake --install /mnt/c/Users/jcube/OneDrive/Desktop/Jacob/School/Queens/Year 5/Extra Curricular/aQuatonomous/Lidar Bagging Data/mapping-25-26/build/pointcloud_filters
+[127.474s] Level 1:colcon.colcon_core.environment:create_environment_scripts_only(pointcloud_filters)
+[127.476s] DEBUG:colcon.colcon_core.event_handler.log_command:Invoked command in '/mnt/c/Users/jcube/OneDrive/Desktop/Jacob/School/Queens/Year 5/Extra Curricular/aQuatonomous/Lidar Bagging Data/mapping-25-26/build/pointcloud_filters' returned '0': /usr/bin/cmake --install /mnt/c/Users/jcube/OneDrive/Desktop/Jacob/School/Queens/Year 5/Extra Curricular/aQuatonomous/Lidar Bagging Data/mapping-25-26/build/pointcloud_filters
+[127.529s] Level 1:colcon.colcon_core.environment:checking '/mnt/c/Users/jcube/OneDrive/Desktop/Jacob/School/Queens/Year 5/Extra Curricular/aQuatonomous/Lidar Bagging Data/mapping-25-26/install/pointcloud_filters' for CMake module files
+[127.937s] Level 1:colcon.colcon_core.environment:checking '/mnt/c/Users/jcube/OneDrive/Desktop/Jacob/School/Queens/Year 5/Extra Curricular/aQuatonomous/Lidar Bagging Data/mapping-25-26/install/pointcloud_filters' for CMake config files
+[128.341s] Level 1:colcon.colcon_core.shell:create_environment_hook('pointcloud_filters', 'cmake_prefix_path')
+[128.381s] INFO:colcon.colcon_core.shell:Creating environment hook '/mnt/c/Users/jcube/OneDrive/Desktop/Jacob/School/Queens/Year 5/Extra Curricular/aQuatonomous/Lidar Bagging Data/mapping-25-26/install/pointcloud_filters/share/pointcloud_filters/hook/cmake_prefix_path.ps1'
+[128.400s] INFO:colcon.colcon_core.shell:Creating environment descriptor '/mnt/c/Users/jcube/OneDrive/Desktop/Jacob/School/Queens/Year 5/Extra Curricular/aQuatonomous/Lidar Bagging Data/mapping-25-26/install/pointcloud_filters/share/pointcloud_filters/hook/cmake_prefix_path.dsv'
+[128.422s] INFO:colcon.colcon_core.shell:Creating environment hook '/mnt/c/Users/jcube/OneDrive/Desktop/Jacob/School/Queens/Year 5/Extra Curricular/aQuatonomous/Lidar Bagging Data/mapping-25-26/install/pointcloud_filters/share/pointcloud_filters/hook/cmake_prefix_path.sh'
+[128.451s] Level 1:colcon.colcon_core.environment:checking '/mnt/c/Users/jcube/OneDrive/Desktop/Jacob/School/Queens/Year 5/Extra Curricular/aQuatonomous/Lidar Bagging Data/mapping-25-26/install/pointcloud_filters/lib'
+[128.458s] Level 1:colcon.colcon_core.shell:create_environment_hook('pointcloud_filters', 'ld_library_path_lib')
+[128.496s] INFO:colcon.colcon_core.shell:Creating environment hook '/mnt/c/Users/jcube/OneDrive/Desktop/Jacob/School/Queens/Year 5/Extra Curricular/aQuatonomous/Lidar Bagging Data/mapping-25-26/install/pointcloud_filters/share/pointcloud_filters/hook/ld_library_path_lib.ps1'
+[128.520s] INFO:colcon.colcon_core.shell:Creating environment descriptor '/mnt/c/Users/jcube/OneDrive/Desktop/Jacob/School/Queens/Year 5/Extra Curricular/aQuatonomous/Lidar Bagging Data/mapping-25-26/install/pointcloud_filters/share/pointcloud_filters/hook/ld_library_path_lib.dsv'
+[128.543s] INFO:colcon.colcon_core.shell:Creating environment hook '/mnt/c/Users/jcube/OneDrive/Desktop/Jacob/School/Queens/Year 5/Extra Curricular/aQuatonomous/Lidar Bagging Data/mapping-25-26/install/pointcloud_filters/share/pointcloud_filters/hook/ld_library_path_lib.sh'
+[128.566s] Level 1:colcon.colcon_core.environment:checking '/mnt/c/Users/jcube/OneDrive/Desktop/Jacob/School/Queens/Year 5/Extra Curricular/aQuatonomous/Lidar Bagging Data/mapping-25-26/install/pointcloud_filters/bin'
+[128.569s] Level 1:colcon.colcon_core.environment:checking '/mnt/c/Users/jcube/OneDrive/Desktop/Jacob/School/Queens/Year 5/Extra Curricular/aQuatonomous/Lidar Bagging Data/mapping-25-26/install/pointcloud_filters/lib/pkgconfig/pointcloud_filters.pc'
+[128.571s] Level 1:colcon.colcon_core.environment:checking '/mnt/c/Users/jcube/OneDrive/Desktop/Jacob/School/Queens/Year 5/Extra Curricular/aQuatonomous/Lidar Bagging Data/mapping-25-26/install/pointcloud_filters/lib/python3.10/site-packages'
+[128.575s] Level 1:colcon.colcon_core.shell:create_environment_hook('pointcloud_filters', 'pythonpath')
+[128.613s] INFO:colcon.colcon_core.shell:Creating environment hook '/mnt/c/Users/jcube/OneDrive/Desktop/Jacob/School/Queens/Year 5/Extra Curricular/aQuatonomous/Lidar Bagging Data/mapping-25-26/install/pointcloud_filters/share/pointcloud_filters/hook/pythonpath.ps1'
+[128.642s] INFO:colcon.colcon_core.shell:Creating environment descriptor '/mnt/c/Users/jcube/OneDrive/Desktop/Jacob/School/Queens/Year 5/Extra Curricular/aQuatonomous/Lidar Bagging Data/mapping-25-26/install/pointcloud_filters/share/pointcloud_filters/hook/pythonpath.dsv'
+[128.666s] INFO:colcon.colcon_core.shell:Creating environment hook '/mnt/c/Users/jcube/OneDrive/Desktop/Jacob/School/Queens/Year 5/Extra Curricular/aQuatonomous/Lidar Bagging Data/mapping-25-26/install/pointcloud_filters/share/pointcloud_filters/hook/pythonpath.sh'
+[128.690s] Level 1:colcon.colcon_core.environment:checking '/mnt/c/Users/jcube/OneDrive/Desktop/Jacob/School/Queens/Year 5/Extra Curricular/aQuatonomous/Lidar Bagging Data/mapping-25-26/install/pointcloud_filters/bin'
+[128.730s] INFO:colcon.colcon_core.shell:Creating package script '/mnt/c/Users/jcube/OneDrive/Desktop/Jacob/School/Queens/Year 5/Extra Curricular/aQuatonomous/Lidar Bagging Data/mapping-25-26/install/pointcloud_filters/share/pointcloud_filters/package.ps1'
+[128.751s] INFO:colcon.colcon_core.shell:Creating package descriptor '/mnt/c/Users/jcube/OneDrive/Desktop/Jacob/School/Queens/Year 5/Extra Curricular/aQuatonomous/Lidar Bagging Data/mapping-25-26/install/pointcloud_filters/share/pointcloud_filters/package.dsv'
+[128.770s] INFO:colcon.colcon_core.shell:Creating package script '/mnt/c/Users/jcube/OneDrive/Desktop/Jacob/School/Queens/Year 5/Extra Curricular/aQuatonomous/Lidar Bagging Data/mapping-25-26/install/pointcloud_filters/share/pointcloud_filters/package.sh'
+[128.791s] INFO:colcon.colcon_core.shell:Creating package script '/mnt/c/Users/jcube/OneDrive/Desktop/Jacob/School/Queens/Year 5/Extra Curricular/aQuatonomous/Lidar Bagging Data/mapping-25-26/install/pointcloud_filters/share/pointcloud_filters/package.bash'
+[128.812s] INFO:colcon.colcon_core.shell:Creating package script '/mnt/c/Users/jcube/OneDrive/Desktop/Jacob/School/Queens/Year 5/Extra Curricular/aQuatonomous/Lidar Bagging Data/mapping-25-26/install/pointcloud_filters/share/pointcloud_filters/package.zsh'
+[128.832s] Level 1:colcon.colcon_core.environment:create_file_with_runtime_dependencies(/mnt/c/Users/jcube/OneDrive/Desktop/Jacob/School/Queens/Year 5/Extra Curricular/aQuatonomous/Lidar Bagging Data/mapping-25-26/install/pointcloud_filters/share/colcon-core/packages/pointcloud_filters)
+[128.853s] DEBUG:colcon.colcon_parallel_executor.executor.parallel:closing loop
+[128.854s] DEBUG:colcon.colcon_parallel_executor.executor.parallel:loop closed
+[128.855s] DEBUG:colcon.colcon_parallel_executor.executor.parallel:run_until_complete finished with '0'
+[128.856s] DEBUG:colcon.colcon_core.event_reactor:joining thread
+[128.969s] INFO:colcon.colcon_core.plugin_system:Skipping extension 'colcon_notification.desktop_notification.terminal_notifier': Not used on non-Darwin systems
+[128.970s] INFO:colcon.colcon_core.plugin_system:Skipping extension 'colcon_notification.desktop_notification.win32': Not used on non-Windows systems
+[128.970s] INFO:colcon.colcon_notification.desktop_notification:Sending desktop notification using 'notify2'
+[130.285s] DEBUG:colcon.colcon_core.event_reactor:joined thread
+[130.335s] INFO:colcon.colcon_core.shell:Creating prefix script '/mnt/c/Users/jcube/OneDrive/Desktop/Jacob/School/Queens/Year 5/Extra Curricular/aQuatonomous/Lidar Bagging Data/mapping-25-26/install/local_setup.ps1'
+[130.348s] INFO:colcon.colcon_core.shell:Creating prefix util module '/mnt/c/Users/jcube/OneDrive/Desktop/Jacob/School/Queens/Year 5/Extra Curricular/aQuatonomous/Lidar Bagging Data/mapping-25-26/install/_local_setup_util_ps1.py'
+[130.363s] INFO:colcon.colcon_core.shell:Creating prefix chain script '/mnt/c/Users/jcube/OneDrive/Desktop/Jacob/School/Queens/Year 5/Extra Curricular/aQuatonomous/Lidar Bagging Data/mapping-25-26/install/setup.ps1'
+[130.443s] INFO:colcon.colcon_core.shell:Creating prefix script '/mnt/c/Users/jcube/OneDrive/Desktop/Jacob/School/Queens/Year 5/Extra Curricular/aQuatonomous/Lidar Bagging Data/mapping-25-26/install/local_setup.sh'
+[130.457s] INFO:colcon.colcon_core.shell:Creating prefix util module '/mnt/c/Users/jcube/OneDrive/Desktop/Jacob/School/Queens/Year 5/Extra Curricular/aQuatonomous/Lidar Bagging Data/mapping-25-26/install/_local_setup_util_sh.py'
+[130.470s] INFO:colcon.colcon_core.shell:Creating prefix chain script '/mnt/c/Users/jcube/OneDrive/Desktop/Jacob/School/Queens/Year 5/Extra Curricular/aQuatonomous/Lidar Bagging Data/mapping-25-26/install/setup.sh'
+[130.546s] INFO:colcon.colcon_core.shell:Creating prefix script '/mnt/c/Users/jcube/OneDrive/Desktop/Jacob/School/Queens/Year 5/Extra Curricular/aQuatonomous/Lidar Bagging Data/mapping-25-26/install/local_setup.bash'
+[130.558s] INFO:colcon.colcon_core.shell:Creating prefix chain script '/mnt/c/Users/jcube/OneDrive/Desktop/Jacob/School/Queens/Year 5/Extra Curricular/aQuatonomous/Lidar Bagging Data/mapping-25-26/install/setup.bash'
+[130.614s] INFO:colcon.colcon_core.shell:Creating prefix script '/mnt/c/Users/jcube/OneDrive/Desktop/Jacob/School/Queens/Year 5/Extra Curricular/aQuatonomous/Lidar Bagging Data/mapping-25-26/install/local_setup.zsh'
+[130.626s] INFO:colcon.colcon_core.shell:Creating prefix chain script '/mnt/c/Users/jcube/OneDrive/Desktop/Jacob/School/Queens/Year 5/Extra Curricular/aQuatonomous/Lidar Bagging Data/mapping-25-26/install/setup.zsh'

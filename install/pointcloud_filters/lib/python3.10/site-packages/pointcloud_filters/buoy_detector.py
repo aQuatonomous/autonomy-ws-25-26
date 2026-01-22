@@ -39,6 +39,12 @@ class BuoyDetectorNode(Node):
         self.declare_parameter('max_lateral_extent', 3.0)  # Maximum buoy size (meters)
         self.declare_parameter('min_points_final', 3)  # Minimum points after validation
         self.declare_parameter('confidence_scale', 15.0)  # Points for 100% confidence
+        
+        # RANSAC water plane removal parameters
+        self.declare_parameter('ransac_enabled', True)  # Enable RANSAC plane removal
+        self.declare_parameter('ransac_iterations', 150)  # Number of RANSAC iterations
+        self.declare_parameter('ransac_distance_threshold', 0.15)  # Max distance to plane (meters)
+        self.declare_parameter('ransac_min_inlier_ratio', 0.3)  # Minimum fraction of points in plane
 
         self.input_topic = self.get_parameter('input_topic').get_parameter_value().string_value
         self.output_topic = self.get_parameter('output_topic').get_parameter_value().string_value
@@ -48,6 +54,11 @@ class BuoyDetectorNode(Node):
         self.max_lateral_extent = self.get_parameter('max_lateral_extent').get_parameter_value().double_value
         self.min_points_final = int(self.get_parameter('min_points_final').get_parameter_value().integer_value)
         self.confidence_scale = self.get_parameter('confidence_scale').get_parameter_value().double_value
+        
+        self.ransac_enabled = self.get_parameter('ransac_enabled').get_parameter_value().bool_value
+        self.ransac_iterations = int(self.get_parameter('ransac_iterations').get_parameter_value().integer_value)
+        self.ransac_distance_threshold = self.get_parameter('ransac_distance_threshold').get_parameter_value().double_value
+        self.ransac_min_inlier_ratio = self.get_parameter('ransac_min_inlier_ratio').get_parameter_value().double_value
 
         # QoS profile matching LiDAR driver (best effort)
         qos = QoSProfile(
@@ -81,6 +92,14 @@ class BuoyDetectorNode(Node):
         if len(points) == 0:
             self.get_logger().debug('Received empty point cloud')
             return
+
+        # Remove water plane using RANSAC (if enabled)
+        if self.ransac_enabled:
+            points_filtered = self.remove_water_plane_ransac(points)
+            if len(points_filtered) == 0:
+                self.get_logger().debug('All points removed by RANSAC plane filtering')
+                return
+            points = points_filtered
 
         # Cluster points using DBSCAN
         labels = self.detect_buoys_dbscan(points)
@@ -136,6 +155,92 @@ class BuoyDetectorNode(Node):
         # Convert to numpy array
         points = np.array(values, dtype=np.float64)
         return points
+
+    def remove_water_plane_ransac(self, points: np.ndarray) -> np.ndarray:
+        """
+        Remove water plane using RANSAC plane fitting.
+        
+        Algorithm:
+        1. Randomly sample 3 points to define a plane
+        2. Count how many points are within distance_threshold of this plane (inliers)
+        3. Repeat for ransac_iterations and keep the best plane (most inliers)
+        4. Remove all inliers (water surface) and return outliers (buoys)
+        
+        A plane is defined by: n · p + d = 0
+        where n = [a, b, c] is the unit normal vector and d is distance from origin.
+        
+        Args:
+            points: Nx3 array (x, y, z)
+        
+        Returns:
+            Filtered Nx3 array with water plane points removed
+        """
+        if len(points) < 3:
+            return points
+        
+        best_inliers = None
+        best_num_inliers = 0
+        
+        # RANSAC iterations
+        for _ in range(self.ransac_iterations):
+            # Step 1: Randomly sample 3 points
+            indices = np.random.choice(len(points), 3, replace=False)
+            sample_points = points[indices]
+            
+            # Step 2: Fit a plane through these 3 points
+            # Plane is defined by two vectors in the plane
+            v1 = sample_points[1] - sample_points[0]
+            v2 = sample_points[2] - sample_points[0]
+            
+            # Normal vector = cross product of v1 and v2
+            normal = np.cross(v1, v2)
+            normal_length = np.linalg.norm(normal)
+            
+            # Skip if points are collinear (degenerate plane)
+            if normal_length < 1e-6:
+                continue
+            
+            # Normalize the normal vector
+            n = normal / normal_length  # Unit normal [a, b, c]
+            
+            # Compute d: n · p0 + d = 0  =>  d = -n · p0
+            d = -np.dot(n, sample_points[0])
+            
+            # Step 3: Count inliers (points close to this plane)
+            # Distance from point p to plane: |n · p + d|
+            distances = np.abs(np.dot(points, n) + d)
+            inliers_mask = distances < self.ransac_distance_threshold
+            num_inliers = np.sum(inliers_mask)
+            
+            # Update best plane if this one has more inliers
+            if num_inliers > best_num_inliers:
+                best_num_inliers = num_inliers
+                best_inliers = inliers_mask
+        
+        # Check if we found a valid plane
+        if best_inliers is None:
+            self.get_logger().warn('RANSAC failed to find a plane')
+            return points
+        
+        inlier_ratio = best_num_inliers / len(points)
+        
+        # Only remove plane if it has enough inliers (dominant surface = water)
+        if inlier_ratio < self.ransac_min_inlier_ratio:
+            self.get_logger().debug(
+                f'RANSAC plane has {inlier_ratio:.1%} inliers (< {self.ransac_min_inlier_ratio:.1%} threshold), '
+                'not removing - no dominant plane found'
+            )
+            return points
+        
+        # Remove inliers (water plane), keep outliers (buoys)
+        filtered_points = points[~best_inliers]
+        
+        self.get_logger().info(
+            f'RANSAC removed {best_num_inliers}/{len(points)} points '
+            f'({inlier_ratio:.1%}) as water plane, {len(filtered_points)} remain'
+        )
+        
+        return filtered_points
 
     def detect_buoys_dbscan(self, points: np.ndarray) -> np.ndarray:
         """

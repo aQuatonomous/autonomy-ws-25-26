@@ -2,7 +2,7 @@
 
 # since this file is sourced use either the provided AMENT_CURRENT_PREFIX
 # or fall back to the destination set at configure time
-: ${AMENT_CURRENT_PREFIX:="/home/jacob/ros2_ws/install/pointcloud_filters"}
+: ${AMENT_CURRENT_PREFIX:="/mnt/c/Users/jcube/OneDrive/Desktop/Jacob/School/Queens/Year 5/Extra Curricular/aQuatonomous/Lidar Bagging Data/mapping-25-26/install/pointcloud_filters"}
 if [ ! -d "$AMENT_CURRENT_PREFIX" ]; then
   if [ -z "$COLCON_CURRENT_PREFIX" ]; then
     echo "The compile time prefix path '$AMENT_CURRENT_PREFIX' doesn't " \

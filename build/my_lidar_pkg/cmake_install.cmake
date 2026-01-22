@@ -1,8 +1,8 @@
-# Install script for directory: /home/jacob/ros2_ws/src/my_lidar_pkg
+# Install script for directory: /mnt/c/Users/jcube/OneDrive/Desktop/Jacob/School/Queens/Year 5/Extra Curricular/aQuatonomous/Lidar Bagging Data/mapping-25-26/src/my_lidar_pkg
 
 # Set the install prefix
 if(NOT DEFINED CMAKE_INSTALL_PREFIX)
-  set(CMAKE_INSTALL_PREFIX "/home/jacob/ros2_ws/install/my_lidar_pkg")
+  set(CMAKE_INSTALL_PREFIX "/mnt/c/Users/jcube/OneDrive/Desktop/Jacob/School/Queens/Year 5/Extra Curricular/aQuatonomous/Lidar Bagging Data/mapping-25-26/install/my_lidar_pkg")
 endif()
 string(REGEX REPLACE "/$" "" CMAKE_INSTALL_PREFIX "${CMAKE_INSTALL_PREFIX}")
 
@@ -43,35 +43,35 @@ if(NOT DEFINED CMAKE_OBJDUMP)
 endif()
 
 if("x${CMAKE_INSTALL_COMPONENT}x" STREQUAL "xUnspecifiedx" OR NOT CMAKE_INSTALL_COMPONENT)
-  file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/share/my_lidar_pkg/environment" TYPE FILE FILES "/home/jacob/ros2_ws/build/my_lidar_pkg/ament_cmake_environment_hooks/pythonpath.sh")
+  file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/share/my_lidar_pkg/environment" TYPE FILE FILES "/mnt/c/Users/jcube/OneDrive/Desktop/Jacob/School/Queens/Year 5/Extra Curricular/aQuatonomous/Lidar Bagging Data/mapping-25-26/build/my_lidar_pkg/ament_cmake_environment_hooks/pythonpath.sh")
 endif()
 
 if("x${CMAKE_INSTALL_COMPONENT}x" STREQUAL "xUnspecifiedx" OR NOT CMAKE_INSTALL_COMPONENT)
-  file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/share/my_lidar_pkg/environment" TYPE FILE FILES "/home/jacob/ros2_ws/build/my_lidar_pkg/ament_cmake_environment_hooks/pythonpath.dsv")
+  file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/share/my_lidar_pkg/environment" TYPE FILE FILES "/mnt/c/Users/jcube/OneDrive/Desktop/Jacob/School/Queens/Year 5/Extra Curricular/aQuatonomous/Lidar Bagging Data/mapping-25-26/build/my_lidar_pkg/ament_cmake_environment_hooks/pythonpath.dsv")
 endif()
 
 if("x${CMAKE_INSTALL_COMPONENT}x" STREQUAL "xUnspecifiedx" OR NOT CMAKE_INSTALL_COMPONENT)
-  file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/local/lib/python3.10/dist-packages/my_lidar_pkg-0.1.0-py3.10.egg-info" TYPE DIRECTORY FILES "/home/jacob/ros2_ws/build/my_lidar_pkg/ament_cmake_python/my_lidar_pkg/my_lidar_pkg.egg-info/")
+  file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/local/lib/python3.10/dist-packages/my_lidar_pkg-0.1.0-py3.10.egg-info" TYPE DIRECTORY FILES "/mnt/c/Users/jcube/OneDrive/Desktop/Jacob/School/Queens/Year 5/Extra Curricular/aQuatonomous/Lidar Bagging Data/mapping-25-26/build/my_lidar_pkg/ament_cmake_python/my_lidar_pkg/my_lidar_pkg.egg-info/")
 endif()
 
 if("x${CMAKE_INSTALL_COMPONENT}x" STREQUAL "xUnspecifiedx" OR NOT CMAKE_INSTALL_COMPONENT)
-  file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/local/lib/python3.10/dist-packages/my_lidar_pkg" TYPE DIRECTORY FILES "/home/jacob/ros2_ws/src/my_lidar_pkg/my_lidar_pkg/" REGEX "/[^/]*\\.pyc$" EXCLUDE REGEX "/\\_\\_pycache\\_\\_$" EXCLUDE)
+  file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/local/lib/python3.10/dist-packages/my_lidar_pkg" TYPE DIRECTORY FILES "/mnt/c/Users/jcube/OneDrive/Desktop/Jacob/School/Queens/Year 5/Extra Curricular/aQuatonomous/Lidar Bagging Data/mapping-25-26/src/my_lidar_pkg/my_lidar_pkg/" REGEX "/[^/]*\\.pyc$" EXCLUDE REGEX "/\\_\\_pycache\\_\\_$" EXCLUDE)
 endif()
 
 if("x${CMAKE_INSTALL_COMPONENT}x" STREQUAL "xUnspecifiedx" OR NOT CMAKE_INSTALL_COMPONENT)
   execute_process(
         COMMAND
         "/usr/bin/python3" "-m" "compileall"
-        "/home/jacob/ros2_ws/install/my_lidar_pkg/local/lib/python3.10/dist-packages/my_lidar_pkg"
+        "/mnt/c/Users/jcube/OneDrive/Desktop/Jacob/School/Queens/Year 5/Extra Curricular/aQuatonomous/Lidar Bagging Data/mapping-25-26/install/my_lidar_pkg/local/lib/python3.10/dist-packages/my_lidar_pkg"
       )
 endif()
 
 if("x${CMAKE_INSTALL_COMPONENT}x" STREQUAL "xUnspecifiedx" OR NOT CMAKE_INSTALL_COMPONENT)
-  file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/share/ament_index/resource_index/package_run_dependencies" TYPE FILE FILES "/home/jacob/ros2_ws/build/my_lidar_pkg/ament_cmake_index/share/ament_index/resource_index/package_run_dependencies/my_lidar_pkg")
+  file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/share/ament_index/resource_index/package_run_dependencies" TYPE FILE FILES "/mnt/c/Users/jcube/OneDrive/Desktop/Jacob/School/Queens/Year 5/Extra Curricular/aQuatonomous/Lidar Bagging Data/mapping-25-26/build/my_lidar_pkg/ament_cmake_index/share/ament_index/resource_index/package_run_dependencies/my_lidar_pkg")
 endif()
 
 if("x${CMAKE_INSTALL_COMPONENT}x" STREQUAL "xUnspecifiedx" OR NOT CMAKE_INSTALL_COMPONENT)
-  file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/share/ament_index/resource_index/parent_prefix_path" TYPE FILE FILES "/home/jacob/ros2_ws/build/my_lidar_pkg/ament_cmake_index/share/ament_index/resource_index/parent_prefix_path/my_lidar_pkg")
+  file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/share/ament_index/resource_index/parent_prefix_path" TYPE FILE FILES "/mnt/c/Users/jcube/OneDrive/Desktop/Jacob/School/Queens/Year 5/Extra Curricular/aQuatonomous/Lidar Bagging Data/mapping-25-26/build/my_lidar_pkg/ament_cmake_index/share/ament_index/resource_index/parent_prefix_path/my_lidar_pkg")
 endif()
 
 if("x${CMAKE_INSTALL_COMPONENT}x" STREQUAL "xUnspecifiedx" OR NOT CMAKE_INSTALL_COMPONENT)
@@ -79,7 +79,7 @@ if("x${CMAKE_INSTALL_COMPONENT}x" STREQUAL "xUnspecifiedx" OR NOT CMAKE_INSTALL_
 endif()
 
 if("x${CMAKE_INSTALL_COMPONENT}x" STREQUAL "xUnspecifiedx" OR NOT CMAKE_INSTALL_COMPONENT)
-  file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/share/my_lidar_pkg/environment" TYPE FILE FILES "/home/jacob/ros2_ws/build/my_lidar_pkg/ament_cmake_environment_hooks/ament_prefix_path.dsv")
+  file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/share/my_lidar_pkg/environment" TYPE FILE FILES "/mnt/c/Users/jcube/OneDrive/Desktop/Jacob/School/Queens/Year 5/Extra Curricular/aQuatonomous/Lidar Bagging Data/mapping-25-26/build/my_lidar_pkg/ament_cmake_environment_hooks/ament_prefix_path.dsv")
 endif()
 
 if("x${CMAKE_INSTALL_COMPONENT}x" STREQUAL "xUnspecifiedx" OR NOT CMAKE_INSTALL_COMPONENT)
@@ -87,42 +87,42 @@ if("x${CMAKE_INSTALL_COMPONENT}x" STREQUAL "xUnspecifiedx" OR NOT CMAKE_INSTALL_
 endif()
 
 if("x${CMAKE_INSTALL_COMPONENT}x" STREQUAL "xUnspecifiedx" OR NOT CMAKE_INSTALL_COMPONENT)
-  file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/share/my_lidar_pkg/environment" TYPE FILE FILES "/home/jacob/ros2_ws/build/my_lidar_pkg/ament_cmake_environment_hooks/path.dsv")
+  file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/share/my_lidar_pkg/environment" TYPE FILE FILES "/mnt/c/Users/jcube/OneDrive/Desktop/Jacob/School/Queens/Year 5/Extra Curricular/aQuatonomous/Lidar Bagging Data/mapping-25-26/build/my_lidar_pkg/ament_cmake_environment_hooks/path.dsv")
 endif()
 
 if("x${CMAKE_INSTALL_COMPONENT}x" STREQUAL "xUnspecifiedx" OR NOT CMAKE_INSTALL_COMPONENT)
-  file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/share/my_lidar_pkg" TYPE FILE FILES "/home/jacob/ros2_ws/build/my_lidar_pkg/ament_cmake_environment_hooks/local_setup.bash")
+  file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/share/my_lidar_pkg" TYPE FILE FILES "/mnt/c/Users/jcube/OneDrive/Desktop/Jacob/School/Queens/Year 5/Extra Curricular/aQuatonomous/Lidar Bagging Data/mapping-25-26/build/my_lidar_pkg/ament_cmake_environment_hooks/local_setup.bash")
 endif()
 
 if("x${CMAKE_INSTALL_COMPONENT}x" STREQUAL "xUnspecifiedx" OR NOT CMAKE_INSTALL_COMPONENT)
-  file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/share/my_lidar_pkg" TYPE FILE FILES "/home/jacob/ros2_ws/build/my_lidar_pkg/ament_cmake_environment_hooks/local_setup.sh")
+  file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/share/my_lidar_pkg" TYPE FILE FILES "/mnt/c/Users/jcube/OneDrive/Desktop/Jacob/School/Queens/Year 5/Extra Curricular/aQuatonomous/Lidar Bagging Data/mapping-25-26/build/my_lidar_pkg/ament_cmake_environment_hooks/local_setup.sh")
 endif()
 
 if("x${CMAKE_INSTALL_COMPONENT}x" STREQUAL "xUnspecifiedx" OR NOT CMAKE_INSTALL_COMPONENT)
-  file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/share/my_lidar_pkg" TYPE FILE FILES "/home/jacob/ros2_ws/build/my_lidar_pkg/ament_cmake_environment_hooks/local_setup.zsh")
+  file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/share/my_lidar_pkg" TYPE FILE FILES "/mnt/c/Users/jcube/OneDrive/Desktop/Jacob/School/Queens/Year 5/Extra Curricular/aQuatonomous/Lidar Bagging Data/mapping-25-26/build/my_lidar_pkg/ament_cmake_environment_hooks/local_setup.zsh")
 endif()
 
 if("x${CMAKE_INSTALL_COMPONENT}x" STREQUAL "xUnspecifiedx" OR NOT CMAKE_INSTALL_COMPONENT)
-  file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/share/my_lidar_pkg" TYPE FILE FILES "/home/jacob/ros2_ws/build/my_lidar_pkg/ament_cmake_environment_hooks/local_setup.dsv")
+  file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/share/my_lidar_pkg" TYPE FILE FILES "/mnt/c/Users/jcube/OneDrive/Desktop/Jacob/School/Queens/Year 5/Extra Curricular/aQuatonomous/Lidar Bagging Data/mapping-25-26/build/my_lidar_pkg/ament_cmake_environment_hooks/local_setup.dsv")
 endif()
 
 if("x${CMAKE_INSTALL_COMPONENT}x" STREQUAL "xUnspecifiedx" OR NOT CMAKE_INSTALL_COMPONENT)
-  file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/share/my_lidar_pkg" TYPE FILE FILES "/home/jacob/ros2_ws/build/my_lidar_pkg/ament_cmake_environment_hooks/package.dsv")
+  file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/share/my_lidar_pkg" TYPE FILE FILES "/mnt/c/Users/jcube/OneDrive/Desktop/Jacob/School/Queens/Year 5/Extra Curricular/aQuatonomous/Lidar Bagging Data/mapping-25-26/build/my_lidar_pkg/ament_cmake_environment_hooks/package.dsv")
 endif()
 
 if("x${CMAKE_INSTALL_COMPONENT}x" STREQUAL "xUnspecifiedx" OR NOT CMAKE_INSTALL_COMPONENT)
-  file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/share/ament_index/resource_index/packages" TYPE FILE FILES "/home/jacob/ros2_ws/build/my_lidar_pkg/ament_cmake_index/share/ament_index/resource_index/packages/my_lidar_pkg")
+  file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/share/ament_index/resource_index/packages" TYPE FILE FILES "/mnt/c/Users/jcube/OneDrive/Desktop/Jacob/School/Queens/Year 5/Extra Curricular/aQuatonomous/Lidar Bagging Data/mapping-25-26/build/my_lidar_pkg/ament_cmake_index/share/ament_index/resource_index/packages/my_lidar_pkg")
 endif()
 
 if("x${CMAKE_INSTALL_COMPONENT}x" STREQUAL "xUnspecifiedx" OR NOT CMAKE_INSTALL_COMPONENT)
   file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/share/my_lidar_pkg/cmake" TYPE FILE FILES
-    "/home/jacob/ros2_ws/build/my_lidar_pkg/ament_cmake_core/my_lidar_pkgConfig.cmake"
-    "/home/jacob/ros2_ws/build/my_lidar_pkg/ament_cmake_core/my_lidar_pkgConfig-version.cmake"
+    "/mnt/c/Users/jcube/OneDrive/Desktop/Jacob/School/Queens/Year 5/Extra Curricular/aQuatonomous/Lidar Bagging Data/mapping-25-26/build/my_lidar_pkg/ament_cmake_core/my_lidar_pkgConfig.cmake"
+    "/mnt/c/Users/jcube/OneDrive/Desktop/Jacob/School/Queens/Year 5/Extra Curricular/aQuatonomous/Lidar Bagging Data/mapping-25-26/build/my_lidar_pkg/ament_cmake_core/my_lidar_pkgConfig-version.cmake"
     )
 endif()
 
 if("x${CMAKE_INSTALL_COMPONENT}x" STREQUAL "xUnspecifiedx" OR NOT CMAKE_INSTALL_COMPONENT)
-  file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/share/my_lidar_pkg" TYPE FILE FILES "/home/jacob/ros2_ws/src/my_lidar_pkg/package.xml")
+  file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/share/my_lidar_pkg" TYPE FILE FILES "/mnt/c/Users/jcube/OneDrive/Desktop/Jacob/School/Queens/Year 5/Extra Curricular/aQuatonomous/Lidar Bagging Data/mapping-25-26/src/my_lidar_pkg/package.xml")
 endif()
 
 if(CMAKE_INSTALL_COMPONENT)
@@ -133,5 +133,5 @@ endif()
 
 string(REPLACE ";" "\n" CMAKE_INSTALL_MANIFEST_CONTENT
        "${CMAKE_INSTALL_MANIFEST_FILES}")
-file(WRITE "/home/jacob/ros2_ws/build/my_lidar_pkg/${CMAKE_INSTALL_MANIFEST}"
+file(WRITE "/mnt/c/Users/jcube/OneDrive/Desktop/Jacob/School/Queens/Year 5/Extra Curricular/aQuatonomous/Lidar Bagging Data/mapping-25-26/build/my_lidar_pkg/${CMAKE_INSTALL_MANIFEST}"
      "${CMAKE_INSTALL_MANIFEST_CONTENT}")

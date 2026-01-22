@@ -23,6 +23,12 @@ def generate_launch_description() -> LaunchDescription:
                     'max_lateral_extent': 3.0,   # Maximum buoy size (meters)
                     'min_points_final': 3,       # Final point count check
                     'confidence_scale': 15.0,    # Points for 100% confidence
+                    
+                    # RANSAC water plane removal (for tilted LiDAR)
+                    'ransac_enabled': True,           # Enable plane removal
+                    'ransac_iterations': 150,         # Number of random samples
+                    'ransac_distance_threshold': 0.15,  # Max distance to plane (meters)
+                    'ransac_min_inlier_ratio': 0.3,   # Min fraction of points in plane
                 }
             ],
         ),

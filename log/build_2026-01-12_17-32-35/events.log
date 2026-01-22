@@ -1,0 +1,7 @@
+[0.000000] (-) TimerEvent: {}
+[0.001728] (-) JobUnselected: {'identifier': 'my_lidar_pkg'}
+[0.002218] (-) JobUnselected: {'identifier': 'pointcloud_filters'}
+[0.002529] (-) JobUnselected: {'identifier': 'unitree_lidar_ros'}
+[0.002914] (-) JobUnselected: {'identifier': 'unitree_lidar_ros2'}
+[0.003187] (-) JobUnselected: {'identifier': 'unitree_lidar_sdk'}
+[0.003537] (-) EventReactorShutdown: {}
