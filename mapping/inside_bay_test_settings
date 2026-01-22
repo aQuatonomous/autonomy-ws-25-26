@@ -1,0 +1,53 @@
+# Inside Bay Test Settings
+# ROS 2 run commands with optimized parameters for 0.5m range detection
+
+# Terminal 1: LiDAR Driver
+source /home/jacob/ros2_ws/install/setup.bash
+ros2 launch unitree_lidar_ros2 launch.py
+
+# Terminal 2: Range Filter with Accumulation
+source /home/jacob/ros2_ws/install/setup.bash
+ros2 run pointcloud_filters lidar_range_filter --ros-args \
+  -p input_topic:=/unilidar/cloud \
+  -p output_topic:=/points_filtered \
+  -p z_min:=0.0 \
+  -p z_max:=0.5 \
+  -p range_max:=0.5 \
+  -p enable_accumulation:=True \
+  -p accumulation_window:=1.0 \
+  -p use_tf_transform:=False
+
+# Terminal 3: Buoy Detector (DBSCAN Clustering)
+source /home/jacob/ros2_ws/install/setup.bash
+ros2 run pointcloud_filters buoy_detector --ros-args \
+  -p eps:=0.15 \
+  -p min_samples:=15 \
+  -p min_lateral_extent:=0.05 \
+  -p max_lateral_extent:=0.4 \
+  -p confidence_scale:=15.0
+
+# Terminal 4: Buoy Tracker (Persistent IDs)
+source /home/jacob/ros2_ws/install/setup.bash
+ros2 run pointcloud_filters buoy_tracker --ros-args \
+  -p association_threshold:=0.3 \
+  -p max_consecutive_misses:=5 \
+  -p position_alpha:=0.7 \
+  -p min_observations_for_publish:=2
+
+# Terminal 5: Tracked Buoy Visualizer
+source /home/jacob/ros2_ws/install/setup.bash
+ros2 run pointcloud_filters tracked_buoy_visualizer --ros-args \
+  -p marker_height:=0.3 \
+  -p marker_radius:=0.1 \
+  -p marker_lifetime:=2.0 \
+  -p show_text_labels:=True
+
+# Terminal 6: RViz
+source /opt/ros/humble/setup.bash
+rviz2
+
+# RViz Configuration:
+# 1. Set Fixed Frame: unilidar_lidar
+# 2. Add /unilidar/cloud (PointCloud2) - Size: 0.05
+# 3. Add /points_filtered (PointCloud2) - Size: 0.05
+# 4. Add /tracked_buoy_markers (MarkerArray)

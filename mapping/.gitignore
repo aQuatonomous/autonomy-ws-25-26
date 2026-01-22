@@ -20,19 +20,13 @@ __pycache__/
 *~
 .DS_Store
 
-# Virtual environments
-.venv/
-venv/
-trt-env/
-
-# Computer Vision
-camera_images/
-testing_media/
-
 # Vendor Packages (clone separately)
-mapping/src/unilidar_sdk/
-mapping/src/ros_numpy/
-mapping/src/my_lidar_pkg/
+src/unilidar_sdk/
+src/ros_numpy/
+src/my_lidar_pkg/
+
+# TensorRT Environment
+trt-env/
 
 # ROS 1 Legacy (from unilidar SDK)
 unitree_lidar_ros/build
