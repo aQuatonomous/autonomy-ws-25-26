@@ -1,0 +1,44 @@
+# ROS 2 Build Artifacts
+build/
+install/
+log/
+
+# Python Cache
+__pycache__/
+*.pyc
+*.pyo
+*.pyi
+*.egg-info/
+*.egg
+.Python
+
+# IDE Files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Vendor Packages (clone separately)
+src/unilidar_sdk/
+src/ros_numpy/
+src/my_lidar_pkg/
+
+# TensorRT Environment
+trt-env/
+
+# ROS 1 Legacy (from unilidar SDK)
+unitree_lidar_ros/build
+unitree_lidar_ros/devel
+unitree_lidar_ros/.catkin_workspace
+unitree_lidar_ros/src/CMakeLists.txt
+
+# ROS 2 SDK build artifacts
+unitree_lidar_ros2/build
+unitree_lidar_ros2/install
+unitree_lidar_ros2/log
+
+# SDK binaries
+unitree_lidar_sdk/bin
+unitree_lidar_sdk/build
