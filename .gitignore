@@ -1,5 +1,11 @@
-build
-log
-install
+# Virtual environments
+.venv/
+venv/
+trt-env/
 
-trt-env
+
+log
+build
+install
+camera_images
+testing_media
