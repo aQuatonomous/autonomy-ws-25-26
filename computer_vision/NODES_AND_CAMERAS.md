@@ -118,7 +118,7 @@ ros2 run cv_ros_nodes vision_combiner --deduplicate_overlap --overlap_zone_width
 ros2 run cv_ros_nodes vision_combiner --use_timestamp_sync --sync_window 0.05
 ```
 
-Subscribes: `/camera0/detection_info`, `/camera1/detection_info`, `/camera2/detection_info`; `/camera0/task4_detections`, `/camera1/task4_detections`, `/camera2/task4_detections`. Publishes: `/combined/detection_info`. All `bbox` in combined output are in the **global frame** 1920×480; payload includes `global_frame: { "width": 1920, "height": 480 }`. Default: latest-value with 1.0s staleness.
+Subscribes: `/camera0/detection_info`, `/camera1/detection_info`, `/camera2/detection_info`; `/camera0/task4_detections`, `/camera1/task4_detections`, `/camera2/task4_detections`. Publishes: `/combined/detection_info`. All `bbox` in combined output are in the **global frame** (3×frame_width×frame_height, e.g. 5760×1200); payload includes `global_frame: { "width": W, "height": H }` from detection_info. Default: latest-value with 1.0s staleness.
 
 ### Task4 supply processor (optional)
 
@@ -126,7 +126,7 @@ Subscribes: `/camera0/detection_info`, `/camera1/detection_info`, `/camera2/dete
 ros2 run cv_ros_nodes task4_supply_processor
 ```
 
-Subscribes: `/camera{N}/image_preprocessed`, `/camera{N}/detection_info` (N=0,1,2). Publishes: `/camera{N}/task4_detections` (JSON). Matches shape detections (class 6 cross, 8 triangle) to yellow/black blobs; `shape_bbox` and `vessel_bbox` are in 640×480. Launched with `enable_task4:=true` via `launch_cv.py`.
+Subscribes: `/camera{N}/image_preprocessed`, `/camera{N}/detection_info` (N=0,1,2). Publishes: `/camera{N}/task4_detections` (JSON). Matches shape detections (class 6 cross, 8 triangle) to yellow/black blobs; `shape_bbox` and `vessel_bbox` are in the preprocessed frame (camera resolution, e.g. 1920×1200). Launched with `enable_task4:=true` via `launch_cv.py`.
 
 ### Camera viewer (image saver)
 
@@ -165,11 +165,11 @@ ros2 topic list
 | Topic | Type | Description |
 |-------|------|-------------|
 | `/camera{N}/image_raw` | `sensor_msgs/Image` | Raw camera feed (1920x1200) |
-| `/camera{N}/image_preprocessed` | `sensor_msgs/Image` | Preprocessed image (640x480) |
+| `/camera{N}/image_preprocessed` | `sensor_msgs/Image` | Preprocessed image (camera resolution, e.g. 1920×1200, pass-through) |
 | `/camera{N}/detections` | `sensor_msgs/Image` | Image with bounding boxes drawn |
-| `/camera{N}/detection_info` | `std_msgs/String` | JSON detection metadata (bbox 640×640) |
-| `/camera{N}/task4_detections` | `std_msgs/String` | Task4 supply-drop detections (shape_bbox, vessel_bbox in 640×480); when `enable_task4:=true` |
-| `/combined/detection_info` | `std_msgs/String` | Combined detections; `bbox` in global 1920×480; `global_frame: {width:1920, height:480}` |
+| `/camera{N}/detection_info` | `std_msgs/String` | JSON detection metadata; bbox in preprocessed frame; includes `frame_width`, `frame_height` |
+| `/camera{N}/task4_detections` | `std_msgs/String` | Task4 supply-drop detections (shape_bbox, vessel_bbox in preprocessed frame); when `enable_task4:=true` |
+| `/combined/detection_info` | `std_msgs/String` | Combined detections; `bbox` in global frame 3×frame_width×frame_height (e.g. 5760×1200); `global_frame` from detection_info |
 
 ---
 
@@ -177,7 +177,7 @@ ros2 topic list
 
 ### Per-camera (`/camera{N}/detection_info`)
 
-Inference bbox is in **640×640** (model input). Example:
+Bbox is in the **preprocessed frame** (frame_width×frame_height, e.g. 1920×1200). Includes `frame_width` and `frame_height`. Example:
 
 ```json
 {
@@ -187,6 +187,8 @@ Inference bbox is in **640×640** (model input). Example:
   "num_detections": 2,
   "inference_time_ms": 12.5,
   "fps": 15.0,
+  "frame_width": 1920,
+  "frame_height": 1200,
   "detections": [
     {
       "class_id": 2,
@@ -205,7 +207,7 @@ Inference bbox is in **640×640** (model input). Example:
 
 ### Per-camera Task4 (`/camera{N}/task4_detections`)
 
-`shape_bbox` and `vessel_bbox` are in **640×480**. Example:
+`shape_bbox` and `vessel_bbox` are in the **preprocessed frame** (same as image_preprocessed). Example:
 
 ```json
 {
@@ -281,4 +283,4 @@ All `detections[].bbox` are in the **global frame 1920×480** (`[x1,y1,x2,y2]`);
 }
 ```
 
-**Combiner behavior:** Latest value per camera; staleness filtering (cameras older than `staleness_threshold` excluded); status `active`, `stale`, `no_data`. Each detection includes `camera_id`. Inference bbox: 640×640→640×480 then to global; Task4 uses `shape_bbox` (640×480) as local bbox then to global.
+**Combiner behavior:** Latest value per camera; staleness filtering (cameras older than `staleness_threshold` excluded); status `active`, `stale`, `no_data`. Each detection includes `camera_id`. Frame dimensions from `frame_width`/`frame_height` in detection_info. Bbox from inference and Task4 are already in the preprocessed frame; combiner adds `camera_id * frame_width` to x for the global frame.

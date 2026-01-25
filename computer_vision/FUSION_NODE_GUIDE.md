@@ -61,7 +61,7 @@ Each detection in the `detections` array contains:
 | `camera_id` | int | Source camera (0, 1, or 2) |
 | `class_id` | int | Object class identifier (see class mapping below) |
 | `score` | float | Confidence score (0.0-1.0) |
-| `bbox` | array | `[x1, y1, x2, y2]` in **global frame 1920×480** (x-offset = camera_id × 640) |
+| `bbox` | array | `[x1, y1, x2, y2]` in **global frame** (read `global_frame.width`, `global_frame.height` from JSON; x-offset = camera_id × frame_width where frame_width = global_frame.width / 3) |
 | `source` | str | `"task4"` for Task4 supply drops (optional) |
 | `type` | str | `"yellow_supply_drop"` or `"black_supply_drop"` for Task4 (optional) |
 
@@ -97,7 +97,7 @@ classes:
 - Overlap between adjacent cameras: 15°
 - Total horizontal coverage: ~245°
 - Camera frames: `camera0`, `camera1`, `camera2`
-- Image resolution: 640x480 (preprocessed from 1920x1200)
+- Image resolution: camera resolution (e.g. 1920×1200, pass-through from preprocessing)
 
 **Camera Positions:**
 - Camera 0: Left camera
@@ -617,12 +617,18 @@ class VisionLidarFusionNode(Node):
         """
         # Placeholder: simple approximation
         # In reality, you need camera calibration and TF transforms
-        bbox_center_u = (detection['x1'] + detection['x2']) / 2.0
-        image_width = 640  # Preprocessed image width
+        # Read global_frame from /combined/detection_info JSON to get frame dimensions
+        bbox_center_u_global = (detection['x1'] + detection['x2']) / 2.0
+        # Per-camera frame: frame_width = global_frame["width"] / 3, frame_height = global_frame["height"]
+        # Local u in camera view: bbox_center_u = bbox_center_u_global - camera_id * frame_width
+        # For this placeholder, use a default; in real implementation read global_frame from the
+        # /combined/detection_info JSON (store in self in vision_callback): frame_width = global_frame["width"] / 3
+        frame_width = 1920
+        bbox_center_u = bbox_center_u_global - camera_id * frame_width
         
         # Simple approximation: assume camera FOV = 85°, centered
         # This is a placeholder - implement proper projection!
-        normalized_u = (bbox_center_u - image_width / 2.0) / (image_width / 2.0)
+        normalized_u = (bbox_center_u - frame_width / 2.0) / (frame_width / 2.0)
         fov_rad = math.radians(85.0)
         vision_bearing_local = normalized_u * (fov_rad / 2.0)
         

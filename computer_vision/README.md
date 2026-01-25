@@ -24,7 +24,7 @@ ros2 launch cv_ros_nodes launch_cv.py
 # With Task4 supply processor: enable_task4:=true
 ```
 
-For launch overrides (`enable_task4:=true`, `resolution`, `camera_devices`, `engine_path`, etc.), manual node commands, and monitoring: [NODES_AND_CAMERAS.md](NODES_AND_CAMERAS.md). Downstream (e.g. mission/control): use `/combined/detection_info`; detections are in the global frame 1920×480; `bbox` is `[x1,y1,x2,y2]` in that frame; `global_frame: { "width": 1920, "height": 480 }`. Task4 supply drops have `source == "task4"` and `type` in `"yellow_supply_drop"`, `"black_supply_drop"`.
+For launch overrides (`enable_task4:=true`, `resolution`, `camera_devices`, `engine_path`, etc.), manual node commands, and monitoring: [NODES_AND_CAMERAS.md](NODES_AND_CAMERAS.md). Downstream (e.g. mission/control): use `/combined/detection_info`; detections are in the global frame (3×frame_width×frame_height, e.g. 5760×1200); `bbox` is `[x1,y1,x2,y2]` in that frame; `global_frame` in the payload. Task4 supply drops have `source == "task4"` and `type` in `"yellow_supply_drop"`, `"black_supply_drop"`.
 
 ---
 

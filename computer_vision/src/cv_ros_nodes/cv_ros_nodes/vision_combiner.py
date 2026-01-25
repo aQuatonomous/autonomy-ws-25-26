@@ -3,7 +3,7 @@ Multi-Camera Detection Combiner ROS2 Node
 
 Subscribes to: /camera0/detection_info, /camera1/detection_info, /camera2/detection_info;
   /camera0/task4_detections, /camera1/task4_detections, /camera2/task4_detections
-Publishes to: /combined/detection_info (String with all detections; bbox in global 1920×480; global_frame: {width:1920, height:480})
+Publishes to: /combined/detection_info (String with all detections; bbox in global frame 3×frame_width×frame_height, e.g. 5760×1200; global_frame from detection_info)
 
 WHAT THIS NODE DOES:
 This node combines detections from all 3 side-by-side cameras into a single unified list.
@@ -70,13 +70,12 @@ class DetectionCombiner(Node):
         self.overlap_zone_width = overlap_zone_width  # Fraction of frame width for overlap zone (0.15 = 15%)
         self.overlap_y_tolerance = overlap_y_tolerance  # Fraction of frame height for y-coordinate matching (0.1 = 10%)
         
-        # Preprocessed image dimensions (640x480) per camera
+        # Per-camera frame dimensions (learned from detection_info; fallback until first inference)
         self.frame_width = 640
         self.frame_height = 480
         # Global frame: 3 cameras side-by-side (0=left, 1=center, 2=right)
-        self.global_width = 1920  # 3 * 640
-        self.global_height = 480
-        self.y_scale_640_to_480 = 480.0 / 640.0  # inference bbox is 640x640
+        self.global_width = 3 * self.frame_width
+        self.global_height = self.frame_height
 
         # Store latest detections from each camera (inference)
         self.detections = {
@@ -143,6 +142,14 @@ class DetectionCombiner(Node):
             self.detections[camera_id] = detection_data
             self.last_update_times[camera_id] = time.time()
             
+            # Learn frame dimensions from detection_info (bbox already in preprocessed frame)
+            if 'frame_width' in detection_data:
+                self.frame_width = int(detection_data['frame_width'])
+            if 'frame_height' in detection_data:
+                self.frame_height = int(detection_data['frame_height'])
+            self.global_width = 3 * self.frame_width
+            self.global_height = self.frame_height
+            
             # If using timestamp sync, try to match with other cameras
             if self.use_timestamp_sync:
                 self._try_synchronize_and_publish(detection_timestamp, camera_id, detection_data)
@@ -162,15 +169,8 @@ class DetectionCombiner(Node):
         except json.JSONDecodeError as e:
             self.get_logger().error(f'Failed to parse task4_detections from camera{camera_id}: {e}')
 
-    def _inference_bbox_to_640x480(self, bbox: List[float]) -> List[float]:
-        """Convert inference bbox (640x640) to preprocessed (640x480). y only."""
-        if len(bbox) != 4:
-            return bbox
-        x1, y1, x2, y2 = bbox
-        return [x1, y1 * self.y_scale_640_to_480, x2, y2 * self.y_scale_640_to_480]
-
     def _to_global_bbox(self, bbox: List[float], camera_id: int) -> List[float]:
-        """Transform bbox from camera-local 640x480 to global (1920x480). x += camera_id*640."""
+        """Transform bbox from camera-local (frame_width x frame_height) to global. x += camera_id*frame_width."""
         if len(bbox) != 4:
             return bbox
         x1, y1, x2, y2 = bbox
@@ -354,14 +354,14 @@ class DetectionCombiner(Node):
         camera_stats = {}
         current_time = time.time()
         
-        # Process matched detections (inference bbox 640x640 -> 640x480)
+        # Process matched detections (bbox already in preprocessed frame from inference)
         for camera_id, detection_data in matched_detections.items():
             detections = detection_data.get('detections', [])
             for det in detections:
                 det_with_camera = det.copy()
                 det_with_camera['camera_id'] = camera_id
                 bbox = det.get('bbox') or [det.get('x1', 0), det.get('y1', 0), det.get('x2', 0), det.get('y2', 0)]
-                det_with_camera['bbox'] = self._inference_bbox_to_640x480(bbox)
+                det_with_camera['bbox'] = bbox
                 all_detections.append(det_with_camera)
             camera_stats[camera_id] = {
                 'status': 'active',
@@ -370,7 +370,7 @@ class DetectionCombiner(Node):
                 'timestamp': matched_timestamps[camera_id]
             }
 
-        # Merge Task 4 for matched cameras (shape_bbox already 640x480)
+        # Merge Task 4 for matched cameras (shape_bbox in preprocessed frame)
         for camera_id in matched_detections:
             t4 = self.task4_detections.get(camera_id)
             if not t4:
@@ -386,7 +386,7 @@ class DetectionCombiner(Node):
         if self.deduplicate_overlap and len(all_detections) > 0:
             all_detections = self._deduplicate_overlap_zones(all_detections)
 
-        # Transform bboxes to global frame (1920x480)
+        # Transform bboxes to global frame
         for det in all_detections:
             det['bbox'] = self._to_global_bbox(det['bbox'], det['camera_id'])
         
@@ -501,7 +501,7 @@ class DetectionCombiner(Node):
                 'time_since_update': round(time_since_update, 3)
             }
 
-        # Merge Task 4 supply-drop detections (per camera, shape_bbox already 640x480)
+        # Merge Task 4 supply-drop detections (per camera, shape_bbox in preprocessed frame)
         for cam_id in [0, 1, 2]:
             t4 = self.task4_detections.get(cam_id)
             if not t4:
@@ -517,7 +517,7 @@ class DetectionCombiner(Node):
         if self.deduplicate_overlap and len(all_detections) > 0:
             all_detections = self._deduplicate_overlap_zones(all_detections)
 
-        # Transform bboxes to global frame (1920x480)
+        # Transform bboxes to global frame
         for det in all_detections:
             det['bbox'] = self._to_global_bbox(det['bbox'], det['camera_id'])
 

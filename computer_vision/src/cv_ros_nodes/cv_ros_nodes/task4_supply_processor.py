@@ -98,14 +98,6 @@ class Task4SupplyProcessor(Node):
             'black': black_roi_blob,
         }
 
-    def _bbox_to_preprocessed(self, x1: float, y1: float, x2: float, y2: float) -> Tuple[float, float, float, float]:
-        """Convert inference bbox (640x640) to preprocessed (640x480)."""
-        x1_p = x1
-        y1_p = y1 * Y_SCALE_PREP
-        x2_p = x2
-        y2_p = y2 * Y_SCALE_PREP
-        return (x1_p, y1_p, x2_p, y2_p)
-
     def _detection_callback(self, msg: String, camera_id: int) -> None:
         try:
             data = json.loads(msg.data)
@@ -125,7 +117,7 @@ class Task4SupplyProcessor(Node):
             return
 
         for d in shapes:
-            # Bbox from inference (640x640); prefer bbox list, else x1,y1,x2,y2
+            # Bbox from detection_info (already in preprocessed frame); prefer bbox list, else x1,y1,x2,y2
             bbox = d.get('bbox')
             if bbox and len(bbox) == 4:
                 x1, y1, x2, y2 = float(bbox[0]), float(bbox[1]), float(bbox[2]), float(bbox[3])
@@ -135,13 +127,12 @@ class Task4SupplyProcessor(Node):
                 x2 = float(d.get('x2', 0))
                 y2 = float(d.get('y2', 0))
 
-            x1_p, y1_p, x2_p, y2_p = self._bbox_to_preprocessed(x1, y1, x2, y2)
-            cx = (x1_p + x2_p) / 2.0
-            cy = (y1_p + y2_p) / 2.0
+            shape_bbox = [x1, y1, x2, y2]
+            cx = (x1 + x2) / 2.0
+            cy = (y1 + y2) / 2.0
 
             class_id = int(d.get('class_id', -1))
             score = float(d.get('score', 0.0))
-            shape_bbox = [x1_p, y1_p, x2_p, y2_p]  # 640x480
 
             def in_roi(r: Tuple[int, int, int, int]) -> bool:
                 rx1, ry1, rx2, ry2 = r
@@ -151,7 +142,7 @@ class Task4SupplyProcessor(Node):
                 for roi, blob in blobs.get('yellow', []):
                     if in_roi(roi):
                         x, y, w, h, _ = blob
-                        vessel_bbox = [x, y, x + w, y + h]  # 640x480
+                        vessel_bbox = [x, y, x + w, y + h]
                         out.append({
                             'type': 'yellow_supply_drop',
                             'class_id': CLASS_TRIANGLE,
@@ -166,7 +157,7 @@ class Task4SupplyProcessor(Node):
                 for roi, blob in blobs.get('black', []):
                     if in_roi(roi):
                         x, y, w, h, _ = blob
-                        vessel_bbox = [x, y, x + w, y + h]  # 640x480
+                        vessel_bbox = [x, y, x + w, y + h]
                         out.append({
                             'type': 'black_supply_drop',
                             'class_id': CLASS_CROSS,
