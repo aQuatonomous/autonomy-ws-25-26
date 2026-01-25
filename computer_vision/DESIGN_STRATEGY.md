@@ -269,15 +269,14 @@ ros2 run cv_ros_nodes vision_inference --camera_id 2 --engine_path ~/autonomy-ws
 - `--overlap_y_tolerance`: Float (default: 0.1) - Fraction of frame height for y-coordinate matching (0.1 = 10%)
 
 **Subscriptions**:
-- `/camera0/detection_info` (std_msgs/String) - Queue size: 10
-- `/camera1/detection_info` (std_msgs/String) - Queue size: 10
-- `/camera2/detection_info` (std_msgs/String) - Queue size: 10
+- `/camera0/detection_info`, `/camera1/detection_info`, `/camera2/detection_info` (std_msgs/String) - Queue size: 10
+- `/camera0/task4_detections`, `/camera1/task4_detections`, `/camera2/task4_detections` (std_msgs/String) - Queue size: 10
 
 **Publications**:
 - `/combined/detection_info` (std_msgs/String)
   - Format: JSON
   - Frequency: ~15 Hz (timer-based, also publishes on new data; matches camera rate)
-  - Content: Combined detections with camera source tracking
+  - Content: Combined detections with camera source tracking; all `bbox` in **global frame 1920×480**; `global_frame: { "width": 1920, "height": 480 }`; Task4 supply drops have `source == "task4"` and `type` in `"yellow_supply_drop"`, `"black_supply_drop"`
 
 **Functionality**:
 
@@ -335,6 +334,31 @@ ros2 run cv_ros_nodes vision_inference --camera_id 2 --engine_path ~/autonomy-ws
 - Camera2: Last update 1.5s ago → **EXCLUDED** (stale, threshold=1.0s)
 - Output: Only detections from Camera0 and Camera1
 
+**e) Task4 supply-drop merging**:
+- Subscribes to `/camera{N}/task4_detections`; stores in `task4_detections` per camera
+- Task4 entries: use `shape_bbox` (640×480) as `bbox`, `source: "task4"`, score from `score` or `confidence`
+- Dedup (overlap) runs on local 640×480; then each `bbox` is converted to global 1920×480 via `_to_global_bbox` (x += camera_id * 640)
+- Same logic in `publish_combined` and `_publish_synchronized`
+
+---
+
+### 5. Task4 Supply Processor Node (task4_supply_processor.py)
+
+**Node Name**: `task4_supply_processor`
+
+**Purpose**: Match shape detections (class 6 cross, 8 triangle) from per-camera inference to yellow/black blobs via ROI-above-blob logic; publish supply-drop targets per camera for the combiner.
+
+**Subscriptions**:
+- `/camera{N}/image_preprocessed` (sensor_msgs/Image) – for blob detection (yellow, black)
+- `/camera{N}/detection_info` (std_msgs/String) – shape detections; callback `_detection_callback(msg, camera_id)`
+
+**Publications**:
+- `/camera{N}/task4_detections` (std_msgs/String) – via `_task4_pubs[camera_id]`; JSON: `{ "camera_id": N, "timestamp": <float>, "detections": [ { "type": "yellow_supply_drop"|"black_supply_drop", "class_id": 6|8, "score": <float>, "shape_bbox": [x1,y1,x2,y2], "vessel_bbox": [x1,y1,x2,y2], "source": "task4" } ] }`; `shape_bbox` and `vessel_bbox` in **640×480**
+
+**Functionality**: Uses `camera_id` from the subscription; matches shapes to `_blobs_by_camera[camera_id]`; publishes only to `/camera{camera_id}/task4_detections`. No subscription to `/combined/detection_info`; no publisher to `/task4/detections`.
+
+**Launch**: Optional; `launch_cv.py` with `enable_task4:=true`. Standalone: `ros2 run cv_ros_nodes task4_supply_processor`.
+
 ---
 
 ## Topic Communication Matrix
@@ -352,10 +376,13 @@ ros2 run cv_ros_nodes vision_inference --camera_id 2 --engine_path ~/autonomy-ws
 | `/camera0/detections` | sensor_msgs/Image | inference_node_camera0 | (monitoring/visualization) | ~15 Hz | Detection visualization 0 |
 | `/camera1/detections` | sensor_msgs/Image | inference_node_camera1 | (monitoring/visualization) | ~15 Hz | Detection visualization 1 |
 | `/camera2/detections` | sensor_msgs/Image | inference_node_camera2 | (monitoring/visualization) | ~15 Hz | Detection visualization 2 |
-| `/camera0/detection_info` | std_msgs/String | inference_node_camera0 | detection_combiner | ~15 Hz | Detection metadata 0 |
-| `/camera1/detection_info` | std_msgs/String | inference_node_camera1 | detection_combiner | ~15 Hz | Detection metadata 1 |
-| `/camera2/detection_info` | std_msgs/String | inference_node_camera2 | detection_combiner | ~15 Hz | Detection metadata 2 |
-| `/combined/detection_info` | std_msgs/String | detection_combiner | (downstream nodes) | ~15 Hz | Unified detection output |
+| `/camera0/detection_info` | std_msgs/String | inference_node_camera0 | detection_combiner, task4_supply_processor | ~15 Hz | Detection metadata 0 (bbox 640×640) |
+| `/camera1/detection_info` | std_msgs/String | inference_node_camera1 | detection_combiner, task4_supply_processor | ~15 Hz | Detection metadata 1 (bbox 640×640) |
+| `/camera2/detection_info` | std_msgs/String | inference_node_camera2 | detection_combiner, task4_supply_processor | ~15 Hz | Detection metadata 2 (bbox 640×640) |
+| `/camera0/task4_detections` | std_msgs/String | task4_supply_processor | detection_combiner | on detection_info | Task4 supply drops, camera 0 (shape_bbox, vessel_bbox 640×480) |
+| `/camera1/task4_detections` | std_msgs/String | task4_supply_processor | detection_combiner | on detection_info | Task4 supply drops, camera 1 |
+| `/camera2/task4_detections` | std_msgs/String | task4_supply_processor | detection_combiner | on detection_info | Task4 supply drops, camera 2 |
+| `/combined/detection_info` | std_msgs/String | detection_combiner | (downstream nodes) | ~15 Hz | Unified detections; bbox in global 1920×480; global_frame |
 
 ### Topic Dependency Graph
 
@@ -443,9 +470,11 @@ ros2 run cv_ros_nodes vision_inference --camera_id 2 --engine_path ~/autonomy-ws
 - `detections`: Array of detection objects
   - `class_id`: Object class identifier (integer)
   - `score`: Confidence score (0.0-1.0)
-  - `bbox`: Bounding box `[x1, y1, x2, y2]` in pixel coordinates
+  - `bbox`: Bounding box `[x1, y1, x2, y2]` in **640×640** (inference input)
 
 **Combined Detection Info** (`/combined/detection_info`):
+
+All `detections[].bbox` are in the **global frame 1920×480** (`[x1,y1,x2,y2]`); x-offset = `camera_id * 640`. `global_frame: { "width": 1920, "height": 480 }`. Task4 supply drops: `source == "task4"`, `type` in `"yellow_supply_drop"`, `"black_supply_drop"`.
 
 ```json
 {
@@ -456,6 +485,7 @@ ros2 run cv_ros_nodes vision_inference --camera_id 2 --engine_path ~/autonomy-ws
   "num_no_data_cameras": 0,
   "staleness_threshold": 1.0,
   "total_detections": 5,
+  "global_frame": { "width": 1920, "height": 480 },
   "camera_stats": {
     "0": {
       "status": "active",
@@ -514,8 +544,9 @@ ros2 run cv_ros_nodes vision_inference --camera_id 2 --engine_path ~/autonomy-ws
   - `time_since_update`: Seconds since last update
   - `staleness_threshold`: Threshold used (if stale)
   - `last_timestamp`: Last detection timestamp (if stale)
-- `detections`: Combined array with `camera_id` field added to each detection
+- `detections`: Combined array with `camera_id` and `bbox` in global 1920×480; Task4 entries include `source: "task4"` and `type` (`"yellow_supply_drop"` or `"black_supply_drop"`)
   - **Note**: Only includes detections from `active` cameras (stale cameras excluded)
+- `global_frame`: `{ "width": 1920, "height": 480 }`
 - `synchronized`: `true` if timestamp sync used, `null` if latest value approach
 
 ---
@@ -1353,7 +1384,8 @@ The computer vision pipeline provides the foundational perception capabilities r
 - **Spatial Understanding**: Bounding box coordinates for navigation and targeting
 
 **Integration with Task Execution:**
-- Vision detections are published to `/combined/detection_info` topic
+- Vision detections are published to `/combined/detection_info`; `bbox` is in global 1920×480; `global_frame: { "width": 1920, "height": 480 }`
+- Task4 supply drops: `source == "task4"`, `type` in `"yellow_supply_drop"`, `"black_supply_drop"`; also available on `/camera{N}/task4_detections` with `shape_bbox` and `vessel_bbox` in 640×480
 - Task-specific nodes subscribe to detections and execute task logic
 - Color indicator state detection is handled by a separate module (see `task_vision_processor.py` documentation)
 - Real-time detection enables dynamic navigation and decision-making
@@ -1509,6 +1541,8 @@ The computer vision pipeline provides the foundational perception capabilities r
 - **Black Vessels** (class_id: 7 with shape detection): Stationary vessels with black plus/cross on both sides
 - **Triangle Shapes** (class_id: 8): Black triangle targets on yellow vessels
 - **Cross/Plus Shapes** (class_id: 6): Black plus targets on black vessels
+
+**Task4 Supply Processor** (optional, `enable_task4:=true`): Subscribes to `/camera{N}/image_preprocessed` and `/camera{N}/detection_info`; publishes `/camera{N}/task4_detections` with `type` (`yellow_supply_drop`, `black_supply_drop`), `shape_bbox`, `vessel_bbox` (640×480), `source: "task4"`. Combiner merges these into `/combined/detection_info`; `bbox` in combined is in global 1920×480.
 
 **Vision Processing:**
 
@@ -1733,7 +1767,7 @@ The computer vision pipeline provides the foundational perception capabilities r
 **Task Execution Flow:**
 
 ```
-Vision Pipeline → /combined/detection_info
+Vision Pipeline → /combined/detection_info (bbox in global 1920×480; global_frame; Task4: source "task4", type yellow/black_supply_drop)
                     ↓
         Task-Specific Processors
                     ↓

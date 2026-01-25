@@ -1,5 +1,6 @@
 from launch import LaunchDescription
 from launch.actions import DeclareLaunchArgument, LogInfo, OpaqueFunction
+from launch.conditions import IfCondition
 from launch_ros.actions import Node
 from launch.substitutions import LaunchConfiguration
 import os
@@ -78,6 +79,12 @@ def generate_launch_description():
         description='Staleness threshold for combiner (seconds)'
     )
 
+    enable_task4_arg = DeclareLaunchArgument(
+        'enable_task4',
+        default_value='false',
+        description='Enable Task 4 supply drop processor'
+    )
+
     # Preprocessing nodes
     preprocess0 = Node(
         package='cv_ros_nodes',
@@ -137,12 +144,20 @@ def generate_launch_description():
         arguments=['--staleness_threshold', LaunchConfiguration('staleness_threshold')]
     )
 
+    task4_supply_processor = Node(
+        package='cv_ros_nodes',
+        executable='task4_supply_processor',
+        name='task4_supply_processor',
+        condition=IfCondition(LaunchConfiguration('enable_task4'))
+    )
+
     return LaunchDescription([
         resolution_arg,
         camera_devices_arg,
         engine_path_arg,
         conf_threshold_arg,
         staleness_threshold_arg,
+        enable_task4_arg,
         LogInfo(msg='Starting computer vision pipeline...'),
         OpaqueFunction(function=_create_camera_nodes),
         preprocess0,
@@ -152,5 +167,6 @@ def generate_launch_description():
         inference1,
         inference2,
         combiner,
+        task4_supply_processor,
         LogInfo(msg='All computer vision nodes started!')
     ])

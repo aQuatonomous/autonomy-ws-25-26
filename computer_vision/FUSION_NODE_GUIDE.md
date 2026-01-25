@@ -50,7 +50,7 @@ detection_info          (or update              (with color)
 
 ### Message Structure (summary)
 
-Top-level: `timestamp`, `num_cameras`, `num_active_cameras`, `num_stale_cameras`, `num_no_data_cameras`, `staleness_threshold`, `total_detections`, `camera_stats` (per-camera status, fps, `time_since_update`), `detections` (array of detections). Each detection: `camera_id`, `class_id`, `score`, `x1`, `y1`, `x2`, `y2`, `width`, `height`, `bbox`. Full format and field definitions: [NODES_AND_CAMERAS.md](NODES_AND_CAMERAS.md).
+Top-level: `timestamp`, `num_cameras`, `num_active_cameras`, `num_stale_cameras`, `num_no_data_cameras`, `staleness_threshold`, `total_detections`, `global_frame` (`{ "width": 1920, "height": 480 }`), `camera_stats` (per-camera status, fps, `time_since_update`), `detections` (array). Each detection: `camera_id`, `class_id`, `score`, `bbox` in **global 1920×480**; Task4 supply drops also have `source: "task4"`, `type` in `"yellow_supply_drop"`, `"black_supply_drop"`. Full format: [NODES_AND_CAMERAS.md](NODES_AND_CAMERAS.md).
 
 ### Detection Fields
 
@@ -61,10 +61,9 @@ Each detection in the `detections` array contains:
 | `camera_id` | int | Source camera (0, 1, or 2) |
 | `class_id` | int | Object class identifier (see class mapping below) |
 | `score` | float | Confidence score (0.0-1.0) |
-| `x1, y1` | float | Top-left bbox corner (pixels) |
-| `x2, y2` | float | Bottom-right bbox corner (pixels) |
-| `width, height` | float | Bounding box dimensions (pixels) |
-| `bbox` | array | `[x1, y1, x2, y2]` for convenience |
+| `bbox` | array | `[x1, y1, x2, y2]` in **global frame 1920×480** (x-offset = camera_id × 640) |
+| `source` | str | `"task4"` for Task4 supply drops (optional) |
+| `type` | str | `"yellow_supply_drop"` or `"black_supply_drop"` for Task4 (optional) |
 
 ### Class ID Mapping
 

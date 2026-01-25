@@ -7,14 +7,17 @@ Single reference for running nodes, camera configuration, launch, monitoring, to
 ## Pipeline Architecture (3 Cameras)
 
 ```
-Camera0: /camera0/image_raw → preprocessing0 → /camera0/image_preprocessed → inference0 → /camera0/detections
-Camera1: /camera1/image_raw → preprocessing1 → /camera1/image_preprocessed → inference1 → /camera1/detections  
-Camera2: /camera2/image_raw → preprocessing2 → /camera2/image_preprocessed → inference2 → /camera2/detections
+Camera0: /camera0/image_raw → preprocessing0 → /camera0/image_preprocessed → inference0 → /camera0/detections, /camera0/detection_info
+Camera1: /camera1/image_raw → preprocessing1 → /camera1/image_preprocessed → inference1 → /camera1/detections, /camera1/detection_info
+Camera2: /camera2/image_raw → preprocessing2 → /camera2/image_preprocessed → inference2 → /camera2/detections, /camera2/detection_info
+         │                                                                                        │
+         └── (optional) task4_supply_processor: /camera{N}/image_preprocessed + /camera{N}/detection_info
+                                                       → /camera{N}/task4_detections ─────────────┘
                                                                                             ↓
                                                                                     combiner → /combined/detection_info
 ```
 
-Start **camera nodes** first, then **preprocessing**, then **inference**, then **combiner**.
+Combiner subscribes to `/camera{N}/detection_info` and `/camera{N}/task4_detections` (when Task4 enabled). Start **camera nodes** first, then **preprocessing**, then **inference**, then **combiner**; optionally **task4_supply_processor** (launch with `enable_task4:=true`).
 
 ---
 
@@ -24,7 +27,7 @@ Start **camera nodes** first, then **preprocessing**, then **inference**, then *
 ros2 launch cv_ros_nodes launch_cv.py
 ```
 
-**Overrides:** `resolution:=1920,1200`, `camera_devices:=/dev/video0,/dev/video2,/dev/video4`, `engine_path:=/path/to/model.engine`, `conf_threshold:=0.25`, `staleness_threshold:=1.0`.
+**Overrides:** `resolution:=1920,1200`, `camera_devices:=/dev/video0,/dev/video2,/dev/video4`, `engine_path:=/path/to/model.engine`, `conf_threshold:=0.25`, `staleness_threshold:=1.0`, `enable_task4:=true` (to run Task4 supply processor).
 
 Set 15 fps on devices before launch (see [Camera configuration](#camera-configuration)).
 
@@ -115,7 +118,15 @@ ros2 run cv_ros_nodes vision_combiner --deduplicate_overlap --overlap_zone_width
 ros2 run cv_ros_nodes vision_combiner --use_timestamp_sync --sync_window 0.05
 ```
 
-Subscribes: `/camera0/detection_info`, `/camera1/detection_info`, `/camera2/detection_info`. Publishes: `/combined/detection_info`. Default: latest-value with 1.0s staleness.
+Subscribes: `/camera0/detection_info`, `/camera1/detection_info`, `/camera2/detection_info`; `/camera0/task4_detections`, `/camera1/task4_detections`, `/camera2/task4_detections`. Publishes: `/combined/detection_info`. All `bbox` in combined output are in the **global frame** 1920×480; payload includes `global_frame: { "width": 1920, "height": 480 }`. Default: latest-value with 1.0s staleness.
+
+### Task4 supply processor (optional)
+
+```bash
+ros2 run cv_ros_nodes task4_supply_processor
+```
+
+Subscribes: `/camera{N}/image_preprocessed`, `/camera{N}/detection_info` (N=0,1,2). Publishes: `/camera{N}/task4_detections` (JSON). Matches shape detections (class 6 cross, 8 triangle) to yellow/black blobs; `shape_bbox` and `vessel_bbox` are in 640×480. Launched with `enable_task4:=true` via `launch_cv.py`.
 
 ### Camera viewer (image saver)
 
@@ -141,6 +152,7 @@ ros2 topic hz /camera0/detections --window 20
 ros2 topic hz /combined/detection_info --window 20
 
 ros2 topic echo /camera0/detection_info
+ros2 topic echo /camera0/task4_detections
 ros2 topic echo /combined/detection_info
 
 ros2 topic list
@@ -155,14 +167,17 @@ ros2 topic list
 | `/camera{N}/image_raw` | `sensor_msgs/Image` | Raw camera feed (1920x1200) |
 | `/camera{N}/image_preprocessed` | `sensor_msgs/Image` | Preprocessed image (640x480) |
 | `/camera{N}/detections` | `sensor_msgs/Image` | Image with bounding boxes drawn |
-| `/camera{N}/detection_info` | `std_msgs/String` | JSON detection metadata |
-| `/combined/detection_info` | `std_msgs/String` | Combined detections from all cameras |
+| `/camera{N}/detection_info` | `std_msgs/String` | JSON detection metadata (bbox 640×640) |
+| `/camera{N}/task4_detections` | `std_msgs/String` | Task4 supply-drop detections (shape_bbox, vessel_bbox in 640×480); when `enable_task4:=true` |
+| `/combined/detection_info` | `std_msgs/String` | Combined detections; `bbox` in global 1920×480; `global_frame: {width:1920, height:480}` |
 
 ---
 
 ## Detection info format
 
 ### Per-camera (`/camera{N}/detection_info`)
+
+Inference bbox is in **640×640** (model input). Example:
 
 ```json
 {
@@ -188,7 +203,30 @@ ros2 topic list
 }
 ```
 
+### Per-camera Task4 (`/camera{N}/task4_detections`)
+
+`shape_bbox` and `vessel_bbox` are in **640×480**. Example:
+
+```json
+{
+  "camera_id": 0,
+  "timestamp": 1234567890.5,
+  "detections": [
+    {
+      "type": "yellow_supply_drop",
+      "class_id": 8,
+      "score": 0.9,
+      "shape_bbox": [120, 80, 200, 160],
+      "vessel_bbox": [80, 200, 220, 320],
+      "source": "task4"
+    }
+  ]
+}
+```
+
 ### Combined (`/combined/detection_info`)
+
+All `detections[].bbox` are in the **global frame 1920×480** (`[x1,y1,x2,y2]`); x-offset = `camera_id * 640`. Payload includes `global_frame: { "width": 1920, "height": 480 }`. Task4 supply drops have `source == "task4"` and `type` in `"yellow_supply_drop"`, `"black_supply_drop"`.
 
 ```json
 {
@@ -199,6 +237,7 @@ ros2 topic list
   "num_no_data_cameras": 0,
   "staleness_threshold": 1.0,
   "total_detections": 5,
+  "global_frame": { "width": 1920, "height": 480 },
   "camera_stats": {
     "0": {
       "status": "active",
@@ -228,16 +267,18 @@ ros2 topic list
       "camera_id": 0,
       "class_id": 2,
       "score": 0.85,
-      "x1": 100.0,
-      "y1": 150.0,
-      "x2": 200.0,
-      "y2": 250.0,
-      "width": 100.0,
-      "height": 100.0,
       "bbox": [100, 150, 200, 250]
+    },
+    {
+      "camera_id": 1,
+      "type": "yellow_supply_drop",
+      "class_id": 8,
+      "score": 0.9,
+      "source": "task4",
+      "bbox": [800, 80, 880, 160]
     }
   ]
 }
 ```
 
-**Combiner behavior:** Latest value per camera; staleness filtering (cameras older than `staleness_threshold` excluded); status `active`, `stale`, `no_data`. Each detection includes `camera_id`.
+**Combiner behavior:** Latest value per camera; staleness filtering (cameras older than `staleness_threshold` excluded); status `active`, `stale`, `no_data`. Each detection includes `camera_id`. Inference bbox: 640×640→640×480 then to global; Task4 uses `shape_bbox` (640×480) as local bbox then to global.
