@@ -51,9 +51,9 @@ class PreprocessCamera(Node):
         self.publisher.publish(out_msg)
 
         self.frame_count += 1
-        if self.frame_count % 30 == 0:
+        if self.frame_count % 15 == 0:
             self.get_logger().info(
-                f'Published 30 processed frames, last size={processed.shape}'
+                f'Published 15 processed frames (~1 s at 15 fps), last size={processed.shape}'
             )
 
 

@@ -12,7 +12,7 @@ HOW IT WORKS:
 1. Subscribes to detection_info from all 3 cameras
 2. Collects ALL detections from each active camera
 3. Adds camera_id to each detection
-4. Publishes combined list at ~30 Hz
+4. Publishes combined list at ~15 Hz (matches camera rate)
 
 OPERATION MODE:
 - Latest Value Approach (default): Combines the most recent detection from each camera,
@@ -113,9 +113,8 @@ class DetectionCombiner(Node):
         self.get_logger().info('Detection combiner node initialized')
         self.get_logger().info('Publishing to: /combined/detection_info')
         
-        # Timer to periodically publish combined detections
-        # This ensures we publish even if one camera is slow
-        self.timer = self.create_timer(0.033, self.publish_combined)  # ~30 Hz
+        # Timer to periodically publish combined detections (~30 Hz so combined output stays responsive)
+        self.timer = self.create_timer(0.033, self.publish_combined)
     
     def detection_callback(self, msg: String, camera_id: int):
         """Callback for individual camera detection info"""
@@ -323,17 +322,15 @@ class DetectionCombiner(Node):
                 det_with_camera = det.copy()
                 det_with_camera['camera_id'] = camera_id
                 all_detections.append(det_with_camera)
-        
-        # Apply overlap deduplication if enabled
-        if self.deduplicate_overlap and len(all_detections) > 0:
-            all_detections = self._deduplicate_overlap_zones(all_detections)
-            
             camera_stats[camera_id] = {
                 'status': 'active',
                 'num_detections': len(detections),
                 'fps': detection_data.get('fps', 0.0),
                 'timestamp': matched_timestamps[camera_id]
             }
+        
+        if self.deduplicate_overlap and len(all_detections) > 0:
+            all_detections = self._deduplicate_overlap_zones(all_detections)
         
         # Add stats for unmatched cameras
         for camera_id in [0, 1, 2]:
@@ -433,13 +430,8 @@ class DetectionCombiner(Node):
             detections = detection_data.get('detections', [])
             for det in detections:
                 det_with_camera = det.copy()
-                det_with_camera['camera_id'] = camera_id  # Tag each detection with source camera
-                all_detections.append(det_with_camera)  # Add to combined list
-        
-        # Apply overlap deduplication if enabled
-        if self.deduplicate_overlap and len(all_detections) > 0:
-            all_detections = self._deduplicate_overlap_zones(all_detections)
-            
+                det_with_camera['camera_id'] = camera_id
+                all_detections.append(det_with_camera)
             camera_stats[camera_id] = {
                 'status': 'active',
                 'num_detections': len(detections),
@@ -447,7 +439,10 @@ class DetectionCombiner(Node):
                 'timestamp': detection_data.get('timestamp', 0.0),
                 'time_since_update': round(time_since_update, 3)
             }
-        
+
+        if self.deduplicate_overlap and len(all_detections) > 0:
+            all_detections = self._deduplicate_overlap_zones(all_detections)
+
         # Create combined detection info
         combined_info = {
             'timestamp': current_time,
@@ -473,7 +468,7 @@ class DetectionCombiner(Node):
         else:
             self._log_counter = 0
         
-        if self._log_counter % 90 == 0:  # Log every ~3 seconds at 30Hz
+        if self._log_counter % 30 == 0:  # Log every ~1 s
             if stale_cameras > 0 or no_data_cameras > 0:
                 self.get_logger().warn(
                     f'Camera health: {active_cameras} active, {stale_cameras} stale, '

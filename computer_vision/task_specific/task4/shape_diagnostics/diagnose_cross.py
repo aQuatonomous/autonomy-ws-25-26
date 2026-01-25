@@ -10,9 +10,10 @@ from ultralytics import YOLO
 
 def main():
     script_dir = os.path.dirname(os.path.abspath(__file__))
-    frame1_path = os.path.join(script_dir, "frame.png")
-    frame2_path = os.path.join(script_dir, "frame2.png")
-    model_path = os.path.join(script_dir, "weights.pt")
+    parent_dir = os.path.join(script_dir, "..")
+    frame1_path = os.path.join(parent_dir, "frame.png")
+    frame2_path = os.path.join(parent_dir, "frame2.png")
+    model_path = os.path.join(parent_dir, "weights.pt")
     
     model = YOLO(model_path)
     class_names = model.names

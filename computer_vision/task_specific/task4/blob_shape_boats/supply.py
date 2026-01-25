@@ -226,9 +226,9 @@ def main():
     import os
     # Get the directory where this script is located
     script_dir = os.path.dirname(os.path.abspath(__file__))
-    
-    image_path = os.path.join(script_dir, "frame2.png")  # Changed to frame2.png
-    model_path = os.path.join(script_dir, "weights.pt")
+    parent_dir = os.path.join(script_dir, "..")
+    image_path = os.path.join(parent_dir, "frame2.png")
+    model_path = os.path.join(parent_dir, "weights.pt")
     boat_color = "black"  # Changed to black for frame2
     target_shape = "cross"  # Changed to cross for frame2
 

@@ -433,8 +433,8 @@ class InferenceNode(Node):
             info_msg.data = json.dumps(detection_info)
             self.detection_info_pub.publish(info_msg)
             
-            # Log every 30 frames
-            if self.frame_count % 30 == 0:
+            # Log every 15 frames (~1 s at 15 fps)
+            if self.frame_count % 15 == 0:
                 self.get_logger().info(
                     f'Processed {self.frame_count} frames | '
                     f'Avg FPS: {avg_fps:.2f} | '

@@ -46,59 +46,11 @@ detection_info          (or update              (with color)
 
 **Publisher**: `vision_combiner` node
 
-**Frequency**: ~30 Hz
+**Frequency**: ~15 Hz
 
-### Message Structure
+### Message Structure (summary)
 
-```json
-{
-  "timestamp": 1234567890.123,
-  "num_cameras": 3,
-  "num_active_cameras": 2,
-  "num_stale_cameras": 1,
-  "num_no_data_cameras": 0,
-  "staleness_threshold": 1.0,
-  "total_detections": 5,
-  "camera_stats": {
-    "0": {
-      "status": "active",
-      "num_detections": 2,
-      "fps": 30.5,
-      "timestamp": 1234567890.1,
-      "time_since_update": 0.023
-    },
-    "1": {
-      "status": "active",
-      "num_detections": 2,
-      "fps": 29.8,
-      "timestamp": 1234567890.1,
-      "time_since_update": 0.031
-    },
-    "2": {
-      "status": "stale",
-      "num_detections": 0,
-      "time_since_update": 1.234,
-      "staleness_threshold": 1.0,
-      "fps": 0.0,
-      "last_timestamp": 1234567888.9
-    }
-  },
-  "detections": [
-    {
-      "camera_id": 0,
-      "class_id": 2,
-      "score": 0.85,
-      "x1": 100.0,
-      "y1": 150.0,
-      "x2": 200.0,
-      "y2": 250.0,
-      "width": 100.0,
-      "height": 100.0,
-      "bbox": [100, 150, 200, 250]
-    }
-  ]
-}
-```
+Top-level: `timestamp`, `num_cameras`, `num_active_cameras`, `num_stale_cameras`, `num_no_data_cameras`, `staleness_threshold`, `total_detections`, `camera_stats` (per-camera status, fps, `time_since_update`), `detections` (array of detections). Each detection: `camera_id`, `class_id`, `score`, `x1`, `y1`, `x2`, `y2`, `width`, `height`, `bbox`. Full format and field definitions: [NODES_AND_CAMERAS.md](NODES_AND_CAMERAS.md).
 
 ### Detection Fields
 

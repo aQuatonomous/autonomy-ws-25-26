@@ -54,7 +54,8 @@ def test_image(image_path, model, class_names, target_class_id, target_name):
 
 def main():
     script_dir = os.path.dirname(os.path.abspath(__file__))
-    model_path = os.path.join(script_dir, "weights.pt")
+    parent_dir = os.path.join(script_dir, "..")
+    model_path = os.path.join(parent_dir, "weights.pt")
     
     # Load model
     model = YOLO(model_path)
@@ -67,11 +68,11 @@ def main():
     print(f"Model file: {model_path}")
     
     # Test frame.png (should have triangle)
-    frame1_path = os.path.join(script_dir, "frame.png")
+    frame1_path = os.path.join(parent_dir, "frame.png")
     triangle_result = test_image(frame1_path, model, class_names, 8, "triangle (class_id 8)")
     
     # Test frame2.png (should have cross)
-    frame2_path = os.path.join(script_dir, "frame2.png")
+    frame2_path = os.path.join(parent_dir, "frame2.png")
     cross_result = test_image(frame2_path, model, class_names, 2, "black_cross (class_id 2)")
     
     # Summary
