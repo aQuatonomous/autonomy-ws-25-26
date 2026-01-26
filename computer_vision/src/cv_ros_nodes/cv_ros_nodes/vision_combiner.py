@@ -1,8 +1,9 @@
 """
 Multi-Camera Detection Combiner ROS2 Node
 
-Subscribes to: /camera0/detection_info, /camera1/detection_info, /camera2/detection_info
-Publishes to: /combined/detection_info (String with all detections from all cameras)
+Subscribes to: /camera0/detection_info, /camera1/detection_info, /camera2/detection_info;
+  /camera0/task4_detections, /camera1/task4_detections, /camera2/task4_detections
+Publishes to: /combined/detection_info (String with all detections; bbox in global frame 3×frame_width×frame_height, e.g. 5760×1200; global_frame from detection_info)
 
 WHAT THIS NODE DOES:
 This node combines detections from all 3 side-by-side cameras into a single unified list.
@@ -12,7 +13,7 @@ HOW IT WORKS:
 1. Subscribes to detection_info from all 3 cameras
 2. Collects ALL detections from each active camera
 3. Adds camera_id to each detection
-4. Publishes combined list at ~30 Hz
+4. Publishes combined list at ~15 Hz (matches camera rate)
 
 OPERATION MODE:
 - Latest Value Approach (default): Combines the most recent detection from each camera,
@@ -69,11 +70,14 @@ class DetectionCombiner(Node):
         self.overlap_zone_width = overlap_zone_width  # Fraction of frame width for overlap zone (0.15 = 15%)
         self.overlap_y_tolerance = overlap_y_tolerance  # Fraction of frame height for y-coordinate matching (0.1 = 10%)
         
-        # Preprocessed image dimensions (640x480)
+        # Per-camera frame dimensions (learned from detection_info; fallback until first inference)
         self.frame_width = 640
         self.frame_height = 480
-        
-        # Store latest detections from each camera
+        # Global frame: 3 cameras side-by-side (0=left, 1=center, 2=right)
+        self.global_width = 3 * self.frame_width
+        self.global_height = self.frame_height
+
+        # Store latest detections from each camera (inference)
         self.detections = {
             0: None,  # camera0
             1: None,  # camera1
@@ -85,6 +89,9 @@ class DetectionCombiner(Node):
             1: 0.0,
             2: 0.0
         }
+
+        # Task 4 supply-drop detections per camera (from /cameraN/task4_detections)
+        self.task4_detections = {0: None, 1: None, 2: None}
         
         # For timestamp-based synchronization: store detection history
         # Format: {timestamp: {camera_id: detection_data}}
@@ -102,6 +109,15 @@ class DetectionCombiner(Node):
             )
             self._detection_subs.append(sub)
             self.get_logger().info(f'Subscribed to: /camera{camera_id}/detection_info')
+
+        for camera_id in [0, 1, 2]:
+            sub = self.create_subscription(
+                String,
+                f'/camera{camera_id}/task4_detections',
+                lambda msg, cid=camera_id: self._task4_callback(msg, cid),
+                10
+            )
+            self.get_logger().info(f'Subscribed to: /camera{camera_id}/task4_detections')
         
         # Publisher for combined detections
         self.combined_pub = self.create_publisher(
@@ -113,9 +129,8 @@ class DetectionCombiner(Node):
         self.get_logger().info('Detection combiner node initialized')
         self.get_logger().info('Publishing to: /combined/detection_info')
         
-        # Timer to periodically publish combined detections
-        # This ensures we publish even if one camera is slow
-        self.timer = self.create_timer(0.033, self.publish_combined)  # ~30 Hz
+        # Timer to periodically publish combined detections (~30 Hz so combined output stays responsive)
+        self.timer = self.create_timer(0.033, self.publish_combined)
     
     def detection_callback(self, msg: String, camera_id: int):
         """Callback for individual camera detection info"""
@@ -126,6 +141,14 @@ class DetectionCombiner(Node):
             # Store latest detection (for non-sync mode)
             self.detections[camera_id] = detection_data
             self.last_update_times[camera_id] = time.time()
+            
+            # Learn frame dimensions from detection_info (bbox already in preprocessed frame)
+            if 'frame_width' in detection_data:
+                self.frame_width = int(detection_data['frame_width'])
+            if 'frame_height' in detection_data:
+                self.frame_height = int(detection_data['frame_height'])
+            self.global_width = 3 * self.frame_width
+            self.global_height = self.frame_height
             
             # If using timestamp sync, try to match with other cameras
             if self.use_timestamp_sync:
@@ -138,6 +161,21 @@ class DetectionCombiner(Node):
             self.get_logger().error(f'Failed to parse detection info from camera{camera_id}: {e}')
         except Exception as e:
             self.get_logger().error(f'Error processing detection from camera{camera_id}: {e}')
+
+    def _task4_callback(self, msg: String, camera_id: int):
+        """Store latest Task 4 supply-drop detections for a camera."""
+        try:
+            self.task4_detections[camera_id] = json.loads(msg.data)
+        except json.JSONDecodeError as e:
+            self.get_logger().error(f'Failed to parse task4_detections from camera{camera_id}: {e}')
+
+    def _to_global_bbox(self, bbox: List[float], camera_id: int) -> List[float]:
+        """Transform bbox from camera-local (frame_width x frame_height) to global. x += camera_id*frame_width."""
+        if len(bbox) != 4:
+            return bbox
+        x1, y1, x2, y2 = bbox
+        o = camera_id * self.frame_width
+        return [x1 + o, y1, x2 + o, y2]
     
     def _try_synchronize_and_publish(self, timestamp: float, source_camera_id: int, detection_data: dict):
         """
@@ -316,24 +354,41 @@ class DetectionCombiner(Node):
         camera_stats = {}
         current_time = time.time()
         
-        # Process matched detections
+        # Process matched detections (bbox already in preprocessed frame from inference)
         for camera_id, detection_data in matched_detections.items():
             detections = detection_data.get('detections', [])
             for det in detections:
                 det_with_camera = det.copy()
                 det_with_camera['camera_id'] = camera_id
+                bbox = det.get('bbox') or [det.get('x1', 0), det.get('y1', 0), det.get('x2', 0), det.get('y2', 0)]
+                det_with_camera['bbox'] = bbox
                 all_detections.append(det_with_camera)
-        
-        # Apply overlap deduplication if enabled
-        if self.deduplicate_overlap and len(all_detections) > 0:
-            all_detections = self._deduplicate_overlap_zones(all_detections)
-            
             camera_stats[camera_id] = {
                 'status': 'active',
                 'num_detections': len(detections),
                 'fps': detection_data.get('fps', 0.0),
                 'timestamp': matched_timestamps[camera_id]
             }
+
+        # Merge Task 4 for matched cameras (shape_bbox in preprocessed frame)
+        for camera_id in matched_detections:
+            t4 = self.task4_detections.get(camera_id)
+            if not t4:
+                continue
+            for d in t4.get('detections', []):
+                dc = d.copy()
+                dc['camera_id'] = camera_id
+                dc['bbox'] = d.get('shape_bbox', [0, 0, 0, 0])
+                dc['source'] = 'task4'
+                dc['score'] = dc.get('score', dc.get('confidence', 0.0))
+                all_detections.append(dc)
+        
+        if self.deduplicate_overlap and len(all_detections) > 0:
+            all_detections = self._deduplicate_overlap_zones(all_detections)
+
+        # Transform bboxes to global frame
+        for det in all_detections:
+            det['bbox'] = self._to_global_bbox(det['bbox'], det['camera_id'])
         
         # Add stats for unmatched cameras
         for camera_id in [0, 1, 2]:
@@ -366,7 +421,8 @@ class DetectionCombiner(Node):
             'total_detections': len(all_detections),
             'camera_stats': camera_stats,
             'detections': all_detections,
-            'synchronized': True
+            'synchronized': True,
+            'global_frame': {'width': self.global_width, 'height': self.global_height},
         }
         
         # Publish combined detection info
@@ -428,18 +484,15 @@ class DetectionCombiner(Node):
                 )
                 continue
             
-            # Camera is active and fresh - include ALL its detections
+            # Camera is active and fresh - include ALL its detections (inference bbox 640x640 -> 640x480)
             active_cameras += 1
             detections = detection_data.get('detections', [])
             for det in detections:
                 det_with_camera = det.copy()
-                det_with_camera['camera_id'] = camera_id  # Tag each detection with source camera
-                all_detections.append(det_with_camera)  # Add to combined list
-        
-        # Apply overlap deduplication if enabled
-        if self.deduplicate_overlap and len(all_detections) > 0:
-            all_detections = self._deduplicate_overlap_zones(all_detections)
-            
+                det_with_camera['camera_id'] = camera_id
+                bbox = det.get('bbox') or [det.get('x1', 0), det.get('y1', 0), det.get('x2', 0), det.get('y2', 0)]
+                det_with_camera['bbox'] = self._inference_bbox_to_640x480(bbox)
+                all_detections.append(det_with_camera)
             camera_stats[camera_id] = {
                 'status': 'active',
                 'num_detections': len(detections),
@@ -447,7 +500,27 @@ class DetectionCombiner(Node):
                 'timestamp': detection_data.get('timestamp', 0.0),
                 'time_since_update': round(time_since_update, 3)
             }
-        
+
+        # Merge Task 4 supply-drop detections (per camera, shape_bbox in preprocessed frame)
+        for cam_id in [0, 1, 2]:
+            t4 = self.task4_detections.get(cam_id)
+            if not t4:
+                continue
+            for d in t4.get('detections', []):
+                dc = d.copy()
+                dc['camera_id'] = cam_id
+                dc['bbox'] = d.get('shape_bbox', [0, 0, 0, 0])
+                dc['source'] = 'task4'
+                dc['score'] = dc.get('score', dc.get('confidence', 0.0))
+                all_detections.append(dc)
+
+        if self.deduplicate_overlap and len(all_detections) > 0:
+            all_detections = self._deduplicate_overlap_zones(all_detections)
+
+        # Transform bboxes to global frame
+        for det in all_detections:
+            det['bbox'] = self._to_global_bbox(det['bbox'], det['camera_id'])
+
         # Create combined detection info
         combined_info = {
             'timestamp': current_time,
@@ -459,7 +532,8 @@ class DetectionCombiner(Node):
             'total_detections': len(all_detections),
             'camera_stats': camera_stats,
             'detections': all_detections,
-            'synchronized': self.use_timestamp_sync if self.use_timestamp_sync else None
+            'synchronized': self.use_timestamp_sync if self.use_timestamp_sync else None,
+            'global_frame': {'width': self.global_width, 'height': self.global_height},
         }
         
         # Publish combined detection info
@@ -473,7 +547,7 @@ class DetectionCombiner(Node):
         else:
             self._log_counter = 0
         
-        if self._log_counter % 90 == 0:  # Log every ~3 seconds at 30Hz
+        if self._log_counter % 30 == 0:  # Log every ~1 s
             if stale_cameras > 0 or no_data_cameras > 0:
                 self.get_logger().warn(
                     f'Camera health: {active_cameras} active, {stale_cameras} stale, '

@@ -2,7 +2,6 @@ import rclpy
 from rclpy.node import Node
 from sensor_msgs.msg import Image
 from cv_bridge import CvBridge
-import cv2
 import argparse
 
 
@@ -37,9 +36,8 @@ class PreprocessCamera(Node):
         # 1) ROS2 Image -> OpenCV image
         cv_image = self.bridge.imgmsg_to_cv2(msg, desired_encoding='bgr8')
 
-        # 2) Do some simple processing (example: resize)
-        #    You can replace this with glare / hue / etc.
-        processed = cv2.resize(cv_image, (640, 480))
+        # 2) Pass-through at camera resolution (no resize; blob and other CV run on full res)
+        processed = cv_image
 
         # 3) OpenCV -> ROS2 Image
         out_msg = self.bridge.cv2_to_imgmsg(processed, encoding='bgr8')
@@ -51,9 +49,9 @@ class PreprocessCamera(Node):
         self.publisher.publish(out_msg)
 
         self.frame_count += 1
-        if self.frame_count % 30 == 0:
+        if self.frame_count % 15 == 0:
             self.get_logger().info(
-                f'Published 30 processed frames, last size={processed.shape}'
+                f'Published 15 processed frames (~1 s at 15 fps), last size={processed.shape}'
             )
 
 

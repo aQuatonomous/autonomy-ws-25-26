@@ -368,8 +368,9 @@ class InferenceNode(Node):
         try:
             # Convert ROS2 Image to OpenCV
             cv_image = self.bridge.imgmsg_to_cv2(msg, desired_encoding='bgr8')
+            orig_h, orig_w = cv_image.shape[:2]
             
-            # Preprocess
+            # Preprocess (resize to 640x640 only for the model)
             input_data = self.inferencer.preprocess(cv_image)
             
             # Run inference
@@ -401,7 +402,9 @@ class InferenceNode(Node):
             detection_msg.header = msg.header
             self.detection_image_pub.publish(detection_msg)
             
-            # Publish detection info as JSON
+            # Publish detection info as JSON (bbox scaled from 640x640 to preprocessed frame)
+            scale_x = orig_w / 640.0
+            scale_y = orig_h / 640.0
             detection_info = {
                 'camera_id': self.camera_id,
                 'timestamp': msg.header.stamp.sec + msg.header.stamp.nanosec * 1e-9,
@@ -409,32 +412,39 @@ class InferenceNode(Node):
                 'num_detections': len(detections),
                 'inference_time_ms': inference_time * 1000,
                 'fps': fps,
+                'frame_width': orig_w,
+                'frame_height': orig_h,
                 'detections': []
             }
             
-            # Extract detailed information for each detection
+            # Extract detailed information for each detection (scale bbox 640x640 -> orig size)
             for det in detections:
                 x1, y1, x2, y2 = det['box']
+                x1 = float(x1) * scale_x
+                y1 = float(y1) * scale_y
+                x2 = float(x2) * scale_x
+                y2 = float(y2) * scale_y
                 width = float(x2 - x1)
                 height = float(y2 - y1)
+                bbox_scaled = [x1, y1, x2, y2]
                 
                 detection_info['detections'].append({
                     'class_id': int(det['class_id']),
                     'score': float(det['score']),
-                    'x1': float(x1),
-                    'y1': float(y1),
-                    'x2': float(x2),
-                    'y2': float(y2),
+                    'x1': x1,
+                    'y1': y1,
+                    'x2': x2,
+                    'y2': y2,
                     'width': width,
                     'height': height,
-                    'bbox': det['box'].tolist()  # Keep for backward compatibility
+                    'bbox': bbox_scaled
                 })
             info_msg = String()
             info_msg.data = json.dumps(detection_info)
             self.detection_info_pub.publish(info_msg)
             
-            # Log every 30 frames
-            if self.frame_count % 30 == 0:
+            # Log every 15 frames (~1 s at 15 fps)
+            if self.frame_count % 15 == 0:
                 self.get_logger().info(
                     f'Processed {self.frame_count} frames | '
                     f'Avg FPS: {avg_fps:.2f} | '

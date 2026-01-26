@@ -30,6 +30,7 @@ setup(
             'vision_inference = cv_ros_nodes.vision_inference:main',
             'vision_combiner = cv_ros_nodes.vision_combiner:main',
             'camera_viewer = cv_ros_nodes.camera_viewer:main',
+            'task4_supply_processor = cv_ros_nodes.task4_supply_processor:main',
         ],
     },
 )
