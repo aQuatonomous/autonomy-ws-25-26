@@ -1,12 +1,50 @@
+# ROS 2 Build Artifacts
+build/
+install/
+log/
+
+# Python Cache
+__pycache__/
+*.pyc
+*.pyo
+*.pyi
+*.egg-info/
+*.egg
+.Python
+
+# IDE Files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+
 # Virtual environments
 .venv/
 venv/
 trt-env/
 
-
 # Computer Vision
-log
-build
-install
-camera_images
-testing_media
+camera_images/
+testing_media/
+
+# Vendor Packages (clone separately)
+mapping/src/unilidar_sdk/
+mapping/src/ros_numpy/
+mapping/src/my_lidar_pkg/
+
+# ROS 1 Legacy (from unilidar SDK)
+unitree_lidar_ros/build
+unitree_lidar_ros/devel
+unitree_lidar_ros/.catkin_workspace
+unitree_lidar_ros/src/CMakeLists.txt
+
+# ROS 2 SDK build artifacts
+unitree_lidar_ros2/build
+unitree_lidar_ros2/install
+unitree_lidar_ros2/log
+
+# SDK binaries
+unitree_lidar_sdk/bin
+unitree_lidar_sdk/build

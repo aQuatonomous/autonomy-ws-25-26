@@ -19,7 +19,7 @@
 
 ## Executive Summary
 
-This document describes the complete design strategy for a multi-camera computer vision pipeline using ROS2 and TensorRT for real-time object detection. The system processes three synchronized camera feeds (video0, video1, video2) through independent preprocessing and inference pipelines, then combines detections into a unified output stream.
+This document describes the complete design strategy for a multi-camera computer vision pipeline using ROS2 and TensorRT for real-time object detection. The system processes three synchronized camera feeds (video0, video2, video4) through independent preprocessing and inference pipelines, then combines detections into a unified output stream.
 
 **Key Design Principles:**
 - **Fault Isolation**: Independent pipelines per camera ensure single camera failures don't cascade
@@ -37,8 +37,8 @@ This document describes the complete design strategy for a multi-camera computer
 ┌─────────────────────────────────────────────────────────────────────────┐
 │                         Hardware Layer                                   │
 ├─────────────────────────────────────────────────────────────────────────┤
-│  Camera 0 (/dev/video0)  │  Camera 1 (/dev/video1)  │  Camera 2 (/dev/video2) │
-│  1920x1200 @ 60 FPS      │  1920x1200 @ 60 FPS      │  1920x1200 @ 60 FPS     │
+│  Camera 0 (/dev/video0)  │  Camera 1 (/dev/video2)  │  Camera 2 (/dev/video4) │
+│  1920x1200 @ 15 FPS      │  1920x1200 @ 15 FPS      │  1920x1200 @ 15 FPS     │
 └──────────────┬────────────┴──────────────┬────────────┴──────────────┬─────────┘
                │                           │                           │
 ┌──────────────▼────────────┐  ┌───────────▼───────────┐  ┌───────────▼───────────┐
@@ -76,7 +76,7 @@ This document describes the complete design strategy for a multi-camera computer
 ### Data Flow Pipeline
 
 **Stage 1: Image Acquisition**
-- Raw images captured at 1920x1200 resolution, 60 FPS
+- Raw images captured at 1920x1200 resolution, 15 FPS (FPS set via v4l2-ctl; see NODES_AND_CAMERAS.md)
 - Published as ROS2 `sensor_msgs/Image` messages
 
 **Stage 2: Preprocessing**
@@ -112,13 +112,13 @@ This document describes the complete design strategy for a multi-camera computer
 
 **Instances**:
 - `/camera0/v4l2_camera_node` (video0)
-- `/camera1/v4l2_camera_node` (video1)
-- `/camera2/v4l2_camera_node` (video2)
+- `/camera1/v4l2_camera_node` (video2)
+- `/camera2/v4l2_camera_node` (video4)
 
 **Parameters**:
-- `video_device`: `/dev/video0`, `/dev/video1`, `/dev/video2`
+- `video_device`: `/dev/video0`, `/dev/video2`, `/dev/video4` (default; override via launch)
 - `image_size`: `[1920, 1200]`
-- `framerate`: `60.0`
+- `framerate`: v4l2_camera has no FPS parameter; set 15 fps via `v4l2-ctl --set-parm 15` before launch. See [NODES_AND_CAMERAS.md](NODES_AND_CAMERAS.md).
 - `namespace`: `/camera0`, `/camera1`, `/camera2`
 
 **Subscriptions**: None (hardware interface)
@@ -127,18 +127,10 @@ This document describes the complete design strategy for a multi-camera computer
 - `/camera{N}/image_raw` (sensor_msgs/Image)
   - Encoding: `bgr8`
   - Resolution: 1920x1200
-  - Frame rate: ~60 Hz
+  - Frame rate: ~15 Hz (set via v4l2-ctl)
   - Header includes timestamp and frame_id
 
-**Launch Command**:
-```bash
-ros2 run v4l2_camera v4l2_camera_node \
-  --ros-args \
-  -p video_device:=/dev/video0 \
-  -p image_size:="[1920,1200]" \
-  -p framerate:=60.0 \
-  -r __ns:=/camera0
-```
+**Launch Command**: See [NODES_AND_CAMERAS.md](NODES_AND_CAMERAS.md) for full commands. Example: `ros2 run v4l2_camera v4l2_camera_node --ros-args -p video_device:=/dev/video0 -p image_size:="[1920,1200]" -r __ns:=/camera0`
 
 ---
 
@@ -161,8 +153,8 @@ ros2 run v4l2_camera v4l2_camera_node \
 **Publications**:
 - `/camera{N}/image_preprocessed` (sensor_msgs/Image)
   - Encoding: `bgr8`
-  - Resolution: 640x480 (configurable)
-  - Frame rate: Matches input (up to 60 Hz)
+  - Resolution: camera resolution (e.g. 1920×1200, pass-through)
+  - Frame rate: Matches input (up to 15 Hz)
   - Header: Preserved from input message
 
 **Processing Steps**:
@@ -212,7 +204,7 @@ ros2 run cv_ros_nodes vision_preprocessing --camera_id 2
 **Publications**:
 - `/camera{N}/detections` (sensor_msgs/Image)
   - Encoding: `bgr8`
-  - Resolution: 640x480 (matches input)
+  - Resolution: preprocessed (camera resolution, e.g. 1920×1200)
   - Frame rate: Matches input
   - Content: Original image with bounding boxes drawn
   - Header: Preserved from input
@@ -277,15 +269,14 @@ ros2 run cv_ros_nodes vision_inference --camera_id 2 --engine_path ~/autonomy-ws
 - `--overlap_y_tolerance`: Float (default: 0.1) - Fraction of frame height for y-coordinate matching (0.1 = 10%)
 
 **Subscriptions**:
-- `/camera0/detection_info` (std_msgs/String) - Queue size: 10
-- `/camera1/detection_info` (std_msgs/String) - Queue size: 10
-- `/camera2/detection_info` (std_msgs/String) - Queue size: 10
+- `/camera0/detection_info`, `/camera1/detection_info`, `/camera2/detection_info` (std_msgs/String) - Queue size: 10
+- `/camera0/task4_detections`, `/camera1/task4_detections`, `/camera2/task4_detections` (std_msgs/String) - Queue size: 10
 
 **Publications**:
 - `/combined/detection_info` (std_msgs/String)
   - Format: JSON
-  - Frequency: ~30 Hz (timer-based, also publishes on new data)
-  - Content: Combined detections with camera source tracking
+  - Frequency: ~15 Hz (timer-based, also publishes on new data; matches camera rate)
+  - Content: Combined detections with camera source tracking; all `bbox` in **global frame** (3×frame_width×frame_height, e.g. 5760×1200); `global_frame` from detection_info; Task4 supply drops have `source == "task4"` and `type` in `"yellow_supply_drop"`, `"black_supply_drop"`
 
 **Functionality**:
 
@@ -328,39 +319,45 @@ ros2 run cv_ros_nodes vision_inference --camera_id 2 --engine_path ~/autonomy-ws
 **e) Temporal Smoothing**:
 - Timer-based publishing ensures output even if cameras are slow
 - Prevents gaps in detection stream
-- Publishes at ~30 Hz regardless of camera update rates
+- Publishes at ~15 Hz regardless of camera update rates
 
 **Performance Characteristics**:
 - Processing time: <1 ms per update
 - CPU-bound operation
 - Minimal memory footprint
 
-**Launch Command**:
-```bash
-# Basic mode: Latest value with staleness filtering (default 1.0s threshold)
-ros2 run cv_ros_nodes vision_combiner
-
-# Custom staleness threshold (more strict - 0.5s)
-ros2 run cv_ros_nodes vision_combiner --staleness_threshold 0.5
-
-# More lenient threshold (2.0s - allows slower cameras)
-ros2 run cv_ros_nodes vision_combiner --staleness_threshold 2.0
-
-# Enable overlap deduplication (recommended for side-by-side cameras with 15° overlap)
-ros2 run cv_ros_nodes vision_combiner --deduplicate_overlap
-
-# Overlap deduplication with custom parameters
-ros2 run cv_ros_nodes vision_combiner --deduplicate_overlap --overlap_zone_width 0.20 --overlap_y_tolerance 0.15
-
-# Advanced: Timestamp-based synchronization (more complex)
-ros2 run cv_ros_nodes vision_combiner --use_timestamp_sync --sync_window 0.05
-```
+**Launch Command**: See [NODES_AND_CAMERAS.md](NODES_AND_CAMERAS.md). Example: `ros2 run cv_ros_nodes vision_combiner` (default 1.0s staleness); `--staleness_threshold`, `--deduplicate_overlap`, `--use_timestamp_sync` and related args available.
 
 **Staleness Filtering Example**:
 - Camera0: Last update 0.02s ago → **INCLUDED** (active)
 - Camera1: Last update 0.05s ago → **INCLUDED** (active)
 - Camera2: Last update 1.5s ago → **EXCLUDED** (stale, threshold=1.0s)
 - Output: Only detections from Camera0 and Camera1
+
+**e) Task4 supply-drop merging**:
+- Subscribes to `/camera{N}/task4_detections`; stores in `task4_detections` per camera
+- Task4 entries: use `shape_bbox` (preprocessed frame) as `bbox`, `source: "task4"`, score from `score` or `confidence`
+- Dedup (overlap) runs on local preprocessed frame; then each `bbox` is converted to global via `_to_global_bbox` (x += camera_id * frame_width)
+- Same logic in `publish_combined` and `_publish_synchronized`
+
+---
+
+### 5. Task4 Supply Processor Node (task4_supply_processor.py)
+
+**Node Name**: `task4_supply_processor`
+
+**Purpose**: Match shape detections (class 6 cross, 8 triangle) from per-camera inference to yellow/black blobs via ROI-above-blob logic; publish supply-drop targets per camera for the combiner.
+
+**Subscriptions**:
+- `/camera{N}/image_preprocessed` (sensor_msgs/Image) – for blob detection (yellow, black)
+- `/camera{N}/detection_info` (std_msgs/String) – shape detections; callback `_detection_callback(msg, camera_id)`
+
+**Publications**:
+- `/camera{N}/task4_detections` (std_msgs/String) – via `_task4_pubs[camera_id]`; JSON: `{ "camera_id": N, "timestamp": <float>, "detections": [ { "type": "yellow_supply_drop"|"black_supply_drop", "class_id": 6|8, "score": <float>, "shape_bbox": [x1,y1,x2,y2], "vessel_bbox": [x1,y1,x2,y2], "source": "task4" } ] }`; `shape_bbox` and `vessel_bbox` in **preprocessed frame** (camera resolution)
+
+**Functionality**: Uses `camera_id` from the subscription; matches shapes to `_blobs_by_camera[camera_id]`; publishes only to `/camera{camera_id}/task4_detections`. No subscription to `/combined/detection_info`; no publisher to `/task4/detections`.
+
+**Launch**: Optional; `launch_cv.py` with `enable_task4:=true`. Standalone: `ros2 run cv_ros_nodes task4_supply_processor`.
 
 ---
 
@@ -370,19 +367,22 @@ ros2 run cv_ros_nodes vision_combiner --use_timestamp_sync --sync_window 0.05
 
 | Topic Name | Message Type | Publisher Node | Subscriber Nodes | Frequency | Purpose |
 |------------|--------------|----------------|------------------|-----------|---------|
-| `/camera0/image_raw` | sensor_msgs/Image | v4l2_camera_node (camera0) | preprocess_camera0 | ~60 Hz | Raw camera feed 0 |
-| `/camera1/image_raw` | sensor_msgs/Image | v4l2_camera_node (camera1) | preprocess_camera1 | ~60 Hz | Raw camera feed 1 |
-| `/camera2/image_raw` | sensor_msgs/Image | v4l2_camera_node (camera2) | preprocess_camera2 | ~60 Hz | Raw camera feed 2 |
-| `/camera0/image_preprocessed` | sensor_msgs/Image | preprocess_camera0 | inference_node_camera0 | ~60 Hz | Preprocessed images 0 |
-| `/camera1/image_preprocessed` | sensor_msgs/Image | preprocess_camera1 | inference_node_camera1 | ~60 Hz | Preprocessed images 1 |
-| `/camera2/image_preprocessed` | sensor_msgs/Image | preprocess_camera2 | inference_node_camera2 | ~60 Hz | Preprocessed images 2 |
-| `/camera0/detections` | sensor_msgs/Image | inference_node_camera0 | (monitoring/visualization) | ~30-60 Hz | Detection visualization 0 |
-| `/camera1/detections` | sensor_msgs/Image | inference_node_camera1 | (monitoring/visualization) | ~30-60 Hz | Detection visualization 1 |
-| `/camera2/detections` | sensor_msgs/Image | inference_node_camera2 | (monitoring/visualization) | ~30-60 Hz | Detection visualization 2 |
-| `/camera0/detection_info` | std_msgs/String | inference_node_camera0 | detection_combiner | ~30-60 Hz | Detection metadata 0 |
-| `/camera1/detection_info` | std_msgs/String | inference_node_camera1 | detection_combiner | ~30-60 Hz | Detection metadata 1 |
-| `/camera2/detection_info` | std_msgs/String | inference_node_camera2 | detection_combiner | ~30-60 Hz | Detection metadata 2 |
-| `/combined/detection_info` | std_msgs/String | detection_combiner | (downstream nodes) | ~30 Hz | Unified detection output |
+| `/camera0/image_raw` | sensor_msgs/Image | v4l2_camera_node (camera0) | preprocess_camera0 | ~15 Hz | Raw camera feed 0 |
+| `/camera1/image_raw` | sensor_msgs/Image | v4l2_camera_node (camera1) | preprocess_camera1 | ~15 Hz | Raw camera feed 1 |
+| `/camera2/image_raw` | sensor_msgs/Image | v4l2_camera_node (camera2) | preprocess_camera2 | ~15 Hz | Raw camera feed 2 |
+| `/camera0/image_preprocessed` | sensor_msgs/Image | preprocess_camera0 | inference_node_camera0 | ~15 Hz | Preprocessed images 0 |
+| `/camera1/image_preprocessed` | sensor_msgs/Image | preprocess_camera1 | inference_node_camera1 | ~15 Hz | Preprocessed images 1 |
+| `/camera2/image_preprocessed` | sensor_msgs/Image | preprocess_camera2 | inference_node_camera2 | ~15 Hz | Preprocessed images 2 |
+| `/camera0/detections` | sensor_msgs/Image | inference_node_camera0 | (monitoring/visualization) | ~15 Hz | Detection visualization 0 |
+| `/camera1/detections` | sensor_msgs/Image | inference_node_camera1 | (monitoring/visualization) | ~15 Hz | Detection visualization 1 |
+| `/camera2/detections` | sensor_msgs/Image | inference_node_camera2 | (monitoring/visualization) | ~15 Hz | Detection visualization 2 |
+| `/camera0/detection_info` | std_msgs/String | inference_node_camera0 | detection_combiner, task4_supply_processor | ~15 Hz | Detection metadata 0 (bbox 640×640) |
+| `/camera1/detection_info` | std_msgs/String | inference_node_camera1 | detection_combiner, task4_supply_processor | ~15 Hz | Detection metadata 1 (bbox 640×640) |
+| `/camera2/detection_info` | std_msgs/String | inference_node_camera2 | detection_combiner, task4_supply_processor | ~15 Hz | Detection metadata 2 (bbox 640×640) |
+| `/camera0/task4_detections` | std_msgs/String | task4_supply_processor | detection_combiner | on detection_info | Task4 supply drops, camera 0 (shape_bbox, vessel_bbox 640×480) |
+| `/camera1/task4_detections` | std_msgs/String | task4_supply_processor | detection_combiner | on detection_info | Task4 supply drops, camera 1 |
+| `/camera2/task4_detections` | std_msgs/String | task4_supply_processor | detection_combiner | on detection_info | Task4 supply drops, camera 2 |
+| `/combined/detection_info` | std_msgs/String | detection_combiner | (downstream nodes) | ~15 Hz | Unified detections; bbox in global frame (3×frame_width×frame_height); global_frame from detection_info |
 
 ### Topic Dependency Graph
 
@@ -470,9 +470,11 @@ ros2 run cv_ros_nodes vision_combiner --use_timestamp_sync --sync_window 0.05
 - `detections`: Array of detection objects
   - `class_id`: Object class identifier (integer)
   - `score`: Confidence score (0.0-1.0)
-  - `bbox`: Bounding box `[x1, y1, x2, y2]` in pixel coordinates
+  - `bbox`: Bounding box `[x1, y1, x2, y2]` in **preprocessed frame** (frame_width×frame_height); `frame_width`, `frame_height` at top level
 
 **Combined Detection Info** (`/combined/detection_info`):
+
+All `detections[].bbox` are in the **global frame** (3×frame_width×frame_height, e.g. 5760×1200); x-offset = `camera_id * frame_width`. `global_frame` in payload (from detection_info). Task4 supply drops: `source == "task4"`, `type` in `"yellow_supply_drop"`, `"black_supply_drop"`.
 
 ```json
 {
@@ -483,6 +485,7 @@ ros2 run cv_ros_nodes vision_combiner --use_timestamp_sync --sync_window 0.05
   "num_no_data_cameras": 0,
   "staleness_threshold": 1.0,
   "total_detections": 5,
+  "global_frame": { "width": 1920, "height": 480 },
   "camera_stats": {
     "0": {
       "status": "active",
@@ -541,8 +544,9 @@ ros2 run cv_ros_nodes vision_combiner --use_timestamp_sync --sync_window 0.05
   - `time_since_update`: Seconds since last update
   - `staleness_threshold`: Threshold used (if stale)
   - `last_timestamp`: Last detection timestamp (if stale)
-- `detections`: Combined array with `camera_id` field added to each detection
+- `detections`: Combined array with `camera_id` and `bbox` in global frame (3×frame_width×frame_height); Task4 entries include `source: "task4"` and `type` (`"yellow_supply_drop"` or `"black_supply_drop"`)
   - **Note**: Only includes detections from `active` cameras (stale cameras excluded)
+- `global_frame`: `{ "width": W, "height": H }` (e.g. 5760×1200, from detection_info)
 - `synchronized`: `true` if timestamp sync used, `null` if latest value approach
 
 ---
@@ -574,91 +578,16 @@ The model training pipeline converts a trained YOLO model (PyTorch/ONNX) into an
 **Input**: Trained PyTorch model (`.pt`)
 **Output**: ONNX model (`.onnx`)
 
-**Process**:
-```python
-import torch
+**Process**: Use `torch.onnx.export` with fixed input size (e.g. 1×3×640×640) for TensorRT. For machine-specific steps and where files live, see [TENSORRT.md](TENSORRT.md).
 
-# Load trained model
-model = torch.load('weights.pt')
-model.eval()
-
-# Export to ONNX
-dummy_input = torch.randn(1, 3, 640, 640)
-torch.onnx.export(
-    model,
-    dummy_input,
-    "weights.onnx",
-    input_names=['images'],
-    output_names=['output'],
-    dynamic_axes=None,  # Fixed input size for TensorRT
-    opset_version=11
-)
-```
-
-**Validation**:
-- Verify ONNX model loads correctly
-- Test inference on sample images
-- Compare outputs with PyTorch model
-
-**Tools**: PyTorch ONNX export, ONNX Runtime for validation
+**Validation**: Verify ONNX loads, test inference on samples, compare with PyTorch. **Tools**: PyTorch ONNX export, ONNX Runtime.
 
 #### Stage 3: TensorRT Engine Conversion
 
 **Input**: ONNX model (`.onnx`)
 **Output**: TensorRT engine (`.engine`)
 
-**Method 1: Using trtexec (Recommended)**
-
-```bash
-# Basic conversion (FP32)
-/usr/src/tensorrt/bin/trtexec \
-  --onnx=weights.onnx \
-  --saveEngine=model.engine \
-  --workspace=4096
-
-# FP16 precision (faster, minimal accuracy loss)
-/usr/src/tensorrt/bin/trtexec \
-  --onnx=weights.onnx \
-  --saveEngine=model_fp16.engine \
-  --fp16 \
-  --workspace=4096
-
-# INT8 precision (fastest, requires calibration)
-/usr/src/tensorrt/bin/trtexec \
-  --onnx=weights.onnx \
-  --saveEngine=model_int8.engine \
-  --int8 \
-  --workspace=4096 \
-  --calib=<calibration_cache>
-```
-
-**Method 2: Python API (For Custom Optimization)**
-
-```python
-import tensorrt as trt
-
-# Create builder and network
-logger = trt.Logger(trt.Logger.WARNING)
-builder = trt.Builder(logger)
-network = builder.create_network(1 << int(trt.NetworkDefinitionCreationFlag.EXPLICIT_BATCH))
-parser = trt.OnnxParser(network, logger)
-
-# Parse ONNX model
-with open("weights.onnx", "rb") as model:
-    parser.parse(model.read())
-
-# Configure builder
-config = builder.create_builder_config()
-config.max_workspace_size = 4 * 1024 * 1024 * 1024  # 4 GB
-config.set_flag(trt.BuilderFlag.FP16)  # Enable FP16
-
-# Build engine
-engine = builder.build_engine(network, config)
-
-# Save engine
-with open("model.engine", "wb") as f:
-    f.write(engine.serialize())
-```
+For machine-specific trtexec path, PATH, conversion commands (FP32/FP16/INT8), and Python API, see [TENSORRT.md](TENSORRT.md).
 
 **Precision Selection Guide**:
 - **FP32**: Highest accuracy, slowest (baseline)
@@ -676,19 +605,7 @@ with open("model.engine", "wb") as f:
 **Input**: TensorRT engine (`.engine`)
 **Output**: Validation report
 
-**Process**:
-```python
-# Test inference on validation set
-from test_inference import TensorRTInference
-
-inferencer = TensorRTInference("model.engine")
-
-# Run on test images
-for image_path in test_images:
-    detections = test_single_image(image_path, "model.engine")
-    # Compare with ground truth
-    # Calculate mAP, precision, recall
-```
+**Process**: Use `model_training/test_inference.py` (or equivalent) on validation images; compare with ground truth, compute mAP/precision/recall. See [TENSORRT.md](TENSORRT.md).
 
 **Metrics**:
 - Mean Average Precision (mAP@0.5)
@@ -733,7 +650,7 @@ for image_path in test_images:
 #### 1. Preprocessing Node Tests
 
 **Test Cases**:
-- **TC-PREP-001**: Verify image resize (1920x1200 → 640x480)
+- **TC-PREP-001**: Verify pass-through (no resize; output size equals input)
 - **TC-PREP-002**: Verify timestamp preservation
 - **TC-PREP-003**: Verify encoding consistency (bgr8)
 - **TC-PREP-004**: Test with missing/corrupted input
@@ -838,7 +755,7 @@ python test_inference.py --camera 0
 #### 2. Throughput Testing
 
 **Procedure**:
-- Run pipeline at maximum camera frame rate (60 FPS)
+- Run pipeline at maximum camera frame rate (15 FPS)
 - Measure actual processing rates
 - Identify bottlenecks
 
@@ -898,7 +815,7 @@ python test_inference.py --camera 0
 
 | Stage | Target | Measurement Method |
 |-------|--------|-------------------|
-| Camera capture | <16.7 ms (60 FPS) | Hardware dependent |
+| Camera capture | <66.7 ms (15 FPS) | Hardware dependent |
 | Preprocessing | <5 ms | Node internal timing |
 | Inference | <20 ms | TensorRT timing |
 | Combination | <1 ms | Node internal timing |
@@ -954,7 +871,7 @@ python test_inference.py --camera 0
 **Camera Requirements**:
 - 3x USB 3.0 cameras
 - Resolution: 1920x1200 minimum
-- Frame rate: 60 FPS capable
+- Frame rate: 15 FPS capable
 - V4L2 compatible
 
 **Network Requirements**:
@@ -1012,57 +929,15 @@ python test_inference.py --camera 0
 │   └── weights.onnx
 ├── README.md
 ├── DESIGN_STRATEGY.md
-├── NODE_SCRIPTS.md
-└── TENSORRT_SETUP.md
+├── NODES_AND_CAMERAS.md
+├── SIMULATIONS.md
+├── TENSORRT.md
+└── FUSION_NODE_GUIDE.md
 ```
 
 ### Launch Configuration
 
-**Single Launch File** (`vision_pipeline.launch.py`):
-
-```python
-from launch import LaunchDescription
-from launch_ros.actions import Node
-from launch.actions import ExecuteProcess
-
-def generate_launch_description():
-    return LaunchDescription([
-        # Camera nodes
-        ExecuteProcess(
-            cmd=['ros2', 'run', 'v4l2_camera', 'v4l2_camera_node',
-                 '--ros-args', '-p', 'video_device:=/dev/video0',
-                 '-p', 'image_size:="[1920,1200]"', '-p', 'framerate:=60.0',
-                 '-r', '__ns:=/camera0'],
-            name='camera0'
-        ),
-        # ... (camera1, camera2)
-        
-        # Preprocessing nodes
-        Node(
-            package='cv_ros_nodes',
-            executable='vision_preprocessing.py',
-            name='preprocess_camera0',
-            arguments=['--camera_id', '0']
-        ),
-        # ... (camera1, camera2)
-        
-        # Inference nodes
-        Node(
-            package='cv_ros_nodes',
-            executable='vision_inference.py',
-            name='inference_camera0',
-            arguments=['--camera_id', '0', '--engine_path', 'model.engine']
-        ),
-        # ... (camera1, camera2)
-        
-        # Combiner node
-        Node(
-            package='cv_ros_nodes',
-            executable='vision_combiner.py',
-            name='detection_combiner'
-        )
-    ])
-```
+**Launch file**: `launch_cv.py` (in `src/cv_ros_nodes/cv_ros_nodes/launch/`). Starts 3 v4l2 cameras, 3 preprocessing, 3 inference, 1 combiner. Set 15 fps on devices via v4l2-ctl before launch. See [NODES_AND_CAMERAS.md](NODES_AND_CAMERAS.md) for full commands and overrides.
 
 **Launch Command**:
 ```bash
@@ -1085,7 +960,7 @@ After=network.target
 Type=simple
 User=lorenzo
 WorkingDirectory=/home/lorenzo/autonomy-ws-25-26
-ExecStart=/usr/bin/python3 /home/lorenzo/autonomy-ws-25-26/cv_ros_nodes/launch/vision_pipeline.launch.py
+ExecStart=/bin/bash -c 'source /opt/ros/humble/setup.bash && source /home/lorenzo/autonomy-ws-25-26/computer_vision/install/setup.bash && ros2 launch cv_ros_nodes launch_cv.py'
 Restart=always
 RestartSec=10
 
@@ -1408,7 +1283,7 @@ cameras:
 
 ```yaml
 preprocessing:
-  output_resolution: [640, 480]
+  output_resolution: [1920, 1200]  # Pass-through at camera resolution
   enable_glare_reduction: false
   enable_histogram_equalization: false
   enable_color_correction: false
@@ -1509,7 +1384,8 @@ The computer vision pipeline provides the foundational perception capabilities r
 - **Spatial Understanding**: Bounding box coordinates for navigation and targeting
 
 **Integration with Task Execution:**
-- Vision detections are published to `/combined/detection_info` topic
+- Vision detections are published to `/combined/detection_info`; `bbox` is in global 1920×480; `global_frame: { "width": 1920, "height": 480 }`
+- Task4 supply drops: `source == "task4"`, `type` in `"yellow_supply_drop"`, `"black_supply_drop"`; also available on `/camera{N}/task4_detections` with `shape_bbox` and `vessel_bbox` in 640×480
 - Task-specific nodes subscribe to detections and execute task logic
 - Color indicator state detection is handled by a separate module (see `task_vision_processor.py` documentation)
 - Real-time detection enables dynamic navigation and decision-making
@@ -1665,6 +1541,8 @@ The computer vision pipeline provides the foundational perception capabilities r
 - **Black Vessels** (class_id: 7 with shape detection): Stationary vessels with black plus/cross on both sides
 - **Triangle Shapes** (class_id: 8): Black triangle targets on yellow vessels
 - **Cross/Plus Shapes** (class_id: 6): Black plus targets on black vessels
+
+**Task4 Supply Processor** (optional, `enable_task4:=true`): Subscribes to `/camera{N}/image_preprocessed` and `/camera{N}/detection_info`; publishes `/camera{N}/task4_detections` with `type` (`yellow_supply_drop`, `black_supply_drop`), `shape_bbox`, `vessel_bbox` (preprocessed frame), `source: "task4"`. Combiner merges these into `/combined/detection_info`; `bbox` in combined is in global frame (3×frame_width×frame_height).
 
 **Vision Processing:**
 
@@ -1889,7 +1767,7 @@ The computer vision pipeline provides the foundational perception capabilities r
 **Task Execution Flow:**
 
 ```
-Vision Pipeline → /combined/detection_info
+Vision Pipeline → /combined/detection_info (bbox in global frame 3×frame_width×frame_height; global_frame; Task4: source "task4", type yellow/black_supply_drop)
                     ↓
         Task-Specific Processors
                     ↓
@@ -1914,11 +1792,11 @@ Vision Pipeline → /combined/detection_info
 **Command**: `ros2 topic hz /topic_name`
 
 **Expected Frequencies**:
-- `/camera{N}/image_raw`: ~60 Hz
-- `/camera{N}/image_preprocessed`: ~60 Hz
-- `/camera{N}/detections`: ~30-60 Hz
-- `/camera{N}/detection_info`: ~30-60 Hz
-- `/combined/detection_info`: ~30 Hz
+- `/camera{N}/image_raw`: ~15 Hz
+- `/camera{N}/image_preprocessed`: ~15 Hz
+- `/camera{N}/detections`: ~15 Hz
+- `/camera{N}/detection_info`: ~15 Hz
+- `/combined/detection_info`: ~15 Hz
 
 **Alert Thresholds**:
 - Camera topics: Alert if <30 Hz for >5 seconds
@@ -2023,9 +1901,9 @@ Configure log rotation to prevent disk fill:
   "timestamp": 1234567890.123,
   "status": "healthy",
   "cameras": {
-    "0": {"status": "active", "fps": 60.0},
-    "1": {"status": "active", "fps": 59.8},
-    "2": {"status": "active", "fps": 60.1}
+    "0": {"status": "active", "fps": 15.0},
+    "1": {"status": "active", "fps": 14.9},
+    "2": {"status": "active", "fps": 15.0}
   },
   "nodes": {
     "preprocess_camera0": "running",
@@ -2076,20 +1954,7 @@ ros2 trace analyze vision_pipeline
 - Simple string message for JSON data
 - Specification: http://docs.ros.org/en/api/std_msgs/html/msg/String.html
 
-### Appendix B: TensorRT Engine Specifications
-
-**Input**:
-- Shape: `[1, 3, 640, 640]`
-- Type: `float32`
-- Format: CHW (Channel, Height, Width)
-- Normalization: [0.0, 1.0]
-
-**Output**:
-- Shape: `[1, 27, 8400]` (example for YOLO)
-- Type: `float32`
-- Format: Detection predictions
-
-### Appendix C: Class ID Mapping
+### Appendix B: Class ID Mapping
 
 **Maritime Object Detection Class IDs**:
 
@@ -2111,7 +1976,7 @@ ros2 trace analyze vision_pipeline
 
 **Custom Mapping**: Define in model training documentation
 
-### Appendix D: Troubleshooting Guide
+### Appendix C: Troubleshooting Guide
 
 **Issue**: Camera not detected
 - Check: `ls -l /dev/video*`
