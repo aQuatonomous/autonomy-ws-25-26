@@ -155,6 +155,9 @@ ros2 topic echo /camera0/detection_info
 ros2 topic echo /camera0/task4_detections
 ros2 topic echo /combined/detection_info
 
+# View formatted JSON (single message)
+ros2 topic echo /camera0/detection_info --once --field data | jq .
+
 ros2 topic list
 ```
 
