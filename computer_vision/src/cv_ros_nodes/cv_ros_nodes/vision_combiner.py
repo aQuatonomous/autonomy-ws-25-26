@@ -177,6 +177,31 @@ class DetectionCombiner(Node):
         # Otherwise, if this is the first camera or others are too far off, 
         # we'll wait for timer-based publishing
     
+    def _inference_bbox_to_640x480(self, bbox: List[float]) -> List[float]:
+        """
+        Convert bounding box from inference space (640x640) to preprocessing space (640x480).
+        
+        The inference model resizes images to 640x640 internally, but preprocessing outputs
+        640x480. This method scales the y-coordinates accordingly.
+        
+        Args:
+            bbox: [x1, y1, x2, y2] bounding box in 640x640 space
+        
+        Returns:
+            [x1, y1, x2, y2] bounding box in 640x480 space
+        """
+        if len(bbox) != 4:
+            return bbox
+        
+        x1, y1, x2, y2 = bbox
+        # X coordinates stay the same (both are 640 wide)
+        # Y coordinates scale by 480/640 = 0.75
+        scale_y = 480.0 / 640.0
+        y1_scaled = y1 * scale_y
+        y2_scaled = y2 * scale_y
+        
+        return [x1, y1_scaled, x2, y2_scaled]
+    
     def _is_in_overlap_zone(self, bbox: List[float], camera_id: int, is_left: bool) -> bool:
         """
         Check if a detection is in the overlap zone of a camera.
@@ -322,18 +347,22 @@ class DetectionCombiner(Node):
             for det in detections:
                 det_with_camera = det.copy()
                 det_with_camera['camera_id'] = camera_id
+                # Convert bbox from inference space (640x640) to preprocessing space (640x480)
+                bbox = det.get('bbox') or [det.get('x1', 0), det.get('y1', 0), det.get('x2', 0), det.get('y2', 0)]
+                det_with_camera['bbox'] = self._inference_bbox_to_640x480(bbox)
                 all_detections.append(det_with_camera)
-        
-        # Apply overlap deduplication if enabled
-        if self.deduplicate_overlap and len(all_detections) > 0:
-            all_detections = self._deduplicate_overlap_zones(all_detections)
             
+            # Add stats for matched cameras
             camera_stats[camera_id] = {
                 'status': 'active',
                 'num_detections': len(detections),
                 'fps': detection_data.get('fps', 0.0),
                 'timestamp': matched_timestamps[camera_id]
             }
+        
+        # Apply overlap deduplication if enabled
+        if self.deduplicate_overlap and len(all_detections) > 0:
+            all_detections = self._deduplicate_overlap_zones(all_detections)
         
         # Add stats for unmatched cameras
         for camera_id in [0, 1, 2]:
@@ -428,18 +457,18 @@ class DetectionCombiner(Node):
                 )
                 continue
             
-            # Camera is active and fresh - include ALL its detections
+            # Camera is active and fresh - include ALL its detections (inference bbox 640x640 -> 640x480)
             active_cameras += 1
             detections = detection_data.get('detections', [])
             for det in detections:
                 det_with_camera = det.copy()
                 det_with_camera['camera_id'] = camera_id  # Tag each detection with source camera
+                # Convert bbox from inference space (640x640) to preprocessing space (640x480)
+                bbox = det.get('bbox') or [det.get('x1', 0), det.get('y1', 0), det.get('x2', 0), det.get('y2', 0)]
+                det_with_camera['bbox'] = self._inference_bbox_to_640x480(bbox)
                 all_detections.append(det_with_camera)  # Add to combined list
-        
-        # Apply overlap deduplication if enabled
-        if self.deduplicate_overlap and len(all_detections) > 0:
-            all_detections = self._deduplicate_overlap_zones(all_detections)
             
+            # Add stats for active camera
             camera_stats[camera_id] = {
                 'status': 'active',
                 'num_detections': len(detections),
@@ -447,6 +476,10 @@ class DetectionCombiner(Node):
                 'timestamp': detection_data.get('timestamp', 0.0),
                 'time_since_update': round(time_since_update, 3)
             }
+        
+        # Apply overlap deduplication if enabled
+        if self.deduplicate_overlap and len(all_detections) > 0:
+            all_detections = self._deduplicate_overlap_zones(all_detections)
         
         # Create combined detection info
         combined_info = {
@@ -480,13 +513,17 @@ class DetectionCombiner(Node):
                     f'{no_data_cameras} no data | Total detections: {len(all_detections)}'
                 )
             else:
+                # Ensure all cameras have stats before logging
+                cam0_detections = camera_stats.get(0, {}).get('num_detections', 0)
+                cam1_detections = camera_stats.get(1, {}).get('num_detections', 0)
+                cam2_detections = camera_stats.get(2, {}).get('num_detections', 0)
                 self.get_logger().info(
-                f'Combined detections: {len(all_detections)} total | '
-                f'Active cameras: {active_cameras}/3 | '
-                f'Camera0: {camera_stats[0]["num_detections"]}, '
-                f'Camera1: {camera_stats[1]["num_detections"]}, '
-                f'Camera2: {camera_stats[2]["num_detections"]}'
-            )
+                    f'Combined detections: {len(all_detections)} total | '
+                    f'Active cameras: {active_cameras}/3 | '
+                    f'Camera0: {cam0_detections}, '
+                    f'Camera1: {cam1_detections}, '
+                    f'Camera2: {cam2_detections}'
+                )
 
 
 def main(args=None):
