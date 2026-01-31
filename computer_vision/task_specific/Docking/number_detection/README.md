@@ -97,6 +97,15 @@ for result in results:
         print(f"Detected: {class_name} (confidence: {confidence:.2f})")
 ```
 
+### Script (recommended)
+
+Run the provided script on the included test image:
+
+```bash
+cd /home/lorenzo/autonomy-ws-25-26/computer_vision/task_specific/Docking/number_detection
+python3 number_detection.py --model best.pt --source test_numbers.png --conf 0.25 --imgsz 960
+```
+
 ### Command Line Inference
 
 ```bash
