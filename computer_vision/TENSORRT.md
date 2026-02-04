@@ -41,15 +41,17 @@ trtexec --onnx=model.onnx --saveEngine=model.engine
 
 ## ONNX → TensorRT engine
 
+**TensorRT 10:** use `--memPoolSize=workspace:N` instead of deprecated `--workspace=N`.
+
 ```bash
 # FP32 (default)
-trtexec --onnx=weights.onnx --saveEngine=model.engine --workspace=4096
+/usr/src/tensorrt/bin/trtexec --onnx=aqua_main.onnx --saveEngine=model.engine --memPoolSize=workspace:4096 --skipInference
 
-# FP16 (faster, good accuracy on Jetson)
-trtexec --onnx=weights.onnx --saveEngine=model_fp16.engine --fp16 --workspace=4096
+# FP16 (faster, good accuracy on Jetson) — used for cv_scripts/model.engine
+/usr/src/tensorrt/bin/trtexec --onnx=aqua_main.onnx --saveEngine=model.engine --fp16 --memPoolSize=workspace:4096 --skipInference
 
 # INT8 (fastest; requires calibration)
-trtexec --onnx=weights.onnx --saveEngine=model_int8.engine --int8 --workspace=4096
+/usr/src/tensorrt/bin/trtexec --onnx=aqua_main.onnx --saveEngine=model_int8.engine --int8 --memPoolSize=workspace:4096 --skipInference
 ```
 
 **Precision:** FP32 = highest accuracy; FP16 = ~2× faster, &lt;1% loss; INT8 = ~4× faster, needs calibration.
@@ -76,8 +78,10 @@ context = engine.create_execution_context()
 
 | Path | Role |
 |------|------|
-| `model_training/weights.pt` | Trained PyTorch weights |
-| `model_training/weights.onnx` | ONNX (export from .pt, e.g. `torch.onnx.export`) |
+| `model_training/aqua_main.pt` | Current trained PyTorch weights (YOLO) |
+| `model_training/aqua_main.onnx` | ONNX (export via `python export_onnx.py aqua_main.pt`) |
+| `model_training/weights.pt` | Previous weights (kept as single old record) |
+| `model_training/export_onnx.py` | Export .pt → .onnx |
 | `model_training/test_inference.py` | TensorRT inference and validation on images/video |
 | `model_training/test_onnx_single_image.py` | ONNX validation |
 | `cv_scripts/model.engine` | TensorRT engine used by `vision_inference` |
@@ -102,4 +106,4 @@ tar xzf resnet50.tar.gz
 # "Engine built successfully" if okay
 ```
 
-For YOLO: use `model_training/weights.onnx`, build engine, then run `model_training/test_inference.py` or `vision_inference` with the resulting `.engine`.
+For YOLO: export `aqua_main.pt` → `aqua_main.onnx` with `python model_training/export_onnx.py`, build engine with trtexec (see above), then run `model_training/test_inference.py` or `vision_inference` with `cv_scripts/model.engine`.

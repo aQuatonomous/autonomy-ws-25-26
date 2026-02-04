@@ -24,6 +24,7 @@ setup(
     },
     entry_points={
         'console_scripts': [
+            'vision_lidar_fusion = cv_lidar_fusion.vision_lidar_fusion:main',
         ],
     },
 )

@@ -48,12 +48,20 @@ Usage:
     python3 vision_combiner.py --use_timestamp_sync --sync_window 0.05
 """
 
+import math
 import rclpy
 from rclpy.node import Node
 from std_msgs.msg import String
 import json
 from typing import Dict, List, Optional
 import time
+
+# Effective global frame: 85° FOV per camera, 15° overlap per boundary
+FOV_PER_CAMERA_DEG = 85
+OVERLAP_DEG = 15
+EFFECTIVE_ANGLE_SPAN_DEG = 225  # 3*85 - 2*15
+EFFECTIVE_ANGLE_LEFT_DEG = -112.5
+EFFECTIVE_ANGLE_RIGHT_DEG = 112.5
 
 
 class DetectionCombiner(Node):
@@ -176,7 +184,35 @@ class DetectionCombiner(Node):
         x1, y1, x2, y2 = bbox
         o = camera_id * self.frame_width
         return [x1 + o, y1, x2 + o, y2]
-    
+
+    def _to_effective_global(self, camera_id: int, bbox: List[float]) -> Dict[str, float]:
+        """
+        Convert detection center (camera_id, bbox in per-camera coords) to effective global frame.
+        Returns effective_x, effective_y (pixels), angle_deg (0=center, negative=left, positive=right), angle_rad.
+        """
+        if len(bbox) != 4:
+            return {
+                'effective_x': 0.0,
+                'effective_y': 0.0,
+                'angle_deg': 0.0,
+                'angle_rad': 0.0,
+            }
+        raw_width = 3 * self.frame_width
+        effective_width = round(raw_width * EFFECTIVE_ANGLE_SPAN_DEG / 255.0)
+        x_center = (float(bbox[0]) + float(bbox[2])) / 2.0
+        y_center = (float(bbox[1]) + float(bbox[3])) / 2.0
+        x_raw = camera_id * self.frame_width + x_center
+        effective_x = x_raw * effective_width / raw_width
+        effective_y = y_center
+        angle_deg = EFFECTIVE_ANGLE_LEFT_DEG + (x_raw / raw_width) * EFFECTIVE_ANGLE_SPAN_DEG
+        angle_rad = math.radians(angle_deg)
+        return {
+            'effective_x': effective_x,
+            'effective_y': effective_y,
+            'angle_deg': angle_deg,
+            'angle_rad': angle_rad,
+        }
+
     def _try_synchronize_and_publish(self, timestamp: float, source_camera_id: int, detection_data: dict):
         """
         Attempt to synchronize detections from all cameras based on timestamp.
@@ -401,6 +437,23 @@ class DetectionCombiner(Node):
         # Apply overlap deduplication if enabled
         if self.deduplicate_overlap and len(all_detections) > 0:
             all_detections = self._deduplicate_overlap_zones(all_detections)
+
+        # Effective global frame and per-detection effective coords + angle
+        effective_width = int(round((3 * self.frame_width) * EFFECTIVE_ANGLE_SPAN_DEG / 255.0))
+        effective_height = self.frame_height
+        effective_global_frame = {
+            'width': effective_width,
+            'height': effective_height,
+            'effective_angle_span_deg': EFFECTIVE_ANGLE_SPAN_DEG,
+            'effective_angle_left_deg': EFFECTIVE_ANGLE_LEFT_DEG,
+            'effective_angle_right_deg': EFFECTIVE_ANGLE_RIGHT_DEG,
+        }
+        for det in all_detections:
+            eff = self._to_effective_global(det.get('camera_id', 0), det.get('bbox', []))
+            det['effective_x'] = eff['effective_x']
+            det['effective_y'] = eff['effective_y']
+            det['angle_deg'] = eff['angle_deg']
+            det['angle_rad'] = eff['angle_rad']
         
         # Add stats for unmatched cameras
         for camera_id in [0, 1, 2]:
@@ -435,6 +488,7 @@ class DetectionCombiner(Node):
             'detections': all_detections,
             'synchronized': True,
             'global_frame': {'width': self.global_width, 'height': self.global_height},
+            'effective_global_frame': effective_global_frame,
         }
         
         # Publish combined detection info
@@ -520,6 +574,23 @@ class DetectionCombiner(Node):
         # Apply overlap deduplication if enabled
         if self.deduplicate_overlap and len(all_detections) > 0:
             all_detections = self._deduplicate_overlap_zones(all_detections)
+
+        # Effective global frame (225° span, ~5082 px for 1920 per camera)
+        effective_width = int(round((3 * self.frame_width) * EFFECTIVE_ANGLE_SPAN_DEG / 255.0))
+        effective_height = self.frame_height
+        effective_global_frame = {
+            'width': effective_width,
+            'height': effective_height,
+            'effective_angle_span_deg': EFFECTIVE_ANGLE_SPAN_DEG,
+            'effective_angle_left_deg': EFFECTIVE_ANGLE_LEFT_DEG,
+            'effective_angle_right_deg': EFFECTIVE_ANGLE_RIGHT_DEG,
+        }
+        for det in all_detections:
+            eff = self._to_effective_global(det.get('camera_id', 0), det.get('bbox', []))
+            det['effective_x'] = eff['effective_x']
+            det['effective_y'] = eff['effective_y']
+            det['angle_deg'] = eff['angle_deg']
+            det['angle_rad'] = eff['angle_rad']
         
         # Create combined detection info
         combined_info = {
@@ -534,6 +605,7 @@ class DetectionCombiner(Node):
             'detections': all_detections,
             'synchronized': self.use_timestamp_sync if self.use_timestamp_sync else None,
             'global_frame': {'width': self.global_width, 'height': self.global_height},
+            'effective_global_frame': effective_global_frame,
         }
         
         # Publish combined detection info
