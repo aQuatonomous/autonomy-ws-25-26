@@ -83,8 +83,9 @@ class CudaRuntime:
 # TENSORRT INFERENCE ENGINE
 # ============================================================================
 class TensorRTInference:
-    def __init__(self, engine_path: str):
-        """Load the TensorRT model file"""
+    def __init__(self, engine_path: str, imgsz: int = 640):
+        """Load the TensorRT model file. imgsz: input spatial size (e.g. 640 or 960)."""
+        self.imgsz = imgsz
         self.logger = trt.Logger(trt.Logger.WARNING)
         self.cuda = CudaRuntime()
         
@@ -146,9 +147,8 @@ class TensorRTInference:
         # Change from HWC to CHW format
         img_chw = np.transpose(img_normalized, (2, 0, 1))
         
-        # Add batch dimension: (1, 3, 640, 640)
+        # Add batch dimension: (1, 3, imgsz, imgsz)
         img_batch = np.expand_dims(img_chw, axis=0)
-        
         return img_batch
     
     def infer(self, input_data: np.ndarray) -> np.ndarray:
@@ -215,14 +215,15 @@ class TensorRTInference:
         max_x = boxes[:, 0].max()
         max_y = boxes[:, 1].max()
         
+        sz = self.imgsz
         if max_x <= 1.0 and max_y <= 1.0:
             # Normalized center format
             x_center, y_center, w, h = boxes[:, 0], boxes[:, 1], boxes[:, 2], boxes[:, 3]
-            x1 = (x_center - w / 2) * 640
-            y1 = (y_center - h / 2) * 640
-            x2 = (x_center + w / 2) * 640
-            y2 = (y_center + h / 2) * 640
-        elif max_x <= 640 and max_y <= 640:
+            x1 = (x_center - w / 2) * sz
+            y1 = (y_center - h / 2) * sz
+            x2 = (x_center + w / 2) * sz
+            y2 = (y_center + h / 2) * sz
+        elif max_x <= sz and max_y <= sz:
             # Pixel center format
             x_center, y_center, w, h = boxes[:, 0], boxes[:, 1], boxes[:, 2], boxes[:, 3]
             x1 = x_center - w / 2
@@ -234,9 +235,8 @@ class TensorRTInference:
             x1, y1, x2, y2 = boxes[:, 0], boxes[:, 1], boxes[:, 2], boxes[:, 3]
         
         boxes_corners = np.stack([x1, y1, x2, y2], axis=1)
-        
         # Clip to image bounds
-        boxes_corners = np.clip(boxes_corners, 0, 640)
+        boxes_corners = np.clip(boxes_corners, 0, self.imgsz)
         
         # Filter invalid boxes
         valid_boxes = (boxes_corners[:, 2] > boxes_corners[:, 0]) & (boxes_corners[:, 3] > boxes_corners[:, 1])
@@ -308,29 +308,57 @@ class TensorRTInference:
             
             # Draw rectangle
             cv2.rectangle(img_copy, (x1, y1), (x2, y2), (0, 255, 0), 2)
-            
-            # Draw label
-            label = f"Class {class_id}: {score:.2f}"
+            # Label: number detection (class_id 20,21,22 = digits 1,2,3) or generic
+            if 20 <= class_id <= 22:
+                label = f"{class_id - 19}: {score:.2f}"
+            else:
+                label = f"Class {class_id}: {score:.2f}"
             cv2.putText(img_copy, label, (x1, y1 - 10),
                        cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 2)
-        
         return img_copy
+
+
+# Number detection: map model class 0,1,2 (digits 1,2,3) to reserved IDs to avoid collision with main model (0-8)
+NUMBER_CLASS_OFFSET = 20  # class_id 20=digit1, 21=digit2, 22=digit3
 
 
 # ============================================================================
 # ROS2 INFERENCE NODE
 # ============================================================================
 class InferenceNode(Node):
-    
-    def __init__(self, camera_id: int, engine_path: str = "model.engine", conf_threshold: float = 0.25):
+
+    def __init__(
+        self,
+        camera_id: int,
+        engine_path: str = "model.engine",
+        conf_threshold: float = 0.25,
+        enable_number_detection: bool = False,
+        number_detection_engine: str = "",
+        number_conf_threshold: float = 0.25,
+    ):
         super().__init__(f'inference_node_camera{camera_id}')
         self.camera_id = camera_id
-        
-        # Initialize TensorRT engine
-        self.get_logger().info(f'Loading TensorRT engine from {engine_path}...')
-        self.inferencer = TensorRTInference(engine_path)
         self.conf_threshold = conf_threshold
+        self.number_conf_threshold = number_conf_threshold
+        self.enable_number_detection = enable_number_detection
+        self.number_inferencer = None
+
+        # Main TensorRT engine (640x640)
+        self.get_logger().info(f'Loading TensorRT engine from {engine_path}...')
+        self.inferencer = TensorRTInference(engine_path, imgsz=640)
         self.get_logger().info('TensorRT engine loaded successfully!')
+
+        # Optional number detection engine (960x960)
+        if enable_number_detection and number_detection_engine:
+            import os
+            if os.path.isfile(number_detection_engine):
+                try:
+                    self.number_inferencer = TensorRTInference(number_detection_engine, imgsz=960)
+                    self.get_logger().info(f'Number detection engine loaded from {number_detection_engine}')
+                except Exception as e:
+                    self.get_logger().warn(f'Failed to load number detection engine: {e}. Running without number detection.')
+            else:
+                self.get_logger().warn(f'Number detection engine not found: {number_detection_engine}. Running without number detection.')
         
         # ROS2 components
         self.bridge = CvBridge()
@@ -378,12 +406,37 @@ class InferenceNode(Node):
             output = self.inferencer.infer(input_data)
             inference_time = time.time() - start_time
             
-            # Post-process
+            # Post-process main model
             detections = self.inferencer.postprocess_yolo(
                 output,
                 conf_threshold=self.conf_threshold
             )
-            
+
+            # Optional number detection (docking task: digits 1, 2, 3)
+            if self.number_inferencer is not None:
+                try:
+                    num_input = self.number_inferencer.preprocess(cv_image)
+                    num_output = self.number_inferencer.infer(num_input)
+                    num_dets = self.number_inferencer.postprocess_yolo(
+                        num_output,
+                        conf_threshold=self.number_conf_threshold
+                    )
+                    # Remap class_id 0,1,2 -> 20,21,22 and scale bbox from 960 to 640 for combiner
+                    scale_960_to_640 = 640.0 / 960.0
+                    for d in num_dets:
+                        x1, y1, x2, y2 = d['box']
+                        d['box'] = [
+                            x1 * scale_960_to_640,
+                            y1 * scale_960_to_640,
+                            x2 * scale_960_to_640,
+                            y2 * scale_960_to_640,
+                        ]
+                        d['class_id'] = int(d['class_id']) + NUMBER_CLASS_OFFSET  # 0,1,2 -> 20,21,22
+                        d['source'] = 'number_detection'
+                    detections = detections + num_dets
+                except Exception as e:
+                    self.get_logger().warn(f'Number detection failed: {e}')
+
             # Update statistics
             self.frame_count += 1
             self.total_inference_time += inference_time
@@ -461,21 +514,30 @@ def main(args=None):
     # Parse command line arguments
     parser = argparse.ArgumentParser(description='ROS2 TensorRT Inference Node')
     parser.add_argument('--camera_id', type=int, default=0,
-                       help='Camera ID (0, 1, or 2)')
+                        help='Camera ID (0, 1, or 2)')
     parser.add_argument('--engine_path', type=str, default='model.engine',
-                       help='Path to TensorRT engine file')
+                        help='Path to TensorRT engine file')
     parser.add_argument('--conf_threshold', type=float, default=0.25,
-                       help='Confidence threshold (0.0-1.0)')
+                        help='Confidence threshold (0.0-1.0)')
+    parser.add_argument('--enable_number_detection', type=str, default='false',
+                        help='Enable docking number detection (digits 1,2,3); use "true" from launch')
+    parser.add_argument('--number_detection_engine', type=str, default='',
+                        help='Path to number detection TensorRT engine (e.g. number_detection.engine)')
+    parser.add_argument('--number_conf_threshold', type=float, default=0.25,
+                        help='Confidence threshold for number detection (0.0-1.0)')
     args_parsed, _ = parser.parse_known_args(args=args)
-    
+
     if args_parsed.camera_id not in [0, 1, 2]:
         print("Error: camera_id must be 0, 1, or 2")
         return
-    
+
     node = InferenceNode(
         camera_id=args_parsed.camera_id,
         engine_path=args_parsed.engine_path,
-        conf_threshold=args_parsed.conf_threshold
+        conf_threshold=args_parsed.conf_threshold,
+        enable_number_detection=args_parsed.enable_number_detection.lower() == 'true',
+        number_detection_engine=args_parsed.number_detection_engine or '',
+        number_conf_threshold=args_parsed.number_conf_threshold,
     )
     
     try:

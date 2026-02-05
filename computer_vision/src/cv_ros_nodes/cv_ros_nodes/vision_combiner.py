@@ -177,6 +177,32 @@ class DetectionCombiner(Node):
         except json.JSONDecodeError as e:
             self.get_logger().error(f'Failed to parse task4_detections from camera{camera_id}: {e}')
 
+    def _task4_detections_to_combined(self, camera_id: int, task4_data: dict) -> List[Dict]:
+        """
+        Convert Task4 payload detections to the same format as inference detections
+        so they can be merged into all_detections. shape_bbox is already in preprocessed frame (640x480).
+        """
+        out = []
+        for det in task4_data.get('detections', []):
+            bbox = det.get('shape_bbox')
+            if not bbox or len(bbox) != 4:
+                continue
+            det_with_camera = {
+                'camera_id': camera_id,
+                'class_id': det.get('class_id'),
+                'score': det.get('score', 0.0),
+                'bbox': list(bbox),
+                'x1': bbox[0], 'y1': bbox[1], 'x2': bbox[2], 'y2': bbox[3],
+                'width': bbox[2] - bbox[0],
+                'height': bbox[3] - bbox[1],
+                'type': det.get('type'),
+                'source': 'task4',
+            }
+            if det.get('vessel_bbox') is not None:
+                det_with_camera['vessel_bbox'] = det['vessel_bbox']
+            out.append(det_with_camera)
+        return out
+
     def _to_global_bbox(self, bbox: List[float], camera_id: int) -> List[float]:
         """Transform bbox from camera-local (frame_width x frame_height) to global. x += camera_id*frame_width."""
         if len(bbox) != 4:
@@ -425,6 +451,12 @@ class DetectionCombiner(Node):
                 bbox = det.get('bbox') or [det.get('x1', 0), det.get('y1', 0), det.get('x2', 0), det.get('y2', 0)]
                 det_with_camera['bbox'] = self._inference_bbox_to_640x480(bbox)
                 all_detections.append(det_with_camera)
+            
+            # Merge Task4 detections for this camera when present
+            task4_data = self.task4_detections.get(camera_id)
+            if task4_data is not None:
+                for det in self._task4_detections_to_combined(camera_id, task4_data):
+                    all_detections.append(det)
             
             # Add stats for matched cameras
             camera_stats[camera_id] = {

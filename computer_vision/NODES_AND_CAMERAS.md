@@ -27,7 +27,12 @@ Combiner subscribes to `/camera{N}/detection_info` and `/camera{N}/task4_detecti
 ros2 launch cv_ros_nodes launch_cv.py
 ```
 
-**Overrides:** `resolution:=1920,1200`, `camera_devices:=/dev/video0,/dev/video2,/dev/video4`, `engine_path:=/path/to/model.engine`, `conf_threshold:=0.25`, `staleness_threshold:=1.0`, `enable_task4:=true` (to run Task4 supply processor).
+**Overrides:** `resolution:=1920,1200`, `camera_devices:=/dev/video0,/dev/video2,/dev/video4`, `engine_path:=/path/to/model.engine`, `conf_threshold:=0.25`, `staleness_threshold:=1.0`, `enable_task4:=true` (Task4 supply processor), `enable_number_detection:=true`, `number_detection_engine:=/path/to/number_detection.engine`, `number_conf_threshold:=0.25` (docking number detection).
+
+**Optional detection sources (run or not):**
+
+- **Task4:** `enable_task4:=true` runs the Task4 supply processor. When enabled, Task4 detections appear in `/combined/detection_info` with `source: "task4"` and `type` in `yellow_supply_drop` / `black_supply_drop`.
+- **Number detection (docking):** `enable_number_detection:=true` and a valid `number_detection_engine` run the number model inside the inference node. When enabled, number detections (class_id 20 = digit 1, 21 = digit 2, 22 = digit 3) appear in the same `detection_info` and `/combined/detection_info`. Both sources are optional; combined output always includes main inference detections.
 
 Set 15 fps on devices before launch (see [Camera configuration](#camera-configuration)).
 
@@ -118,7 +123,7 @@ ros2 run cv_ros_nodes vision_combiner --deduplicate_overlap --overlap_zone_width
 ros2 run cv_ros_nodes vision_combiner --use_timestamp_sync --sync_window 0.05
 ```
 
-Subscribes: `/camera0/detection_info`, `/camera1/detection_info`, `/camera2/detection_info`; `/camera0/task4_detections`, `/camera1/task4_detections`, `/camera2/task4_detections`. Publishes: `/combined/detection_info`. All `bbox` in combined output are in the **global frame** (3×frame_width×frame_height, e.g. 5760×1200); payload includes `global_frame: { "width": W, "height": H }` from detection_info. Default: latest-value with 1.0s staleness.
+Subscribes: `/camera0/detection_info`, `/camera1/detection_info`, `/camera2/detection_info`; `/camera0/task4_detections`, `/camera1/task4_detections`, `/camera2/task4_detections`. **Merges** main (and number) detections from `detection_info` with Task4 detections from `task4_detections` into a single list. Publishes: `/combined/detection_info`. All `bbox` in combined output are in the **global frame** (3×frame_width×frame_height, e.g. 5760×1200); payload includes `global_frame: { "width": W, "height": H }` from detection_info. Default: latest-value with 1.0s staleness.
 
 ### Task4 supply processor (optional)
 

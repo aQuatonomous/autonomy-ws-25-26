@@ -107,3 +107,40 @@ tar xzf resnet50.tar.gz
 ```
 
 For YOLO: export `aqua_main.pt` → `aqua_main.onnx` with `python model_training/export_onnx.py`, build engine with trtexec (see above), then run `model_training/test_inference.py` or `vision_inference` with `cv_scripts/model.engine`.
+
+---
+
+## Number detection model (docking digits 1, 2, 3)
+
+Separate YOLO model for docking number detection. Same directory as the main engine: `cv_scripts/`.
+
+**Export best.pt to ONNX (imgsz=960):**
+
+From `task_specific/Docking/number_detection/`:
+
+```bash
+# With Ultralytics installed (one-time export)
+python -c "
+from ultralytics import YOLO
+model = YOLO('best.pt')
+model.export(format='onnx', imgsz=960)
+"
+# Rename best.onnx → number_detection.onnx if desired
+mv best.onnx number_detection.onnx
+```
+
+Or use the script `task_specific/Docking/number_detection/build_number_engine.sh` (exports and builds).
+
+**Build TensorRT engine (input 1×3×960×960):**
+
+```bash
+trtexec --onnx=number_detection.onnx --saveEngine=number_detection.engine --fp16 --memPoolSize=workspace:4096 --skipInference
+```
+
+Copy or build the engine into **cv_scripts** so it lives next to `model.engine`:
+
+```bash
+cp number_detection.engine /path/to/computer_vision/cv_scripts/number_detection.engine
+```
+
+**Runtime:** `vision_inference` loads this second engine when `enable_number_detection:=true` and `number_detection_engine` points to `cv_scripts/number_detection.engine`. Number classes are remapped to **class_id 20 = digit 1**, **21 = digit 2**, **22 = digit 3** to avoid collision with the main model (0–8).

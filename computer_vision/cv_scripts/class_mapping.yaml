@@ -1,6 +1,7 @@
 # Class ID to Object Name Mapping
 # This file maps class IDs (as output by the YOLO model) to human-readable object names
 # Used by inference nodes for labeling detections and downstream processing
+# Number detection (docking): 20 = digit 1, 21 = digit 2, 22 = digit 3 (remapped in vision_inference)
 
 # Class ID Mapping
 # Format: class_id: class_name

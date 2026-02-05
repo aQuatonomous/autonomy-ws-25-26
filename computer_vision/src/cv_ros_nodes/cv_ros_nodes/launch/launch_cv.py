@@ -85,6 +85,29 @@ def generate_launch_description():
         description='Enable Task 4 supply drop processor'
     )
 
+    default_number_engine = os.path.join(
+        os.path.expanduser('~'),
+        'autonomy-ws-25-26',
+        'computer_vision',
+        'cv_scripts',
+        'number_detection.engine'
+    )
+    enable_number_detection_arg = DeclareLaunchArgument(
+        'enable_number_detection',
+        default_value='false',
+        description='Enable docking number detection (digits 1, 2, 3)'
+    )
+    number_detection_engine_arg = DeclareLaunchArgument(
+        'number_detection_engine',
+        default_value=default_number_engine,
+        description='Path to number detection TensorRT engine'
+    )
+    number_conf_threshold_arg = DeclareLaunchArgument(
+        'number_conf_threshold',
+        default_value='0.25',
+        description='Confidence threshold for number detection'
+    )
+
     # Preprocessing nodes
     preprocess0 = Node(
         package='cv_ros_nodes',
@@ -113,7 +136,10 @@ def generate_launch_description():
         arguments=[
             '--camera_id', '0',
             '--engine_path', LaunchConfiguration('engine_path'),
-            '--conf_threshold', LaunchConfiguration('conf_threshold')
+            '--conf_threshold', LaunchConfiguration('conf_threshold'),
+            '--enable_number_detection', LaunchConfiguration('enable_number_detection'),
+            '--number_detection_engine', LaunchConfiguration('number_detection_engine'),
+            '--number_conf_threshold', LaunchConfiguration('number_conf_threshold'),
         ]
     )
     inference1 = Node(
@@ -123,7 +149,10 @@ def generate_launch_description():
         arguments=[
             '--camera_id', '1',
             '--engine_path', LaunchConfiguration('engine_path'),
-            '--conf_threshold', LaunchConfiguration('conf_threshold')
+            '--conf_threshold', LaunchConfiguration('conf_threshold'),
+            '--enable_number_detection', LaunchConfiguration('enable_number_detection'),
+            '--number_detection_engine', LaunchConfiguration('number_detection_engine'),
+            '--number_conf_threshold', LaunchConfiguration('number_conf_threshold'),
         ]
     )
     inference2 = Node(
@@ -133,7 +162,10 @@ def generate_launch_description():
         arguments=[
             '--camera_id', '2',
             '--engine_path', LaunchConfiguration('engine_path'),
-            '--conf_threshold', LaunchConfiguration('conf_threshold')
+            '--conf_threshold', LaunchConfiguration('conf_threshold'),
+            '--enable_number_detection', LaunchConfiguration('enable_number_detection'),
+            '--number_detection_engine', LaunchConfiguration('number_detection_engine'),
+            '--number_conf_threshold', LaunchConfiguration('number_conf_threshold'),
         ]
     )
 
@@ -158,6 +190,9 @@ def generate_launch_description():
         conf_threshold_arg,
         staleness_threshold_arg,
         enable_task4_arg,
+        enable_number_detection_arg,
+        number_detection_engine_arg,
+        number_conf_threshold_arg,
         LogInfo(msg='Starting computer vision pipeline...'),
         OpaqueFunction(function=_create_camera_nodes),
         preprocess0,
