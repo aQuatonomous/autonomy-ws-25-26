@@ -42,12 +42,12 @@ class BuoyVisualizer(Node):
         self.marker_radius = self.get_parameter('marker_radius').value
         self.marker_lifetime = self.get_parameter('marker_lifetime').value
         
-        # QoS profile matching the detector output
+        # QoS profile: depth=1 for low-latency marker updates
         qos = QoSProfile(
             reliability=QoSReliabilityPolicy.RELIABLE,
             durability=QoSDurabilityPolicy.VOLATILE,
             history=QoSHistoryPolicy.KEEP_LAST,
-            depth=10,
+            depth=1,
         )
         
         # Subscriber to buoy detections

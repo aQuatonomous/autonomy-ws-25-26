@@ -18,12 +18,49 @@ source install/setup.bash
 
 ---
 
-## 1. Start the pipeline (order matters)
+## 1. Start the pipeline
+
+### Option 1: One-command launch (recommended)
+
+Starts LiDAR driver, range filter, buoy detector, tracker, visualizer, and RViz in one go. **Single terminal**, workspace sourced:
+
+```bash
+source /path/to/your/ros2_ws/install/setup.bash
+ros2 launch pointcloud_filters buoy_pipeline.launch.py
+```
+
+RViz opens with raw cloud, filtered cloud, and tracked buoy markers. Fixed frame is `unilidar_lidar`.
+
+**Useful overrides:**
+
+| Override | Example | Use case |
+|----------|---------|----------|
+| No LiDAR driver (already running) | `launch_lidar_driver:=false` | Driver in another terminal |
+| No RViz | `launch_rviz:=false` | Headless or your own RViz |
+| Inside-bay / short range | `range_max:=0.5 z_max:=0.5` | Close buoys |
+| Inside-bay detector tuning | `range_max:=0.5 z_max:=0.5 eps:=0.15 min_samples:=15` | Tighter clusters |
+| New buoys appear sooner | `min_observations_for_publish:=1` | Less delay, possible flicker |
+| **Stricter tracking (fewer false buoys)** | `min_observations_to_add:=8 candidate_max_consecutive_misses:=3` | Object must be seen more times in same area before becoming a track |
+| Looser association | `association_threshold:=0.8` | Match detections to tracks at larger distance (m) |
+
+Example – inside-bay with one command:
+
+```bash
+ros2 launch pointcloud_filters buoy_pipeline.launch.py range_max:=0.5 z_max:=0.5 eps:=0.15 min_samples:=15
+```
+
+**Tracker tuning (fewer false tracks):** Increase `min_observations_to_add` (default 5) so an object must be seen more frames in the same area before it becomes a tracked buoy. Decrease `candidate_max_consecutive_misses` (default 4) to drop candidates faster if they disappear. Decrease `association_threshold` (default 0.5 m) to match only detections closer to existing tracks.
+
+**Requirements:** `unitree_lidar_ros2` and `rviz2` must be installed (same workspace for the driver).
+
+---
+
+### Option 2: Run nodes separately (4 terminals)
 
 Use **4 terminals**, all with the workspace sourced:  
 `source /path/to/your/ros2_ws/install/setup.bash`
 
-### Terminal 1 – LiDAR driver
+#### Terminal 1 – LiDAR driver
 
 ```bash
 ros2 launch unitree_lidar_ros2 launch.py
@@ -35,7 +72,7 @@ You should see the driver running and publishing. Check:
 ros2 topic hz /unilidar/cloud
 ```
 
-### Terminal 2 – Range filter
+#### Terminal 2 – Range filter
 
 The range filter clips by height (z) and horizontal range, and can accumulate points.  
 **No launch file is provided**; use `ros2 run` with parameters.
@@ -54,6 +91,8 @@ ros2 run pointcloud_filters lidar_range_filter --ros-args \
 
 **Option B – Inside-bay / short range (0.5 m, for close buoys)**
 
+For **responsive markers**, use the default (no accumulation). Only enable accumulation when you need denser clouds and accept extra delay:
+
 ```bash
 ros2 run pointcloud_filters lidar_range_filter --ros-args \
   -p input_topic:=/unilidar/cloud \
@@ -61,10 +100,10 @@ ros2 run pointcloud_filters lidar_range_filter --ros-args \
   -p z_min:=0.0 \
   -p z_max:=0.5 \
   -p range_max:=0.5 \
-  -p enable_accumulation:=True \
-  -p accumulation_window:=1.0 \
   -p use_tf_transform:=False
 ```
+
+To use accumulation (denser cloud, more delay), add: `-p enable_accumulation:=True -p accumulation_window:=1.0`
 
 Check filtered output:
 
@@ -72,7 +111,7 @@ Check filtered output:
 ros2 topic hz /points_filtered
 ```
 
-### Terminal 3 – Buoy detector (DBSCAN)
+#### Terminal 3 – Buoy detector (DBSCAN)
 
 **Normal range (tune `eps` for buoy size, typically ~0.6–1.2 m):**
 
@@ -96,12 +135,12 @@ Check detections:
 ros2 topic echo /buoy_detections
 ```
 
-### Terminal 4 (optional) – Buoy tracker + RViz
+#### Terminal 4 (optional) – Buoy tracker + RViz
 
 For persistent IDs and visualization:
 
 ```bash
-# Tracker
+# Tracker (min_observations_for_publish:=1 or 2 makes new buoys appear sooner; 3 reduces flicker)
 ros2 run pointcloud_filters buoy_tracker --ros-args \
   -p association_threshold:=0.3 \
   -p max_consecutive_misses:=5 \
@@ -155,7 +194,15 @@ If you see the point cloud and markers moving with the LiDAR/buoys, the pipeline
 
 ---
 
-## 4. Pipeline summary
+## 4. Low-latency tips
+
+- **Range filter:** Default is no accumulation (`enable_accumulation:=False`) for responsive markers. Use accumulation only when you need a denser merged cloud and accept delay; if used, keep `accumulation_window` small (e.g. 0.1–0.2 s).
+- **Tracker:** Nodes use QoS depth=1 so the latest frame is always processed. For new buoys to appear sooner, set `min_observations_for_publish:=1` or `2` (default 3 reduces flicker but adds delay).
+- **RANSAC:** The buoy detector uses fewer RANSAC iterations by default (80). Disable with `ransac_enabled:=False` or reduce `ransac_iterations` further if latency is critical and water plane removal is not needed.
+
+---
+
+## 5. Pipeline summary
 
 ```
 LiDAR driver (unitree_lidar_ros2)
@@ -170,4 +217,4 @@ LiDAR driver (unitree_lidar_ros2)
     → /tracked_buoy_markers (for RViz)
 ```
 
-For more detail on nodes and parameters, see `mapping/README.md` and `mapping/src/pointcloud_filters/README.md`.
+For more detail on nodes and parameters, see [mapping/README.md](README.md). Section 4 above gives low-latency tips.

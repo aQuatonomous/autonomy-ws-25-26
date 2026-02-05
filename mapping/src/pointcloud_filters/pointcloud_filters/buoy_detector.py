@@ -42,7 +42,7 @@ class BuoyDetectorNode(Node):
         
         # RANSAC water plane removal parameters
         self.declare_parameter('ransac_enabled', True)  # Enable RANSAC plane removal
-        self.declare_parameter('ransac_iterations', 150)  # Number of RANSAC iterations
+        self.declare_parameter('ransac_iterations', 80)  # Number of RANSAC iterations (lower = less latency)
         self.declare_parameter('ransac_distance_threshold', 0.15)  # Max distance to plane (meters)
         self.declare_parameter('ransac_min_inlier_ratio', 0.3)  # Minimum fraction of points in plane
 
@@ -76,8 +76,14 @@ class BuoyDetectorNode(Node):
             qos
         )
 
-        # Publisher for buoy detections
-        self.pub = self.create_publisher(BuoyDetectionArray, self.output_topic, 10)
+        # Publisher for buoy detections (RELIABLE so tracker and visualizers can subscribe)
+        qos_pub = QoSProfile(
+            reliability=QoSReliabilityPolicy.RELIABLE,
+            durability=QoSDurabilityPolicy.VOLATILE,
+            history=QoSHistoryPolicy.KEEP_LAST,
+            depth=10,
+        )
+        self.pub = self.create_publisher(BuoyDetectionArray, self.output_topic, qos_pub)
 
         self.get_logger().info(
             f'Buoy detector started: input={self.input_topic}, output={self.output_topic}, '
@@ -88,9 +94,10 @@ class BuoyDetectorNode(Node):
         """Process incoming point cloud and detect buoys."""
         # Extract points from PointCloud2
         points = self.extract_points(msg)
-        
+
         if len(points) == 0:
             self.get_logger().debug('Received empty point cloud')
+            self.publish_detections([], msg.header)
             return
 
         # Remove water plane using RANSAC (if enabled)
@@ -98,6 +105,7 @@ class BuoyDetectorNode(Node):
             points_filtered = self.remove_water_plane_ransac(points)
             if len(points_filtered) == 0:
                 self.get_logger().debug('All points removed by RANSAC plane filtering')
+                self.publish_detections([], msg.header)
                 return
             points = points_filtered
 
@@ -107,9 +115,9 @@ class BuoyDetectorNode(Node):
         # Extract buoy detections from clusters
         buoys = self.extract_buoy_detections(points, labels)
 
-        # Publish detections
+        # Always publish (including empty) so tracker and visualizers update promptly
+        self.publish_detections(buoys, msg.header)
         if len(buoys) > 0:
-            self.publish_detections(buoys, msg.header)
             self.get_logger().info(f'Detected {len(buoys)} buoy(s)')
 
     def extract_points(self, msg: PointCloud2) -> np.ndarray:

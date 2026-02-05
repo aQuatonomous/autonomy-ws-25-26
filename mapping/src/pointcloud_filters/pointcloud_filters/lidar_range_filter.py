@@ -57,8 +57,8 @@ class LidarRangeFilterNode(Node):
         self.declare_parameter('range_max', 0.5)
         self.declare_parameter('max_buffer_duration_sec', 5.0)
         self.declare_parameter('keep_publisher', True)
-        self.declare_parameter('enable_accumulation', True)
-        self.declare_parameter('accumulation_window', 1.0)
+        self.declare_parameter('enable_accumulation', False)
+        self.declare_parameter('accumulation_window', 0.2)
 
         self.input_topic = self.get_parameter('input_topic').get_parameter_value().string_value
         self.output_topic = self.get_parameter('output_topic').get_parameter_value().string_value
@@ -83,18 +83,24 @@ class LidarRangeFilterNode(Node):
             self.tf_buffer = tf2_ros.Buffer(cache_time=Duration(seconds=5.0))
             self.tf_listener = tf2_ros.TransformListener(self.tf_buffer, self)
 
-        qos = QoSProfile(
+        # Subscriber: BEST_EFFORT to match Unitree driver (sensor data)
+        qos_sub = QoSProfile(
+            reliability=QoSReliabilityPolicy.BEST_EFFORT,
+            durability=QoSDurabilityPolicy.VOLATILE,
+            history=QoSHistoryPolicy.KEEP_LAST,
+            depth=1,
+        )
+        self.sub = self.create_subscription(PointCloud2, self.input_topic, self.cloud_cb, qos_sub)
+
+        # Publisher: RELIABLE for downstream nodes
+        qos_pub = QoSProfile(
             reliability=QoSReliabilityPolicy.RELIABLE,
             durability=QoSDurabilityPolicy.VOLATILE,
             history=QoSHistoryPolicy.KEEP_LAST,
             depth=1,
         )
-
-        self.sub = self.create_subscription(PointCloud2, self.input_topic, self.cloud_cb, qos)
-        
-        # Publisher (conditional on keep_publisher param)
         if self.keep_publisher:
-            self.pub = self.create_publisher(PointCloud2, self.output_topic, qos)
+            self.pub = self.create_publisher(PointCloud2, self.output_topic, qos_pub)
         else:
             self.pub = None
 

@@ -60,12 +60,12 @@ class TrackedBuoyVisualizer(Node):
         # Track which IDs we've seen to manage marker deletion
         self.active_ids = set()
         
-        # QoS profile
+        # QoS profile: depth=1 for low-latency marker updates
         qos = QoSProfile(
             reliability=QoSReliabilityPolicy.RELIABLE,
             durability=QoSDurabilityPolicy.VOLATILE,
             history=QoSHistoryPolicy.KEEP_LAST,
-            depth=10,
+            depth=1,
         )
         
         # Subscriber to tracked buoys
