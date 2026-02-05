@@ -119,11 +119,11 @@ ros2 run cv_ros_nodes vision_combiner
 ros2 run cv_ros_nodes vision_combiner --staleness_threshold 0.5
 ros2 run cv_ros_nodes vision_combiner --staleness_threshold 2.0
 ros2 run cv_ros_nodes vision_combiner --deduplicate_overlap
-ros2 run cv_ros_nodes vision_combiner --deduplicate_overlap --overlap_zone_width 0.20 --overlap_y_tolerance 0.15
+ros2 run cv_ros_nodes vision_combiner --deduplicate_overlap --dedup_global_distance 0.1
 ros2 run cv_ros_nodes vision_combiner --use_timestamp_sync --sync_window 0.05
 ```
 
-Subscribes: `/camera0/detection_info`, `/camera1/detection_info`, `/camera2/detection_info`; `/camera0/task4_detections`, `/camera1/task4_detections`, `/camera2/task4_detections`. **Merges** main (and number) detections from `detection_info` with Task4 detections from `task4_detections` into a single list. Publishes: `/combined/detection_info`. All `bbox` in combined output are in the **global frame** (3×frame_width×frame_height, e.g. 5760×1200); payload includes `global_frame: { "width": W, "height": H }` from detection_info. Default: latest-value with 1.0s staleness.
+Subscribes: `/camera0/detection_info`, `/camera1/detection_info`, `/camera2/detection_info`; `/camera0/task4_detections`, `/camera1/task4_detections`, `/camera2/task4_detections`. **Merges** main (and number) detections from `detection_info` with Task4 detections from `task4_detections` into a single list. Publishes: `/combined/detection_info`. All `bbox` in combined output are in the **global frame** (3×frame_width×frame_height). When `--deduplicate_overlap` is enabled, detections with the same `class_id` and centers within `--dedup_global_distance` fraction of frame width are merged into one. Each detection includes `angle_deg`/`angle_rad` (horizontal bearing), `elevation_deg`/`elevation_rad` (0° = horizon, positive = up, negative = down), and `effective_global_frame` includes vertical angle bounds (`effective_vertical_angle_up_deg`, `effective_vertical_angle_down_deg`). Default: latest-value with 1.0s staleness.
 
 ### Task4 supply processor (optional)
 
@@ -236,7 +236,7 @@ Bbox is in the **preprocessed frame** (frame_width×frame_height, e.g. 1920×120
 
 ### Combined (`/combined/detection_info`)
 
-All `detections[].bbox` are in the **global frame 1920×480** (`[x1,y1,x2,y2]`); x-offset = `camera_id * 640`. Payload includes `global_frame: { "width": 1920, "height": 480 }`. Task4 supply drops have `source == "task4"` and `type` in `"yellow_supply_drop"`, `"black_supply_drop"`.
+All `detections[].bbox` are in the **global frame** (width = 3×frame_width, height = frame_height; e.g. 5760×1200 when per-camera is 1920×1200; x-offset = `camera_id * frame_width`). Payload includes `global_frame: { "width": W, "height": H }` and `effective_global_frame` (horizontal and vertical angle spans). Each detection includes `angle_deg`/`angle_rad` (bearing), `elevation_deg`/`elevation_rad` (0° = horizon, + up, − down). Task4 supply drops have `source == "task4"` and `type` in `"yellow_supply_drop"`, `"black_supply_drop"`.
 
 ```json
 {
@@ -247,7 +247,7 @@ All `detections[].bbox` are in the **global frame 1920×480** (`[x1,y1,x2,y2]`);
   "num_no_data_cameras": 0,
   "staleness_threshold": 1.0,
   "total_detections": 5,
-  "global_frame": { "width": 1920, "height": 480 },
+  "global_frame": { "width": 5760, "height": 1200 },
   "camera_stats": {
     "0": {
       "status": "active",
@@ -285,10 +285,21 @@ All `detections[].bbox` are in the **global frame 1920×480** (`[x1,y1,x2,y2]`);
       "class_id": 8,
       "score": 0.9,
       "source": "task4",
-      "bbox": [800, 80, 880, 160]
+      "bbox": [2000, 80, 2080, 160]
     }
   ]
 }
 ```
 
-**Combiner behavior:** Latest value per camera; staleness filtering (cameras older than `staleness_threshold` excluded); status `active`, `stale`, `no_data`. Each detection includes `camera_id`. Frame dimensions from `frame_width`/`frame_height` in detection_info. Bbox from inference and Task4 are already in the preprocessed frame; combiner adds `camera_id * frame_width` to x for the global frame.
+**Combiner behavior:** Latest value per camera; staleness filtering (cameras older than `staleness_threshold` excluded); status `active`, `stale`, `no_data`. Each detection includes `camera_id`. When `--deduplicate_overlap` is enabled, deduplication is by global distance (`--dedup_global_distance`). Published `bbox` is in global frame; each detection also has `angle_deg`, `angle_rad`, `elevation_deg`, `elevation_rad` and `effective_global_frame` documents vertical angle bounds.
+
+**Global frame specification (combined output):**
+- **Source dimensions:** Per-camera `frame_width` and `frame_height` come from `detection_info` (preprocessed image size from inference, e.g. 1920×1200).
+- **Global image:** Stitched panorama; **width** = 3 × `frame_width`, **height** = `frame_height` (e.g. 5760×1200). Origin (0,0) top-left; x increases left to right across cameras 0, 1, 2.
+- **Bbox conversion:** Local bbox in camera N `[x1,y1,x2,y2]` → global bbox `[x1 + N×frame_width, y1, x2 + N×frame_width, y2]`. Y unchanged.
+- **Payload:** `global_frame: { "width": W, "height": H }` with W = 3×frame_width, H = frame_height. Each detection’s `bbox` is in this global frame.
+- **Horizontal angle (bearing):** `angle_deg` / `angle_rad`. 0° = center, negative = left, positive = right. Effective span 225° (3×85° FOV − 2×15° overlap). Bounds in `effective_global_frame`: `effective_angle_left_deg` (-112.5), `effective_angle_right_deg` (112.5).
+- **Vertical angle (elevation):** `elevation_deg` / `elevation_rad`. 0° = horizon, positive = up, negative = down. Span 69° (±34.5°). Bounds in `effective_global_frame`: `effective_vertical_angle_up_deg` (34.5), `effective_vertical_angle_down_deg` (-34.5).
+- **Effective global frame:** Width = 3×frame_width − 2×overlap in angle terms (raw_width × 225/255 ≈ 3×1920 − 2×339 px for 1920-wide cameras); height = frame_height (e.g. 5082×1200). Horizontal axis is linear in angle (225° span). Metadata in payload: `effective_global_frame` with `width`, `height`, and all angle span/bound keys above.
+
+Inference publishes bbox already in the preprocessed (camera) frame; the combiner does not rescale bbox, only converts to global and computes angles.

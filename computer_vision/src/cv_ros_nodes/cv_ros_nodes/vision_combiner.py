@@ -3,7 +3,19 @@ Multi-Camera Detection Combiner ROS2 Node
 
 Subscribes to: /camera0/detection_info, /camera1/detection_info, /camera2/detection_info;
   /camera0/task4_detections, /camera1/task4_detections, /camera2/task4_detections
-Publishes to: /combined/detection_info (String with all detections; bbox in global frame 3×frame_width×frame_height, e.g. 5760×1200; global_frame from detection_info)
+Publishes to: /combined/detection_info (String with all detections; bbox in global frame; see GLOBAL FRAME SPEC below)
+
+GLOBAL FRAME SPEC:
+- Input: Per-camera frame_width and frame_height (from detection_info; preprocessed image size, e.g. 1920×1200).
+- Global frame (stitched panorama): width = 3 * frame_width, height = frame_height (e.g. 5760×1200).
+  Origin (0,0) top-left; x increases left-to-right across the three cameras (camera 0 left, 1 center, 2 right).
+- Conversion: bbox in camera N (local [x1,y1,x2,y2]) → global bbox: x_global = x_local + N * frame_width, y unchanged.
+- Published detections: each has "bbox" in global frame [x1,y1,x2,y2], and "global_frame": {"width": W, "height": H}.
+- Effective global frame (angle-linear): width = raw_width * (225/255) = 3×frame_width − 2×overlap in angle terms;
+  height = frame_height. So e.g. 5760×1200 → effective width ≈ 5082, height 1200.
+- Angles (per detection): angle_deg/angle_rad = horizontal bearing (0° = center, negative = left, positive = right),
+  over effective span 225° (3×85° FOV − 2×15° overlap). elevation_deg/elevation_rad = vertical (0° = horizon, + up, − down),
+  over ±34.5° (69° vertical FOV). effective_global_frame in payload documents these spans and bounds.
 
 WHAT THIS NODE DOES:
 This node combines detections from all 3 side-by-side cameras into a single unified list.
@@ -23,20 +35,17 @@ OPERATION MODE:
   updated recently. If a camera's latest detection is older than the staleness threshold,
   it's excluded from the output (indicating the camera may have failed or stalled).
 
-OVERLAP DEDUPLICATION:
-For side-by-side cameras with 15° overlap, detections in overlap zones can be deduplicated.
-- Camera 0 overlaps with Camera 1: right edge of Camera 0, left edge of Camera 1
-- Camera 1 overlaps with Camera 2: right edge of Camera 1, left edge of Camera 2
-- Overlap zones are defined as a percentage of frame width (configurable, default ~15%)
-- Matching criteria: same class_id, similar vertical position (y-coordinate), both in overlap zones
-- Keeps detection with higher confidence score
+DEDUPLICATION:
+When --deduplicate_overlap is enabled, detections are merged by global distance: same class_id
+and centers within --dedup_global_distance fraction of frame width (default 0.1). After converting
+to global coordinates, duplicates in overlap regions are merged into one object (higher score kept).
 
 Usage:
-    # Default: Combines all 3 cameras, 1.0s staleness threshold, NO overlap deduplication
+    # Default: Combines all 3 cameras, 1.0s staleness threshold, NO deduplication
     python3 vision_combiner.py
     
-    # Enable overlap deduplication (recommended for side-by-side cameras)
-    python3 vision_combiner.py --deduplicate_overlap --overlap_zone_width 0.15 --overlap_y_tolerance 0.1
+    # Enable deduplication by global distance (recommended for side-by-side cameras)
+    python3 vision_combiner.py --deduplicate_overlap --dedup_global_distance 0.1
     
     # Custom staleness threshold (0.5s - more strict)
     python3 vision_combiner.py --staleness_threshold 0.5
@@ -57,31 +66,39 @@ from typing import Dict, List, Optional
 import time
 
 # Effective global frame: 85° FOV per camera, 15° overlap per boundary
-FOV_PER_CAMERA_DEG = 85
+HORIZONTAL_FOV_PER_CAMERA_DEG = 85
+VERTICAL_FOV_PER_CAMERA_DEG = 69
 OVERLAP_DEG = 15
-EFFECTIVE_ANGLE_SPAN_DEG = 225  # 3*85 - 2*15
-EFFECTIVE_ANGLE_LEFT_DEG = -112.5
-EFFECTIVE_ANGLE_RIGHT_DEG = 112.5
+TOTAL_HORIZONTAL_ANGLE_DEG = 255  # 3 * 85 (full span; effective width = raw_width * 225/255)
+EFFECTIVE_HORIZONTAL_ANGLE_SPAN_DEG = 225  # 3*85 - 2*15 (unique span after overlap)
+EFFECTIVE_HORIZONTAL_ANGLE_LEFT_DEG = -112.5
+EFFECTIVE_HORIZONTAL_ANGLE_RIGHT_DEG = 112.5
+EFFECTIVE_VERTICAL_ANGLE_SPAN_DEG = 69
+EFFECTIVE_VERTICAL_ANGLE_DOWN_DEG = -34.5
+EFFECTIVE_VERTICAL_ANGLE_UP_DEG = 34.5
+
+
+
 
 
 class DetectionCombiner(Node):
     
     def __init__(self, sync_window: float = 0.05, use_timestamp_sync: bool = False,
                  staleness_threshold: float = 1.0, deduplicate_overlap: bool = False,
-                 overlap_zone_width: float = 0.15, overlap_y_tolerance: float = 0.1):
+                 dedup_global_distance: float = 0.1):
         super().__init__('detection_combiner')
         
         self.use_timestamp_sync = use_timestamp_sync
         self.sync_window = sync_window  # Time window for timestamp matching (seconds)
         self.staleness_threshold = staleness_threshold  # Max age for detections (seconds)
-        self.deduplicate_overlap = deduplicate_overlap  # Enable overlap zone deduplication
-        self.overlap_zone_width = overlap_zone_width  # Fraction of frame width for overlap zone (0.15 = 15%)
-        self.overlap_y_tolerance = overlap_y_tolerance  # Fraction of frame height for y-coordinate matching (0.1 = 10%)
+        self.deduplicate_overlap = deduplicate_overlap  # Enable dedup by global distance when True
+        self.dedup_global_distance = dedup_global_distance  # Fraction of frame width; merge if centers within this
         
-        # Per-camera frame dimensions (learned from detection_info; fallback until first inference)
+        # Per-camera frame dimensions: learned from detection_info (inference publishes preprocessed
+        # image size, e.g. 1920×1200). Fallback until first message so global_* and angles are defined.
         self.frame_width = 640
         self.frame_height = 480
-        # Global frame: 3 cameras side-by-side (0=left, 1=center, 2=right)
+        # Global frame: 3 cameras side-by-side → width = 3 * frame_width, height = frame_height
         self.global_width = 3 * self.frame_width
         self.global_height = self.frame_height
 
@@ -214,7 +231,8 @@ class DetectionCombiner(Node):
     def _to_effective_global(self, camera_id: int, bbox: List[float]) -> Dict[str, float]:
         """
         Convert detection center (camera_id, bbox in per-camera coords) to effective global frame.
-        Returns effective_x, effective_y (pixels), angle_deg (0=center, negative=left, positive=right), angle_rad.
+        Returns effective_x, effective_y (pixels), angle_deg (0=center, negative=left, positive=right), angle_rad,
+        elevation_deg (0=horizon, positive=up, negative=down), elevation_rad.
         """
         if len(bbox) != 4:
             return {
@@ -222,21 +240,30 @@ class DetectionCombiner(Node):
                 'effective_y': 0.0,
                 'angle_deg': 0.0,
                 'angle_rad': 0.0,
+                'elevation_deg': 0.0,
+                'elevation_rad': 0.0,
             }
         raw_width = 3 * self.frame_width
-        effective_width = round(raw_width * EFFECTIVE_ANGLE_SPAN_DEG / 255.0)
+        effective_width = round(raw_width * EFFECTIVE_HORIZONTAL_ANGLE_SPAN_DEG / TOTAL_HORIZONTAL_ANGLE_DEG)
         x_center = (float(bbox[0]) + float(bbox[2])) / 2.0
         y_center = (float(bbox[1]) + float(bbox[3])) / 2.0
         x_raw = camera_id * self.frame_width + x_center
         effective_x = x_raw * effective_width / raw_width
         effective_y = y_center
-        angle_deg = EFFECTIVE_ANGLE_LEFT_DEG + (x_raw / raw_width) * EFFECTIVE_ANGLE_SPAN_DEG
+        angle_deg = EFFECTIVE_HORIZONTAL_ANGLE_LEFT_DEG + (x_raw / raw_width) * EFFECTIVE_HORIZONTAL_ANGLE_SPAN_DEG
         angle_rad = math.radians(angle_deg)
+        # Elevation: 0 = horizon, + up, - down. y=0 top -> +34.5°, y=frame_height/2 -> 0°, y=frame_height -> -34.5°
+        elevation_deg = EFFECTIVE_VERTICAL_ANGLE_UP_DEG + (y_center / self.frame_height) * (
+            EFFECTIVE_VERTICAL_ANGLE_DOWN_DEG - EFFECTIVE_VERTICAL_ANGLE_UP_DEG
+        )
+        elevation_rad = math.radians(elevation_deg)
         return {
             'effective_x': effective_x,
             'effective_y': effective_y,
             'angle_deg': angle_deg,
             'angle_rad': angle_rad,
+            'elevation_deg': elevation_deg,
+            'elevation_rad': elevation_rad,
         }
 
     def _try_synchronize_and_publish(self, timestamp: float, source_camera_id: int, detection_data: dict):
@@ -277,162 +304,41 @@ class DetectionCombiner(Node):
         # Otherwise, if this is the first camera or others are too far off, 
         # we'll wait for timer-based publishing
     
-    def _inference_bbox_to_640x480(self, bbox: List[float]) -> List[float]:
+    def _deduplicate_global_distance(self, all_detections: List[Dict], max_distance_px: float) -> List[Dict]:
         """
-        Convert bounding box from inference space (640x640) to preprocessing space (640x480).
-        
-        The inference model resizes images to 640x640 internally, but preprocessing outputs
-        640x480. This method scales the y-coordinates accordingly.
-        
-        Args:
-            bbox: [x1, y1, x2, y2] bounding box in 640x640 space
-        
-        Returns:
-            [x1, y1, x2, y2] bounding box in 640x480 space
+        Merge detections that have the same class_id and whose global centers are within max_distance_px.
+        Keeps the detection with higher confidence score per cluster.
+        Expects each detection to have global_center_x and global_center_y set.
         """
-        if len(bbox) != 4:
-            return bbox
-        
-        x1, y1, x2, y2 = bbox
-        # X coordinates stay the same (both are 640 wide)
-        # Y coordinates scale by 480/640 = 0.75
-        scale_y = 480.0 / 640.0
-        y1_scaled = y1 * scale_y
-        y2_scaled = y2 * scale_y
-        
-        return [x1, y1_scaled, x2, y2_scaled]
-    
-    def _is_in_overlap_zone(self, bbox: List[float], camera_id: int, is_left: bool) -> bool:
-        """
-        Check if a detection is in the overlap zone of a camera.
-        
-        Args:
-            bbox: [x1, y1, x2, y2] bounding box coordinates
-            camera_id: Camera ID (0, 1, or 2)
-            is_left: True if checking left edge, False if checking right edge
-        
-        Returns:
-            True if detection is in the overlap zone
-        """
-        x1, y1, x2, y2 = bbox
-        bbox_center_x = (x1 + x2) / 2.0
-        
-        if is_left:
-            # Left edge overlap zone (for Camera 1 and Camera 2)
-            overlap_threshold = self.frame_width * self.overlap_zone_width
-            return bbox_center_x < overlap_threshold
-        else:
-            # Right edge overlap zone (for Camera 0 and Camera 1)
-            overlap_threshold = self.frame_width * (1.0 - self.overlap_zone_width)
-            return bbox_center_x > overlap_threshold
-    
-    def _detections_match(self, det1: Dict, det2: Dict) -> bool:
-        """
-        Check if two detections from adjacent cameras match (same object in overlap zone).
-        
-        Matching criteria:
-        1. Same class_id
-        2. Similar vertical position (y-coordinate within tolerance)
-        3. Both in overlap zones of their respective cameras
-        
-        Args:
-            det1: First detection with camera_id and bbox
-            det2: Second detection with camera_id and bbox
-        
-        Returns:
-            True if detections likely represent the same object
-        """
-        # Must be same class
-        if det1.get('class_id') != det2.get('class_id'):
-            return False
-        
-        # Must be from adjacent cameras
-        cam1_id = det1.get('camera_id')
-        cam2_id = det2.get('camera_id')
-        if abs(cam1_id - cam2_id) != 1:
-            return False
-        
-        bbox1 = det1.get('bbox', [])
-        bbox2 = det2.get('bbox', [])
-        if len(bbox1) != 4 or len(bbox2) != 4:
-            return False
-        
-        # Check if both are in overlap zones
-        # Camera 0 overlaps with Camera 1: right edge of Camera 0, left edge of Camera 1
-        # Camera 1 overlaps with Camera 2: right edge of Camera 1, left edge of Camera 2
-        if cam1_id == 0 and cam2_id == 1:
-            # Camera 0 (right edge) and Camera 1 (left edge)
-            in_overlap1 = self._is_in_overlap_zone(bbox1, cam1_id, is_left=False)
-            in_overlap2 = self._is_in_overlap_zone(bbox2, cam2_id, is_left=True)
-        elif cam1_id == 1 and cam2_id == 0:
-            # Camera 1 (left edge) and Camera 0 (right edge)
-            in_overlap1 = self._is_in_overlap_zone(bbox1, cam1_id, is_left=True)
-            in_overlap2 = self._is_in_overlap_zone(bbox2, cam2_id, is_left=False)
-        elif cam1_id == 1 and cam2_id == 2:
-            # Camera 1 (right edge) and Camera 2 (left edge)
-            in_overlap1 = self._is_in_overlap_zone(bbox1, cam1_id, is_left=False)
-            in_overlap2 = self._is_in_overlap_zone(bbox2, cam2_id, is_left=True)
-        elif cam1_id == 2 and cam2_id == 1:
-            # Camera 2 (left edge) and Camera 1 (right edge)
-            in_overlap1 = self._is_in_overlap_zone(bbox1, cam1_id, is_left=True)
-            in_overlap2 = self._is_in_overlap_zone(bbox2, cam2_id, is_left=False)
-        else:
-            return False
-        
-        if not (in_overlap1 and in_overlap2):
-            return False
-        
-        # Check vertical position similarity (y-coordinate)
-        y1_center = (bbox1[1] + bbox1[3]) / 2.0
-        y2_center = (bbox2[1] + bbox2[3]) / 2.0
-        y_diff = abs(y1_center - y2_center)
-        y_tolerance = self.frame_height * self.overlap_y_tolerance
-        
-        return y_diff <= y_tolerance
-    
-    def _deduplicate_overlap_zones(self, all_detections: List[Dict]) -> List[Dict]:
-        """
-        Remove duplicate detections in overlap zones between adjacent cameras.
-        
-        For side-by-side cameras with 15° overlap:
-        - Camera 0 right edge overlaps with Camera 1 left edge
-        - Camera 1 right edge overlaps with Camera 2 left edge
-        
-        When two detections match (same class, similar position, both in overlap zones),
-        keeps the one with higher confidence score.
-        
-        Args:
-            all_detections: List of all detections from all cameras
-        
-        Returns:
-            Filtered list with duplicates removed
-        """
-        if not all_detections:
-            return []
-        
-        # Sort by confidence (highest first) so we keep the best detections
+        if not all_detections or max_distance_px <= 0:
+            return all_detections
         sorted_detections = sorted(all_detections, key=lambda x: x.get('score', 0.0), reverse=True)
-        
         kept = []
         removed_count = 0
-        
         for current_det in sorted_detections:
+            gx = current_det.get('global_center_x')
+            gy = current_det.get('global_center_y')
+            cid = current_det.get('class_id')
+            if gx is None or gy is None:
+                kept.append(current_det)
+                continue
             is_duplicate = False
-            
-            # Check against all already-kept detections
             for kept_det in kept:
-                if self._detections_match(current_det, kept_det):
-                    # Found a match - this is a duplicate
+                if kept_det.get('class_id') != cid:
+                    continue
+                kx = kept_det.get('global_center_x')
+                ky = kept_det.get('global_center_y')
+                if kx is None or ky is None:
+                    continue
+                dist = math.sqrt((gx - kx) ** 2 + (gy - ky) ** 2)
+                if dist <= max_distance_px:
                     is_duplicate = True
                     removed_count += 1
                     break
-            
             if not is_duplicate:
                 kept.append(current_det)
-        
         if removed_count > 0:
-            self.get_logger().debug(f'Overlap deduplication: removed {removed_count} duplicate detection(s)')
-        
+            self.get_logger().debug(f'Global distance deduplication: removed {removed_count} duplicate(s)')
         return kept
     
     def _publish_synchronized(self, matched_detections: dict, matched_timestamps: dict):
@@ -447,9 +353,9 @@ class DetectionCombiner(Node):
             for det in detections:
                 det_with_camera = det.copy()
                 det_with_camera['camera_id'] = camera_id
-                # Convert bbox from inference space (640x640) to preprocessing space (640x480)
+                # Bbox is already in preprocessed frame (frame_width x frame_height) from inference
                 bbox = det.get('bbox') or [det.get('x1', 0), det.get('y1', 0), det.get('x2', 0), det.get('y2', 0)]
-                det_with_camera['bbox'] = self._inference_bbox_to_640x480(bbox)
+                det_with_camera['bbox'] = list(bbox)
                 all_detections.append(det_with_camera)
             
             # Merge Task4 detections for this camera when present
@@ -466,26 +372,43 @@ class DetectionCombiner(Node):
                 'timestamp': matched_timestamps[camera_id]
             }
         
-        # Apply overlap deduplication if enabled
-        if self.deduplicate_overlap and len(all_detections) > 0:
-            all_detections = self._deduplicate_overlap_zones(all_detections)
-
-        # Effective global frame and per-detection effective coords + angle
-        effective_width = int(round((3 * self.frame_width) * EFFECTIVE_ANGLE_SPAN_DEG / 255.0))
-        effective_height = self.frame_height
-        effective_global_frame = {
-            'width': effective_width,
-            'height': effective_height,
-            'effective_angle_span_deg': EFFECTIVE_ANGLE_SPAN_DEG,
-            'effective_angle_left_deg': EFFECTIVE_ANGLE_LEFT_DEG,
-            'effective_angle_right_deg': EFFECTIVE_ANGLE_RIGHT_DEG,
-        }
+        # Add global bbox and center to each detection for dedup and output
         for det in all_detections:
-            eff = self._to_effective_global(det.get('camera_id', 0), det.get('bbox', []))
+            bbox = det.get('bbox') or [det.get('x1', 0), det.get('y1', 0), det.get('x2', 0), det.get('y2', 0)]
+            cid = det.get('camera_id', 0)
+            gbbox = self._to_global_bbox(bbox, cid)
+            det['global_bbox'] = gbbox
+            det['global_center_x'] = (gbbox[0] + gbbox[2]) / 2.0
+            det['global_center_y'] = (gbbox[1] + gbbox[3]) / 2.0
+        
+        # Deduplicate by global distance when enabled (same class_id, centers within threshold)
+        if self.deduplicate_overlap and len(all_detections) > 0:
+            max_distance_px = self.frame_width * self.dedup_global_distance
+            all_detections = self._deduplicate_global_distance(all_detections, max_distance_px)
+        
+        # Per-detection effective coords, angle and elevation (use per-camera bbox for angle computation)
+        for det in all_detections:
+            bbox_local = det.get('bbox') or [det.get('x1', 0), det.get('y1', 0), det.get('x2', 0), det.get('y2', 0)]
+            eff = self._to_effective_global(det.get('camera_id', 0), bbox_local)
             det['effective_x'] = eff['effective_x']
             det['effective_y'] = eff['effective_y']
             det['angle_deg'] = eff['angle_deg']
             det['angle_rad'] = eff['angle_rad']
+            det['elevation_deg'] = eff['elevation_deg']
+            det['elevation_rad'] = eff['elevation_rad']
+            det['bbox'] = det['global_bbox']  # Publish bbox in global frame
+        effective_width = int(round((3 * self.frame_width) * EFFECTIVE_HORIZONTAL_ANGLE_SPAN_DEG / TOTAL_HORIZONTAL_ANGLE_DEG))
+        effective_height = self.frame_height
+        effective_global_frame = {
+            'width': effective_width,
+            'height': effective_height,
+            'effective_angle_span_deg': EFFECTIVE_HORIZONTAL_ANGLE_SPAN_DEG,
+            'effective_angle_left_deg': EFFECTIVE_HORIZONTAL_ANGLE_LEFT_DEG,
+            'effective_angle_right_deg': EFFECTIVE_HORIZONTAL_ANGLE_RIGHT_DEG,
+            'effective_vertical_angle_span_deg': EFFECTIVE_VERTICAL_ANGLE_SPAN_DEG,
+            'effective_vertical_angle_down_deg': EFFECTIVE_VERTICAL_ANGLE_DOWN_DEG,
+            'effective_vertical_angle_up_deg': EFFECTIVE_VERTICAL_ANGLE_UP_DEG,
+        }
         
         # Add stats for unmatched cameras
         for camera_id in [0, 1, 2]:
@@ -582,16 +505,15 @@ class DetectionCombiner(Node):
                 )
                 continue
             
-            # Camera is active and fresh - include ALL its detections (inference bbox 640x640 -> 640x480)
-            # Camera is active and fresh - include ALL its detections (inference bbox 640x640 -> 640x480)
+            # Camera is active and fresh - include ALL its detections (bbox already in preprocessed frame from inference)
             active_cameras += 1
             detections = detection_data.get('detections', [])
             for det in detections:
                 det_with_camera = det.copy()
                 det_with_camera['camera_id'] = camera_id  # Tag each detection with source camera
-                # Convert bbox from inference space (640x640) to preprocessing space (640x480)
+                # Bbox is already in preprocessed frame (frame_width x frame_height) from inference
                 bbox = det.get('bbox') or [det.get('x1', 0), det.get('y1', 0), det.get('x2', 0), det.get('y2', 0)]
-                det_with_camera['bbox'] = self._inference_bbox_to_640x480(bbox)
+                det_with_camera['bbox'] = list(bbox)
                 all_detections.append(det_with_camera)  # Add to combined list
             
             # Add stats for active camera
@@ -603,26 +525,50 @@ class DetectionCombiner(Node):
                 'time_since_update': round(time_since_update, 3)
             }
         
-        # Apply overlap deduplication if enabled
+        # Merge Task4 supply-drop detections when present
+        for camera_id in [0, 1, 2]:
+            task4_data = self.task4_detections[camera_id]
+            if task4_data is not None:
+                for det in self._task4_detections_to_combined(camera_id, task4_data):
+                    all_detections.append(det)
+        
+        # Add global bbox and center to each detection for dedup and output
+        for det in all_detections:
+            bbox = det.get('bbox') or [det.get('x1', 0), det.get('y1', 0), det.get('x2', 0), det.get('y2', 0)]
+            cid = det.get('camera_id', 0)
+            gbbox = self._to_global_bbox(bbox, cid)
+            det['global_bbox'] = gbbox
+            det['global_center_x'] = (gbbox[0] + gbbox[2]) / 2.0
+            det['global_center_y'] = (gbbox[1] + gbbox[3]) / 2.0
+        
+        # Deduplicate by global distance when enabled (same class_id, centers within threshold)
         if self.deduplicate_overlap and len(all_detections) > 0:
-            all_detections = self._deduplicate_overlap_zones(all_detections)
-
-        # Effective global frame (225° span, ~5082 px for 1920 per camera)
-        effective_width = int(round((3 * self.frame_width) * EFFECTIVE_ANGLE_SPAN_DEG / 255.0))
+            max_distance_px = self.frame_width * self.dedup_global_distance
+            all_detections = self._deduplicate_global_distance(all_detections, max_distance_px)
+        
+        # Per-detection effective coords, angle and elevation; publish bbox in global frame
+        effective_width = int(round((3 * self.frame_width) * EFFECTIVE_HORIZONTAL_ANGLE_SPAN_DEG / TOTAL_HORIZONTAL_ANGLE_DEG))
         effective_height = self.frame_height
         effective_global_frame = {
             'width': effective_width,
             'height': effective_height,
-            'effective_angle_span_deg': EFFECTIVE_ANGLE_SPAN_DEG,
-            'effective_angle_left_deg': EFFECTIVE_ANGLE_LEFT_DEG,
-            'effective_angle_right_deg': EFFECTIVE_ANGLE_RIGHT_DEG,
+            'effective_angle_span_deg': EFFECTIVE_HORIZONTAL_ANGLE_SPAN_DEG,
+            'effective_angle_left_deg': EFFECTIVE_HORIZONTAL_ANGLE_LEFT_DEG,
+            'effective_angle_right_deg': EFFECTIVE_HORIZONTAL_ANGLE_RIGHT_DEG,
+            'effective_vertical_angle_span_deg': EFFECTIVE_VERTICAL_ANGLE_SPAN_DEG,
+            'effective_vertical_angle_down_deg': EFFECTIVE_VERTICAL_ANGLE_DOWN_DEG,
+            'effective_vertical_angle_up_deg': EFFECTIVE_VERTICAL_ANGLE_UP_DEG,
         }
         for det in all_detections:
-            eff = self._to_effective_global(det.get('camera_id', 0), det.get('bbox', []))
+            bbox_local = det.get('bbox') or [det.get('x1', 0), det.get('y1', 0), det.get('x2', 0), det.get('y2', 0)]
+            eff = self._to_effective_global(det.get('camera_id', 0), bbox_local)
             det['effective_x'] = eff['effective_x']
             det['effective_y'] = eff['effective_y']
             det['angle_deg'] = eff['angle_deg']
             det['angle_rad'] = eff['angle_rad']
+            det['elevation_deg'] = eff['elevation_deg']
+            det['elevation_rad'] = eff['elevation_rad']
+            det['bbox'] = det['global_bbox']  # Publish bbox in global frame
         
         # Create combined detection info
         combined_info = {
@@ -683,11 +629,9 @@ def main(args=None):
     parser.add_argument('--use_timestamp_sync', action='store_true',
                        help='Enable timestamp-based synchronization (default: latest value approach)')
     parser.add_argument('--deduplicate_overlap', action='store_true',
-                       help='Enable overlap zone deduplication for side-by-side cameras (default: disabled)')
-    parser.add_argument('--overlap_zone_width', type=float, default=0.15,
-                       help='Fraction of frame width for overlap zone (default: 0.15 = 15%%)')
-    parser.add_argument('--overlap_y_tolerance', type=float, default=0.1,
-                       help='Fraction of frame height for y-coordinate matching tolerance (default: 0.1 = 10%%)')
+                       help='Enable deduplication by global distance for side-by-side cameras (default: disabled)')
+    parser.add_argument('--dedup_global_distance', type=float, default=0.1,
+                       help='When deduplicate_overlap enabled: merge detections with same class_id and centers within this fraction of frame width (default: 0.1)')
     args_parsed, _ = parser.parse_known_args(args=args)
     
     node = DetectionCombiner(
@@ -695,8 +639,7 @@ def main(args=None):
         use_timestamp_sync=args_parsed.use_timestamp_sync,
         staleness_threshold=args_parsed.staleness_threshold,
         deduplicate_overlap=args_parsed.deduplicate_overlap,
-        overlap_zone_width=args_parsed.overlap_zone_width,
-        overlap_y_tolerance=args_parsed.overlap_y_tolerance
+        dedup_global_distance=args_parsed.dedup_global_distance
     )
     
     try:
