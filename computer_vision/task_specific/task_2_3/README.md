@@ -1,62 +1,134 @@
-# Task 2 / 3 — Edge Detection & Diamond Detection
+# Task 2 / 3 — Diamond + Colour Indicator Buoy Detection
 
-Two scripts:
+This folder now has **two Python scripts**:
 
-1. **`edge_detection.py`** — Edge detection only: input image → blur + Canny → show/save edge image.
-2. **`diamond_detector.py`** — Full pipeline: input image → edge detection + shape/diamond detection → output image. **By default only black/dark diamonds** (Task 3 logo); use `--no-black-filter` to allow any color.
+1. **`colour_indicator_buoy_detector.py`**  
+   End‑to‑end pipeline for a **single image**:
+   - Canny edge detection  
+   - Black diamond detection on the buoy faces  
+   - ROI computation above the diamonds  
+   - Red/green light classification using `indicator/indicator_detector.py`  
+   - Final annotated output (diamonds, ROI, indicator bbox + label)
+
+2. **`diamond_debug_pipeline.py`**  
+   Batch **debugging pipeline** that:
+   - Runs the full detector on one or many images  
+   - Saves all intermediate stages (edges, contours, diamond stages)  
+   - Saves final annotated outputs into a separate `final_outputs/` folder  
+
+The folders `debug_outputs/` and `final_outputs/` are git‑ignored.
 
 ---
 
-## 1. Edge detection only
+## 1. Running the main detector (`colour_indicator_buoy_detector.py`)
 
-Takes an input image and produces the edge map (no shape classification).
+Basic usage on a single image:
 
 ```bash
-python edge_detection.py path/to/image.jpg
-python edge_detection.py image.png --out edges.png
-python edge_detection.py image.png --no-show --out edges.png
+cd computer_vision/task_specific/task_2_3
+
+python colour_indicator_buoy_detector.py input_images/ChatGPT\ Image\ Feb\ 11,\ 2026,\ 12_03_21\ PM.png \
+  --out final_outputs/example_colour_buoy.png \
+  --no-show
 ```
 
-- **Input:** image path (or first image in this folder if omitted).
-- **Output:** shows the edge image in a window; use `--out` to save.
-- **Options:** `--canny-low`, `--canny-high`; `--no-show` to skip the window.
+- **Input:** positional `image` path (PNG/JPEG). If omitted, the script auto‑selects
+  the first image in this folder.
+- **Output:** annotated image shown in a window (unless `--no-show`); if `--out` is
+  given, it is also written to that path.
+- **Console:** prints each diamond’s center/bbox/area/confidence and the final
+  indicator state + confidence + bbox.
+
+**Key CLI parameters**
+
+- `--conf-threshold`  
+  Minimum confidence for **diamonds used for final decisions and drawing**.  
+  - Default: `0.3`
+
+- `--roi-conf-threshold`  
+  Minimum confidence for **diamonds allowed to shape the ROI** above the buoy.  
+  - Default: `0.6`  
+  - These diamonds are filtered, deduplicated, and the best 1–2 are used to compute
+    the orange ROI where the indicator is searched.
+
+- `--max-black`  
+  Maximum mean grayscale brightness (0–255) still considered “black” for diamonds.  
+  - Default: `100.0`
+
+- `--no-show`  
+  Do not open an OpenCV window; useful for batch runs / SSH.
 
 ---
 
-## 2. Edge detection + shape/diamond detection
+## 2. Running the debug pipeline (`diamond_debug_pipeline.py`)
 
-Takes an input image and produces an output image with shapes (or diamonds only) drawn.
+This script is for **development and tuning**. It saves step‑by‑step visualizations.
+
+### Run on all default input images
 
 ```bash
-# Black/dark diamonds only (default; Task 3 logo)
-python diamond_detector.py image.png --out result.png
-
-# Any diamond (ignore color)
-python diamond_detector.py image.png --no-black-filter --out result.png
-
-# All shapes (triangle, quad, diamond, etc.)
-python diamond_detector.py image.png --all --out result.png
+cd computer_vision/task_specific/task_2_3
+python diamond_debug_pipeline.py
 ```
 
-- **Input:** image path (or first image in folder if omitted).
-- **Output:** window with annotated image; use `--out` to save. Green = diamond, gray = other shapes.
-- **Options:** `--all`, `--min-area`, `--canny-low`, `--canny-high`, `--no-show`, `--no-black-filter`, `--max-black` (brightness threshold 0–255 for “black”).
+By default it looks for all `*.png` in `input_images/` and, for each image, writes:
 
-The diamond step uses the same edge-detection logic as `edge_detection.py`, then contours → polygon approx → shape classification (diamond = 4-sided with suitable geometry).
+- `debug_outputs/<image_stem>/0_input.png` – original BGR  
+- `1_gray.png` – grayscale  
+- `2_edges_raw.png` – raw Canny edges  
+- `2_edges_processed.png` – edges after morphological close  
+- `3_contours.png` – all contours overlay  
+- `4_diamonds_stage1_shape.png` – diamonds by **shape only**  
+- `5_diamonds_stage2_black.png` – diamonds after **blackness** filter  
+- `6_diamonds_stage3_conf.png` – final diamonds after **confidence threshold**  
+- `7_colour_indicator_buoy.png` – full pipeline (diamonds + ROI + indicator label)  
+
+It also saves a clean final output for each image:
+
+- `final_outputs/<image_stem>_colour_buoy.png`
+
+### Run on a specific image or directory
+
+```bash
+# Single image
+python diamond_debug_pipeline.py input_images/example.png
+
+# All images in a directory
+python diamond_debug_pipeline.py input_images/
+
+# Custom debug output root
+python diamond_debug_pipeline.py input_images/ --out-dir my_debug
+```
 
 ---
 
-## Use as a module
+## 3. Adjustable internal parameters (for development)
 
-```python
-# Edge image only
-from edge_detection import run_edge_detection
-edges = run_edge_detection(bgr_image)
+These are defined inside `colour_indicator_buoy_detector.py` and used by both scripts:
 
-# Full pipeline: shapes/diamonds
-from diamond_detector import detect_diamonds, detect_shapes, draw_detections
-diamonds = detect_diamonds(bgr_image)
-vis = draw_detections(bgr_image, diamonds)
-```
+- **Edge detection**
+  - `CANNY_LOW = 50`  
+  - `CANNY_HIGH = 150`  
+  - `BLUR_KSIZE = (5, 5)`
 
-Each detection dict has: `shape`, `bbox`, `center`, `area`, `contour`.
+- **Contours / shapes**
+  - `MIN_CONTOUR_AREA = 200` – minimum contour area to consider  
+  - `EPS_RATIO = 0.06` – polygon approximation ratio for `cv2.approxPolyDP`
+
+- **Blackness / confidence**
+  - `MAX_BLACK_BRIGHTNESS = 100` – mean grayscale threshold for “black” diamonds  
+  - `DEFAULT_CONF_THRESHOLD = 0.3` – default diamond confidence threshold
+
+- **ROI rules (inside `_compute_indicator_roi`)**
+  - **1 diamond**:
+    - ROI width ≈ `1.5 ×` diamond width  
+    - ROI height ≈ `2.0 ×` diamond height (scaled by `height_factor`)  
+    - ROI sits directly **above** that diamond.
+  - **2+ diamonds**:
+    - Use the union of their boxes, expanded:
+      - Width ≈ `1.2 ×` total diamond span (centered)  
+      - Height ≈ `1.6 ×` buoy height above the diamonds.  
+
+You can tweak these directly in `colour_indicator_buoy_detector.py` if you need to
+change how strict the diamond detection or ROI sizing is during development. The
+debug pipeline will immediately reflect any changes. 

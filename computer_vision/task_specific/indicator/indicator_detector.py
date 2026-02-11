@@ -96,11 +96,13 @@ def detect_indicator(img: np.ndarray):
             state = "green"
             conf = conf_green
     
-    # STEP 5 — TEMPORAL SMOOTHING
+    # STEP 5 — (Disabled) temporal smoothing
+    # For single-image or sparse frame processing (like our debug pipeline),
+    # smoothing across calls can cause the wrong colour to "stick" from
+    # previous images. We keep the history deque for potential future use,
+    # but return the per-image result directly here.
     state_history.append(state)
-    final_state = max(set(state_history), key=state_history.count)
-    
-    return final_state, conf, bbox
+    return state, conf, bbox
 
 
 def visualize_detection(img, bbox, state, confidence):
