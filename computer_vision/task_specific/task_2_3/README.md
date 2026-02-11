@@ -3,7 +3,7 @@
 Two scripts:
 
 1. **`edge_detection.py`** — Edge detection only: input image → blur + Canny → show/save edge image.
-2. **`diamond_detector.py`** — Full pipeline: input image → edge detection + shape/diamond detection → output image with detections drawn.
+2. **`diamond_detector.py`** — Full pipeline: input image → edge detection + shape/diamond detection → output image. **By default only black/dark diamonds** (Task 3 logo); use `--no-black-filter` to allow any color.
 
 ---
 
@@ -28,8 +28,11 @@ python edge_detection.py image.png --no-show --out edges.png
 Takes an input image and produces an output image with shapes (or diamonds only) drawn.
 
 ```bash
-# Diamonds only (default)
+# Black/dark diamonds only (default; Task 3 logo)
 python diamond_detector.py image.png --out result.png
+
+# Any diamond (ignore color)
+python diamond_detector.py image.png --no-black-filter --out result.png
 
 # All shapes (triangle, quad, diamond, etc.)
 python diamond_detector.py image.png --all --out result.png
@@ -37,7 +40,7 @@ python diamond_detector.py image.png --all --out result.png
 
 - **Input:** image path (or first image in folder if omitted).
 - **Output:** window with annotated image; use `--out` to save. Green = diamond, gray = other shapes.
-- **Options:** `--all`, `--min-area`, `--canny-low`, `--canny-high`, `--no-show`.
+- **Options:** `--all`, `--min-area`, `--canny-low`, `--canny-high`, `--no-show`, `--no-black-filter`, `--max-black` (brightness threshold 0–255 for “black”).
 
 The diamond step uses the same edge-detection logic as `edge_detection.py`, then contours → polygon approx → shape classification (diamond = 4-sided with suitable geometry).
 

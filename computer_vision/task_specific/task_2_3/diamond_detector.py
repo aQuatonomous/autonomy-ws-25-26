@@ -2,8 +2,9 @@
 Full pipeline: edge detection + shape/diamond detection.
 
 Takes an input image and produces an output image with shapes (diamonds) drawn.
-Uses the same edge-detection step as edge_detection.py, then contours + polygon
-approx + shape classification. For Task 3 Color Indicator Buoy ("White with black diamonds").
+By default only detects black/dark diamonds (mean intensity inside contour below
+a threshold), e.g. the black diamond logo on the Task 3 Color Indicator Buoy.
+Use --no-black-filter to detect any diamond regardless of color.
 """
 
 import argparse
@@ -17,6 +18,8 @@ from edge_detection import run_edge_detection, CANNY_LOW, CANNY_HIGH
 MIN_CONTOUR_AREA = 200
 # Approx polygon: epsilon = eps_ratio * perimeter
 EPS_RATIO = 0.04
+# Black diamond filter: mean grayscale inside contour must be below this (0–255)
+MAX_BLACK_BRIGHTNESS = 100
 
 
 def _angle_between_vectors(v1: np.ndarray, v2: np.ndarray) -> float:
@@ -56,6 +59,16 @@ def _is_diamond(pts: np.ndarray) -> bool:
     return True
 
 
+def _is_black_region(gray: np.ndarray, contour: np.ndarray, max_brightness: float) -> bool:
+    """True if mean intensity inside the contour is below max_brightness (black/dark blob)."""
+    if gray.size == 0 or contour is None:
+        return False
+    mask = np.zeros_like(gray, dtype=np.uint8)
+    cv2.drawContours(mask, [contour], -1, 255, -1)
+    mean_val = cv2.mean(gray, mask=mask)[0]
+    return mean_val <= max_brightness
+
+
 def _shape_name(pts: np.ndarray) -> str:
     """Classify contour by vertex count and return shape name."""
     n = len(pts)
@@ -80,9 +93,14 @@ def detect_shapes(
     min_area: float = MIN_CONTOUR_AREA,
     eps_ratio: float = EPS_RATIO,
     filter_diamond_only: bool = False,
+    filter_black_only: bool = False,
+    max_black_brightness: float = MAX_BLACK_BRIGHTNESS,
 ) -> list[dict]:
     """
     Run edge-based shape detection on a BGR image.
+
+    When filter_diamond_only and filter_black_only are True, only diamonds whose
+    interior is dark (mean grayscale <= max_black_brightness) are returned.
 
     Returns list of dicts:
       - "shape": str (e.g. "diamond", "triangle", "quad")
@@ -94,6 +112,7 @@ def detect_shapes(
     if img is None or img.size == 0:
         return []
 
+    gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
     edges = run_edge_detection(img, canny_low=canny_low, canny_high=canny_high)
     if edges.size == 0:
         return []
@@ -115,6 +134,8 @@ def detect_shapes(
         shape = _shape_name(approx)
         if filter_diamond_only and shape != "diamond":
             continue
+        if filter_black_only and not _is_black_region(gray, c, max_black_brightness):
+            continue
 
         x, y, w, h = cv2.boundingRect(c)
         M = cv2.moments(c)
@@ -132,9 +153,21 @@ def detect_shapes(
     return results
 
 
-def detect_diamonds(img: np.ndarray, **kwargs) -> list[dict]:
-    """Convenience: return only diamond detections."""
-    return detect_shapes(img, filter_diamond_only=True, **kwargs)
+def detect_diamonds(
+    img: np.ndarray,
+    *,
+    black_only: bool = True,
+    max_black_brightness: float = MAX_BLACK_BRIGHTNESS,
+    **kwargs,
+) -> list[dict]:
+    """Return only diamond detections. By default only black/dark diamonds (Task 3 logo)."""
+    return detect_shapes(
+        img,
+        filter_diamond_only=True,
+        filter_black_only=black_only,
+        max_black_brightness=max_black_brightness,
+        **kwargs,
+    )
 
 
 def draw_detections(img: np.ndarray, detections: list[dict], labels: bool = True) -> np.ndarray:
@@ -164,6 +197,8 @@ def main():
     ap.add_argument("--min-area", type=float, default=MIN_CONTOUR_AREA, help="Min contour area")
     ap.add_argument("--canny-low", type=int, default=CANNY_LOW)
     ap.add_argument("--canny-high", type=int, default=CANNY_HIGH)
+    ap.add_argument("--no-black-filter", action="store_true", help="Detect any diamond, not only black/dark ones")
+    ap.add_argument("--max-black", type=float, default=MAX_BLACK_BRIGHTNESS, help="Max mean brightness for black (0–255)")
     args = ap.parse_args()
 
     script_dir = Path(__file__).resolve().parent
@@ -191,7 +226,14 @@ def main():
     if args.all:
         detections = detect_shapes(img, min_area=args.min_area, canny_low=args.canny_low, canny_high=args.canny_high)
     else:
-        detections = detect_diamonds(img, min_area=args.min_area, canny_low=args.canny_low, canny_high=args.canny_high)
+        detections = detect_diamonds(
+            img,
+            min_area=args.min_area,
+            canny_low=args.canny_low,
+            canny_high=args.canny_high,
+            black_only=not args.no_black_filter,
+            max_black_brightness=args.max_black,
+        )
 
     print(f"Detected {len(detections)} diamond(s)" if not args.all else f"Detected {len(detections)} shape(s)")
     for i, d in enumerate(detections):
