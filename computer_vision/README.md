@@ -16,6 +16,10 @@ source install/setup.bash
 Set 15 fps on cameras before launch (see [NODES_AND_CAMERAS.md](NODES_AND_CAMERAS.md)):
 
 ```bash
+# Using persistent USB port paths (recommended)
+for d in /dev/v4l/by-path/platform-3610000.usb-usb-0:1.2.2:1.0-video-index0 /dev/v4l/by-path/platform-3610000.usb-usb-0:1.2.3:1.0-video-index0 /dev/v4l/by-path/platform-3610000.usb-usb-0:1.2.4:1.0-video-index0; do v4l2-ctl -d "$d" --set-parm 15; done
+
+# Or using current video device numbers (may change after reboot/replug)
 for d in /dev/video0 /dev/video2 /dev/video4; do v4l2-ctl -d "$d" --set-parm 15; done
 ```
 

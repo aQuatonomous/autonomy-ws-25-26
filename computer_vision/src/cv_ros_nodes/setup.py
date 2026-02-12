@@ -10,6 +10,7 @@ setup(
         ('share/ament_index/resource_index/packages',
             ['resource/' + package_name]),
         ('share/' + package_name, ['package.xml']),
+        ('share/' + package_name, ['../../cv_scripts/class_mapping.yaml']),
         ('share/' + package_name + '/launch',
         ['cv_ros_nodes/launch/launch_cv.py']),
     ],
@@ -31,6 +32,8 @@ setup(
             'vision_combiner = cv_ros_nodes.vision_combiner:main',
             'camera_viewer = cv_ros_nodes.camera_viewer:main',
             'task4_supply_processor = cv_ros_nodes.task4_supply_processor:main',
+            'indicator_buoy_processor = cv_ros_nodes.indicator_buoy_processor:main',
+            'buoy_distance_estimator = cv_ros_nodes.buoy_distance_estimator:main',
         ],
     },
 )

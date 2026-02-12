@@ -1,81 +1,67 @@
 """
-Multi-Camera Detection Combiner ROS2 Node
+Multi-Camera Detection Combiner ROS2 Node - Per-Camera Bearing Approach
 
 Subscribes to: /camera0/detection_info, /camera1/detection_info, /camera2/detection_info;
   /camera0/task4_detections, /camera1/task4_detections, /camera2/task4_detections
-Publishes to: /combined/detection_info (String with all detections; bbox in global frame; see GLOBAL FRAME SPEC below)
+Publishes to: /combined/detection_info (String with all detections; bbox in local camera frame)
 
-GLOBAL FRAME SPEC:
-- Input: Per-camera frame_width and frame_height (from detection_info; preprocessed image size, e.g. 1920×1200).
-- Global frame (stitched panorama): width = 3 * frame_width, height = frame_height (e.g. 5760×1200).
-  Origin (0,0) top-left; x increases left-to-right across the three cameras (camera 0 left, 1 center, 2 right).
-- Conversion: bbox in camera N (local [x1,y1,x2,y2]) → global bbox: x_global = x_local + N * frame_width, y unchanged.
-- Published detections: each has "bbox" in global frame [x1,y1,x2,y2], and "global_frame": {"width": W, "height": H}.
-- Effective global frame (angle-linear): width = raw_width * (225/255) = 3×frame_width − 2×overlap in angle terms;
-  height = frame_height. So e.g. 5760×1200 → effective width ≈ 5082, height 1200.
-- Angles (per detection): angle_deg/angle_rad = horizontal bearing (0° = center, negative = left, positive = right),
-  over effective span 225° (3×85° FOV − 2×15° overlap). elevation_deg/elevation_rad = vertical (0° = horizon, + up, − down),
-  over ±34.5° (69° vertical FOV). effective_global_frame in payload documents these spans and bounds.
+PER-CAMERA BEARING APPROACH:
+- Each camera detection stays in its local frame (bbox is per-camera coordinates)
+- Bearing is computed using:
+  1. Camera mounting angle: [-57.7°, 0°, +57.7°] for [left, center, right]
+  2. Camera intrinsics derived from 85° horizontal FOV and 1920×1200 resolution
+  3. Formula: bearing_deg = mounting_angle + atan2((u - cx), fx)
+- Output: boat-relative bearing for each detection (0° = forward, + = right, - = left)
 
 WHAT THIS NODE DOES:
 This node combines detections from all 3 side-by-side cameras into a single unified list.
-Each detection includes its source camera_id (0, 1, or 2) so you know which camera saw it.
+Each detection includes:
+- source camera_id (0=left, 1=center, 2=right)
+- bbox in local camera frame
+- bearing_deg/bearing_rad: angle relative to boat forward direction
+- elevation_deg/elevation_rad: angle relative to horizon
 
 HOW IT WORKS:
 1. Subscribes to detection_info from all 3 cameras
 2. Collects ALL detections from each active camera
-3. Adds camera_id to each detection
-4. Publishes combined list at ~15 Hz (matches camera rate)
+3. Computes per-camera bearing using geometry (camera mounting + intrinsics)
+4. Adds boat-relative bearing to each detection
+5. Publishes combined list at ~30 Hz
 
 OPERATION MODE:
-- Latest Value Approach (default): Combines the most recent detection from each camera,
-  regardless of when they were captured. This is fast and simple.
-  
-- Staleness Filtering: Automatically excludes detections from cameras that haven't
-  updated recently. If a camera's latest detection is older than the staleness threshold,
-  it's excluded from the output (indicating the camera may have failed or stalled).
-
-DEDUPLICATION:
-When --deduplicate_overlap is enabled, detections are merged by global distance: same class_id
-and centers within --dedup_global_distance fraction of frame width (default 0.1). After converting
-to global coordinates, duplicates in overlap regions are merged into one object (higher score kept).
+- Latest Value Approach (default): Combines the most recent detection from each camera
+- Staleness Filtering: Excludes cameras that haven't updated recently
 
 Usage:
-    # Default: Combines all 3 cameras, 1.0s staleness threshold, NO deduplication
+    # Default: Combines all 3 cameras, 1.0s staleness threshold
     python3 vision_combiner.py
     
-    # Enable deduplication by global distance (recommended for side-by-side cameras)
-    python3 vision_combiner.py --deduplicate_overlap --dedup_global_distance 0.1
-    
-    # Custom staleness threshold (0.5s - more strict)
+    # Custom staleness threshold
     python3 vision_combiner.py --staleness_threshold 0.5
     
-    # Very lenient (2.0s - allows slower cameras)
-    python3 vision_combiner.py --staleness_threshold 2.0
-    
-    # Optional: Timestamp-based sync mode (more complex)
+    # Timestamp-based sync (optional)
     python3 vision_combiner.py --use_timestamp_sync --sync_window 0.05
 """
 
 import math
+import os
 import rclpy
 from rclpy.node import Node
 from std_msgs.msg import String
 import json
+import yaml
 from typing import Dict, List, Optional
 import time
 
-# Effective global frame: 85° FOV per camera, 15° overlap per boundary
-HORIZONTAL_FOV_PER_CAMERA_DEG = 85
-VERTICAL_FOV_PER_CAMERA_DEG = 69
-OVERLAP_DEG = 15
-TOTAL_HORIZONTAL_ANGLE_DEG = 255  # 3 * 85 (full span; effective width = raw_width * 225/255)
-EFFECTIVE_HORIZONTAL_ANGLE_SPAN_DEG = 225  # 3*85 - 2*15 (unique span after overlap)
-EFFECTIVE_HORIZONTAL_ANGLE_LEFT_DEG = -112.5
-EFFECTIVE_HORIZONTAL_ANGLE_RIGHT_DEG = 112.5
-EFFECTIVE_VERTICAL_ANGLE_SPAN_DEG = 69
-EFFECTIVE_VERTICAL_ANGLE_DOWN_DEG = -34.5
-EFFECTIVE_VERTICAL_ANGLE_UP_DEG = 34.5
+# Camera specifications (Arducam B0495 2.3MP AR0234)
+HORIZONTAL_FOV_PER_CAMERA_DEG = 85.0
+VERTICAL_FOV_PER_CAMERA_DEG = 69.0
+CAMERA_RESOLUTION_WIDTH = 1920
+CAMERA_RESOLUTION_HEIGHT = 1200
+
+# Camera mounting angles (boat frame: 0° = forward, + = right, - = left)
+# Camera 0 = left, Camera 1 = center, Camera 2 = right
+CAMERA_MOUNTING_ANGLES_DEG = [-57.7, 0.0, 57.7]
 
 
 
@@ -84,23 +70,20 @@ EFFECTIVE_VERTICAL_ANGLE_UP_DEG = 34.5
 class DetectionCombiner(Node):
     
     def __init__(self, sync_window: float = 0.05, use_timestamp_sync: bool = False,
-                 staleness_threshold: float = 1.0, deduplicate_overlap: bool = False,
-                 dedup_global_distance: float = 0.1):
+                 staleness_threshold: float = 1.0):
         super().__init__('detection_combiner')
         
         self.use_timestamp_sync = use_timestamp_sync
         self.sync_window = sync_window  # Time window for timestamp matching (seconds)
         self.staleness_threshold = staleness_threshold  # Max age for detections (seconds)
-        self.deduplicate_overlap = deduplicate_overlap  # Enable dedup by global distance when True
-        self.dedup_global_distance = dedup_global_distance  # Fraction of frame width; merge if centers within this
         
         # Per-camera frame dimensions: learned from detection_info (inference publishes preprocessed
-        # image size, e.g. 1920×1200). Fallback until first message so global_* and angles are defined.
-        self.frame_width = 640
-        self.frame_height = 480
-        # Global frame: 3 cameras side-by-side → width = 3 * frame_width, height = frame_height
-        self.global_width = 3 * self.frame_width
-        self.global_height = self.frame_height
+        # image size, e.g. 1920×1200). Fallback until first message.
+        self.frame_width = CAMERA_RESOLUTION_WIDTH
+        self.frame_height = CAMERA_RESOLUTION_HEIGHT
+        
+        # Compute camera intrinsics from FOV and resolution
+        self._compute_camera_intrinsics()
 
         # Store latest detections from each camera (inference)
         self.detections = {
@@ -117,7 +100,12 @@ class DetectionCombiner(Node):
 
         # Task 4 supply-drop detections per camera (from /cameraN/task4_detections)
         self.task4_detections = {0: None, 1: None, 2: None}
-        
+        # Indicator buoy detections per camera (from /cameraN/indicator_detections)
+        self.indicator_detections = {0: None, 1: None, 2: None}
+
+        # Load class_mapping for class_name resolution
+        self._class_id_to_name = self._load_class_mapping()
+
         # For timestamp-based synchronization: store detection history
         # Format: {timestamp: {camera_id: detection_data}}
         self.detection_history = []
@@ -143,7 +131,16 @@ class DetectionCombiner(Node):
                 10
             )
             self.get_logger().info(f'Subscribed to: /camera{camera_id}/task4_detections')
-        
+
+        for camera_id in [0, 1, 2]:
+            sub = self.create_subscription(
+                String,
+                f'/camera{camera_id}/indicator_detections',
+                lambda msg, cid=camera_id: self._indicator_callback(msg, cid),
+                10
+            )
+            self.get_logger().info(f'Subscribed to: /camera{camera_id}/indicator_detections')
+
         # Publisher for combined detections
         self.combined_pub = self.create_publisher(
             String,
@@ -153,9 +150,103 @@ class DetectionCombiner(Node):
         
         self.get_logger().info('Detection combiner node initialized')
         self.get_logger().info('Publishing to: /combined/detection_info')
+        self.get_logger().info(f'Camera intrinsics: fx={self.fx:.1f}, fy={self.fy:.1f}, cx={self.cx:.1f}, cy={self.cy:.1f}')
+        self.get_logger().info(f'Camera mounting angles: {CAMERA_MOUNTING_ANGLES_DEG}')
         
         # Timer to periodically publish combined detections (~30 Hz so combined output stays responsive)
         self.timer = self.create_timer(0.033, self.publish_combined)
+
+    def _load_class_mapping(self) -> Dict[int, str]:
+        """Load class_id -> class_name from class_mapping.yaml. Returns dict; missing IDs get 'class_N'."""
+        paths = []
+        try:
+            from ament_index_python.packages import get_package_share_directory
+            pkg_share = get_package_share_directory('cv_ros_nodes')
+            paths.append(os.path.join(pkg_share, 'class_mapping.yaml'))
+        except Exception:
+            pass
+        paths.append(os.path.join(os.path.expanduser('~'), 'autonomy-ws-25-26', 'computer_vision', 'cv_scripts', 'class_mapping.yaml'))
+        for path in paths:
+            if os.path.isfile(path):
+                try:
+                    with open(path, 'r') as f:
+                        data = yaml.safe_load(f)
+                    classes = data.get('classes') or {}
+                    return {int(k): str(v) for k, v in classes.items()}
+                except Exception as e:
+                    self.get_logger().warn(f'Failed to load class_mapping from {path}: {e}')
+        self.get_logger().warn('Class mapping not found; detections will have class_name "class_N"')
+        return {}
+
+    def _resolve_class_name(self, det: Dict) -> str:
+        """Resolve class_name for a detection. Task4 uses type; others use class_id."""
+        if det.get('source') == 'task4' and det.get('type'):
+            return det['type']  # yellow_supply_drop, black_supply_drop
+        cid = det.get('class_id')
+        if cid is not None:
+            return self._class_id_to_name.get(int(cid), f'class_{cid}')
+        return 'unknown'
+
+    def _compute_camera_intrinsics(self):
+        """
+        Compute camera intrinsics from FOV and resolution.
+        Uses manufacturer specs: 85° horizontal FOV, 69° vertical FOV, 1920×1200 resolution.
+        Formula: fx = width / (2 * tan(fov_h / 2))
+        """
+        # Compute focal lengths from FOV
+        self.fx = self.frame_width / (2.0 * math.tan(math.radians(HORIZONTAL_FOV_PER_CAMERA_DEG / 2.0)))
+        self.fy = self.frame_height / (2.0 * math.tan(math.radians(VERTICAL_FOV_PER_CAMERA_DEG / 2.0)))
+        
+        # Principal point at image center (standard assumption)
+        self.cx = self.frame_width / 2.0
+        self.cy = self.frame_height / 2.0
+    
+    def _compute_bearing_and_elevation(self, camera_id: int, bbox: List[float]) -> Dict[str, float]:
+        """
+        Compute boat-relative bearing and elevation from camera detection.
+        
+        Args:
+            camera_id: 0=left, 1=center, 2=right
+            bbox: [x1, y1, x2, y2] in camera frame
+        
+        Returns:
+            Dict with bearing_deg, bearing_rad, elevation_deg, elevation_rad
+            - bearing: 0° = boat forward, + = right, - = left
+            - elevation: 0° = horizon, + = up, - = down
+        """
+        if len(bbox) != 4:
+            return {
+                'bearing_deg': 0.0,
+                'bearing_rad': 0.0,
+                'elevation_deg': 0.0,
+                'elevation_rad': 0.0
+            }
+        
+        # Bbox center in camera frame
+        u_center = (bbox[0] + bbox[2]) / 2.0
+        v_center = (bbox[1] + bbox[3]) / 2.0
+        
+        # Angle relative to camera optical axis (horizontal)
+        camera_angle_rad = math.atan2(u_center - self.cx, self.fx)
+        camera_angle_deg = math.degrees(camera_angle_rad)
+        
+        # Boat-relative bearing: add camera mounting angle
+        mounting_angle_deg = CAMERA_MOUNTING_ANGLES_DEG[camera_id]
+        bearing_deg = mounting_angle_deg + camera_angle_deg
+        bearing_rad = math.radians(bearing_deg)
+        
+        # Elevation angle (vertical): 0° = horizon, positive = up, negative = down
+        elevation_rad = math.atan2(self.cy - v_center, self.fy)
+        elevation_deg = math.degrees(elevation_rad)
+        
+        return {
+            'bearing_deg': bearing_deg,
+            'bearing_rad': bearing_rad,
+            'elevation_deg': elevation_deg,
+            'elevation_rad': elevation_rad,
+            'camera_angle_deg': camera_angle_deg,  # For debugging
+            'mounting_angle_deg': mounting_angle_deg  # For debugging
+        }
     
     def detection_callback(self, msg: String, camera_id: int):
         """Callback for individual camera detection info"""
@@ -168,12 +259,19 @@ class DetectionCombiner(Node):
             self.last_update_times[camera_id] = time.time()
             
             # Learn frame dimensions from detection_info (bbox already in preprocessed frame)
-            if 'frame_width' in detection_data:
-                self.frame_width = int(detection_data['frame_width'])
-            if 'frame_height' in detection_data:
-                self.frame_height = int(detection_data['frame_height'])
-            self.global_width = 3 * self.frame_width
-            self.global_height = self.frame_height
+            if 'frame_width' in detection_data or 'frame_height' in detection_data:
+                new_width = int(detection_data.get('frame_width', self.frame_width))
+                new_height = int(detection_data.get('frame_height', self.frame_height))
+                
+                # Recompute intrinsics if frame size changed
+                if new_width != self.frame_width or new_height != self.frame_height:
+                    self.frame_width = new_width
+                    self.frame_height = new_height
+                    self._compute_camera_intrinsics()
+                    self.get_logger().info(
+                        f'Updated frame size to {self.frame_width}×{self.frame_height}, '
+                        f'recomputed intrinsics: fx={self.fx:.1f}, fy={self.fy:.1f}'
+                    )
             
             # If using timestamp sync, try to match with other cameras
             if self.use_timestamp_sync:
@@ -194,10 +292,41 @@ class DetectionCombiner(Node):
         except json.JSONDecodeError as e:
             self.get_logger().error(f'Failed to parse task4_detections from camera{camera_id}: {e}')
 
+    def _indicator_callback(self, msg: String, camera_id: int):
+        """Store latest indicator buoy detections for a camera."""
+        try:
+            self.indicator_detections[camera_id] = json.loads(msg.data)
+        except json.JSONDecodeError as e:
+            self.get_logger().error(f'Failed to parse indicator_detections from camera{camera_id}: {e}')
+
+    def _indicator_detections_to_combined(self, camera_id: int, indicator_data: dict) -> List[Dict]:
+        """
+        Convert indicator buoy payload to same format as other detections.
+        Uses shape_bbox for bbox (whole buoy); class_id 9=red, 10=green.
+        """
+        out = []
+        for det in indicator_data.get('detections', []):
+            bbox = det.get('shape_bbox')
+            if not bbox or len(bbox) != 4:
+                continue
+            det_with_camera = {
+                'camera_id': camera_id,
+                'class_id': det.get('class_id'),
+                'score': det.get('score', 0.0),
+                'bbox': list(bbox),
+                'x1': bbox[0], 'y1': bbox[1], 'x2': bbox[2], 'y2': bbox[3],
+                'width': bbox[2] - bbox[0],
+                'height': bbox[3] - bbox[1],
+                'indicator_color': det.get('indicator_color'),
+                'source': 'indicator_buoy',
+            }
+            out.append(det_with_camera)
+        return out
+
     def _task4_detections_to_combined(self, camera_id: int, task4_data: dict) -> List[Dict]:
         """
         Convert Task4 payload detections to the same format as inference detections
-        so they can be merged into all_detections. shape_bbox is already in preprocessed frame (640x480).
+        so they can be merged into all_detections. shape_bbox is already in preprocessed frame.
         """
         out = []
         for det in task4_data.get('detections', []):
@@ -219,52 +348,6 @@ class DetectionCombiner(Node):
                 det_with_camera['vessel_bbox'] = det['vessel_bbox']
             out.append(det_with_camera)
         return out
-
-    def _to_global_bbox(self, bbox: List[float], camera_id: int) -> List[float]:
-        """Transform bbox from camera-local (frame_width x frame_height) to global. x += camera_id*frame_width."""
-        if len(bbox) != 4:
-            return bbox
-        x1, y1, x2, y2 = bbox
-        o = camera_id * self.frame_width
-        return [x1 + o, y1, x2 + o, y2]
-
-    def _to_effective_global(self, camera_id: int, bbox: List[float]) -> Dict[str, float]:
-        """
-        Convert detection center (camera_id, bbox in per-camera coords) to effective global frame.
-        Returns effective_x, effective_y (pixels), angle_deg (0=center, negative=left, positive=right), angle_rad,
-        elevation_deg (0=horizon, positive=up, negative=down), elevation_rad.
-        """
-        if len(bbox) != 4:
-            return {
-                'effective_x': 0.0,
-                'effective_y': 0.0,
-                'angle_deg': 0.0,
-                'angle_rad': 0.0,
-                'elevation_deg': 0.0,
-                'elevation_rad': 0.0,
-            }
-        raw_width = 3 * self.frame_width
-        effective_width = round(raw_width * EFFECTIVE_HORIZONTAL_ANGLE_SPAN_DEG / TOTAL_HORIZONTAL_ANGLE_DEG)
-        x_center = (float(bbox[0]) + float(bbox[2])) / 2.0
-        y_center = (float(bbox[1]) + float(bbox[3])) / 2.0
-        x_raw = camera_id * self.frame_width + x_center
-        effective_x = x_raw * effective_width / raw_width
-        effective_y = y_center
-        angle_deg = EFFECTIVE_HORIZONTAL_ANGLE_LEFT_DEG + (x_raw / raw_width) * EFFECTIVE_HORIZONTAL_ANGLE_SPAN_DEG
-        angle_rad = math.radians(angle_deg)
-        # Elevation: 0 = horizon, + up, - down. y=0 top -> +34.5°, y=frame_height/2 -> 0°, y=frame_height -> -34.5°
-        elevation_deg = EFFECTIVE_VERTICAL_ANGLE_UP_DEG + (y_center / self.frame_height) * (
-            EFFECTIVE_VERTICAL_ANGLE_DOWN_DEG - EFFECTIVE_VERTICAL_ANGLE_UP_DEG
-        )
-        elevation_rad = math.radians(elevation_deg)
-        return {
-            'effective_x': effective_x,
-            'effective_y': effective_y,
-            'angle_deg': angle_deg,
-            'angle_rad': angle_rad,
-            'elevation_deg': elevation_deg,
-            'elevation_rad': elevation_rad,
-        }
 
     def _try_synchronize_and_publish(self, timestamp: float, source_camera_id: int, detection_data: dict):
         """
@@ -304,43 +387,6 @@ class DetectionCombiner(Node):
         # Otherwise, if this is the first camera or others are too far off, 
         # we'll wait for timer-based publishing
     
-    def _deduplicate_global_distance(self, all_detections: List[Dict], max_distance_px: float) -> List[Dict]:
-        """
-        Merge detections that have the same class_id and whose global centers are within max_distance_px.
-        Keeps the detection with higher confidence score per cluster.
-        Expects each detection to have global_center_x and global_center_y set.
-        """
-        if not all_detections or max_distance_px <= 0:
-            return all_detections
-        sorted_detections = sorted(all_detections, key=lambda x: x.get('score', 0.0), reverse=True)
-        kept = []
-        removed_count = 0
-        for current_det in sorted_detections:
-            gx = current_det.get('global_center_x')
-            gy = current_det.get('global_center_y')
-            cid = current_det.get('class_id')
-            if gx is None or gy is None:
-                kept.append(current_det)
-                continue
-            is_duplicate = False
-            for kept_det in kept:
-                if kept_det.get('class_id') != cid:
-                    continue
-                kx = kept_det.get('global_center_x')
-                ky = kept_det.get('global_center_y')
-                if kx is None or ky is None:
-                    continue
-                dist = math.sqrt((gx - kx) ** 2 + (gy - ky) ** 2)
-                if dist <= max_distance_px:
-                    is_duplicate = True
-                    removed_count += 1
-                    break
-            if not is_duplicate:
-                kept.append(current_det)
-        if removed_count > 0:
-            self.get_logger().debug(f'Global distance deduplication: removed {removed_count} duplicate(s)')
-        return kept
-    
     def _publish_synchronized(self, matched_detections: dict, matched_timestamps: dict):
         """Publish synchronized detections from matched cameras"""
         all_detections = []
@@ -363,7 +409,12 @@ class DetectionCombiner(Node):
             if task4_data is not None:
                 for det in self._task4_detections_to_combined(camera_id, task4_data):
                     all_detections.append(det)
-            
+            # Merge indicator buoy detections for this camera when present
+            indicator_data = self.indicator_detections.get(camera_id)
+            if indicator_data is not None:
+                for det in self._indicator_detections_to_combined(camera_id, indicator_data):
+                    all_detections.append(det)
+
             # Add stats for matched cameras
             camera_stats[camera_id] = {
                 'status': 'active',
@@ -372,44 +423,16 @@ class DetectionCombiner(Node):
                 'timestamp': matched_timestamps[camera_id]
             }
         
-        # Add global bbox and center to each detection for dedup and output
+        # Compute bearing and elevation for each detection
         for det in all_detections:
             bbox = det.get('bbox') or [det.get('x1', 0), det.get('y1', 0), det.get('x2', 0), det.get('y2', 0)]
-            cid = det.get('camera_id', 0)
-            gbbox = self._to_global_bbox(bbox, cid)
-            det['global_bbox'] = gbbox
-            det['global_center_x'] = (gbbox[0] + gbbox[2]) / 2.0
-            det['global_center_y'] = (gbbox[1] + gbbox[3]) / 2.0
-        
-        # Deduplicate by global distance when enabled (same class_id, centers within threshold)
-        if self.deduplicate_overlap and len(all_detections) > 0:
-            max_distance_px = self.frame_width * self.dedup_global_distance
-            all_detections = self._deduplicate_global_distance(all_detections, max_distance_px)
-        
-        # Per-detection effective coords, angle and elevation (use per-camera bbox for angle computation)
+            camera_id = det.get('camera_id', 0)
+            bearing_info = self._compute_bearing_and_elevation(camera_id, bbox)
+            det.update(bearing_info)
+        # Add class_name for every detection
         for det in all_detections:
-            bbox_local = det.get('bbox') or [det.get('x1', 0), det.get('y1', 0), det.get('x2', 0), det.get('y2', 0)]
-            eff = self._to_effective_global(det.get('camera_id', 0), bbox_local)
-            det['effective_x'] = eff['effective_x']
-            det['effective_y'] = eff['effective_y']
-            det['angle_deg'] = eff['angle_deg']
-            det['angle_rad'] = eff['angle_rad']
-            det['elevation_deg'] = eff['elevation_deg']
-            det['elevation_rad'] = eff['elevation_rad']
-            det['bbox'] = det['global_bbox']  # Publish bbox in global frame
-        effective_width = int(round((3 * self.frame_width) * EFFECTIVE_HORIZONTAL_ANGLE_SPAN_DEG / TOTAL_HORIZONTAL_ANGLE_DEG))
-        effective_height = self.frame_height
-        effective_global_frame = {
-            'width': effective_width,
-            'height': effective_height,
-            'effective_angle_span_deg': EFFECTIVE_HORIZONTAL_ANGLE_SPAN_DEG,
-            'effective_angle_left_deg': EFFECTIVE_HORIZONTAL_ANGLE_LEFT_DEG,
-            'effective_angle_right_deg': EFFECTIVE_HORIZONTAL_ANGLE_RIGHT_DEG,
-            'effective_vertical_angle_span_deg': EFFECTIVE_VERTICAL_ANGLE_SPAN_DEG,
-            'effective_vertical_angle_down_deg': EFFECTIVE_VERTICAL_ANGLE_DOWN_DEG,
-            'effective_vertical_angle_up_deg': EFFECTIVE_VERTICAL_ANGLE_UP_DEG,
-        }
-        
+            det['class_name'] = self._resolve_class_name(det)
+
         # Add stats for unmatched cameras
         for camera_id in [0, 1, 2]:
             if camera_id not in matched_detections:
@@ -442,8 +465,17 @@ class DetectionCombiner(Node):
             'camera_stats': camera_stats,
             'detections': all_detections,
             'synchronized': True,
-            'global_frame': {'width': self.global_width, 'height': self.global_height},
-            'effective_global_frame': effective_global_frame,
+            'camera_info': {
+                'frame_width': self.frame_width,
+                'frame_height': self.frame_height,
+                'horizontal_fov_deg': HORIZONTAL_FOV_PER_CAMERA_DEG,
+                'vertical_fov_deg': VERTICAL_FOV_PER_CAMERA_DEG,
+                'mounting_angles_deg': CAMERA_MOUNTING_ANGLES_DEG,
+                'fx': self.fx,
+                'fy': self.fy,
+                'cx': self.cx,
+                'cy': self.cy
+            }
         }
         
         # Publish combined detection info
@@ -531,45 +563,23 @@ class DetectionCombiner(Node):
             if task4_data is not None:
                 for det in self._task4_detections_to_combined(camera_id, task4_data):
                     all_detections.append(det)
-        
-        # Add global bbox and center to each detection for dedup and output
+        # Merge indicator buoy detections when present
+        for camera_id in [0, 1, 2]:
+            indicator_data = self.indicator_detections[camera_id]
+            if indicator_data is not None:
+                for det in self._indicator_detections_to_combined(camera_id, indicator_data):
+                    all_detections.append(det)
+
+        # Compute bearing and elevation for each detection
         for det in all_detections:
             bbox = det.get('bbox') or [det.get('x1', 0), det.get('y1', 0), det.get('x2', 0), det.get('y2', 0)]
-            cid = det.get('camera_id', 0)
-            gbbox = self._to_global_bbox(bbox, cid)
-            det['global_bbox'] = gbbox
-            det['global_center_x'] = (gbbox[0] + gbbox[2]) / 2.0
-            det['global_center_y'] = (gbbox[1] + gbbox[3]) / 2.0
-        
-        # Deduplicate by global distance when enabled (same class_id, centers within threshold)
-        if self.deduplicate_overlap and len(all_detections) > 0:
-            max_distance_px = self.frame_width * self.dedup_global_distance
-            all_detections = self._deduplicate_global_distance(all_detections, max_distance_px)
-        
-        # Per-detection effective coords, angle and elevation; publish bbox in global frame
-        effective_width = int(round((3 * self.frame_width) * EFFECTIVE_HORIZONTAL_ANGLE_SPAN_DEG / TOTAL_HORIZONTAL_ANGLE_DEG))
-        effective_height = self.frame_height
-        effective_global_frame = {
-            'width': effective_width,
-            'height': effective_height,
-            'effective_angle_span_deg': EFFECTIVE_HORIZONTAL_ANGLE_SPAN_DEG,
-            'effective_angle_left_deg': EFFECTIVE_HORIZONTAL_ANGLE_LEFT_DEG,
-            'effective_angle_right_deg': EFFECTIVE_HORIZONTAL_ANGLE_RIGHT_DEG,
-            'effective_vertical_angle_span_deg': EFFECTIVE_VERTICAL_ANGLE_SPAN_DEG,
-            'effective_vertical_angle_down_deg': EFFECTIVE_VERTICAL_ANGLE_DOWN_DEG,
-            'effective_vertical_angle_up_deg': EFFECTIVE_VERTICAL_ANGLE_UP_DEG,
-        }
+            camera_id = det.get('camera_id', 0)
+            bearing_info = self._compute_bearing_and_elevation(camera_id, bbox)
+            det.update(bearing_info)
+        # Add class_name for every detection
         for det in all_detections:
-            bbox_local = det.get('bbox') or [det.get('x1', 0), det.get('y1', 0), det.get('x2', 0), det.get('y2', 0)]
-            eff = self._to_effective_global(det.get('camera_id', 0), bbox_local)
-            det['effective_x'] = eff['effective_x']
-            det['effective_y'] = eff['effective_y']
-            det['angle_deg'] = eff['angle_deg']
-            det['angle_rad'] = eff['angle_rad']
-            det['elevation_deg'] = eff['elevation_deg']
-            det['elevation_rad'] = eff['elevation_rad']
-            det['bbox'] = det['global_bbox']  # Publish bbox in global frame
-        
+            det['class_name'] = self._resolve_class_name(det)
+
         # Create combined detection info
         combined_info = {
             'timestamp': current_time,
@@ -582,8 +592,17 @@ class DetectionCombiner(Node):
             'camera_stats': camera_stats,
             'detections': all_detections,
             'synchronized': self.use_timestamp_sync if self.use_timestamp_sync else None,
-            'global_frame': {'width': self.global_width, 'height': self.global_height},
-            'effective_global_frame': effective_global_frame,
+            'camera_info': {
+                'frame_width': self.frame_width,
+                'frame_height': self.frame_height,
+                'horizontal_fov_deg': HORIZONTAL_FOV_PER_CAMERA_DEG,
+                'vertical_fov_deg': VERTICAL_FOV_PER_CAMERA_DEG,
+                'mounting_angles_deg': CAMERA_MOUNTING_ANGLES_DEG,
+                'fx': self.fx,
+                'fy': self.fy,
+                'cx': self.cx,
+                'cy': self.cy
+            }
         }
         
         # Publish combined detection info
@@ -628,18 +647,12 @@ def main(args=None):
                        help='Time window (seconds) for timestamp-based synchronization (default: 0.05 = 50ms)')
     parser.add_argument('--use_timestamp_sync', action='store_true',
                        help='Enable timestamp-based synchronization (default: latest value approach)')
-    parser.add_argument('--deduplicate_overlap', action='store_true',
-                       help='Enable deduplication by global distance for side-by-side cameras (default: disabled)')
-    parser.add_argument('--dedup_global_distance', type=float, default=0.1,
-                       help='When deduplicate_overlap enabled: merge detections with same class_id and centers within this fraction of frame width (default: 0.1)')
     args_parsed, _ = parser.parse_known_args(args=args)
     
     node = DetectionCombiner(
         sync_window=args_parsed.sync_window,
         use_timestamp_sync=args_parsed.use_timestamp_sync,
-        staleness_threshold=args_parsed.staleness_threshold,
-        deduplicate_overlap=args_parsed.deduplicate_overlap,
-        dedup_global_distance=args_parsed.dedup_global_distance
+        staleness_threshold=args_parsed.staleness_threshold
     )
     
     try:

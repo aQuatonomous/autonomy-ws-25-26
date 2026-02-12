@@ -13,7 +13,7 @@ def _create_camera_nodes(context):
     dev_list = [d.strip() for d in devs.split(',')]
     if len(dev_list) != 3:
         raise ValueError(
-            "camera_devices must be 3 comma-separated paths, e.g. /dev/video0,/dev/video2,/dev/video4"
+            "camera_devices must be 3 comma-separated paths, e.g. /dev/v4l/by-path/platform-3610000.usb-usb-0:1.2.2:1.0-video-index0,/dev/v4l/by-path/platform-3610000.usb-usb-0:1.2.3:1.0-video-index0,/dev/v4l/by-path/platform-3610000.usb-usb-0:1.2.4:1.0-video-index0"
         )
     return [
         Node(
@@ -57,8 +57,8 @@ def generate_launch_description():
 
     camera_devices_arg = DeclareLaunchArgument(
         'camera_devices',
-        default_value='/dev/video0,/dev/video2,/dev/video4',
-        description='Comma-separated paths to 3 camera devices'
+        default_value='/dev/v4l/by-path/platform-3610000.usb-usb-0:1.2.2:1.0-video-index0,/dev/v4l/by-path/platform-3610000.usb-usb-0:1.2.3:1.0-video-index0,/dev/v4l/by-path/platform-3610000.usb-usb-0:1.2.4:1.0-video-index0',
+        description='Comma-separated paths to 3 camera devices (using persistent USB port paths)'
     )
 
     engine_path_arg = DeclareLaunchArgument(
@@ -83,6 +83,12 @@ def generate_launch_description():
         'enable_task4',
         default_value='false',
         description='Enable Task 4 supply drop processor'
+    )
+
+    enable_indicator_buoy_arg = DeclareLaunchArgument(
+        'enable_indicator_buoy',
+        default_value='false',
+        description='Enable indicator buoy processor (red/green colour indicator buoy)'
     )
 
     default_number_engine = os.path.join(
@@ -183,6 +189,13 @@ def generate_launch_description():
         condition=IfCondition(LaunchConfiguration('enable_task4'))
     )
 
+    indicator_buoy_processor = Node(
+        package='cv_ros_nodes',
+        executable='indicator_buoy_processor',
+        name='indicator_buoy_processor',
+        condition=IfCondition(LaunchConfiguration('enable_indicator_buoy'))
+    )
+
     return LaunchDescription([
         resolution_arg,
         camera_devices_arg,
@@ -190,6 +203,7 @@ def generate_launch_description():
         conf_threshold_arg,
         staleness_threshold_arg,
         enable_task4_arg,
+        enable_indicator_buoy_arg,
         enable_number_detection_arg,
         number_detection_engine_arg,
         number_conf_threshold_arg,
@@ -203,5 +217,6 @@ def generate_launch_description():
         inference2,
         combiner,
         task4_supply_processor,
+        indicator_buoy_processor,
         LogInfo(msg='All computer vision nodes started!')
     ])

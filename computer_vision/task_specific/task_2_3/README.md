@@ -18,6 +18,8 @@ This folder now has **two Python scripts**:
 
 The folders `debug_outputs/` and `final_outputs/` are git‑ignored.
 
+**ROS integration:** The same pipeline is used by the ROS 2 node `indicator_buoy_processor`. When the CV pipeline is launched with `enable_indicator_buoy:=true`, that node subscribes to `/camera{N}/image_preprocessed`, runs `classify_colour_indicator_buoy` on each frame, and publishes to `/camera{N}/indicator_detections`. The combiner merges these into `/combined/detection_info` with `class_name` `red_indicator_buoy` or `green_indicator_buoy`.
+
 ---
 
 ## 1. Running the main detector (`colour_indicator_buoy_detector.py`)
