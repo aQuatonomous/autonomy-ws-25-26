@@ -178,6 +178,11 @@ class DetectionCombiner(Node):
         self.get_logger().warn('Class mapping not found; detections will have class_name "class_N"')
         return {}
 
+    def _trim_detection_for_output(self, det: Dict) -> Dict:
+        """Return a copy of the detection with redundant/radian fields removed for combined output."""
+        keys_to_drop = {'x1', 'y1', 'x2', 'y2', 'width', 'height', 'bearing_rad', 'elevation_rad'}
+        return {k: v for k, v in det.items() if k not in keys_to_drop}
+
     def _resolve_class_name(self, det: Dict) -> str:
         """Resolve class_name for a detection. Task4 uses type; others use class_id."""
         if det.get('source') == 'task4' and det.get('type'):
@@ -210,16 +215,14 @@ class DetectionCombiner(Node):
             bbox: [x1, y1, x2, y2] in camera frame
         
         Returns:
-            Dict with bearing_deg, bearing_rad, elevation_deg, elevation_rad
+            Dict with bearing_deg, elevation_deg (and optional camera_angle_deg, mounting_angle_deg for debug).
             - bearing: 0° = boat forward, + = right, - = left
             - elevation: 0° = horizon, + = up, - = down
         """
         if len(bbox) != 4:
             return {
                 'bearing_deg': 0.0,
-                'bearing_rad': 0.0,
-                'elevation_deg': 0.0,
-                'elevation_rad': 0.0
+                'elevation_deg': 0.0
             }
         
         # Bbox center in camera frame
@@ -233,7 +236,6 @@ class DetectionCombiner(Node):
         # Boat-relative bearing: add camera mounting angle
         mounting_angle_deg = CAMERA_MOUNTING_ANGLES_DEG[camera_id]
         bearing_deg = mounting_angle_deg + camera_angle_deg
-        bearing_rad = math.radians(bearing_deg)
         
         # Elevation angle (vertical): 0° = horizon, positive = up, negative = down
         elevation_rad = math.atan2(self.cy - v_center, self.fy)
@@ -241,11 +243,9 @@ class DetectionCombiner(Node):
         
         return {
             'bearing_deg': bearing_deg,
-            'bearing_rad': bearing_rad,
             'elevation_deg': elevation_deg,
-            'elevation_rad': elevation_rad,
-            'camera_angle_deg': camera_angle_deg,  # For debugging
-            'mounting_angle_deg': mounting_angle_deg  # For debugging
+            'camera_angle_deg': camera_angle_deg,
+            'mounting_angle_deg': mounting_angle_deg
         }
     
     def detection_callback(self, msg: String, camera_id: int):
@@ -314,9 +314,6 @@ class DetectionCombiner(Node):
                 'class_id': det.get('class_id'),
                 'score': det.get('score', 0.0),
                 'bbox': list(bbox),
-                'x1': bbox[0], 'y1': bbox[1], 'x2': bbox[2], 'y2': bbox[3],
-                'width': bbox[2] - bbox[0],
-                'height': bbox[3] - bbox[1],
                 'indicator_color': det.get('indicator_color'),
                 'source': 'indicator_buoy',
             }
@@ -338,9 +335,6 @@ class DetectionCombiner(Node):
                 'class_id': det.get('class_id'),
                 'score': det.get('score', 0.0),
                 'bbox': list(bbox),
-                'x1': bbox[0], 'y1': bbox[1], 'x2': bbox[2], 'y2': bbox[3],
-                'width': bbox[2] - bbox[0],
-                'height': bbox[3] - bbox[1],
                 'type': det.get('type'),
                 'source': 'task4',
             }
@@ -432,6 +426,8 @@ class DetectionCombiner(Node):
         # Add class_name for every detection
         for det in all_detections:
             det['class_name'] = self._resolve_class_name(det)
+        # Trim output: drop x1,y1,x2,y2,width,height and radian fields
+        all_detections = [self._trim_detection_for_output(d) for d in all_detections]
 
         # Add stats for unmatched cameras
         for camera_id in [0, 1, 2]:
@@ -579,6 +575,8 @@ class DetectionCombiner(Node):
         # Add class_name for every detection
         for det in all_detections:
             det['class_name'] = self._resolve_class_name(det)
+        # Trim output: drop x1,y1,x2,y2,width,height and radian fields
+        all_detections = [self._trim_detection_for_output(d) for d in all_detections]
 
         # Create combined detection info
         combined_info = {
