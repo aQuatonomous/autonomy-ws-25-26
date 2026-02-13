@@ -364,6 +364,9 @@ class InferenceNode(Node):
         self.bridge = CvBridge()
         self.frame_count = 0
         self.total_inference_time = 0
+        # Actual output FPS: timestamps of when we publish detection_info (sliding window)
+        self._output_timestamps = []
+        self._output_fps_window = 60  # number of publishes to use for output FPS (e.g. ~2 s at 30 Hz)
         
         # Subscribe to preprocessed images
         self.subscription = self.create_subscription(
@@ -441,13 +444,23 @@ class InferenceNode(Node):
             self.frame_count += 1
             self.total_inference_time += inference_time
             
+            # Actual output FPS (publish rate of detection_info)
+            now = time.time()
+            self._output_timestamps.append(now)
+            if len(self._output_timestamps) > self._output_fps_window:
+                self._output_timestamps.pop(0)
+            if len(self._output_timestamps) >= 2:
+                span = self._output_timestamps[-1] - self._output_timestamps[0]
+                actual_output_fps = (len(self._output_timestamps) - 1) / span if span > 0 else 0.0
+            else:
+                actual_output_fps = 0.0
+            
             # Draw detections
             result_image = self.inferencer.draw_detections(cv_image, detections)
             
-            # Add FPS info to image
-            fps = 1.0 / inference_time if inference_time > 0 else 0
-            avg_fps = self.frame_count / self.total_inference_time if self.total_inference_time > 0 else 0
-            cv2.putText(result_image, f"FPS: {fps:.1f} | Avg: {avg_fps:.1f} | Det: {len(detections)}",
+            # Add FPS info to image (show actual output FPS, not inference FPS)
+            inference_fps = 1.0 / inference_time if inference_time > 0 else 0
+            cv2.putText(result_image, f"Output FPS: {actual_output_fps:.1f} | Det: {len(detections)}",
                        (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 255, 0), 2)
             
             # Publish detection image
@@ -464,7 +477,8 @@ class InferenceNode(Node):
                 'frame_id': msg.header.frame_id,
                 'num_detections': len(detections),
                 'inference_time_ms': inference_time * 1000,
-                'fps': fps,
+                'fps': inference_fps,
+                'output_fps': round(actual_output_fps, 2),
                 'frame_width': orig_w,
                 'frame_height': orig_h,
                 'detections': []
@@ -496,11 +510,11 @@ class InferenceNode(Node):
             info_msg.data = json.dumps(detection_info)
             self.detection_info_pub.publish(info_msg)
             
-            # Log every 15 frames (~1 s at 15 fps)
+            # Log every 15 frames (~1 s at 15 fps): show actual output FPS (publish rate)
             if self.frame_count % 15 == 0:
                 self.get_logger().info(
                     f'Processed {self.frame_count} frames | '
-                    f'Avg FPS: {avg_fps:.2f} | '
+                    f'Output FPS: {actual_output_fps:.2f} | '
                     f'Detections: {len(detections)}'
                 )
         

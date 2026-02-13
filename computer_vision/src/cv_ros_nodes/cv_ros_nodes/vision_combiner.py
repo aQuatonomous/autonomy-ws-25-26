@@ -449,11 +449,11 @@ class DetectionCombiner(Node):
                 for det in self._indicator_detections_to_combined(camera_id, indicator_data):
                     all_detections.append(det)
 
-            # Add stats for matched cameras
+            # Add stats for matched cameras (use output_fps = actual publish rate when available)
             camera_stats[camera_id] = {
                 'status': 'active',
                 'num_detections': len(detections),
-                'fps': detection_data.get('fps', 0.0),
+                'fps': detection_data.get('output_fps', detection_data.get('fps', 0.0)),
                 'timestamp': matched_timestamps[camera_id]
             }
         
@@ -563,7 +563,7 @@ class DetectionCombiner(Node):
                     'num_detections': 0,
                     'time_since_update': round(time_since_update, 3),
                     'staleness_threshold': self.staleness_threshold,
-                    'fps': detection_data.get('fps', 0.0),
+                    'fps': detection_data.get('output_fps', detection_data.get('fps', 0.0)),
                     'last_timestamp': detection_data.get('timestamp', 0.0)
                 }
                 # Exclude stale camera from output - don't add its detections
@@ -584,11 +584,11 @@ class DetectionCombiner(Node):
                 det_with_camera['bbox'] = list(bbox)
                 all_detections.append(det_with_camera)  # Add to combined list
             
-            # Add stats for active camera
+            # Add stats for active camera (use output_fps = actual publish rate when available)
             camera_stats[camera_id] = {
                 'status': 'active',
                 'num_detections': len(detections),
-                'fps': detection_data.get('fps', 0.0),
+                'fps': detection_data.get('output_fps', detection_data.get('fps', 0.0)),
                 'timestamp': detection_data.get('timestamp', 0.0),
                 'time_since_update': round(time_since_update, 3)
             }

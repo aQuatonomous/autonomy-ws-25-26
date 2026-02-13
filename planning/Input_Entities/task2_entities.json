@@ -1,0 +1,96 @@
+{
+  "task": "task2",
+  "map_bounds": {
+    "width": 200,
+    "height": 220
+  },
+  "entities": {
+    "start": {
+      "name": "boat_start",
+      "position": [100.0, 20.0]
+    },
+    "buoys": [
+      {
+        "type": "red_buoy",
+        "name": "gate1_red",
+        "position": [96.0, 40.0]
+      },
+      {
+        "type": "green_buoy",
+        "name": "gate1_green",
+        "position": [104.0, 40.0]
+      },
+
+      {
+        "type": "red_buoy",
+        "name": "gate2_red",
+        "position": [96.0, 65.0]
+      },
+      {
+        "type": "green_buoy",
+        "name": "gate2_green",
+        "position": [104.0, 65.0]
+      },
+
+      {
+        "type": "red_buoy",
+        "name": "gate3_red",
+        "position": [96.0, 90.0]
+      },
+      {
+        "type": "green_buoy",
+        "name": "gate3_green",
+        "position": [104.0, 90.0]
+      },
+
+      {
+        "type": "red_buoy",
+        "name": "gate4_red",
+        "position": [96.0, 115.0]
+      },
+      {
+        "type": "green_buoy",
+        "name": "gate4_green",
+        "position": [104.0, 115.0]
+      },
+
+      {
+        "type": "black_buoy",
+        "name": "obstacle_1",
+        "position": [80.0, 150.0]
+      },
+      {
+        "type": "black_buoy",
+        "name": "obstacle_2",
+        "position": [120.0, 155.0]
+      },
+      {
+        "type": "black_buoy",
+        "name": "obstacle_3",
+        "position": [95.0, 165.0]
+      },
+      {
+        "type": "black_buoy",
+        "name": "obstacle_4",
+        "position": [110.0, 175.0]
+      },
+      {
+        "type": "black_buoy",
+        "name": "obstacle_5",
+        "position": [85.0, 180.0]
+      },
+      {
+        "type": "red_indicator",
+        "name": "hazard_1",
+        "position": [105.0, 145.0]
+      },
+      {
+        "type": "green_indicator",
+        "name": "survivor_1",
+        "position": [115.0, 160.0]
+      }
+    ],
+
+    "debris": []
+  }
+}
