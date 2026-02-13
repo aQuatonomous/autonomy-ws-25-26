@@ -1,13 +1,14 @@
 #!/usr/bin/env python3
 """
-Buoy distance estimator node.
+Distance estimator node for maritime objects.
 
 Reads /camera0/detection_info (final detection output for camera 0) and estimates
 distance per bounding box using camera calibration from camera_grid_calibration.
 Uses pinhole model: distance = (focal_length * reference_height_m) / height_px.
+Uses class-specific reference dimensions based on RoboBoat 2026 specifications.
 
 Subscribes: /camera0/detection_info (std_msgs/String JSON)
-Publishes:  /camera0/detection_info_with_distance (std_msgs/String JSON, same structure + estimated_distance per detection)
+Publishes:  /camera0/detection_info_with_distance (std_msgs/String JSON, same structure + estimated_distance_m + reference_height_m per detection)
 """
 
 import json
@@ -45,10 +46,10 @@ def load_calibration(npz_path: str) -> Optional[dict]:
 
 
 class BuoyDistanceEstimatorNode(Node):
-    """Estimates distance for each detection from camera0 using grid calibration."""
+    """Estimates distance for each detection from camera0 using grid calibration and class-specific dimensions."""
 
     def __init__(self):
-        super().__init__('buoy_distance_estimator')
+        super().__init__('maritime_distance_estimator')
 
         self.declare_parameter('camera_id', 0)
         self.declare_parameter(
@@ -61,11 +62,43 @@ class BuoyDistanceEstimatorNode(Node):
                 'camera_calib.npz',
             ),
         )
-        self.declare_parameter('reference_height_m', 0.3)
+        self.declare_parameter('default_reference_height_m', 0.3)
 
         self._camera_id = self.get_parameter('camera_id').get_parameter_value().integer_value
         calib_path = self.get_parameter('calibration_file').get_parameter_value().string_value
-        self._reference_height_m = self.get_parameter('reference_height_m').get_parameter_value().double_value
+        self._default_reference_height_m = self.get_parameter('default_reference_height_m').get_parameter_value().double_value
+
+        # Reference dimensions for each class (in meters, primarily height above waterline)
+        # Based on RoboBoat 2026 specifications. Small round buoys use 1 ft; pole buoys use 39 in.
+        self._reference_dimensions = {
+            # Buoys - small round (1 ft) use height_scale 0.5 to correct for bbox including reflection
+            'black_buoy': 0.305,        # 1 ft above waterline (Polyform A-2)
+            'green_buoy': 0.305,        # 1 ft for gate/small (pole version is green_pole_buoy)
+            'green_pole_buoy': 0.991,   # 39 in above waterline (Taylor Made Sur-Mark 950400)
+            'red_buoy': 0.305,          # 1 ft for gate/small (pole version is red_pole_buoy)
+            'red_pole_buoy': 0.991,     # 39 in above waterline (Taylor Made Sur-Mark 950410)
+            'yellow_buoy': 0.305,       # 1 ft above waterline (Polyform A-2)
+            
+            # Navigation markers - using diamond size as reference for cross/triangle
+            'cross': 0.203,             # 8 in diamond size (vertex-to-vertex)
+            'triangle': 0.203,          # 8 in diamond size (assumed similar to cross)
+            
+            # Infrastructure
+            'dock': 0.406,              # 16 in height
+            
+            # Indicator buoys
+            'red_indicator_buoy': 0.432,    # 17 in total height
+            'green_indicator_buoy': 0.432,  # 17 in total height
+            
+            # Supply drops - using width since height not specified
+            'yellow_supply_drop': 0.406,    # 16.0 in width
+            'black_supply_drop': 0.406,     # 16.0 in width
+            
+            # Docking numbers
+            'digit_1': 0.610,          # 24 in banner height
+            'digit_2': 0.610,          # 24 in banner height  
+            'digit_3': 0.610,          # 24 in banner height
+        }
 
         self._calib = load_calibration(calib_path)
         if self._calib is None:
@@ -78,7 +111,8 @@ class BuoyDistanceEstimatorNode(Node):
             self.get_logger().info(
                 f'Loaded calibration: fx={fx:.1f}, fy={fy:.1f}, '
                 f'calib size={self._calib["calib_width"]}x{self._calib["calib_height"]}, '
-                f'reference_height_m={self._reference_height_m}'
+                f'default_reference_height_m={self._default_reference_height_m}, '
+                f'loaded {len(self._reference_dimensions)} class-specific dimensions'
             )
 
         topic_in = f'/camera{self._camera_id}/detection_info'
@@ -87,13 +121,18 @@ class BuoyDistanceEstimatorNode(Node):
         self._pub = self.create_publisher(String, topic_out, 10)
         self.get_logger().info(f'Subscribed to {topic_in}, publishing to {topic_out}')
 
-    def _estimate_distance(self, bbox: list, frame_width: int, frame_height: int) -> Optional[float]:
+    def _estimate_distance(self, bbox: list, frame_width: int, frame_height: int, class_name: str = None) -> Optional[float]:
         """
         Pinhole: distance = (fy_eff * reference_height_m) / height_px.
+        Uses class-specific reference dimensions when available.
         Scales focal length if frame size differs from calibration size.
         """
         if self._calib is None or not bbox or len(bbox) < 4:
             return None
+        
+        # Get reference dimension for this class
+        reference_height_m = self._reference_dimensions.get(class_name, self._default_reference_height_m)
+        
         x1, y1, x2, y2 = float(bbox[0]), float(bbox[1]), float(bbox[2]), float(bbox[3])
         height_px = max(1.0, y2 - y1)
         fy = self._calib['K'][1, 1]
@@ -103,7 +142,7 @@ class BuoyDistanceEstimatorNode(Node):
             fy_eff = fy * (frame_height / ch)
         else:
             fy_eff = fy
-        distance_m = (fy_eff * self._reference_height_m) / height_px
+        distance_m = (fy_eff * reference_height_m) / height_px
         return distance_m
 
     def _callback(self, msg: String) -> None:
@@ -121,8 +160,14 @@ class BuoyDistanceEstimatorNode(Node):
         for det in detections:
             det_out = dict(det)
             bbox = det.get('bbox') or [det.get('x1'), det.get('y1'), det.get('x2'), det.get('y2')]
-            dist = self._estimate_distance(bbox, frame_width, frame_height)
+            class_name = det.get('class_name') or det.get('class')  # Try both possible field names
+            dist = self._estimate_distance(bbox, frame_width, frame_height, class_name)
             det_out['estimated_distance_m'] = round(dist, 3) if dist is not None else None
+            # Add reference dimension info for debugging
+            if class_name and class_name in self._reference_dimensions:
+                det_out['reference_height_m'] = self._reference_dimensions[class_name]
+            else:
+                det_out['reference_height_m'] = self._default_reference_height_m
             out_detections.append(det_out)
 
         data_out = dict(data)

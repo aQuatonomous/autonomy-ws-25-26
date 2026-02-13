@@ -33,7 +33,7 @@ setup(
             'camera_viewer = cv_ros_nodes.camera_viewer:main',
             'task4_supply_processor = cv_ros_nodes.task4_supply_processor:main',
             'indicator_buoy_processor = cv_ros_nodes.indicator_buoy_processor:main',
-            'buoy_distance_estimator = cv_ros_nodes.buoy_distance_estimator:main',
+            'maritime_distance_estimator = cv_ros_nodes.maritime_distance_estimator:main',
         ],
     },
 )

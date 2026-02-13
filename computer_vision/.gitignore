@@ -20,4 +20,5 @@ task_specific/task_2_3/debug_outputs/
 task_specific/task_2_3/final_outputs/
 task_specific/task_2_3/input_images/
 
-camera_grid_calibration/calibrate.mkv
+camera_grid_calibration/my_video-3.mkv
+camera_grid_calibration/calibrate_frames_200/*

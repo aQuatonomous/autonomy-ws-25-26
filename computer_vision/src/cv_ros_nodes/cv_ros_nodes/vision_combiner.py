@@ -20,13 +20,15 @@ Each detection includes:
 - bbox in local camera frame
 - bearing_deg/bearing_rad: angle relative to boat forward direction
 - elevation_deg/elevation_rad: angle relative to horizon
+- class_name with aspect ratio-based buoy classification (red_buoy vs red_pole_buoy)
 
 HOW IT WORKS:
 1. Subscribes to detection_info from all 3 cameras
 2. Collects ALL detections from each active camera
 3. Computes per-camera bearing using geometry (camera mounting + intrinsics)
 4. Adds boat-relative bearing to each detection
-5. Publishes combined list at ~30 Hz
+5. Applies aspect ratio logic to distinguish red_buoy/red_pole_buoy and green_buoy/green_pole_buoy
+6. Publishes combined list at ~30 Hz
 
 OPERATION MODE:
 - Latest Value Approach (default): Combines the most recent detection from each camera
@@ -184,13 +186,51 @@ class DetectionCombiner(Node):
         return {k: v for k, v in det.items() if k not in keys_to_drop}
 
     def _resolve_class_name(self, det: Dict) -> str:
-        """Resolve class_name for a detection. Task4 uses type; others use class_id."""
+        """
+        Resolve class_name for a detection with aspect ratio-based buoy classification.
+        
+        Task4 uses type; others use class_id. For red_buoy/green_buoy detections,
+        applies aspect ratio logic to distinguish between regular buoys (square-ish)
+        and pole buoys (vertical/tall):
+        - Square-ish (width ≈ height): red_buoy, green_buoy (1 ft above waterline)
+        - Tall/vertical (height >> width): red_pole_buoy, green_pole_buoy (39 in above waterline)
+        
+        This improves distance estimation accuracy by using correct reference dimensions.
+        """
         if det.get('source') == 'task4' and det.get('type'):
             return det['type']  # yellow_supply_drop, black_supply_drop
+            
         cid = det.get('class_id')
-        if cid is not None:
-            return self._class_id_to_name.get(int(cid), f'class_{cid}')
-        return 'unknown'
+        if cid is None:
+            return 'unknown'
+            
+        # Get initial class name from mapping
+        initial_class_name = self._class_id_to_name.get(int(cid), f'class_{cid}')
+        
+        # Apply aspect ratio logic for red/green buoy classification
+        if initial_class_name in ['red_buoy', 'green_buoy']:
+            bbox = det.get('bbox') or [det.get('x1', 0), det.get('y1', 0), det.get('x2', 0), det.get('y2', 0)]
+            
+            if len(bbox) >= 4:
+                width = abs(bbox[2] - bbox[0])
+                height = abs(bbox[3] - bbox[1])
+                
+                if width > 0 and height > 0:
+                    aspect_ratio = width / height
+                    
+                    # Classification thresholds:
+                    # - aspect_ratio close to 1.0: square-ish → regular buoy (1 ft)
+                    # - aspect_ratio < 0.7: tall/vertical → pole buoy (39 in)
+                    # - 0.7 ≤ aspect_ratio < 1.3: borderline, keep as regular buoy
+                    
+                    if aspect_ratio < 0.7:  # Significantly taller than wide
+                        if initial_class_name == 'red_buoy':
+                            return 'red_pole_buoy'
+                        elif initial_class_name == 'green_buoy':
+                            return 'green_pole_buoy'
+                    # else: keep as regular buoy (square-ish or borderline)
+        
+        return initial_class_name
 
     def _compute_camera_intrinsics(self):
         """
