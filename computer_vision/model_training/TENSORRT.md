@@ -9,9 +9,9 @@ Machine-specific TensorRT usage, ONNX→engine conversion, and where artifacts l
 ## What is installed
 
 - **TensorRT Python**: 10.3.0
-- **trtexec**: `/usr/src/tensorrt/bin/trtexec`
+- **trtexec**: `/usr/src/tensorrt/bin/trtexec` (path may differ on x86 Think vs Jetson)
 - **CUDA**: 12.6 (nvidia-smi)
-- **GPU**: NVIDIA Orin (Jetson)
+- **GPU**: Development on Think (x86 + NVIDIA GPU); deployment target e.g. NVIDIA Orin (Jetson)
 
 ---
 
@@ -47,7 +47,7 @@ trtexec --onnx=model.onnx --saveEngine=model.engine
 # FP32 (default)
 /usr/src/tensorrt/bin/trtexec --onnx=aqua_main.onnx --saveEngine=model.engine --memPoolSize=workspace:4096 --skipInference
 
-# FP16 (faster, good accuracy on Jetson) — used for cv_scripts/model.engine
+# FP16 (faster, good accuracy on Jetson/Think) — used for cv_scripts/model.engine
 /usr/src/tensorrt/bin/trtexec --onnx=aqua_main.onnx --saveEngine=model.engine --fp16 --memPoolSize=workspace:4096 --skipInference
 
 # INT8 (fastest; requires calibration)

@@ -15,6 +15,8 @@
 12. [Task-Specific Computer Vision Requirements](#task-specific-computer-vision-requirements)
 13. [Monitoring and Diagnostics](#monitoring-and-diagnostics)
 
+**Related documentation:** [README.md](README.md) is the runbook (quick start, launch, cameras, nodes, topics). This document is the full design reference. For specific topics: [SIMULATIONS.md](SIMULATIONS.md), [DISTANCE_ESTIMATOR_CHANGES.md](DISTANCE_ESTIMATOR_CHANGES.md), [FUSION_NODE_GUIDE.md](FUSION_NODE_GUIDE.md), [model_training/TENSORRT.md](model_training/TENSORRT.md).
+
 ---
 
 ## Executive Summary
@@ -24,7 +26,7 @@ This document describes the complete design strategy for a multi-camera computer
 **Key Design Principles:**
 - **Fault Isolation**: Independent pipelines per camera ensure single camera failures don't cascade
 - **Scalability**: Modular design allows easy addition/removal of cameras
-- **Performance**: TensorRT optimization for real-time inference on NVIDIA Jetson Orin
+- **Performance**: TensorRT optimization for real-time inference (development on Think; deployment e.g. NVIDIA Jetson Orin)
 - **Reliability**: Robust error handling and graceful degradation
 
 ---
@@ -76,7 +78,7 @@ This document describes the complete design strategy for a multi-camera computer
 ### Data Flow Pipeline
 
 **Stage 1: Image Acquisition**
-- Raw images captured at 1920x1200 resolution, 15 FPS (FPS set via v4l2-ctl; see NODES_AND_CAMERAS.md)
+- Raw images captured at 1920x1200 resolution, 15 FPS (FPS set via v4l2-ctl; see [README.md](README.md))
 - Published as ROS2 `sensor_msgs/Image` messages
 
 **Stage 2: Preprocessing**
@@ -118,7 +120,7 @@ This document describes the complete design strategy for a multi-camera computer
 **Parameters**:
 - `video_device`: `/dev/video0`, `/dev/video2`, `/dev/video4` (default; override via launch)
 - `image_size`: `[1920, 1200]`
-- `framerate`: v4l2_camera has no FPS parameter; set 15 fps via `v4l2-ctl --set-parm 15` before launch. See [NODES_AND_CAMERAS.md](NODES_AND_CAMERAS.md).
+- `framerate`: v4l2_camera has no FPS parameter; set 15 fps via `v4l2-ctl --set-parm 15` before launch. See [README.md](README.md).
 - `namespace`: `/camera0`, `/camera1`, `/camera2`
 
 **Subscriptions**: None (hardware interface)
@@ -130,7 +132,7 @@ This document describes the complete design strategy for a multi-camera computer
   - Frame rate: ~15 Hz (set via v4l2-ctl)
   - Header includes timestamp and frame_id
 
-**Launch Command**: See [NODES_AND_CAMERAS.md](NODES_AND_CAMERAS.md) for full commands. Example: `ros2 run v4l2_camera v4l2_camera_node --ros-args -p video_device:=/dev/video0 -p image_size:="[1920,1200]" -r __ns:=/camera0`
+**Launch Command**: See [README.md](README.md) for full commands. Example: `ros2 run v4l2_camera v4l2_camera_node --ros-args -p video_device:=/dev/video0 -p image_size:="[1920,1200]" -r __ns:=/camera0`
 
 ---
 
@@ -189,7 +191,7 @@ ros2 run cv_ros_nodes vision_preprocessing --camera_id 2
 **Dependencies**:
 - TensorRT 10.3.0
 - CUDA 12.6
-- NVIDIA Jetson Orin GPU
+- NVIDIA GPU (development: Think; deployment e.g. Jetson Orin)
 
 **Parameters** (Command Line):
 - `--camera_id`: Integer (0, 1, or 2) - Required
@@ -326,7 +328,7 @@ ros2 run cv_ros_nodes vision_inference --camera_id 2 --engine_path ~/autonomy-ws
 - CPU-bound operation
 - Minimal memory footprint
 
-**Launch Command**: See [NODES_AND_CAMERAS.md](NODES_AND_CAMERAS.md). Example: `ros2 run cv_ros_nodes vision_combiner` (default 1.0s staleness); `--staleness_threshold`, `--deduplicate_overlap`, `--use_timestamp_sync` and related args available.
+**Launch Command**: See [README.md](README.md). Example: `ros2 run cv_ros_nodes vision_combiner` (default 1.0s staleness); `--staleness_threshold`, `--deduplicate_overlap`, `--use_timestamp_sync` and related args available.
 
 **Staleness Filtering Example**:
 - Camera0: Last update 0.02s ago → **INCLUDED** (active)
@@ -555,7 +557,7 @@ All `detections[].bbox` are in the **global frame** (3×frame_width×frame_heigh
 
 ### Overview
 
-The model training pipeline converts a trained YOLO model (PyTorch/ONNX) into an optimized TensorRT engine for deployment on NVIDIA Jetson Orin.
+The model training pipeline converts a trained YOLO model (PyTorch/ONNX) into an optimized TensorRT engine for deployment (e.g. Jetson Orin; engines can also be built on the Think).
 
 ### Pipeline Stages
 
@@ -591,7 +593,7 @@ For machine-specific trtexec path, PATH, conversion commands (FP32/FP16/INT8), a
 
 **Precision Selection Guide**:
 - **FP32**: Highest accuracy, slowest (baseline)
-- **FP16**: ~2x faster, <1% accuracy loss (recommended for Jetson)
+- **FP16**: ~2x faster, <1% accuracy loss (recommended for Jetson / Think)
 - **INT8**: ~4x faster, requires calibration dataset, 1-3% accuracy loss
 
 **Optimization Parameters**:
@@ -861,7 +863,9 @@ python test_inference.py --camera 0
 
 ### Hardware Requirements
 
-**Primary Platform**: NVIDIA Jetson Orin
+**Development platform**: Think (x86). Camera USB paths in `set_camera_fps.sh` and launch defaults are for this machine; on Jetson or other hardware, use `v4l2-ctl --list-devices` and override `camera_devices` or edit the script.
+
+**Deployment target (e.g. boat)**: NVIDIA Jetson Orin
 - GPU: NVIDIA Orin (2048 CUDA cores)
 - CPU: ARM Cortex-A78AE (12 cores)
 - Memory: 32 GB LPDDR5
@@ -926,18 +930,19 @@ python test_inference.py --camera 0
 │   └── class_mapping.yaml
 ├── model_training/
 │   ├── weights.pt
-│   └── weights.onnx
+│   ├── weights.onnx
+│   └── TENSORRT.md
+├── set_camera_fps.sh
 ├── README.md
 ├── DESIGN_STRATEGY.md
-├── NODES_AND_CAMERAS.md
 ├── SIMULATIONS.md
-├── TENSORRT.md
-└── FUSION_NODE_GUIDE.md
+├── FUSION_NODE_GUIDE.md
+└── DISTANCE_ESTIMATOR_CHANGES.md
 ```
 
 ### Launch Configuration
 
-**Launch file**: `launch_cv.py` (in `src/cv_ros_nodes/cv_ros_nodes/launch/`). Starts 3 v4l2 cameras, 3 preprocessing, 3 inference, 1 combiner. Set 15 fps on devices via v4l2-ctl before launch. See [NODES_AND_CAMERAS.md](NODES_AND_CAMERAS.md) for full commands and overrides.
+**Launch file**: `launch_cv.py` (in `src/cv_ros_nodes/cv_ros_nodes/launch/`). Starts 3 v4l2 cameras, 3 preprocessing, 3 inference, 1 combiner. Set 15 fps on devices via v4l2-ctl before launch. See [README.md](README.md) for full commands and overrides.
 
 **Launch Command**:
 ```bash

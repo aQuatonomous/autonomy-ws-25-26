@@ -1,7 +1,9 @@
 #!/bin/bash
 
-# Set camera FPS using persistent USB device paths
-# This script sets all 3 cameras to 15 FPS using their persistent USB port paths
+# Set camera FPS using persistent USB device paths.
+# Sets all 3 cameras to 15 FPS. Paths below are for the Think (development machine);
+# on other hardware (e.g. Jetson) run: v4l2-ctl --list-devices
+# and edit CAMERA_DEVICES to match your /dev/v4l/by-path/... paths.
 
 echo "Setting camera FPS to 15 using persistent USB paths..."
 
