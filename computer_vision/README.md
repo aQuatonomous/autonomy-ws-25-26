@@ -78,7 +78,7 @@ Combiner subscribes to `/camera{N}/detection_info`, `/camera{N}/task4_detections
 
 ## Launch overrides and optional nodes
 
-**Overrides:** `resolution:=1920,1200`, `camera_devices:=/path1,/path2,/path3` (exactly 3), `engine_path:=/path/to/model.engine`, `conf_threshold:=0.25`, `staleness_threshold:=1.0`, `enable_task4:=true`, `enable_indicator_buoy:=true`, `enable_number_detection:=true`, `number_detection_engine:=/path/to/number_detection.engine`, `number_conf_threshold:=0.25`.
+**Overrides:** `resolution:=1920,1200`, `camera_devices:=/path1,/path2,/path3` (exactly 3), `engine_path:=/path/to/model.engine`, `conf_threshold:=0.25`, `staleness_threshold:=1.0`, `enable_task4:=true`, `enable_indicator_buoy:=true`, `enable_number_detection:=true`, `number_detection_engine:=/path/to/number_detection.engine`, `number_conf_threshold:=0.25`, `distance_scale_factor:=1.0` (one-point calibration, see below).
 
 **Optional detection sources:**
 
@@ -87,6 +87,8 @@ Combiner subscribes to `/camera{N}/detection_info`, `/camera{N}/task4_detections
 - **Number detection (Task 5):** `enable_number_detection:=true` and valid `number_detection_engine` — digits 1–3 as `digit_1` / `digit_2` / `digit_3` in combined output.
 
 Set 15 fps on devices before launch (run `./set_camera_fps.sh` or see [Camera configuration](#camera-configuration)).
+
+**One-point calibration (distance):** The pipeline multiplies all distance estimates by a **distance scale factor** so they match real measurements. Use one or more photos of a buoy (or other object) at a **known distance** and **known size** to compute that factor; then pass it at launch (e.g. `distance_scale_factor:=0.77`). See **[camera_calibration/README.md](camera_calibration/README.md)** for what the scale factor means, one-photo steps, and **multiple photos at different distances** for a more accurate average.
 
 ---
 
@@ -108,6 +110,15 @@ Or manually (Think paths; adjust on other hardware):
 for d in /dev/v4l/by-path/platform-3610000.usb-usb-0:1.2.2:1.0-video-index0 /dev/v4l/by-path/platform-3610000.usb-usb-0:1.2.3:1.0-video-index0 /dev/v4l/by-path/platform-3610000.usb-usb-0:1.2.4:1.0-video-index0; do v4l2-ctl -d "$d" --set-parm 15; done
 # Or current video numbers (may change after reboot): for d in /dev/video0 /dev/video2 /dev/video4; do v4l2-ctl -d "$d" --set-parm 15; done
 ```
+
+**Checking cameras (e.g. on laptop):** With the camera(s) plugged in, run on the host:
+
+```bash
+v4l2-ctl --list-devices
+ls -la /dev/v4l/by-path/
+```
+
+Use the by-path symlinks (or `/dev/video0`, etc.) as `camera_devices`. The launch file expects exactly three device paths; for one camera on a laptop, use that path for all three only if you need to test (some drivers allow it), or run a single camera node and one preprocessing/inference/combiner chain manually.
 
 **Troubleshooting:** Verify FPS: `v4l2-ctl -d <device> --get-parm`. List devices: `v4l2-ctl --list-devices`. List formats: `v4l2-ctl -d <device> --list-formats-ext`.
 

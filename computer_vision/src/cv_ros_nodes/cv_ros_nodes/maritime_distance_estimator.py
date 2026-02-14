@@ -35,6 +35,7 @@ from typing import Optional, Dict, List
 import numpy as np
 import rclpy
 from rclpy.node import Node
+from rclpy.parameter import ParameterType
 from std_msgs.msg import String
 
 # AR0234 Camera Specifications
@@ -58,14 +59,14 @@ K_NATIVE = np.array([
     [0, 0, 1.0],
 ], dtype=np.float64)
 
-# Reference dimensions (meters) - RoboBoat 2026 specifications
+# Reference dimensions (meters) - RoboBoat 2026 specifications / calibration test buoys
 # Based on height above waterline for consistent distance measurement
 REFERENCE_DIMENSIONS = {
-    # Small buoys (1 ft above waterline) - Polyform A-0/A-2
-    'black_buoy': 0.305,        # 1 ft above waterline
-    'green_buoy': 0.305,        # 1 ft for gate/marking buoys
-    'red_buoy': 0.305,          # 1 ft for gate/marking buoys  
-    'yellow_buoy': 0.305,       # 1 ft above waterline (Polyform A-2)
+    # Small buoys (10 in used for calibration; RoboBoat spec is 1 ft)
+    'black_buoy': 0.254,        # 10 in (calibration reference)
+    'green_buoy': 0.254,        # 10 in (calibration reference)
+    'red_buoy': 0.254,          # 10 in (calibration reference)
+    'yellow_buoy': 0.254,      # 10 in (calibration reference)
     
     # Pole buoys (39 in above waterline) - Taylor Made Sur-Mark
     'green_pole_buoy': 0.991,   # 39 in above waterline (950400)
@@ -102,6 +103,15 @@ class MaritimeDistanceEstimatorNode(Node):
     def __init__(self):
         super().__init__('maritime_distance_estimator')
         
+        # One-point calibration: scale factor from measured distance vs specs estimate.
+        # Set to measured_distance_m / distance_specs for one known reference object.
+        self.declare_parameter('distance_scale_factor', 1.0)
+        pval = self.get_parameter('distance_scale_factor').get_parameter_value()
+        if pval.type == ParameterType.PARAMETER_STRING:
+            self._distance_scale_factor = float(pval.string_value)
+        else:
+            self._distance_scale_factor = pval.double_value
+        
         # Camera intrinsics from AR0234 specifications
         self._native_fy = FY_PX
         self._native_fx = FX_PX
@@ -115,6 +125,10 @@ class MaritimeDistanceEstimatorNode(Node):
         self.get_logger().info(
             f'Maritime Distance Estimator initialized'
         )
+        if self._distance_scale_factor != 1.0:
+            self.get_logger().info(
+                f'One-point calibration: distance_scale_factor={self._distance_scale_factor}'
+            )
         self.get_logger().info(
             f'Camera specs: {SENSOR_WIDTH_PX}×{SENSOR_HEIGHT_PX}, {PIXEL_SIZE_UM}μm pixels, {FOCAL_LENGTH_MM}mm focal length'
         )
@@ -179,7 +193,9 @@ class MaritimeDistanceEstimatorNode(Node):
         
         # Distance calculation: pinhole camera model
         distance_m = (fy_eff * reference_height_m) / height_px
-        
+        # Apply one-point calibration scale (measured_distance / distance_specs)
+        distance_m = distance_m * self._distance_scale_factor
+        distance_m = max(0.01, distance_m)  # avoid non-positive
         return distance_m
 
     def _callback(self, msg: String) -> None:
@@ -241,7 +257,8 @@ class MaritimeDistanceEstimatorNode(Node):
             'native_resolution': f'{SENSOR_WIDTH_PX}×{SENSOR_HEIGHT_PX}',
             'current_resolution': f'{self._frame_width}×{self._frame_height}',
             'effective_fy_px': round(self._get_effective_fy(self._frame_width, self._frame_height), 1),
-            'num_object_references': len(REFERENCE_DIMENSIONS)
+            'num_object_references': len(REFERENCE_DIMENSIONS),
+            'distance_scale_factor': self._distance_scale_factor,
         }
 
         # Publish enhanced detections

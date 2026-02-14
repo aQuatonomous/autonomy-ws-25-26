@@ -196,6 +196,18 @@ def generate_launch_description():
         condition=IfCondition(LaunchConfiguration('enable_indicator_buoy'))
     )
 
+    distance_scale_factor_arg = DeclareLaunchArgument(
+        'distance_scale_factor',
+        default_value='1.0',
+        description='One-point calibration: scale factor = measured_distance_m / distance_specs (1.0 = no correction)'
+    )
+    maritime_distance_estimator = Node(
+        package='cv_ros_nodes',
+        executable='maritime_distance_estimator',
+        name='maritime_distance_estimator',
+        parameters=[{'distance_scale_factor': LaunchConfiguration('distance_scale_factor')}]
+    )
+
     return LaunchDescription([
         resolution_arg,
         camera_devices_arg,
@@ -207,6 +219,7 @@ def generate_launch_description():
         enable_number_detection_arg,
         number_detection_engine_arg,
         number_conf_threshold_arg,
+        distance_scale_factor_arg,
         LogInfo(msg='Starting computer vision pipeline...'),
         OpaqueFunction(function=_create_camera_nodes),
         preprocess0,
@@ -218,5 +231,6 @@ def generate_launch_description():
         combiner,
         task4_supply_processor,
         indicator_buoy_processor,
+        maritime_distance_estimator,
         LogInfo(msg='All computer vision nodes started!')
     ])
