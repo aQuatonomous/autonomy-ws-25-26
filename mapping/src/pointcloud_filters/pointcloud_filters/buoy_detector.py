@@ -33,15 +33,19 @@ class BuoyDetectorNode(Node):
         # Parameters
         self.declare_parameter('input_topic', '/points_filtered')
         self.declare_parameter('output_topic', '/buoy_detections')
-        self.declare_parameter('eps', 0.8)  # DBSCAN distance threshold (meters)
-        self.declare_parameter('min_samples', 5)  # DBSCAN minimum points per cluster
-        self.declare_parameter('min_lateral_extent', 0.2)  # Minimum buoy size (meters)
-        self.declare_parameter('max_lateral_extent', 3.0)  # Maximum buoy size (meters)
-        self.declare_parameter('min_points_final', 3)  # Minimum points after validation
+        self.declare_parameter('eps', 0.8)  # DBSCAN distance threshold (m); larger helps small/sparse buoys form one cluster
+        self.declare_parameter('min_samples', 2)  # DBSCAN minimum points per cluster
+        self.declare_parameter('min_lateral_extent', 0.01)  # Minimum buoy size (m); allow very tight 2-point clusters
+        self.declare_parameter('max_lateral_extent', 1.0)  # Maximum buoy size (meters); reject walls/extended surfaces
+        self.declare_parameter('min_points_final', 2)  # Minimum points after validation
+        self.declare_parameter('min_isolation_margin', 0.0)  # 0 = off. Non-zero rejects clusters near other points (can drop buoys near water).
+        self.declare_parameter('max_aspect_ratio', 10.0)  # Max bbox aspect ratio; small clusters (2–3 pts along beam) are elongated, so keep high
+        self.declare_parameter('max_external_points_nearby', -1)  # -1 = off. Non-zero can reject buoys near water/ground points.
+        self.declare_parameter('external_density_radius', 0.8)  # Radius (m) for counting nearby external points; use with max_external_points_nearby
         self.declare_parameter('confidence_scale', 15.0)  # Points for 100% confidence
         
         # RANSAC water plane removal parameters
-        self.declare_parameter('ransac_enabled', True)  # Enable RANSAC plane removal
+        self.declare_parameter('ransac_enabled', False)  # RANSAC plane removal (default off)
         self.declare_parameter('ransac_iterations', 80)  # Number of RANSAC iterations (lower = less latency)
         self.declare_parameter('ransac_distance_threshold', 0.15)  # Max distance to plane (meters)
         self.declare_parameter('ransac_min_inlier_ratio', 0.3)  # Minimum fraction of points in plane
@@ -53,9 +57,17 @@ class BuoyDetectorNode(Node):
         self.min_lateral_extent = self.get_parameter('min_lateral_extent').get_parameter_value().double_value
         self.max_lateral_extent = self.get_parameter('max_lateral_extent').get_parameter_value().double_value
         self.min_points_final = int(self.get_parameter('min_points_final').get_parameter_value().integer_value)
+        self.min_isolation_margin = float(self.get_parameter('min_isolation_margin').get_parameter_value().double_value)
+        self.max_aspect_ratio = float(self.get_parameter('max_aspect_ratio').get_parameter_value().double_value)
+        self.max_external_points_nearby = int(self.get_parameter('max_external_points_nearby').get_parameter_value().integer_value)
+        self.external_density_radius = float(self.get_parameter('external_density_radius').get_parameter_value().double_value)
         self.confidence_scale = self.get_parameter('confidence_scale').get_parameter_value().double_value
         
-        self.ransac_enabled = self.get_parameter('ransac_enabled').get_parameter_value().bool_value
+        _re = self.get_parameter('ransac_enabled').get_parameter_value()
+        try:
+            self.ransac_enabled = _re.bool_value
+        except Exception:
+            self.ransac_enabled = str(getattr(_re, 'string_value', 'false')).strip().lower() in ('1', 'true', 'yes')
         self.ransac_iterations = int(self.get_parameter('ransac_iterations').get_parameter_value().integer_value)
         self.ransac_distance_threshold = self.get_parameter('ransac_distance_threshold').get_parameter_value().double_value
         self.ransac_min_inlier_ratio = self.get_parameter('ransac_min_inlier_ratio').get_parameter_value().double_value
@@ -84,6 +96,7 @@ class BuoyDetectorNode(Node):
             depth=10,
         )
         self.pub = self.create_publisher(BuoyDetectionArray, self.output_topic, qos_pub)
+        self._last_zero_buoys_log_ns = 0  # throttle "0 buoys" hint
 
         self.get_logger().info(
             f'Buoy detector started: input={self.input_topic}, output={self.output_topic}, '
@@ -119,6 +132,21 @@ class BuoyDetectorNode(Node):
         self.publish_detections(buoys, msg.header)
         if len(buoys) > 0:
             self.get_logger().info(f'Detected {len(buoys)} buoy(s)')
+        elif len(points) > 0:
+            num_clusters = len(set(labels)) - (1 if -1 in labels else 0)
+            now_ns = self.get_clock().now().nanoseconds
+            if now_ns - self._last_zero_buoys_log_ns > 5_000_000_000:  # throttle ~5 s
+                self._last_zero_buoys_log_ns = now_ns
+                if num_clusters == 0:
+                    self.get_logger().warn(
+                        f'0 buoys: DBSCAN found no clusters from {len(points)} pts. '
+                        'Try larger eps or smaller min_samples.'
+                    )
+                else:
+                    self.get_logger().warn(
+                        f'0 buoys from {len(points)} pts ({num_clusters} clusters rejected). '
+                        'Run with buoy_detector_log_level:=debug to see why.'
+                    )
 
     def extract_points(self, msg: PointCloud2) -> np.ndarray:
         """
@@ -293,6 +321,8 @@ class BuoyDetectorNode(Node):
         """
         buoys = []
         unique_labels = set(labels)
+        num_clusters = len(unique_labels) - (1 if -1 in unique_labels else 0)
+        self.get_logger().debug(f'DBSCAN: {num_clusters} clusters (excluding noise), {np.sum(labels == -1)} noise pts')
 
         for label in unique_labels:
             # Skip noise points
@@ -323,18 +353,43 @@ class BuoyDetectorNode(Node):
             y_span = cluster_points[:, 1].max() - cluster_points[:, 1].min()
             lateral_extent = np.sqrt(x_span**2 + y_span**2)
 
-            # Validation filters
-            # Reject if too large (probably shore/dock)
+            # Validation filters (debug: log why a cluster is rejected)
             if lateral_extent > self.max_lateral_extent:
+                self.get_logger().debug(f'Reject cluster at {range_m:.1f}m: lateral_extent {lateral_extent:.2f} > max {self.max_lateral_extent}')
                 continue
             
-            # Reject if too small (probably noise)
             if lateral_extent < self.min_lateral_extent:
+                self.get_logger().debug(f'Reject cluster at {range_m:.1f}m: lateral_extent {lateral_extent:.2f} < min {self.min_lateral_extent}')
                 continue
             
-            # Reject if too few points (safety check)
             if len(cluster_points) < self.min_points_final:
+                self.get_logger().debug(f'Reject cluster at {range_m:.1f}m: {len(cluster_points)} pts < min_points_final {self.min_points_final}')
                 continue
+
+            # Aspect ratio: reject elongated clusters (walls); skip for very small clusters (often 2–3 pts along one beam)
+            span_min = min(x_span, y_span)
+            span_max = max(x_span, y_span)
+            if span_min > 1e-6 and len(cluster_points) > 3:
+                aspect_ratio = span_max / span_min
+                if aspect_ratio > self.max_aspect_ratio:
+                    self.get_logger().debug(f'Reject cluster at {range_m:.1f}m: aspect_ratio {aspect_ratio:.1f} > max {self.max_aspect_ratio}')
+                    continue
+
+            # Isolation and density: reject clusters that have other points very close or too many neighbors (wall)
+            other_mask = ~cluster_mask
+            other_points_xy = points[other_mask, :2]
+            if len(other_points_xy) > 0:
+                centroid_xy = np.array([[centroid_x, centroid_y]])
+                dists = np.sqrt(((other_points_xy - centroid_xy) ** 2).sum(axis=1))
+                min_dist_to_other = float(np.min(dists))
+                if self.min_isolation_margin > 0.0 and min_dist_to_other < self.min_isolation_margin:
+                    self.get_logger().debug(f'Reject cluster at {range_m:.1f}m: min_dist_to_other {min_dist_to_other:.2f} < isolation_margin {self.min_isolation_margin}')
+                    continue
+                if self.max_external_points_nearby >= 0 and self.external_density_radius > 0.0:
+                    num_nearby = int(np.sum(dists < self.external_density_radius))
+                    if num_nearby > self.max_external_points_nearby:
+                        self.get_logger().debug(f'Reject cluster at {range_m:.1f}m: {num_nearby} nearby pts > max_external {self.max_external_points_nearby}')
+                        continue
 
             # Compute confidence score (0.0 to 1.0)
             # More points = higher confidence, capped at 1.0

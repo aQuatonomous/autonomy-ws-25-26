@@ -149,8 +149,12 @@ class TrackedBuoyVisualizer(Node):
                 text_marker.pose.position.z = buoy.z_mean + self.marker_height + 0.2
                 text_marker.pose.orientation.w = 1.0
                 
-                # Text content
-                text_marker.text = f"ID{buoy.id}\n({buoy.observation_count})"
+                # Angle: 0 = +X, above X = negative, below X = positive (degrees)
+                angle_deg = -math.degrees(buoy.bearing)
+                text_marker.text = (
+                    f"ID{buoy.id}  {buoy.range:.1f}m  {angle_deg:.0f}\u00b0\n"
+                    f"({buoy.observation_count})"
+                )
                 
                 # Scale (text height)
                 text_marker.scale.z = 0.15

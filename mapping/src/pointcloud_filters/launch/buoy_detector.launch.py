@@ -25,7 +25,7 @@ def generate_launch_description() -> LaunchDescription:
                     'confidence_scale': 15.0,    # Points for 100% confidence
                     
                     # RANSAC water plane removal (for tilted LiDAR)
-                    'ransac_enabled': True,           # Enable plane removal
+                    'ransac_enabled': False,         # Water plane removal (default off)
                     'ransac_iterations': 80,         # Number of random samples (lower = less latency)
                     'ransac_distance_threshold': 0.15,  # Max distance to plane (meters)
                     'ransac_min_inlier_ratio': 0.3,   # Min fraction of points in plane

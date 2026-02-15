@@ -47,12 +47,18 @@ def generate_launch_description() -> LaunchDescription:
     )
     # Range filter (defaults: normal range ~30 m)
     range_max_arg = DeclareLaunchArgument('range_max', default_value='30.0', description='Max horizontal range (m). Use 0.5 for inside-bay.')
-    z_min_arg = DeclareLaunchArgument('z_min', default_value='0.0', description='Min height z (m).')
+    z_min_arg = DeclareLaunchArgument('z_min', default_value='-0.37', description='Min height z (m).')
     z_max_arg = DeclareLaunchArgument('z_max', default_value='10.0', description='Max height z (m). Use 0.5 for inside-bay.')
     use_tf_arg = DeclareLaunchArgument('use_tf_transform', default_value='false', description='Transform cloud to base_frame via TF.')
     # Buoy detector (optional overrides for inside-bay)
-    eps_arg = DeclareLaunchArgument('eps', default_value='0.8', description='DBSCAN eps (m). Use ~0.15 for inside-bay.')
-    min_samples_arg = DeclareLaunchArgument('min_samples', default_value='5', description='DBSCAN min_samples. Use 15 for inside-bay.')
+    eps_arg = DeclareLaunchArgument('eps', default_value='0.8', description='DBSCAN eps (m). Max distance between points in same cluster; larger = looser clusters.')
+    min_samples_arg = DeclareLaunchArgument('min_samples', default_value='2', description='DBSCAN min_samples. Min points to form a cluster; use 2–3 for small buoys.')
+    max_lateral_extent_arg = DeclareLaunchArgument('max_lateral_extent', default_value='1.0', description='Max cluster width (m); reject walls/large surfaces. Buoys ~0.3-0.8 m.')
+    min_points_final_arg = DeclareLaunchArgument('min_points_final', default_value='2', description='Min points per cluster after validation; use 2–3 so small buoys pass.')
+    min_isolation_margin_arg = DeclareLaunchArgument('min_isolation_margin', default_value='0.0', description='Min distance (m) from cluster to nearest other point; 0 = off. Non-zero can reject buoys near water/ground.')
+    max_aspect_ratio_arg = DeclareLaunchArgument('max_aspect_ratio', default_value='10.0', description='Max bbox aspect ratio; small clusters (2–3 pts) are often elongated along beam.')
+    max_external_points_nearby_arg = DeclareLaunchArgument('max_external_points_nearby', default_value='-1', description='Max other points within external_density_radius of centroid; -1 = off. Non-zero can reject buoys near water.')
+    external_density_radius_arg = DeclareLaunchArgument('external_density_radius', default_value='0.8', description='Radius (m) for counting nearby external points.')
     # Tracker (stricter = fewer false tracks)
     min_observations_arg = DeclareLaunchArgument(
         'min_observations_for_publish',
@@ -78,6 +84,11 @@ def generate_launch_description() -> LaunchDescription:
         'max_consecutive_misses',
         default_value='10',
         description='Frames a tracked buoy can be missed before it is removed.',
+    )
+    buoy_detector_log_level_arg = DeclareLaunchArgument(
+        'buoy_detector_log_level',
+        default_value='info',
+        description='Log level for buoy_detector (e.g. debug to see why clusters are rejected).',
     )
 
     # ----- Unitree LiDAR driver (optional) -----
@@ -129,16 +140,21 @@ def generate_launch_description() -> LaunchDescription:
         executable='buoy_detector',
         name='buoy_detector',
         output='screen',
+        arguments=[['--ros-args', '--log-level', LaunchConfiguration('buoy_detector_log_level')]],
         parameters=[
             {'input_topic': '/points_filtered'},
             {'output_topic': '/buoy_detections'},
             {'eps': LaunchConfiguration('eps')},
             {'min_samples': LaunchConfiguration('min_samples')},
-            {'min_lateral_extent': 0.2},
-            {'max_lateral_extent': 3.0},
-            {'min_points_final': 3},
+            {'min_lateral_extent': 0.01},
+            {'max_lateral_extent': LaunchConfiguration('max_lateral_extent')},
+            {'min_points_final': LaunchConfiguration('min_points_final')},
+            {'min_isolation_margin': LaunchConfiguration('min_isolation_margin')},
+            {'max_aspect_ratio': LaunchConfiguration('max_aspect_ratio')},
+            {'max_external_points_nearby': LaunchConfiguration('max_external_points_nearby')},
+            {'external_density_radius': LaunchConfiguration('external_density_radius')},
             {'confidence_scale': 15.0},
-            {'ransac_enabled': True},
+            {'ransac_enabled': False},
             {'ransac_iterations': 80},
             {'ransac_distance_threshold': 0.15},
             {'ransac_min_inlier_ratio': 0.3},
@@ -195,11 +211,18 @@ def generate_launch_description() -> LaunchDescription:
         use_tf_arg,
         eps_arg,
         min_samples_arg,
+        max_lateral_extent_arg,
+        min_points_final_arg,
+        min_isolation_margin_arg,
+        max_aspect_ratio_arg,
+        max_external_points_nearby_arg,
+        external_density_radius_arg,
         min_observations_arg,
         min_observations_to_add_arg,
         candidate_max_misses_arg,
         association_threshold_arg,
         max_consecutive_misses_arg,
+        buoy_detector_log_level_arg,
         lidar_driver_node,
         range_filter_node,
         buoy_detector_node,

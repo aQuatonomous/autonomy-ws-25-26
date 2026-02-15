@@ -6,89 +6,100 @@ ROS 2 perception pipeline for autonomous surface vehicle navigation using LiDAR-
 
 This repository implements a multi-stage perception system that processes LiDAR point clouds to detect and track navigation buoys. The pipeline integrates with computer vision and planning systems to provide reliable landmark detection for autonomous navigation.
 
-**Quick start:** See [QUICKSTART.md](QUICKSTART.md) to run the full pipeline (LiDAR driver, filter, detector, tracker, visualizer, RViz) in one command:  
+**Quick start:** See [QUICKSTART.md](QUICKSTART.md) to run the full pipeline (LiDAR driver, range filter, detector, tracker, visualizer, RViz) in one command:  
 `ros2 launch pointcloud_filters buoy_pipeline.launch.py`
 
 ## Core Components
 
 ### 1. LiDAR Range Filter (`lidar_range_filter`)
-Preprocesses raw LiDAR point clouds with spatial filtering and optional temporal accumulation.
 
-- **Subscribes:** `/unilidar/cloud` (sensor_msgs/PointCloud2, frame `unilidar_lidar`) with BEST_EFFORT QoS to match the Unitree driver
-- **Publishes:** `/points_filtered` (sensor_msgs/PointCloud2)
-- **Filtering:** Range-based (horizontal distance) and height-based (z-axis) clipping
-- **Transform:** Optional TF2 transformation to `base_frame` (default `base_link`)
-- **Buffering:** Time-windowed cloud storage (up to `max_buffer_duration_sec`) with service-based retrieval
-- **Accumulation:** Optional temporal merging; off by default for low latency (use only when you need denser clouds)
+Preprocesses raw LiDAR point clouds with rotations, FOV cone, height/range clipping, and optional TF and temporal accumulation.
 
-**Parameters:** `input_topic`, `output_topic`, `base_frame`, `use_tf_transform`, `z_min`, `z_max`, `range_max`, `max_buffer_duration_sec`, `keep_publisher`, `enable_accumulation` (default `False`), `accumulation_window` (default `0.2`).
+- **Subscribes:** `input_topic` (default `/unilidar/cloud`, sensor_msgs/PointCloud2, frame `unilidar_lidar`) with BEST_EFFORT QoS to match the Unitree driver.
+- **Publishes:** `output_topic` (default `/points_filtered`, sensor_msgs/PointCloud2).
+- **Processing order (per frame):**
+  1. Read points (x, y, z; intensity kept when present).
+  2. **Rotation Z** (clockwise by `rotate_cw_deg`, default 202.5°).
+  3. **Rotation Y** (counter-clockwise by `rotate_ccw_y_deg`, default 15°).
+  4. **FOV filter:** Keep only points within `fov_max_angle_from_x` (default 105°) from the +X axis (cone in front of lidar).
+  5. **Z ceiling:** Remove points with z > `z_max_cutoff` (default 1.5 m).
+  6. **Optional:** Transform to `base_frame` via TF2 if `use_tf_transform` is true.
+  7. **Range/z band:** Keep points with horizontal range ≤ `range_max`, and `z_min` ≤ z ≤ `z_max`.
 
-**Service `~/get_cloud_window`** (pointcloud_filters/srv/GetCloudWindow): request `window_sec`, `merged`; returns windowed or merged clouds from the buffer.
+- **Parameters:** `input_topic`, `output_topic`, `base_frame`, `use_tf_transform`, `z_min` (default -0.37), `z_max`, `range_max`, `max_buffer_duration_sec`, `keep_publisher`, `enable_accumulation` (default false), `accumulation_window` (default 0.2), `rotate_cw_deg`, `rotate_ccw_y_deg`, `fov_max_angle_from_x`, `z_max_cutoff`.
+
+- **Service `~/get_cloud_window`** (pointcloud_filters/srv/GetCloudWindow): request `window_sec`, `merged`; returns windowed or merged clouds from the buffer.
 
 ### 2. Buoy Detector (`buoy_detector`)
-Detects buoy candidates using **DBSCAN clustering** with a hybrid Cartesian–polar approach.
 
-- **Subscribes:** `/points_filtered`
-- **Publishes:** `/buoy_detections` (pointcloud_filters/BuoyDetectionArray); publishes every frame (including empty) so tracker and visualizers update promptly
-- **Algorithm:** Cluster in Cartesian (x, y) with Euclidean distance; convert centroids to polar (range, bearing); validate by size and point count
-- **RANSAC:** Optional water-plane removal (`ransac_enabled`, `ransac_iterations` default 80)
+Detects buoy candidates using **DBSCAN clustering** in Cartesian (x, y), then outputs polar (range, bearing) with validation.
 
-**Key parameters:** `eps` (DBSCAN distance in m; primary tuning), `min_samples`, `min_lateral_extent`, `max_lateral_extent`, `min_points_final`, `confidence_scale`, `ransac_*`.
+- **Subscribes:** `input_topic` (default `/points_filtered`).
+- **Publishes:** `output_topic` (default `/buoy_detections`, pointcloud_filters/BuoyDetectionArray). Publishes every frame (including empty) so the tracker and visualizers update promptly.
+- **Algorithm:**
+  1. Optionally remove water plane with RANSAC (`ransac_enabled`, default **false**).
+  2. Cluster in (x, y) with DBSCAN (`eps`, `min_samples`).
+  3. For each cluster: centroid → range and bearing; validate by lateral extent, point count, aspect ratio (only for clusters with >3 points), isolation, and external point count.
+  4. Output detections with range, bearing, z_mean, num_points, lateral_extent, radial_extent, confidence.
 
-**Tuning `eps`:** Start at 0.8; increase to 1.0–1.2 if buoys split; decrease to 0.6–0.7 if buoys merge; increase `min_samples` to reduce water noise.
+- **Key parameters (defaults):** `eps` 0.8 m, `min_samples` 2, `min_lateral_extent` 0.01 m, `max_lateral_extent` 1.0 m, `min_points_final` 2, `min_isolation_margin` 0 (off), `max_aspect_ratio` 10.0, `max_external_points_nearby` -1 (off), `confidence_scale` 15.0, `ransac_enabled` false, `ransac_iterations` 80, `ransac_distance_threshold` 0.15, `ransac_min_inlier_ratio` 0.3.
+
+- **Tuning:** Increase `eps` (e.g. 0.9–1.0) if small/sparse buoys don’t form one cluster; decrease if clusters merge. Use `buoy_detector_log_level:=debug` to see why clusters are rejected.
 
 ### 3. Buoy Tracker (`buoy_tracker`)
-Maintains persistent buoy identities across frames using data association and a **probation (candidate)** phase so only stable objects become tracks.
 
-- **Subscribes:** `/buoy_detections`
-- **Publishes:** `/tracked_buoys` (pointcloud_filters/TrackedBuoyArray)
-- **Probation:** Unmatched detections become "candidates"; a candidate is promoted to a tracked buoy only after it has been seen **min_observations_to_add** times in the same area (within **association_threshold**). Candidates that are not re-seen for **candidate_max_consecutive_misses** frames are dropped.
-- Nearest-neighbor association (3D distance); exponential smoothing; **min_observations_for_publish** before a track is published; removal after **max_consecutive_misses**; ready for vision fusion (color/class).
-- **Key parameters:** `association_threshold` (m), `min_observations_to_add` (stricter = fewer false buoys), `candidate_max_consecutive_misses`, `max_consecutive_misses`, `min_observations_for_publish`.
+Maintains persistent buoy identities across frames with data association and a probation (candidate) phase.
 
-## Integration Points
+- **Subscribes:** `/buoy_detections`.
+- **Publishes:** `/tracked_buoys` (pointcloud_filters/TrackedBuoyArray).
+- **Logic:** Nearest-neighbor association (distance threshold); unmatched detections become candidates; a candidate is promoted to a tracked buoy after being seen **min_observations_to_add** times in the same area; candidates dropped after **candidate_max_consecutive_misses** frames without match. Tracks are published only after **min_observations_for_publish**; removed after **max_consecutive_misses**. Supports color/confidence from vision fusion.
+- **Key parameters:** `association_threshold` (m), `min_observations_to_add`, `candidate_max_consecutive_misses`, `min_observations_for_publish`, `max_consecutive_misses`.
 
-### Computer Vision
-- **Input**: Camera-based buoy detections with bearing hypotheses
-- **Fusion**: LiDAR verifies range and validates visual detections
-- **Output**: Tracked buoys with stable IDs for color/class annotation
+### 4. Tracked Buoy Visualizer (`tracked_buoy_visualizer`)
 
-### Planning
-- **Localization**: Integrates with GPS/IMU fusion (MAVROS + `robot_localization`)
-- **Mapping**: Converts detections to global map frame via TF2
-- **Navigation**: Publishes buoy positions in both map and base_link frames
+Visualizes tracked buoys in RViz with cylinders (color-coded) and text labels.
+
+- **Subscribes:** `/tracked_buoys`.
+- **Publishes:** `/tracked_buoy_markers` (visualization_msgs/MarkerArray): cylinder markers and, when `show_text_labels` is true, text showing **ID**, **distance (m)**, and **angle (°)**. Angle convention: **0° = +X**; above the X axis = negative angle, below = positive (i.e. angle = −degrees(bearing), bearing = atan2(y, x)).
+- **Parameters:** `marker_height`, `marker_radius`, `marker_lifetime`, `show_text_labels` (default true).
 
 ## Pipeline Architecture
 
 ```
-LiDAR Driver → Range Filter → Buoy Detector → Buoy Tracker → Map Frame Projection
-                    ↓              ↓               ↓
-              /points_filtered  /buoy_detections  /tracked_buoys
+LiDAR driver (unitree_lidar_ros2)
+    → /unilidar/cloud
+    → lidar_range_filter (rotations, FOV, z ceiling, range/z band)
+    → /points_filtered
+    → buoy_detector (optional RANSAC, DBSCAN, validation)
+    → /buoy_detections
+    → buoy_tracker
+    → /tracked_buoys
+    → tracked_buoy_visualizer
+    → /tracked_buoy_markers (RViz)
 ```
 
 ## Custom Messages
 
 - **BuoyDetection:** `range`, `bearing`, `z_mean`, `num_points`, `lateral_extent`, `radial_extent`, `confidence`
-- **BuoyDetectionArray:** Array of detections from DBSCAN
+- **BuoyDetectionArray:** Array of BuoyDetection
 - **TrackedBuoy:** `id`, `range`, `bearing`, `x`, `y`, `z_mean`, `color`, `confidence`, `observation_count`, `first_seen`, `last_seen`
-- **TrackedBuoyArray:** Array of tracked buoys
+- **TrackedBuoyArray:** Array of TrackedBuoy
 
 ## Launch
 
-- **All-in-one (recommended):** `ros2 launch pointcloud_filters buoy_pipeline.launch.py` — driver, filter, detector, tracker, visualizer, RViz. See [QUICKSTART.md](QUICKSTART.md) for overrides (e.g. inside-bay, no RViz).
-- **Individual nodes:** `buoy_detector.launch.py`, or `ros2 run pointcloud_filters lidar_range_filter` / `buoy_tracker` / `tracked_buoy_visualizer` with `--ros-args -p ...`.
+- **All-in-one (recommended):** `ros2 launch pointcloud_filters buoy_pipeline.launch.py` — driver, range filter, detector, tracker, visualizer, RViz. Launch defaults: `z_min` -0.37, `z_max` 10, `range_max` 30, `eps` 0.8, `min_samples` 2, `min_lateral_extent` 0.01, `ransac_enabled` false. See [QUICKSTART.md](QUICKSTART.md) for overrides.
+- **Individual nodes:** `buoy_detector.launch.py`, or `ros2 run pointcloud_filters lidar_range_filter` / `buoy_detector` / `buoy_tracker` / `tracked_buoy_visualizer` with `--ros-args -p ...`.
 
 ## Dependencies
 
-- ROS 2 (Humble/Iron)
-- `sensor_msgs_py` (PointCloud2 utilities)
+- ROS 2 (Humble or Iron)
+- `sensor_msgs_py` (PointCloud2)
 - `scikit-learn` (DBSCAN)
-- `tf2_ros` (coordinate transformations)
+- `tf2_ros` (optional, for range filter transform)
 - Unitree LiDAR driver (`unitree_lidar_ros2`) and `rviz2` for the full pipeline launch
 
 ## Notes
 
-- Range filter subscribes with BEST_EFFORT to match the Unitree driver; detector publishes every frame (including empty); tracker and visualizers use QoS depth=1 for low latency.
-- DBSCAN in Cartesian space gives physically meaningful distance thresholds; polar output matches navigation.
-- Thread-safe buffering with automatic eviction; intensity preserved in filtered clouds when present.
-- Vendor defaults: cloud topic `/unilidar/cloud` (frame `unilidar_lidar`), IMU `/unilidar/imu` (frame `unilidar_imu`).
+- Range filter uses BEST_EFFORT to match the Unitree driver; detector publishes every frame (including empty); tracker and visualizers use RELIABLE, depth 1 for low latency.
+- DBSCAN in (x, y) gives physically meaningful distance; polar output (range, bearing) matches navigation. RViz labels show distance and angle (0° = +X, above X = negative).
+- Thread-safe buffering in range filter with automatic eviction; intensity preserved when present in the cloud.

@@ -52,7 +52,7 @@ class LidarRangeFilterNode(Node):
         self.declare_parameter('output_topic', '/points_filtered')
         self.declare_parameter('base_frame', 'base_link')
         self.declare_parameter('use_tf_transform', False)
-        self.declare_parameter('z_min', 0.0)
+        self.declare_parameter('z_min', -0.37)
         self.declare_parameter('z_max', 0.5)
         self.declare_parameter('range_max', 0.5)
         self.declare_parameter('max_buffer_duration_sec', 5.0)
@@ -65,6 +65,8 @@ class LidarRangeFilterNode(Node):
         self.declare_parameter('rotate_ccw_y_deg', 15.0)
         # Field of view limit: max angle from +X axis to keep (degrees). 105° = 210° total coverage centered on +X. 0 = no FOV filter.
         self.declare_parameter('fov_max_angle_from_x', 105.0)
+        # Z ceiling: remove every point with z above this (m). E.g. 1.5 = cut off everything above 1.5 m. Set very large (e.g. 1000) to disable.
+        self.declare_parameter('z_max_cutoff', 1.5)
 
         self.input_topic = self.get_parameter('input_topic').get_parameter_value().string_value
         self.output_topic = self.get_parameter('output_topic').get_parameter_value().string_value
@@ -80,6 +82,7 @@ class LidarRangeFilterNode(Node):
         self.rotate_cw_deg = float(self.get_parameter('rotate_cw_deg').get_parameter_value().double_value)
         self.rotate_ccw_y_deg = float(self.get_parameter('rotate_ccw_y_deg').get_parameter_value().double_value)
         self.fov_max_angle_from_x = float(self.get_parameter('fov_max_angle_from_x').get_parameter_value().double_value)
+        self.z_max_cutoff = float(self.get_parameter('z_max_cutoff').get_parameter_value().double_value)
         # Precompute rotation around Z (clockwise = negative angle around Z)
         self._rot_z_rad = math.radians(-self.rotate_cw_deg)
         self._cos_z = math.cos(self._rot_z_rad)
@@ -128,7 +131,7 @@ class LidarRangeFilterNode(Node):
             f'lidar_range_filter started: input={self.input_topic}, output={self.output_topic if self.keep_publisher else "(disabled)"}, '
             f'z=[{self.z_min},{self.z_max}] m, range_max={self.range_max} m, base_frame={self.base_frame}, '
             f'use_tf_transform={self.use_tf_transform}, rotate_cw_deg={self.rotate_cw_deg}, rotate_ccw_y_deg={self.rotate_ccw_y_deg}, '
-            f'fov_max_angle_from_x={self.fov_max_angle_from_x}°, '
+            f'fov_max_angle_from_x={self.fov_max_angle_from_x}°, z_max_cutoff={self.z_max_cutoff} m, '
             f'max_buffer_duration_sec={self.max_buffer_duration_sec}, '
             f'accumulation: {"enabled (" + str(self.accumulation_window) + "s)" if self.enable_accumulation else "disabled"}'
         )
@@ -215,33 +218,37 @@ class LidarRangeFilterNode(Node):
             angle_from_x_rad = np.arctan2(perpendicular_dist, x)
             angle_from_x_deg = np.degrees(angle_from_x_rad)
             
-            # Debug: log some sample angles
-            if len(angle_from_x_deg) > 0:
-                neg_x_count = np.sum(x < 0)
-                max_angle = np.max(angle_from_x_deg)
-                min_angle = np.min(angle_from_x_deg)
-                above_threshold = np.sum(angle_from_x_deg > self.fov_max_angle_from_x)
-                self.get_logger().info(
-                    f'FOV BEFORE: {len(x)} pts, angle [{min_angle:.1f}°-{max_angle:.1f}°], '
-                    f'neg_X: {neg_x_count}, above_{self.fov_max_angle_from_x}°: {above_threshold}'
-                )
-            
             fov_mask = angle_from_x_deg <= self.fov_max_angle_from_x
-            # Apply FOV mask
+            # Apply FOV mask (keep only points within cone in front of lidar)
             x = x[fov_mask]
             y = y[fov_mask]
             z = z[fov_mask]
             if keep_intensity:
                 intens = intens[fov_mask]
             
-            # Debug after filtering
-            if len(x) > 0:
-                neg_x_after = np.sum(x < 0)
-                angles_after = np.degrees(np.arctan2(np.sqrt(y*y + z*z), x))
-                max_angle_after = np.max(angles_after)
-                self.get_logger().info(f'FOV AFTER: {len(x)} pts, max_angle: {max_angle_after:.1f}°, neg_X: {neg_x_after}')
-            
             # If no points remain after FOV filter, publish empty cloud
+            if len(x) == 0:
+                header = msg.header
+                src_frame = msg.header.frame_id
+                if self.use_tf_transform:
+                    header.frame_id = self.base_frame if False else (src_frame or self.base_frame)
+                else:
+                    header.frame_id = src_frame or self.base_frame
+                out_msg = pc2.create_cloud_xyz32(header, [])
+                if self.pub:
+                    self.pub.publish(out_msg)
+                with self.buffer_lock:
+                    self._append_to_buffer(out_msg)
+                return
+
+        # Z ceiling: remove every point with z above z_max_cutoff (e.g. 2 m)
+        if self.z_max_cutoff < 1e6:
+            z_ceiling_mask = z <= self.z_max_cutoff
+            x = x[z_ceiling_mask]
+            y = y[z_ceiling_mask]
+            z = z[z_ceiling_mask]
+            if keep_intensity:
+                intens = intens[z_ceiling_mask]
             if len(x) == 0:
                 header = msg.header
                 src_frame = msg.header.frame_id
