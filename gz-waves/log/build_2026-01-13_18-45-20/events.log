@@ -1,0 +1,199 @@
+[0.000000] (-) TimerEvent: {}
+[0.000748] (gz-waves1) JobQueued: {'identifier': 'gz-waves1', 'dependencies': OrderedDict()}
+[0.001399] (gz-waves1) JobStarted: {'identifier': 'gz-waves1'}
+[0.023243] (gz-waves1) JobProgress: {'identifier': 'gz-waves1', 'progress': 'cmake'}
+[0.024669] (gz-waves1) Command: {'cmd': ['/usr/bin/cmake', '/home/ethan/autonomy-ws-25-26/src/asv_wave_sim/gz-waves', '-DCMAKE_BUILD_TYPE=RelWithDebInfo', '-DBUILD_TESTING=ON', '-DCMAKE_CXX_STANDARD=17', '-DCMAKE_INSTALL_PREFIX=/home/ethan/autonomy-ws-25-26/src/asv_wave_sim/gz-waves/install'], 'cwd': '/home/ethan/autonomy-ws-25-26/src/asv_wave_sim/gz-waves/build/gz-waves1', 'env': OrderedDict([('GZ_SIM_SYSTEM_PLUGIN_PATH', '/home/ethan/ardupilot_gazebo/build:/home/ethan/ardupilot_gazebo/build:'), ('LESSOPEN', '| /usr/bin/lesspipe %s'), ('TMUX', '/tmp/tmux-1004/default,23472,0'), ('GZ_SIM_RESOURCE_PATH', '/home/ethan/SITL_Models/Gazebo/worlds:/home/ethan/SITL_Models/Gazebo/models:/home/ethan/ardupilot_gazebo/models:/home/ethan/ardupilot_gazebo/worlds:/home/ethan/SITL_Models/Gazebo/worlds:/home/ethan/SITL_Models/Gazebo/models:/home/ethan/ardupilot_gazebo/models:/home/ethan/ardupilot_gazebo/worlds:'), ('LANGUAGE', 'en_CA:en'), ('USER', 'ethan'), ('XDG_SESSION_TYPE', 'x11'), ('SHLVL', '2'), ('HOME', '/home/ethan'), ('OLDPWD', '/home/ethan/autonomy-ws-25-26/src/asv_wave_sim/gz-waves/src'), ('TERM_PROGRAM_VERSION', '3.2a'), ('DESKTOP_SESSION', 'ubuntu'), ('GNOME_SHELL_SESSION_MODE', 'ubuntu'), ('GTK_MODULES', 'gail:atk-bridge'), ('SYSTEMD_EXEC_PID', '21837'), ('DBUS_SESSION_BUS_ADDRESS', 'unix:path=/run/user/1004/bus'), ('COLORTERM', 'truecolor'), ('IM_CONFIG_PHASE', '1'), ('GTK_IM_MODULE', 'ibus'), ('LOGNAME', 'ethan'), ('_', '/usr/bin/colcon'), ('XDG_SESSION_CLASS', 'user'), ('USERNAME', 'ethan'), ('TERM', 'screen'), ('GNOME_DESKTOP_SESSION_ID', 'this-is-deprecated'), ('WINDOWPATH', '3'), ('PATH', '/usr/lib/ccache:/home/ethan/ardupilot/Tools/autotest:/opt/gcc-arm-none-eabi-10-2020-q4-major/bin:/home/ethan/.local/bin:/usr/lib/ccache:/home/ethan/ardupilot/Tools/autotest:/opt/gcc-arm-none-eabi-10-2020-q4-major/bin:/home/ethan/.local/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/snap/bin:/snap/bin:/home/ethan/.local/bin:/home/ethan/.local/bin'), ('SESSION_MANAGER', 'local/aqua-desktop:@/tmp/.ICE-unix/21810,unix/aqua-desktop:/tmp/.ICE-unix/21810'), ('XDG_MENU_PREFIX', 'gnome-'), ('GNOME_TERMINAL_SCREEN', '/org/gnome/Terminal/screen/74155dac_904f_4df1_b022_6c46dfca4d3a'), ('XDG_RUNTIME_DIR', '/run/user/1004'), ('DISPLAY', ':2'), ('LANG', 'en_US.UTF-8'), ('XDG_CURRENT_DESKTOP', 'ubuntu:GNOME'), ('XMODIFIERS', '@im=ibus'), ('XDG_SESSION_DESKTOP', 'ubuntu'), ('XAUTHORITY', '/run/user/1004/gdm/Xauthority'), ('LS_COLORS', 'rs=0:di=01;34:ln=01;36:mh=00:pi=40;33:so=01;35:do=01;35:bd=40;33;01:cd=40;33;01:or=40;31;01:mi=00:su=37;41:sg=30;43:ca=30;41:tw=30;42:ow=34;42:st=37;44:ex=01;32:*.tar=01;31:*.tgz=01;31:*.arc=01;31:*.arj=01;31:*.taz=01;31:*.lha=01;31:*.lz4=01;31:*.lzh=01;31:*.lzma=01;31:*.tlz=01;31:*.txz=01;31:*.tzo=01;31:*.t7z=01;31:*.zip=01;31:*.z=01;31:*.dz=01;31:*.gz=01;31:*.lrz=01;31:*.lz=01;31:*.lzo=01;31:*.xz=01;31:*.zst=01;31:*.tzst=01;31:*.bz2=01;31:*.bz=01;31:*.tbz=01;31:*.tbz2=01;31:*.tz=01;31:*.deb=01;31:*.rpm=01;31:*.jar=01;31:*.war=01;31:*.ear=01;31:*.sar=01;31:*.rar=01;31:*.alz=01;31:*.ace=01;31:*.zoo=01;31:*.cpio=01;31:*.7z=01;31:*.rz=01;31:*.cab=01;31:*.wim=01;31:*.swm=01;31:*.dwm=01;31:*.esd=01;31:*.jpg=01;35:*.jpeg=01;35:*.mjpg=01;35:*.mjpeg=01;35:*.gif=01;35:*.bmp=01;35:*.pbm=01;35:*.pgm=01;35:*.ppm=01;35:*.tga=01;35:*.xbm=01;35:*.xpm=01;35:*.tif=01;35:*.tiff=01;35:*.png=01;35:*.svg=01;35:*.svgz=01;35:*.mng=01;35:*.pcx=01;35:*.mov=01;35:*.mpg=01;35:*.mpeg=01;35:*.m2v=01;35:*.mkv=01;35:*.webm=01;35:*.webp=01;35:*.ogm=01;35:*.mp4=01;35:*.m4v=01;35:*.mp4v=01;35:*.vob=01;35:*.qt=01;35:*.nuv=01;35:*.wmv=01;35:*.asf=01;35:*.rm=01;35:*.rmvb=01;35:*.flc=01;35:*.avi=01;35:*.fli=01;35:*.flv=01;35:*.gl=01;35:*.dl=01;35:*.xcf=01;35:*.xwd=01;35:*.yuv=01;35:*.cgm=01;35:*.emf=01;35:*.ogv=01;35:*.ogx=01;35:*.aac=00;36:*.au=00;36:*.flac=00;36:*.m4a=00;36:*.mid=00;36:*.midi=00;36:*.mka=00;36:*.mp3=00;36:*.mpc=00;36:*.ogg=00;36:*.ra=00;36:*.wav=00;36:*.oga=00;36:*.opus=00;36:*.spx=00;36:*.xspf=00;36:'), ('GNOME_TERMINAL_SERVICE', ':1.94'), ('TERM_PROGRAM', 'tmux'), ('SSH_AGENT_LAUNCHER', 'gnome-keyring'), ('SSH_AUTH_SOCK', '/run/user/1004/keyring/ssh'), ('SHELL', '/bin/bash'), ('QT_ACCESSIBILITY', '1'), ('GDMSESSION', 'ubuntu'), ('LESSCLOSE', '/usr/bin/lesspipe %s %s'), ('GPG_AGENT_INFO', '/run/user/1004/gnupg/S.gpg-agent:0:1'), ('GZ_VERSION', 'harmonic'), ('QT_IM_MODULE', 'ibus'), ('PWD', '/home/ethan/autonomy-ws-25-26/src/asv_wave_sim/gz-waves/build/gz-waves1'), ('LC_ALL', 'en_US.UTF-8'), ('XDG_CONFIG_DIRS', '/etc/xdg/xdg-ubuntu:/etc/xdg'), ('XDG_DATA_DIRS', '/usr/share/ubuntu:/usr/share/gnome:/usr/local/share/:/usr/share/:/var/lib/snapd/desktop'), ('COLCON', '1'), ('VTE_VERSION', '6800'), ('TMUX_PANE', '%3')]), 'shell': False}
+[0.098881] (-) TimerEvent: {}
+[0.146158] (gz-waves1) StdoutLine: {'line': b'-- The C compiler identification is GNU 11.4.0\n'}
+[0.199072] (-) TimerEvent: {}
+[0.272780] (gz-waves1) StdoutLine: {'line': b'-- The CXX compiler identification is GNU 11.4.0\n'}
+[0.299312] (-) TimerEvent: {}
+[0.300517] (gz-waves1) StdoutLine: {'line': b'-- Detecting C compiler ABI info\n'}
+[0.399495] (-) TimerEvent: {}
+[0.428452] (gz-waves1) StdoutLine: {'line': b'-- Detecting C compiler ABI info - done\n'}
+[0.448880] (gz-waves1) StdoutLine: {'line': b'-- Check for working C compiler: /usr/lib/ccache/cc - skipped\n'}
+[0.449576] (gz-waves1) StdoutLine: {'line': b'-- Detecting C compile features\n'}
+[0.450588] (gz-waves1) StdoutLine: {'line': b'-- Detecting C compile features - done\n'}
+[0.460725] (gz-waves1) StdoutLine: {'line': b'-- Detecting CXX compiler ABI info\n'}
+[0.499671] (-) TimerEvent: {}
+[0.595423] (gz-waves1) StdoutLine: {'line': b'-- Detecting CXX compiler ABI info - done\n'}
+[0.599777] (-) TimerEvent: {}
+[0.618030] (gz-waves1) StdoutLine: {'line': b'-- Check for working CXX compiler: /usr/lib/ccache/c++ - skipped\n'}
+[0.618986] (gz-waves1) StdoutLine: {'line': b'-- Detecting CXX compile features\n'}
+[0.620618] (gz-waves1) StdoutLine: {'line': b'-- Detecting CXX compile features - done\n'}
+[0.641664] (gz-waves1) StdoutLine: {'line': b'-- gz-waves1 version 1.0.0\n'}
+[0.642128] (gz-waves1) StdoutLine: {'line': b'-- Operating system is Linux\n'}
+[0.668446] (gz-waves1) StdoutLine: {'line': b'-- Found CPack generators: DEB\n'}
+[0.699959] (-) TimerEvent: {}
+[0.800833] (-) TimerEvent: {}
+[0.901595] (-) TimerEvent: {}
+[1.002294] (-) TimerEvent: {}
+[1.102990] (-) TimerEvent: {}
+[1.203686] (-) TimerEvent: {}
+[1.304651] (-) TimerEvent: {}
+[1.405313] (-) TimerEvent: {}
+[1.506123] (-) TimerEvent: {}
+[1.606862] (-) TimerEvent: {}
+[1.707672] (-) TimerEvent: {}
+[1.808441] (-) TimerEvent: {}
+[1.911195] (-) TimerEvent: {}
+[2.011931] (-) TimerEvent: {}
+[2.112671] (-) TimerEvent: {}
+[2.213331] (-) TimerEvent: {}
+[2.314033] (-) TimerEvent: {}
+[2.414755] (-) TimerEvent: {}
+[2.430126] (gz-waves1) StdoutLine: {'line': b'-- Found Boost: /usr/lib/aarch64-linux-gnu/cmake/Boost-1.74.0/BoostConfig.cmake (found version "1.74.0") found components: iostreams system filesystem \n'}
+[2.438241] (gz-waves1) StdoutLine: {'line': b'-- Looking for gz-math7 -- found version 7.5.1\n'}
+[2.439896] (gz-waves1) StdoutLine: {'line': b'-- Searching for dependencies of gz-math7\n'}
+[2.443796] (gz-waves1) StdoutLine: {'line': b'-- Looking for gz-utils2 -- found version 2.2.1\n'}
+[2.445815] (gz-waves1) StdoutLine: {'line': b'-- Searching for dependencies of gz-utils2\n'}
+[2.449264] (gz-waves1) StdoutLine: {'line': b'-- Searching for <gz-math7> component [eigen3]\n'}
+[2.453243] (gz-waves1) StdoutLine: {'line': b'-- Looking for gz-math7-eigen3 -- found version 7.5.1\n'}
+[2.454724] (gz-waves1) StdoutLine: {'line': b'-- Searching for dependencies of gz-math7-eigen3\n'}
+[2.473532] (gz-waves1) StdoutLine: {'line': b'-- Looking for gz-math7 - found\n'}
+[2.473927] (gz-waves1) StdoutLine: {'line': b'\n'}
+[2.477434] (gz-waves1) StdoutLine: {'line': b'-- Looking for gz-plugin2 -- found version 2.0.4\n'}
+[2.478727] (gz-waves1) StdoutLine: {'line': b'-- Searching for dependencies of gz-plugin2\n'}
+[2.479705] (gz-waves1) StdoutLine: {'line': b'-- Looking for gz-utils2 -- found version 2.2.1\n'}
+[2.480913] (gz-waves1) StdoutLine: {'line': b'-- Searching for dependencies of gz-utils2\n'}
+[2.481159] (gz-waves1) StdoutLine: {'line': b'-- Searching for <gz-utils2> component [cli]\n'}
+[2.484049] (gz-waves1) StdoutLine: {'line': b'-- Looking for gz-utils2-cli -- found version 2.2.1\n'}
+[2.485004] (gz-waves1) StdoutLine: {'line': b'-- Searching for dependencies of gz-utils2-cli\n'}
+[2.486721] (gz-waves1) StdoutLine: {'line': b'-- Searching for <gz-plugin2> component [loader]\n'}
+[2.489346] (gz-waves1) StdoutLine: {'line': b'-- Looking for gz-plugin2-loader -- found version 2.0.4\n'}
+[2.490310] (gz-waves1) StdoutLine: {'line': b'-- Searching for dependencies of gz-plugin2-loader\n'}
+[2.491478] (gz-waves1) StdoutLine: {'line': b'-- Searching for <gz-plugin2> component [register]\n'}
+[2.494093] (gz-waves1) StdoutLine: {'line': b'-- Looking for gz-plugin2-register -- found version 2.0.4\n'}
+[2.495014] (gz-waves1) StdoutLine: {'line': b'-- Searching for dependencies of gz-plugin2-register\n'}
+[2.495913] (gz-waves1) StdoutLine: {'line': b'-- Looking for gz-plugin2 - found\n'}
+[2.496075] (gz-waves1) StdoutLine: {'line': b'\n'}
+[2.499183] (gz-waves1) StdoutLine: {'line': b'-- Looking for gz-common5 -- found version 5.7.1\n'}
+[2.500033] (gz-waves1) StdoutLine: {'line': b'-- Searching for dependencies of gz-common5\n'}
+[2.500749] (gz-waves1) StdoutLine: {'line': b'-- Looking for gz-utils2 -- found version 2.2.1\n'}
+[2.501272] (gz-waves1) StdoutLine: {'line': b'-- Looking for dlfcn.h - found\n'}
+[2.514820] (-) TimerEvent: {}
+[2.516649] (gz-waves1) StdoutLine: {'line': b'-- Looking for libdl - found\n'}
+[2.519523] (gz-waves1) StdoutLine: {'line': b'-- Found DL: TRUE  \n'}
+[2.529956] (gz-waves1) StdoutLine: {'line': b"-- Checking for module 'uuid'\n"}
+[2.552280] (gz-waves1) StdoutLine: {'line': b'--   Found uuid, version 2.37.2\n'}
+[2.610796] (gz-waves1) StdoutLine: {'line': b'-- Found UUID: TRUE  \n'}
+[2.613092] (gz-waves1) StdoutLine: {'line': b'-- Searching for <gz-common5> component [graphics]\n'}
+[2.614927] (-) TimerEvent: {}
+[2.617456] (gz-waves1) StdoutLine: {'line': b'-- Looking for gz-common5-graphics -- found version 5.7.1\n'}
+[2.618998] (gz-waves1) StdoutLine: {'line': b'-- Searching for dependencies of gz-common5-graphics\n'}
+[2.620261] (gz-waves1) StdoutLine: {'line': b'-- Looking for gz-math7 -- found version 7.5.1\n'}
+[2.632134] (gz-waves1) StdoutLine: {'line': b'-- Found GzAssimp: TRUE (found version "5.2.0") \n'}
+[2.633311] (gz-waves1) StdoutLine: {'line': b'-- Searching for <gz-common5> component [events]\n'}
+[2.636621] (gz-waves1) StdoutLine: {'line': b'-- Looking for gz-common5-events -- found version 5.7.1\n'}
+[2.637841] (gz-waves1) StdoutLine: {'line': b'-- Searching for dependencies of gz-common5-events\n'}
+[2.638722] (gz-waves1) StdoutLine: {'line': b'-- Looking for gz-math7 -- found version 7.5.1\n'}
+[2.640219] (gz-waves1) StdoutLine: {'line': b'-- Looking for gz-common5 - found\n'}
+[2.640435] (gz-waves1) StdoutLine: {'line': b'\n'}
+[2.644928] (gz-waves1) StdoutLine: {'line': b'-- Looking for gz-msgs10 -- found version 10.3.2\n'}
+[2.646199] (gz-waves1) StdoutLine: {'line': b'-- Searching for dependencies of gz-msgs10\n'}
+[2.715121] (-) TimerEvent: {}
+[2.815806] (-) TimerEvent: {}
+[2.916500] (-) TimerEvent: {}
+[3.017190] (-) TimerEvent: {}
+[3.108515] (gz-waves1) StdoutLine: {'line': b'-- Found Protobuf: /usr/lib/aarch64-linux-gnu/libprotobuf.so (found version "3.12.4") \n'}
+[3.111873] (gz-waves1) StdoutLine: {'line': b'-- Looking for gz-utils2 -- found version 2.2.1\n'}
+[3.113292] (gz-waves1) StdoutLine: {'line': b'-- Looking for gz-math7 -- found version 7.5.1\n'}
+[3.117268] (-) TimerEvent: {}
+[3.126478] (gz-waves1) StdoutLine: {'line': b"-- Checking for module 'tinyxml2'\n"}
+[3.152949] (gz-waves1) StdoutLine: {'line': b'--   Found tinyxml2, version 9.0.0\n'}
+[3.217504] (-) TimerEvent: {}
+[3.318234] (-) TimerEvent: {}
+[3.418899] (-) TimerEvent: {}
+[3.519498] (-) TimerEvent: {}
+[3.620075] (-) TimerEvent: {}
+[3.720665] (-) TimerEvent: {}
+[3.821287] (-) TimerEvent: {}
+[3.922027] (-) TimerEvent: {}
+[4.022793] (-) TimerEvent: {}
+[4.088386] (gz-waves1) StdoutLine: {'line': b'-- Found Python3: /usr/bin/python3.10 (found version "3.10.12") found components: Interpreter \n'}
+[4.092864] (gz-waves1) StdoutLine: {'line': b'-- Looking for gz-msgs10 - found\n'}
+[4.093186] (gz-waves1) StdoutLine: {'line': b'\n'}
+[4.098968] (gz-waves1) StdoutLine: {'line': b'-- Looking for gz-transport13 -- found version 13.5.0\n'}
+[4.100575] (gz-waves1) StdoutLine: {'line': b'-- Searching for dependencies of gz-transport13\n'}
+[4.122931] (-) TimerEvent: {}
+[4.193273] (gz-waves1) StdoutLine: {'line': b'-- Config-file not installed for ZeroMQ -- checking for pkg-config\n'}
+[4.204255] (gz-waves1) StdoutLine: {'line': b"-- Checking for module 'libzmq >= 4'\n"}
+[4.223169] (-) TimerEvent: {}
+[4.228335] (gz-waves1) StdoutLine: {'line': b'--   Found libzmq , version 4.3.4\n'}
+[4.302709] (gz-waves1) StdoutLine: {'line': b'-- Found ZeroMQ: TRUE (Required is at least version "4") \n'}
+[4.323299] (-) TimerEvent: {}
+[4.323914] (gz-waves1) StdoutLine: {'line': b'-- Looking for gz-utils2 -- found version 2.2.1\n'}
+[4.325022] (gz-waves1) StdoutLine: {'line': b'-- Looking for gz-msgs10 -- found version 10.3.2\n'}
+[4.326486] (gz-waves1) StdoutLine: {'line': b'-- Looking for gz-transport13 - found\n'}
+[4.326742] (gz-waves1) StdoutLine: {'line': b'\n'}
+[4.331831] (gz-waves1) StdoutLine: {'line': b'-- Looking for gz-rendering8 -- found version 8.2.3\n'}
+[4.333261] (gz-waves1) StdoutLine: {'line': b'-- Searching for dependencies of gz-rendering8\n'}
+[4.334552] (gz-waves1) StdoutLine: {'line': b'-- Looking for gz-math7 -- found version 7.5.1\n'}
+[4.335819] (gz-waves1) StdoutLine: {'line': b'-- Looking for gz-common5 -- found version 5.7.1\n'}
+[4.337000] (gz-waves1) StdoutLine: {'line': b'-- Searching for dependencies of gz-common5\n'}
+[4.337926] (gz-waves1) StdoutLine: {'line': b'-- Looking for gz-utils2 -- found version 2.2.1\n'}
+[4.338349] (gz-waves1) StdoutLine: {'line': b'-- Looking for dlfcn.h - found\n'}
+[4.338621] (gz-waves1) StdoutLine: {'line': b'-- Looking for libdl - found\n'}
+[4.356843] (gz-waves1) StdoutLine: {'line': b'-- Searching for <gz-common5> component [graphics]\n'}
+[4.357971] (gz-waves1) StdoutLine: {'line': b'-- Searching for <gz-common5> component [events]\n'}
+[4.358967] (gz-waves1) StdoutLine: {'line': b'-- Searching for <gz-common5> component [geospatial]\n'}
+[4.362204] (gz-waves1) StdoutLine: {'line': b'-- Looking for gz-common5-geospatial -- found version 5.7.1\n'}
+[4.363332] (gz-waves1) StdoutLine: {'line': b'-- Searching for dependencies of gz-common5-geospatial\n'}
+[4.364065] (gz-waves1) StdoutLine: {'line': b'-- Looking for gz-math7 -- found version 7.5.1\n'}
+[4.364969] (gz-waves1) StdoutLine: {'line': b'-- Looking for gz-common5 -- found version 5.7.1\n'}
+[4.367599] (gz-waves1) StdoutLine: {'line': b'-- Looking for gz-plugin2 -- found version 2.0.4\n'}
+[4.368676] (gz-waves1) StdoutLine: {'line': b'-- Searching for dependencies of gz-plugin2\n'}
+[4.369539] (gz-waves1) StdoutLine: {'line': b'-- Looking for gz-utils2 -- found version 2.2.1\n'}
+[4.369910] (gz-waves1) StdoutLine: {'line': b'-- Searching for <gz-plugin2> component [all]\n'}
+[4.372817] (gz-waves1) StdoutLine: {'line': b'-- Looking for all libraries of gz-plugin2 -- found version 2.0.4\n'}
+[4.373986] (gz-waves1) StdoutLine: {'line': b'-- Looking for gz-plugin2 -- found version 2.0.4\n'}
+[4.377524] (gz-waves1) StdoutLine: {'line': b'-- Looking for gz-utils2 -- found version 2.2.1\n'}
+[4.387853] (gz-waves1) StdoutLine: {'line': b'-- Found OpenGL: /usr/lib/aarch64-linux-gnu/libOpenGL.so  found components: OpenGL \n'}
+[4.389305] (gz-waves1) StdoutLine: {'line': b'-- Looking for gz-rendering8 - found\n'}
+[4.389478] (gz-waves1) StdoutLine: {'line': b'\n'}
+[4.392722] (gz-waves1) StdoutLine: {'line': b'-- Looking for gz-sim8 -- found version 8.10.0\n'}
+[4.393665] (gz-waves1) StdoutLine: {'line': b'-- Searching for dependencies of gz-sim8\n'}
+[4.396457] (gz-waves1) StdoutLine: {'line': b'-- Looking for sdformat14 -- found version 14.8.0\n'}
+[4.397351] (gz-waves1) StdoutLine: {'line': b'-- Searching for dependencies of sdformat14\n'}
+[4.409040] (gz-waves1) StdoutLine: {'line': b'-- Looking for gz-math7 -- found version 7.5.1\n'}
+[4.409870] (gz-waves1) StdoutLine: {'line': b'-- Looking for gz-utils2 -- found version 2.2.1\n'}
+[4.412058] (gz-waves1) StdoutLine: {'line': b'-- Looking for gz-plugin2 -- found version 2.0.4\n'}
+[4.412918] (gz-waves1) StdoutLine: {'line': b'-- Looking for gz-transport13 -- found version 13.5.0\n'}
+[4.413859] (gz-waves1) StdoutLine: {'line': b'-- Searching for dependencies of gz-transport13\n'}
+[4.423353] (-) TimerEvent: {}
+[4.476241] (gz-waves1) StdoutLine: {'line': b'-- Config-file not installed for ZeroMQ -- checking for pkg-config\n'}
+[4.485098] (gz-waves1) StdoutLine: {'line': b"-- Checking for module 'libzmq >= 4'\n"}
+[4.505725] (gz-waves1) StdoutLine: {'line': b'--   Found libzmq , version 4.3.4\n'}
+[4.523553] (-) TimerEvent: {}
+[4.591608] (gz-waves1) StdoutLine: {'line': b'-- Looking for gz-utils2 -- found version 2.2.1\n'}
+[4.592503] (gz-waves1) StdoutLine: {'line': b'-- Looking for gz-msgs10 -- found version 10.3.2\n'}
+[4.593010] (gz-waves1) StdoutLine: {'line': b'-- Searching for <gz-transport13> component [log]\n'}
+[4.597172] (gz-waves1) StdoutLine: {'line': b'-- Looking for gz-transport13-log -- found version 13.5.0\n'}
+[4.598567] (gz-waves1) StdoutLine: {'line': b'-- Searching for dependencies of gz-transport13-log\n'}
+[4.600047] (gz-waves1) StdoutLine: {'line': b'-- Searching for <gz-transport13> component [parameters]\n'}
+[4.603712] (gz-waves1) StdoutLine: {'line': b'-- Looking for gz-transport13-parameters -- found version 13.5.0\n'}
+[4.604958] (gz-waves1) StdoutLine: {'line': b'-- Searching for dependencies of gz-transport13-parameters\n'}
+[4.607440] (gz-waves1) StdoutLine: {'line': b'-- Looking for gz-msgs10 -- found version 10.3.2\n'}
+[4.608494] (gz-waves1) StdoutLine: {'line': b'-- Looking for gz-common5 -- found version 5.7.1\n'}
+[4.609600] (gz-waves1) StdoutLine: {'line': b'-- Searching for dependencies of gz-common5\n'}
+[4.610544] (gz-waves1) StdoutLine: {'line': b'-- Looking for gz-utils2 -- found version 2.2.1\n'}
+[4.610929] (gz-waves1) StdoutLine: {'line': b'-- Looking for dlfcn.h - found\n'}
+[4.611269] (gz-waves1) StdoutLine: {'line': b'-- Looking for libdl - found\n'}
+[4.623722] (-) TimerEvent: {}
+[4.629922] (gz-waves1) StdoutLine: {'line': b'-- Searching for <gz-common5> component [av]\n'}
+[4.633241] (gz-waves1) StdoutLine: {'line': b'-- Looking for gz-common5-av -- found version 5.7.1\n'}
+[4.634580] (gz-waves1) StdoutLine: {'line': b'-- Searching for dependencies of gz-common5-av\n'}
+[4.646297] (gz-waves1) StdoutLine: {'line': b"-- Checking for module 'libswscale'\n"}
+[4.672331] (gz-waves1) StdoutLine: {'line': b'--   Found libswscale, version 5.9.100\n'}
+[4.723910] (-) TimerEvent: {}
+[4.739915] (gz-waves1) StdoutLine: {'line': b'-- Found SWSCALE: TRUE  \n'}
+[4.751689] (gz-waves1) StdoutLine: {'line': b"-- Checking for module 'libavdevice >= 56.4.100'\n"}
+[4.776953] (gz-waves1) StdoutLine: {'line': b'--   Found libavdevice , version 58.13.100\n'}
+[4.824083] (-) TimerEvent: {}
+[4.851068] (gz-waves1) StdoutLine: {'line': b'-- Found AVDEVICE: TRUE (Required is at least version "56.4.100") \n'}
+[4.865057] (gz-waves1) StdoutLine: {'line': b"-- Checking for module 'libavformat'\n"}
+[4.889776] (gz-waves1) StdoutLine: {'line': b'--   Found libavformat, version 58.76.100\n'}
+[4.924226] (-) TimerEvent: {}
+[4.930353] (gz-waves1) CommandEnded: {'returncode': -2}
+[4.932075] (gz-waves1) JobEnded: {'identifier': 'gz-waves1', 'rc': 'SIGINT'}
+[4.943249] (-) EventReactorShutdown: {}

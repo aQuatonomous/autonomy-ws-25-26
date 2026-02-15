@@ -7,15 +7,16 @@
         filename="gz-waves1-waves-model-system"
         name="gz::sim::systems::WavesModel">
       <static>0</static>
-      <update_rate>30</update_rate>
+      <!-- Jetson: lower update rate to reduce CPU -->
+      <update_rate>20</update_rate>
       <wave>
         <!-- `fft` wave parameters -->
         <algorithm>fft</algorithm>
-        <tile_size>256</tile_size>
-        <cell_count>256</cell_count>
-        <wind_speed>5.0</wind_speed>
+        <tile_size>64</tile_size>
+        <cell_count>64</cell_count>
+        <wind_speed>0.5</wind_speed>
         <wind_angle_deg>135</wind_angle_deg>
-        <steepness>2</steepness>
+        <steepness>0.2</steepness>
       </wave>
     </plugin>
 
@@ -56,11 +57,11 @@
           <wave>
             <!-- `fft` wave parameters -->
             <algorithm>fft</algorithm>
-            <tile_size>256</tile_size>
-            <cell_count>256</cell_count>
-            <wind_speed>5.0</wind_speed>
+            <tile_size>64</tile_size>
+            <cell_count>64</cell_count>
+            <wind_speed>0.5</wind_speed>
             <wind_angle_deg>135</wind_angle_deg>
-            <steepness>2</steepness>
+            <steepness>0.2</steepness>
           </wave>
 
           <!--

@@ -1,0 +1,1 @@
+cmd='/usr/bin/cmake;-DBUILD_TESTING=OFF;-DCMAKE_INSTALL_PREFIX=/home/ethan/autonomy-ws-25-26/src/asv_wave_sim/build/gz-waves1/fake/install;-GUnix Makefiles;<SOURCE_DIR><SOURCE_SUBDIR>'

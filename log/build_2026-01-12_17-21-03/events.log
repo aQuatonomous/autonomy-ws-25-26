@@ -1,0 +1,252 @@
+[0.000000] (-) TimerEvent: {}
+[0.000772] (gz-waves1) JobQueued: {'identifier': 'gz-waves1', 'dependencies': OrderedDict()}
+[0.001380] (gz-waves1) JobStarted: {'identifier': 'gz-waves1'}
+[0.023305] (gz-waves1) JobProgress: {'identifier': 'gz-waves1', 'progress': 'cmake'}
+[0.024489] (gz-waves1) Command: {'cmd': ['/usr/bin/cmake', '/home/ethan/autonomy-ws-25-26/src/asv_wave_sim/gz-waves', '-DCMAKE_BUILD_TYPE=RelWithDebInfo', '-DBUILD_TESTING=ON', '-DCMAKE_CXX_STANDARD=17', '-DCMAKE_INSTALL_PREFIX=/home/ethan/autonomy-ws-25-26/src/asv_wave_sim/install/gz-waves1'], 'cwd': '/home/ethan/autonomy-ws-25-26/src/asv_wave_sim/build/gz-waves1', 'env': OrderedDict([('GZ_SIM_SYSTEM_PLUGIN_PATH', '/home/ethan/ardupilot_gazebo/build:/home/ethan/ardupilot_gazebo/build:'), ('LESSOPEN', '| /usr/bin/lesspipe %s'), ('TMUX', '/tmp/tmux-1004/default,7106,0'), ('GZ_SIM_RESOURCE_PATH', '/home/ethan/ardupilot_gazebo/models:/home/ethan/ardupilot_gazebo/worlds:/home/ethan/ardupilot_gazebo/models:/home/ethan/ardupilot_gazebo/worlds:'), ('LANGUAGE', 'en_CA:en'), ('USER', 'ethan'), ('XDG_SESSION_TYPE', 'x11'), ('SHLVL', '2'), ('HOME', '/home/ethan'), ('OLDPWD', '/home/ethan/autonomy-ws-25-26'), ('TERM_PROGRAM_VERSION', '3.2a'), ('DESKTOP_SESSION', 'ubuntu'), ('GNOME_SHELL_SESSION_MODE', 'ubuntu'), ('GTK_MODULES', 'gail:atk-bridge'), ('SYSTEMD_EXEC_PID', '4687'), ('DBUS_SESSION_BUS_ADDRESS', 'unix:path=/run/user/1004/bus'), ('COLORTERM', 'truecolor'), ('IM_CONFIG_PHASE', '1'), ('GTK_IM_MODULE', 'ibus'), ('LOGNAME', 'ethan'), ('_', '/usr/bin/colcon'), ('XDG_SESSION_CLASS', 'user'), ('USERNAME', 'ethan'), ('TERM', 'screen'), ('GNOME_DESKTOP_SESSION_ID', 'this-is-deprecated'), ('WINDOWPATH', '3'), ('PATH', '/usr/lib/ccache:/home/ethan/ardupilot/Tools/autotest:/opt/gcc-arm-none-eabi-10-2020-q4-major/bin:/home/ethan/.local/bin:/usr/lib/ccache:/home/ethan/ardupilot/Tools/autotest:/opt/gcc-arm-none-eabi-10-2020-q4-major/bin:/home/ethan/.local/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/snap/bin:/snap/bin:/home/ethan/.local/bin:/home/ethan/.local/bin'), ('SESSION_MANAGER', 'local/aqua-desktop:@/tmp/.ICE-unix/4665,unix/aqua-desktop:/tmp/.ICE-unix/4665'), ('XDG_MENU_PREFIX', 'gnome-'), ('GNOME_TERMINAL_SCREEN', '/org/gnome/Terminal/screen/d3fcba49_faca_4f61_9d18_74297c6d0fde'), ('XDG_RUNTIME_DIR', '/run/user/1004'), ('DISPLAY', ':2'), ('LANG', 'en_US.UTF-8'), ('XDG_CURRENT_DESKTOP', 'ubuntu:GNOME'), ('XMODIFIERS', '@im=ibus'), ('XDG_SESSION_DESKTOP', 'ubuntu'), ('XAUTHORITY', '/run/user/1004/gdm/Xauthority'), ('LS_COLORS', 'rs=0:di=01;34:ln=01;36:mh=00:pi=40;33:so=01;35:do=01;35:bd=40;33;01:cd=40;33;01:or=40;31;01:mi=00:su=37;41:sg=30;43:ca=30;41:tw=30;42:ow=34;42:st=37;44:ex=01;32:*.tar=01;31:*.tgz=01;31:*.arc=01;31:*.arj=01;31:*.taz=01;31:*.lha=01;31:*.lz4=01;31:*.lzh=01;31:*.lzma=01;31:*.tlz=01;31:*.txz=01;31:*.tzo=01;31:*.t7z=01;31:*.zip=01;31:*.z=01;31:*.dz=01;31:*.gz=01;31:*.lrz=01;31:*.lz=01;31:*.lzo=01;31:*.xz=01;31:*.zst=01;31:*.tzst=01;31:*.bz2=01;31:*.bz=01;31:*.tbz=01;31:*.tbz2=01;31:*.tz=01;31:*.deb=01;31:*.rpm=01;31:*.jar=01;31:*.war=01;31:*.ear=01;31:*.sar=01;31:*.rar=01;31:*.alz=01;31:*.ace=01;31:*.zoo=01;31:*.cpio=01;31:*.7z=01;31:*.rz=01;31:*.cab=01;31:*.wim=01;31:*.swm=01;31:*.dwm=01;31:*.esd=01;31:*.jpg=01;35:*.jpeg=01;35:*.mjpg=01;35:*.mjpeg=01;35:*.gif=01;35:*.bmp=01;35:*.pbm=01;35:*.pgm=01;35:*.ppm=01;35:*.tga=01;35:*.xbm=01;35:*.xpm=01;35:*.tif=01;35:*.tiff=01;35:*.png=01;35:*.svg=01;35:*.svgz=01;35:*.mng=01;35:*.pcx=01;35:*.mov=01;35:*.mpg=01;35:*.mpeg=01;35:*.m2v=01;35:*.mkv=01;35:*.webm=01;35:*.webp=01;35:*.ogm=01;35:*.mp4=01;35:*.m4v=01;35:*.mp4v=01;35:*.vob=01;35:*.qt=01;35:*.nuv=01;35:*.wmv=01;35:*.asf=01;35:*.rm=01;35:*.rmvb=01;35:*.flc=01;35:*.avi=01;35:*.fli=01;35:*.flv=01;35:*.gl=01;35:*.dl=01;35:*.xcf=01;35:*.xwd=01;35:*.yuv=01;35:*.cgm=01;35:*.emf=01;35:*.ogv=01;35:*.ogx=01;35:*.aac=00;36:*.au=00;36:*.flac=00;36:*.m4a=00;36:*.mid=00;36:*.midi=00;36:*.mka=00;36:*.mp3=00;36:*.mpc=00;36:*.ogg=00;36:*.ra=00;36:*.wav=00;36:*.oga=00;36:*.opus=00;36:*.spx=00;36:*.xspf=00;36:'), ('GNOME_TERMINAL_SERVICE', ':1.91'), ('TERM_PROGRAM', 'tmux'), ('SSH_AGENT_LAUNCHER', 'gnome-keyring'), ('SSH_AUTH_SOCK', '/run/user/1004/keyring/ssh'), ('SHELL', '/bin/bash'), ('QT_ACCESSIBILITY', '1'), ('GDMSESSION', 'ubuntu'), ('LESSCLOSE', '/usr/bin/lesspipe %s %s'), ('GPG_AGENT_INFO', '/run/user/1004/gnupg/S.gpg-agent:0:1'), ('QT_IM_MODULE', 'ibus'), ('PWD', '/home/ethan/autonomy-ws-25-26/src/asv_wave_sim/build/gz-waves1'), ('LC_ALL', 'en_US.UTF-8'), ('XDG_CONFIG_DIRS', '/etc/xdg/xdg-ubuntu:/etc/xdg'), ('XDG_DATA_DIRS', '/usr/share/ubuntu:/usr/share/gnome:/usr/local/share/:/usr/share/:/var/lib/snapd/desktop'), ('COLCON', '1'), ('VTE_VERSION', '6800'), ('TMUX_PANE', '%0')]), 'shell': False}
+[0.099101] (-) TimerEvent: {}
+[0.200020] (-) TimerEvent: {}
+[0.301014] (-) TimerEvent: {}
+[0.401948] (-) TimerEvent: {}
+[0.502844] (-) TimerEvent: {}
+[0.603887] (-) TimerEvent: {}
+[0.705025] (-) TimerEvent: {}
+[0.707106] (gz-waves1) StdoutLine: {'line': b'-- The C compiler identification is GNU 11.4.0\n'}
+[0.805302] (-) TimerEvent: {}
+[0.906413] (-) TimerEvent: {}
+[1.007829] (-) TimerEvent: {}
+[1.109039] (-) TimerEvent: {}
+[1.167078] (gz-waves1) StdoutLine: {'line': b'-- The CXX compiler identification is GNU 11.4.0\n'}
+[1.204712] (gz-waves1) StdoutLine: {'line': b'-- Detecting C compiler ABI info\n'}
+[1.209128] (-) TimerEvent: {}
+[1.309879] (-) TimerEvent: {}
+[1.330125] (gz-waves1) StdoutLine: {'line': b'-- Detecting C compiler ABI info - done\n'}
+[1.348042] (gz-waves1) StdoutLine: {'line': b'-- Check for working C compiler: /usr/lib/ccache/cc - skipped\n'}
+[1.350907] (gz-waves1) StdoutLine: {'line': b'-- Detecting C compile features\n'}
+[1.353615] (gz-waves1) StdoutLine: {'line': b'-- Detecting C compile features - done\n'}
+[1.362048] (gz-waves1) StdoutLine: {'line': b'-- Detecting CXX compiler ABI info\n'}
+[1.410056] (-) TimerEvent: {}
+[1.492224] (gz-waves1) StdoutLine: {'line': b'-- Detecting CXX compiler ABI info - done\n'}
+[1.510155] (-) TimerEvent: {}
+[1.517458] (gz-waves1) StdoutLine: {'line': b'-- Check for working CXX compiler: /usr/lib/ccache/c++ - skipped\n'}
+[1.518520] (gz-waves1) StdoutLine: {'line': b'-- Detecting CXX compile features\n'}
+[1.520211] (gz-waves1) StdoutLine: {'line': b'-- Detecting CXX compile features - done\n'}
+[1.563743] (gz-waves1) StdoutLine: {'line': b'-- gz-waves1 version 1.0.0\n'}
+[1.564389] (gz-waves1) StdoutLine: {'line': b'-- Operating system is Linux\n'}
+[1.594531] (gz-waves1) StdoutLine: {'line': b'-- Found CPack generators: DEB\n'}
+[1.610333] (-) TimerEvent: {}
+[1.711228] (-) TimerEvent: {}
+[1.812301] (-) TimerEvent: {}
+[1.913112] (-) TimerEvent: {}
+[2.014193] (-) TimerEvent: {}
+[2.115113] (-) TimerEvent: {}
+[2.215854] (-) TimerEvent: {}
+[2.316958] (-) TimerEvent: {}
+[2.418021] (-) TimerEvent: {}
+[2.519164] (-) TimerEvent: {}
+[2.620224] (-) TimerEvent: {}
+[2.721281] (-) TimerEvent: {}
+[2.822370] (-) TimerEvent: {}
+[2.923483] (-) TimerEvent: {}
+[3.024640] (-) TimerEvent: {}
+[3.112078] (gz-waves1) StdoutLine: {'line': b'-- Found Boost: /usr/lib/aarch64-linux-gnu/cmake/Boost-1.74.0/BoostConfig.cmake (found version "1.74.0") found components: iostreams system filesystem \n'}
+[3.124736] (-) TimerEvent: {}
+[3.130058] (gz-waves1) StdoutLine: {'line': b'-- Looking for gz-math7 -- found version 7.5.1\n'}
+[3.132417] (gz-waves1) StdoutLine: {'line': b'-- Searching for dependencies of gz-math7\n'}
+[3.140028] (gz-waves1) StdoutLine: {'line': b'-- Looking for gz-utils2 -- found version 2.2.1\n'}
+[3.141605] (gz-waves1) StdoutLine: {'line': b'-- Searching for dependencies of gz-utils2\n'}
+[3.150677] (gz-waves1) StdoutLine: {'line': b'-- Searching for <gz-math7> component [eigen3]\n'}
+[3.156619] (gz-waves1) StdoutLine: {'line': b'-- Looking for gz-math7-eigen3 -- found version 7.5.1\n'}
+[3.158291] (gz-waves1) StdoutLine: {'line': b'-- Searching for dependencies of gz-math7-eigen3\n'}
+[3.180345] (gz-waves1) StdoutLine: {'line': b'-- Looking for gz-math7 - found\n'}
+[3.180877] (gz-waves1) StdoutLine: {'line': b'\n'}
+[3.189648] (gz-waves1) StdoutLine: {'line': b'-- Looking for gz-plugin2 -- found version 2.0.4\n'}
+[3.191073] (gz-waves1) StdoutLine: {'line': b'-- Searching for dependencies of gz-plugin2\n'}
+[3.192322] (gz-waves1) StdoutLine: {'line': b'-- Looking for gz-utils2 -- found version 2.2.1\n'}
+[3.193643] (gz-waves1) StdoutLine: {'line': b'-- Searching for dependencies of gz-utils2\n'}
+[3.193966] (gz-waves1) StdoutLine: {'line': b'-- Searching for <gz-utils2> component [cli]\n'}
+[3.199370] (gz-waves1) StdoutLine: {'line': b'-- Looking for gz-utils2-cli -- found version 2.2.1\n'}
+[3.201285] (gz-waves1) StdoutLine: {'line': b'-- Searching for dependencies of gz-utils2-cli\n'}
+[3.205202] (gz-waves1) StdoutLine: {'line': b'-- Searching for <gz-plugin2> component [loader]\n'}
+[3.211320] (gz-waves1) StdoutLine: {'line': b'-- Looking for gz-plugin2-loader -- found version 2.0.4\n'}
+[3.212794] (gz-waves1) StdoutLine: {'line': b'-- Searching for dependencies of gz-plugin2-loader\n'}
+[3.215171] (gz-waves1) StdoutLine: {'line': b'-- Searching for <gz-plugin2> component [register]\n'}
+[3.220136] (gz-waves1) StdoutLine: {'line': b'-- Looking for gz-plugin2-register -- found version 2.0.4\n'}
+[3.221498] (gz-waves1) StdoutLine: {'line': b'-- Searching for dependencies of gz-plugin2-register\n'}
+[3.223247] (gz-waves1) StdoutLine: {'line': b'-- Looking for gz-plugin2 - found\n'}
+[3.223512] (gz-waves1) StdoutLine: {'line': b'\n'}
+[3.224815] (-) TimerEvent: {}
+[3.234724] (gz-waves1) StdoutLine: {'line': b'-- Looking for gz-common5 -- found version 5.7.1\n'}
+[3.235448] (gz-waves1) StdoutLine: {'line': b'-- Searching for dependencies of gz-common5\n'}
+[3.236013] (gz-waves1) StdoutLine: {'line': b'-- Looking for gz-utils2 -- found version 2.2.1\n'}
+[3.237302] (gz-waves1) StdoutLine: {'line': b'-- Looking for dlfcn.h - found\n'}
+[3.252333] (gz-waves1) StdoutLine: {'line': b'-- Looking for libdl - found\n'}
+[3.256101] (gz-waves1) StdoutLine: {'line': b'-- Found DL: TRUE  \n'}
+[3.271807] (gz-waves1) StdoutLine: {'line': b"-- Checking for module 'uuid'\n"}
+[3.297270] (gz-waves1) StdoutLine: {'line': b'--   Found uuid, version 2.37.2\n'}
+[3.325107] (-) TimerEvent: {}
+[3.359434] (gz-waves1) StdoutLine: {'line': b'-- Found UUID: TRUE  \n'}
+[3.362748] (gz-waves1) StdoutLine: {'line': b'-- Searching for <gz-common5> component [graphics]\n'}
+[3.367151] (gz-waves1) StdoutLine: {'line': b'-- Looking for gz-common5-graphics -- found version 5.7.1\n'}
+[3.369018] (gz-waves1) StdoutLine: {'line': b'-- Searching for dependencies of gz-common5-graphics\n'}
+[3.370281] (gz-waves1) StdoutLine: {'line': b'-- Looking for gz-math7 -- found version 7.5.1\n'}
+[3.386359] (gz-waves1) StdoutLine: {'line': b'-- Found GzAssimp: TRUE (found version "5.2.0") \n'}
+[3.388360] (gz-waves1) StdoutLine: {'line': b'-- Searching for <gz-common5> component [events]\n'}
+[3.392551] (gz-waves1) StdoutLine: {'line': b'-- Looking for gz-common5-events -- found version 5.7.1\n'}
+[3.393691] (gz-waves1) StdoutLine: {'line': b'-- Searching for dependencies of gz-common5-events\n'}
+[3.394536] (gz-waves1) StdoutLine: {'line': b'-- Looking for gz-math7 -- found version 7.5.1\n'}
+[3.396936] (gz-waves1) StdoutLine: {'line': b'-- Looking for gz-common5 - found\n'}
+[3.397137] (gz-waves1) StdoutLine: {'line': b'\n'}
+[3.421492] (gz-waves1) StderrLine: {'line': b'\x1b[33mCMake Warning at /usr/share/cmake/gz-cmake3/cmake3/GzFindPackage.cmake:243 (find_package):\n'}
+[3.421937] (gz-waves1) StderrLine: {'line': b'  By not providing "Findgz-msgs9.cmake" in CMAKE_MODULE_PATH this project has\n'}
+[3.422139] (gz-waves1) StderrLine: {'line': b'  asked CMake to find a package configuration file provided by "gz-msgs9",\n'}
+[3.422297] (gz-waves1) StderrLine: {'line': b'  but CMake did not find one.\n'}
+[3.422442] (gz-waves1) StderrLine: {'line': b'\n'}
+[3.422579] (gz-waves1) StderrLine: {'line': b'  Could not find a package configuration file provided by "gz-msgs9" with any\n'}
+[3.422711] (gz-waves1) StderrLine: {'line': b'  of the following names:\n'}
+[3.422837] (gz-waves1) StderrLine: {'line': b'\n'}
+[3.422975] (gz-waves1) StderrLine: {'line': b'    gz-msgs9Config.cmake\n'}
+[3.423102] (gz-waves1) StderrLine: {'line': b'    gz-msgs9-config.cmake\n'}
+[3.423251] (gz-waves1) StderrLine: {'line': b'\n'}
+[3.423373] (gz-waves1) StderrLine: {'line': b'  Add the installation prefix of "gz-msgs9" to CMAKE_PREFIX_PATH or set\n'}
+[3.423499] (gz-waves1) StderrLine: {'line': b'  "gz-msgs9_DIR" to a directory containing one of the above files.  If\n'}
+[3.423640] (gz-waves1) StderrLine: {'line': b'  "gz-msgs9" provides a separate development package or SDK, be sure it has\n'}
+[3.423766] (gz-waves1) StderrLine: {'line': b'  been installed.\n'}
+[3.423888] (gz-waves1) StderrLine: {'line': b'Call Stack (most recent call first):\n'}
+[3.424008] (gz-waves1) StderrLine: {'line': b'  CMakeLists.txt:71 (gz_find_package)\n'}
+[3.424129] (gz-waves1) StderrLine: {'line': b'\n'}
+[3.424282] (gz-waves1) StdoutLine: {'line': b'-- Looking for gz-msgs9 - not found\n'}
+[3.424418] (gz-waves1) StdoutLine: {'line': b'\n'}
+[3.424542] (gz-waves1) StderrLine: {'line': b'\x1b[0m\n'}
+[3.425123] (-) TimerEvent: {}
+[3.442306] (gz-waves1) StderrLine: {'line': b'\x1b[33mCMake Warning at /usr/share/cmake/gz-cmake3/cmake3/GzFindPackage.cmake:243 (find_package):\n'}
+[3.442609] (gz-waves1) StderrLine: {'line': b'  By not providing "Findgz-transport12.cmake" in CMAKE_MODULE_PATH this\n'}
+[3.442735] (gz-waves1) StderrLine: {'line': b'  project has asked CMake to find a package configuration file provided by\n'}
+[3.442846] (gz-waves1) StderrLine: {'line': b'  "gz-transport12", but CMake did not find one.\n'}
+[3.442953] (gz-waves1) StderrLine: {'line': b'\n'}
+[3.443059] (gz-waves1) StderrLine: {'line': b'  Could not find a package configuration file provided by "gz-transport12"\n'}
+[3.443164] (gz-waves1) StderrLine: {'line': b'  with any of the following names:\n'}
+[3.443267] (gz-waves1) StderrLine: {'line': b'\n'}
+[3.443369] (gz-waves1) StderrLine: {'line': b'    gz-transport12Config.cmake\n'}
+[3.443470] (gz-waves1) StderrLine: {'line': b'    gz-transport12-config.cmake\n'}
+[3.443572] (gz-waves1) StderrLine: {'line': b'\n'}
+[3.443674] (gz-waves1) StderrLine: {'line': b'  Add the installation prefix of "gz-transport12" to CMAKE_PREFIX_PATH or set\n'}
+[3.443779] (gz-waves1) StderrLine: {'line': b'  "gz-transport12_DIR" to a directory containing one of the above files.  If\n'}
+[3.443886] (gz-waves1) StderrLine: {'line': b'  "gz-transport12" provides a separate development package or SDK, be sure it\n'}
+[3.443990] (gz-waves1) StderrLine: {'line': b'  has been installed.\n'}
+[3.444123] (gz-waves1) StderrLine: {'line': b'Call Stack (most recent call first):\n'}
+[3.444280] (gz-waves1) StderrLine: {'line': b'  CMakeLists.txt:76 (gz_find_package)\n'}
+[3.444395] (gz-waves1) StderrLine: {'line': b'\n'}
+[3.444500] (gz-waves1) StdoutLine: {'line': b'-- Looking for gz-transport12 - not found\n'}
+[3.444615] (gz-waves1) StdoutLine: {'line': b'\n'}
+[3.444720] (gz-waves1) StderrLine: {'line': b'\x1b[0m\n'}
+[3.460101] (gz-waves1) StderrLine: {'line': b'\x1b[33mCMake Warning at /usr/share/cmake/gz-cmake3/cmake3/GzFindPackage.cmake:243 (find_package):\n'}
+[3.460439] (gz-waves1) StderrLine: {'line': b'  By not providing "Findgz-rendering7.cmake" in CMAKE_MODULE_PATH this\n'}
+[3.460571] (gz-waves1) StderrLine: {'line': b'  project has asked CMake to find a package configuration file provided by\n'}
+[3.460732] (gz-waves1) StderrLine: {'line': b'  "gz-rendering7", but CMake did not find one.\n'}
+[3.460843] (gz-waves1) StderrLine: {'line': b'\n'}
+[3.460943] (gz-waves1) StderrLine: {'line': b'  Could not find a package configuration file provided by "gz-rendering7"\n'}
+[3.461042] (gz-waves1) StderrLine: {'line': b'  with any of the following names:\n'}
+[3.461140] (gz-waves1) StderrLine: {'line': b'\n'}
+[3.461234] (gz-waves1) StderrLine: {'line': b'    gz-rendering7Config.cmake\n'}
+[3.461328] (gz-waves1) StderrLine: {'line': b'    gz-rendering7-config.cmake\n'}
+[3.461421] (gz-waves1) StderrLine: {'line': b'\n'}
+[3.461515] (gz-waves1) StderrLine: {'line': b'  Add the installation prefix of "gz-rendering7" to CMAKE_PREFIX_PATH or set\n'}
+[3.461609] (gz-waves1) StderrLine: {'line': b'  "gz-rendering7_DIR" to a directory containing one of the above files.  If\n'}
+[3.461733] (gz-waves1) StderrLine: {'line': b'  "gz-rendering7" provides a separate development package or SDK, be sure it\n'}
+[3.462272] (gz-waves1) StderrLine: {'line': b'  has been installed.\n'}
+[3.462407] (gz-waves1) StderrLine: {'line': b'Call Stack (most recent call first):\n'}
+[3.462511] (gz-waves1) StderrLine: {'line': b'  CMakeLists.txt:81 (gz_find_package)\n'}
+[3.462654] (gz-waves1) StderrLine: {'line': b'\n'}
+[3.462759] (gz-waves1) StderrLine: {'line': b'\x1b[0m\n'}
+[3.462857] (gz-waves1) StdoutLine: {'line': b'-- Looking for gz-rendering7 - not found\n'}
+[3.462971] (gz-waves1) StdoutLine: {'line': b'\n'}
+[3.477311] (gz-waves1) StderrLine: {'line': b'\x1b[33mCMake Warning at /usr/share/cmake/gz-cmake3/cmake3/GzFindPackage.cmake:243 (find_package):\n'}
+[3.477535] (gz-waves1) StderrLine: {'line': b'  By not providing "Findgz-sim7.cmake" in CMAKE_MODULE_PATH this project has\n'}
+[3.477648] (gz-waves1) StderrLine: {'line': b'  asked CMake to find a package configuration file provided by "gz-sim7", but\n'}
+[3.477750] (gz-waves1) StderrLine: {'line': b'  CMake did not find one.\n'}
+[3.477847] (gz-waves1) StderrLine: {'line': b'\n'}
+[3.477943] (gz-waves1) StderrLine: {'line': b'  Could not find a package configuration file provided by "gz-sim7" with any\n'}
+[3.478040] (gz-waves1) StderrLine: {'line': b'  of the following names:\n'}
+[3.478133] (gz-waves1) StderrLine: {'line': b'\n'}
+[3.478228] (gz-waves1) StderrLine: {'line': b'    gz-sim7Config.cmake\n'}
+[3.478324] (gz-waves1) StderrLine: {'line': b'    gz-sim7-config.cmake\n'}
+[3.478416] (gz-waves1) StderrLine: {'line': b'\n'}
+[3.478510] (gz-waves1) StderrLine: {'line': b'  Add the installation prefix of "gz-sim7" to CMAKE_PREFIX_PATH or set\n'}
+[3.478604] (gz-waves1) StderrLine: {'line': b'  "gz-sim7_DIR" to a directory containing one of the above files.  If\n'}
+[3.478700] (gz-waves1) StderrLine: {'line': b'  "gz-sim7" provides a separate development package or SDK, be sure it has\n'}
+[3.478794] (gz-waves1) StderrLine: {'line': b'  been installed.\n'}
+[3.478888] (gz-waves1) StderrLine: {'line': b'Call Stack (most recent call first):\n'}
+[3.478980] (gz-waves1) StderrLine: {'line': b'  CMakeLists.txt:86 (gz_find_package)\n'}
+[3.479072] (gz-waves1) StderrLine: {'line': b'\n'}
+[3.479163] (gz-waves1) StderrLine: {'line': b'\x1b[0m\n'}
+[3.479255] (gz-waves1) StdoutLine: {'line': b'-- Looking for gz-sim7 - not found\n'}
+[3.479360] (gz-waves1) StdoutLine: {'line': b'\n'}
+[3.493942] (gz-waves1) StderrLine: {'line': b'\x1b[33mCMake Warning at /usr/share/cmake/gz-cmake3/cmake3/GzFindPackage.cmake:243 (find_package):\n'}
+[3.494187] (gz-waves1) StderrLine: {'line': b'  By not providing "Findsdformat13.cmake" in CMAKE_MODULE_PATH this project\n'}
+[3.494295] (gz-waves1) StderrLine: {'line': b'  has asked CMake to find a package configuration file provided by\n'}
+[3.494396] (gz-waves1) StderrLine: {'line': b'  "sdformat13", but CMake did not find one.\n'}
+[3.494494] (gz-waves1) StderrLine: {'line': b'\n'}
+[3.494592] (gz-waves1) StderrLine: {'line': b'  Could not find a package configuration file provided by "sdformat13" with\n'}
+[3.494687] (gz-waves1) StderrLine: {'line': b'  any of the following names:\n'}
+[3.494782] (gz-waves1) StderrLine: {'line': b'\n'}
+[3.494875] (gz-waves1) StderrLine: {'line': b'    sdformat13Config.cmake\n'}
+[3.494970] (gz-waves1) StderrLine: {'line': b'    sdformat13-config.cmake\n'}
+[3.495063] (gz-waves1) StderrLine: {'line': b'\n'}
+[3.495155] (gz-waves1) StderrLine: {'line': b'  Add the installation prefix of "sdformat13" to CMAKE_PREFIX_PATH or set\n'}
+[3.495250] (gz-waves1) StderrLine: {'line': b'  "sdformat13_DIR" to a directory containing one of the above files.  If\n'}
+[3.495368] (gz-waves1) StderrLine: {'line': b'  "sdformat13" provides a separate development package or SDK, be sure it has\n'}
+[3.495465] (gz-waves1) StderrLine: {'line': b'  been installed.\n'}
+[3.495559] (gz-waves1) StderrLine: {'line': b'Call Stack (most recent call first):\n'}
+[3.495664] (gz-waves1) StderrLine: {'line': b'  CMakeLists.txt:91 (gz_find_package)\n'}
+[3.495780] (gz-waves1) StderrLine: {'line': b'\n'}
+[3.495881] (gz-waves1) StderrLine: {'line': b'\x1b[0m\n'}
+[3.495982] (gz-waves1) StdoutLine: {'line': b'-- Looking for sdformat13 - not found\n'}
+[3.496093] (gz-waves1) StdoutLine: {'line': b'\n'}
+[3.496235] (gz-waves1) StdoutLine: {'line': b'-- Compiling against Gazebo Garden\n'}
+[3.525332] (-) TimerEvent: {}
+[3.591562] (gz-waves1) StdoutLine: {'line': b"-- Checking for module 'OGRE-RTShaderSystem >= 1.9'\n"}
+[3.618826] (gz-waves1) StdoutLine: {'line': b'--   Found OGRE-RTShaderSystem , version 1.9.0\n'}
+[3.625458] (-) TimerEvent: {}
+[3.701611] (gz-waves1) StdoutLine: {'line': b"-- Checking for module 'OGRE-Terrain >= 1.9'\n"}
+[3.725708] (-) TimerEvent: {}
+[3.728118] (gz-waves1) StdoutLine: {'line': b'--   Found OGRE-Terrain , version 1.9.0\n'}
+[3.811154] (gz-waves1) StdoutLine: {'line': b"-- Checking for module 'OGRE-Overlay >= 1.9'\n"}
+[3.825918] (-) TimerEvent: {}
+[3.836380] (gz-waves1) StdoutLine: {'line': b'--   Found OGRE-Overlay , version 1.9.0\n'}
+[3.909783] (gz-waves1) StdoutLine: {'line': b"-- Checking for module 'OGRE-Paging >= 1.9'\n"}
+[3.926107] (-) TimerEvent: {}
+[3.931941] (gz-waves1) StdoutLine: {'line': b'--   Found OGRE-Paging , version 1.9.0\n'}
+[4.001952] (gz-waves1) StdoutLine: {'line': b'-- Looking for GzOGRE - found\n'}
+[4.002799] (gz-waves1) StdoutLine: {'line': b'\n'}
+[4.019523] (gz-waves1) StdoutLine: {'line': b'-- Looking for OGRE using the name: OGRE2\n'}
+[4.026271] (-) TimerEvent: {}
+[4.127372] (-) TimerEvent: {}
+[4.156997] (gz-waves1) StdoutLine: {'line': b'--   + component HlmsPbs: found\n'}
+[4.169433] (gz-waves1) StdoutLine: {'line': b'--   + component HlmsUnlit: found\n'}
+[4.177696] (gz-waves1) StdoutLine: {'line': b'--   + component Overlay: found\n'}
+[4.185458] (gz-waves1) StdoutLine: {'line': b'--   + component PlanarReflections: found\n'}
+[4.188133] (gz-waves1) StdoutLine: {'line': b'-- Looking for GzOGRE2 - found\n'}
+[4.188405] (gz-waves1) StdoutLine: {'line': b'\n'}
+[4.211851] (gz-waves1) StderrLine: {'line': b'\x1b[31mCMake Error at CMakeLists.txt:240 (find_package):\n'}
+[4.212288] (gz-waves1) StderrLine: {'line': b'  By not providing "FindCGAL.cmake" in CMAKE_MODULE_PATH this project has\n'}
+[4.212438] (gz-waves1) StderrLine: {'line': b'  asked CMake to find a package configuration file provided by "CGAL", but\n'}
+[4.212564] (gz-waves1) StderrLine: {'line': b'  CMake did not find one.\n'}
+[4.212717] (gz-waves1) StderrLine: {'line': b'\n'}
+[4.212835] (gz-waves1) StderrLine: {'line': b'  Could not find a package configuration file provided by "CGAL" with any of\n'}
+[4.212952] (gz-waves1) StderrLine: {'line': b'  the following names:\n'}
+[4.213065] (gz-waves1) StderrLine: {'line': b'\n'}
+[4.213175] (gz-waves1) StderrLine: {'line': b'    CGALConfig.cmake\n'}
+[4.213286] (gz-waves1) StderrLine: {'line': b'    cgal-config.cmake\n'}
+[4.213395] (gz-waves1) StderrLine: {'line': b'\n'}
+[4.213504] (gz-waves1) StderrLine: {'line': b'  Add the installation prefix of "CGAL" to CMAKE_PREFIX_PATH or set\n'}
+[4.213614] (gz-waves1) StderrLine: {'line': b'  "CGAL_DIR" to a directory containing one of the above files.  If "CGAL"\n'}
+[4.213725] (gz-waves1) StderrLine: {'line': b'  provides a separate development package or SDK, be sure it has been\n'}
+[4.213839] (gz-waves1) StderrLine: {'line': b'  installed.\n'}
+[4.213949] (gz-waves1) StderrLine: {'line': b'\n'}
+[4.214056] (gz-waves1) StderrLine: {'line': b'\x1b[0m\n'}
+[4.214164] (gz-waves1) StdoutLine: {'line': b'-- Configuring incomplete, errors occurred!\n'}
+[4.214291] (gz-waves1) StdoutLine: {'line': b'See also "/home/ethan/autonomy-ws-25-26/src/asv_wave_sim/build/gz-waves1/CMakeFiles/CMakeOutput.log".\n'}
+[4.227435] (-) TimerEvent: {}
+[4.232736] (gz-waves1) CommandEnded: {'returncode': 1}
+[4.234838] (gz-waves1) JobEnded: {'identifier': 'gz-waves1', 'rc': 1}
+[4.246520] (-) EventReactorShutdown: {}

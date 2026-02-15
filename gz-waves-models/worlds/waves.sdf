@@ -91,7 +91,7 @@
     </model>
 
     <include>
-      <pose>0 0 0 0 0 3.14</pose>
+      <pose>5 5 0 0 0 3.14</pose>
       <uri>model://duck</uri>
     </include>
 
@@ -113,6 +113,11 @@
     <include>
       <pose>15 0 0 0 0 1.51</pose>
       <uri>model://barrage</uri>
+    </include>
+
+    <include>
+      <pose>0 0 0 0 0 1.51</pose>
+      <uri>model://blueboat</uri>
     </include>
 
   </world>

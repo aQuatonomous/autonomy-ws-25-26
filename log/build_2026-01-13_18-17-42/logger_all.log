@@ -1,0 +1,158 @@
+[0.226s] DEBUG:colcon:Command line arguments: ['/usr/bin/colcon', 'build', '--symlink-install', '--merge-install', '--cmake-args', '-DCMAKE_BUILD_TYPE=RelWithDebInfo', '-DBUILD_TESTING=ON', '-DCMAKE_CXX_STANDARD=17']
+[0.226s] DEBUG:colcon:Parsed command line arguments: Namespace(log_base=None, log_level=None, verb_name='build', build_base='build', install_base='install', merge_install=True, symlink_install=True, test_result_base=None, continue_on_error=False, executor='parallel', parallel_workers=6, event_handlers=None, ignore_user_meta=False, metas=['./colcon.meta'], base_paths=['.'], packages_ignore=None, packages_ignore_regex=None, paths=None, packages_up_to=None, packages_up_to_regex=None, packages_above=None, packages_above_and_dependencies=None, packages_above_depth=None, packages_select_by_dep=None, packages_skip_by_dep=None, packages_skip_up_to=None, packages_select_build_failed=False, packages_skip_build_finished=False, packages_select_test_failures=False, packages_skip_test_passed=False, packages_select=None, packages_skip=None, packages_select_regex=None, packages_skip_regex=None, packages_start=None, packages_end=None, allow_overriding=[], cmake_args=['-DCMAKE_BUILD_TYPE=RelWithDebInfo', '-DBUILD_TESTING=ON', '-DCMAKE_CXX_STANDARD=17'], cmake_target=None, cmake_target_skip_unavailable=False, cmake_clean_cache=False, cmake_clean_first=False, cmake_force_configure=False, ament_cmake_args=None, catkin_cmake_args=None, catkin_skip_building_tests=False, verb_parser=<colcon_defaults.argument_parser.defaults.DefaultArgumentsDecorator object at 0xffffb16b8b20>, verb_extension=<colcon_core.verb.build.BuildVerb object at 0xffffb187e560>, main=<bound method BuildVerb.main of <colcon_core.verb.build.BuildVerb object at 0xffffb187e560>>)
+[0.327s] Level 1:colcon.colcon_core.package_discovery:discover_packages(colcon_meta) check parameters
+[0.327s] Level 1:colcon.colcon_core.package_discovery:discover_packages(recursive) check parameters
+[0.327s] Level 1:colcon.colcon_core.package_discovery:discover_packages(ignore) check parameters
+[0.327s] Level 1:colcon.colcon_core.package_discovery:discover_packages(path) check parameters
+[0.327s] Level 1:colcon.colcon_core.package_discovery:discover_packages(colcon_meta) discover
+[0.328s] Level 1:colcon.colcon_core.package_discovery:discover_packages(recursive) discover
+[0.328s] INFO:colcon.colcon_core.package_discovery:Crawling recursively for packages in '/home/ethan/autonomy-ws-25-26/src/asv_wave_sim'
+[0.328s] Level 1:colcon.colcon_core.package_identification:_identify(.) by extensions ['ignore', 'ignore_ament_install']
+[0.328s] Level 1:colcon.colcon_core.package_identification:_identify(.) by extension 'ignore'
+[0.328s] Level 1:colcon.colcon_core.package_identification:_identify(.) by extension 'ignore_ament_install'
+[0.328s] Level 1:colcon.colcon_core.package_identification:_identify(.) by extensions ['colcon_pkg']
+[0.329s] Level 1:colcon.colcon_core.package_identification:_identify(.) by extension 'colcon_pkg'
+[0.329s] Level 1:colcon.colcon_core.package_identification:_identify(.) by extensions ['colcon_meta']
+[0.329s] Level 1:colcon.colcon_core.package_identification:_identify(.) by extension 'colcon_meta'
+[0.329s] Level 1:colcon.colcon_core.package_identification:_identify(.) by extensions ['ros']
+[0.329s] Level 1:colcon.colcon_core.package_identification:_identify(.) by extension 'ros'
+[0.365s] Level 1:colcon.colcon_core.package_identification:_identify(.) by extensions ['cmake', 'python']
+[0.366s] Level 1:colcon.colcon_core.package_identification:_identify(.) by extension 'cmake'
+[0.366s] Level 1:colcon.colcon_core.package_identification:_identify(.) by extension 'python'
+[0.366s] Level 1:colcon.colcon_core.package_identification:_identify(.) by extensions ['python_setup_py']
+[0.366s] Level 1:colcon.colcon_core.package_identification:_identify(.) by extension 'python_setup_py'
+[0.366s] Level 1:colcon.colcon_core.package_identification:_identify(build) by extensions ['ignore', 'ignore_ament_install']
+[0.367s] Level 1:colcon.colcon_core.package_identification:_identify(build) by extension 'ignore'
+[0.367s] Level 1:colcon.colcon_core.package_identification:_identify(build) ignored
+[0.368s] Level 1:colcon.colcon_core.package_identification:_identify(doc) by extensions ['ignore', 'ignore_ament_install']
+[0.368s] Level 1:colcon.colcon_core.package_identification:_identify(doc) by extension 'ignore'
+[0.368s] Level 1:colcon.colcon_core.package_identification:_identify(doc) by extension 'ignore_ament_install'
+[0.369s] Level 1:colcon.colcon_core.package_identification:_identify(doc) by extensions ['colcon_pkg']
+[0.369s] Level 1:colcon.colcon_core.package_identification:_identify(doc) by extension 'colcon_pkg'
+[0.369s] Level 1:colcon.colcon_core.package_identification:_identify(doc) by extensions ['colcon_meta']
+[0.369s] Level 1:colcon.colcon_core.package_identification:_identify(doc) by extension 'colcon_meta'
+[0.369s] Level 1:colcon.colcon_core.package_identification:_identify(doc) by extensions ['ros']
+[0.369s] Level 1:colcon.colcon_core.package_identification:_identify(doc) by extension 'ros'
+[0.369s] Level 1:colcon.colcon_core.package_identification:_identify(doc) by extensions ['cmake', 'python']
+[0.369s] Level 1:colcon.colcon_core.package_identification:_identify(doc) by extension 'cmake'
+[0.369s] Level 1:colcon.colcon_core.package_identification:_identify(doc) by extension 'python'
+[0.370s] Level 1:colcon.colcon_core.package_identification:_identify(doc) by extensions ['python_setup_py']
+[0.370s] Level 1:colcon.colcon_core.package_identification:_identify(doc) by extension 'python_setup_py'
+[0.370s] Level 1:colcon.colcon_core.package_identification:_identify(doc/uml) by extensions ['ignore', 'ignore_ament_install']
+[0.371s] Level 1:colcon.colcon_core.package_identification:_identify(doc/uml) by extension 'ignore'
+[0.371s] Level 1:colcon.colcon_core.package_identification:_identify(doc/uml) by extension 'ignore_ament_install'
+[0.371s] Level 1:colcon.colcon_core.package_identification:_identify(doc/uml) by extensions ['colcon_pkg']
+[0.371s] Level 1:colcon.colcon_core.package_identification:_identify(doc/uml) by extension 'colcon_pkg'
+[0.371s] Level 1:colcon.colcon_core.package_identification:_identify(doc/uml) by extensions ['colcon_meta']
+[0.371s] Level 1:colcon.colcon_core.package_identification:_identify(doc/uml) by extension 'colcon_meta'
+[0.371s] Level 1:colcon.colcon_core.package_identification:_identify(doc/uml) by extensions ['ros']
+[0.371s] Level 1:colcon.colcon_core.package_identification:_identify(doc/uml) by extension 'ros'
+[0.371s] Level 1:colcon.colcon_core.package_identification:_identify(doc/uml) by extensions ['cmake', 'python']
+[0.372s] Level 1:colcon.colcon_core.package_identification:_identify(doc/uml) by extension 'cmake'
+[0.372s] Level 1:colcon.colcon_core.package_identification:_identify(doc/uml) by extension 'python'
+[0.372s] Level 1:colcon.colcon_core.package_identification:_identify(doc/uml) by extensions ['python_setup_py']
+[0.372s] Level 1:colcon.colcon_core.package_identification:_identify(doc/uml) by extension 'python_setup_py'
+[0.372s] Level 1:colcon.colcon_core.package_identification:_identify(gz-waves) by extensions ['ignore', 'ignore_ament_install']
+[0.373s] Level 1:colcon.colcon_core.package_identification:_identify(gz-waves) by extension 'ignore'
+[0.373s] Level 1:colcon.colcon_core.package_identification:_identify(gz-waves) by extension 'ignore_ament_install'
+[0.373s] Level 1:colcon.colcon_core.package_identification:_identify(gz-waves) by extensions ['colcon_pkg']
+[0.373s] Level 1:colcon.colcon_core.package_identification:_identify(gz-waves) by extension 'colcon_pkg'
+[0.373s] Level 1:colcon.colcon_core.package_identification:_identify(gz-waves) by extensions ['colcon_meta']
+[0.373s] Level 1:colcon.colcon_core.package_identification:_identify(gz-waves) by extension 'colcon_meta'
+[0.373s] Level 1:colcon.colcon_core.package_identification:_identify(gz-waves) by extensions ['ros']
+[0.373s] Level 1:colcon.colcon_core.package_identification:_identify(gz-waves) by extension 'ros'
+[0.374s] Level 1:colcon.colcon_core.package_identification:_identify(gz-waves) by extensions ['cmake', 'python']
+[0.374s] Level 1:colcon.colcon_core.package_identification:_identify(gz-waves) by extension 'cmake'
+[0.403s] Level 1:colcon.colcon_core.package_identification:_identify(gz-waves) by extension 'python'
+[0.404s] DEBUG:colcon.colcon_core.package_identification:Package 'gz-waves' with type 'cmake' and name 'gz-waves1'
+[0.405s] Level 1:colcon.colcon_core.package_identification:_identify(gz-waves-models) by extensions ['ignore', 'ignore_ament_install']
+[0.405s] Level 1:colcon.colcon_core.package_identification:_identify(gz-waves-models) by extension 'ignore'
+[0.405s] Level 1:colcon.colcon_core.package_identification:_identify(gz-waves-models) ignored
+[0.406s] Level 1:colcon.colcon_core.package_identification:_identify(install) by extensions ['ignore', 'ignore_ament_install']
+[0.406s] Level 1:colcon.colcon_core.package_identification:_identify(install) by extension 'ignore'
+[0.406s] Level 1:colcon.colcon_core.package_identification:_identify(install) ignored
+[0.406s] Level 1:colcon.colcon_core.package_identification:_identify(log) by extensions ['ignore', 'ignore_ament_install']
+[0.407s] Level 1:colcon.colcon_core.package_identification:_identify(log) by extension 'ignore'
+[0.407s] Level 1:colcon.colcon_core.package_identification:_identify(log) ignored
+[0.407s] Level 1:colcon.colcon_core.package_discovery:discover_packages(recursive) using defaults
+[0.407s] Level 1:colcon.colcon_core.package_discovery:discover_packages(ignore) discover
+[0.407s] Level 1:colcon.colcon_core.package_discovery:discover_packages(ignore) using defaults
+[0.407s] Level 1:colcon.colcon_core.package_discovery:discover_packages(path) discover
+[0.407s] Level 1:colcon.colcon_core.package_discovery:discover_packages(path) using defaults
+[0.463s] Level 1:colcon.colcon_core.package_discovery:discover_packages(prefix_path) check parameters
+[0.463s] Level 1:colcon.colcon_core.package_discovery:discover_packages(prefix_path) discover
+[0.466s] Level 1:colcon.colcon_core.package_discovery:discover_packages(prefix_path) using defaults
+[0.470s] Level 5:colcon.colcon_core.verb:set package 'gz-waves1' build argument 'cmake_args' from command line to '['-DCMAKE_BUILD_TYPE=RelWithDebInfo', '-DBUILD_TESTING=ON', '-DCMAKE_CXX_STANDARD=17']'
+[0.470s] Level 5:colcon.colcon_core.verb:set package 'gz-waves1' build argument 'cmake_target' from command line to 'None'
+[0.470s] Level 5:colcon.colcon_core.verb:set package 'gz-waves1' build argument 'cmake_target_skip_unavailable' from command line to 'False'
+[0.471s] Level 5:colcon.colcon_core.verb:set package 'gz-waves1' build argument 'cmake_clean_cache' from command line to 'False'
+[0.471s] Level 5:colcon.colcon_core.verb:set package 'gz-waves1' build argument 'cmake_clean_first' from command line to 'False'
+[0.471s] Level 5:colcon.colcon_core.verb:set package 'gz-waves1' build argument 'cmake_force_configure' from command line to 'False'
+[0.471s] Level 5:colcon.colcon_core.verb:set package 'gz-waves1' build argument 'ament_cmake_args' from command line to 'None'
+[0.471s] Level 5:colcon.colcon_core.verb:set package 'gz-waves1' build argument 'catkin_cmake_args' from command line to 'None'
+[0.471s] Level 5:colcon.colcon_core.verb:set package 'gz-waves1' build argument 'catkin_skip_building_tests' from command line to 'False'
+[0.471s] DEBUG:colcon.colcon_core.verb:Building package 'gz-waves1' with the following arguments: {'ament_cmake_args': None, 'build_base': '/home/ethan/autonomy-ws-25-26/src/asv_wave_sim/build/gz-waves1', 'catkin_cmake_args': None, 'catkin_skip_building_tests': False, 'cmake_args': ['-DCMAKE_BUILD_TYPE=RelWithDebInfo', '-DBUILD_TESTING=ON', '-DCMAKE_CXX_STANDARD=17'], 'cmake_clean_cache': False, 'cmake_clean_first': False, 'cmake_force_configure': False, 'cmake_target': None, 'cmake_target_skip_unavailable': False, 'install_base': '/home/ethan/autonomy-ws-25-26/src/asv_wave_sim/install', 'merge_install': True, 'path': '/home/ethan/autonomy-ws-25-26/src/asv_wave_sim/gz-waves', 'symlink_install': True, 'test_result_base': None}
+[0.471s] INFO:colcon.colcon_core.executor:Executing jobs using 'parallel' executor
+[0.474s] DEBUG:colcon.colcon_parallel_executor.executor.parallel:run_until_complete
+[0.475s] INFO:colcon.colcon_cmake.task.cmake.build:Building CMake package in '/home/ethan/autonomy-ws-25-26/src/asv_wave_sim/gz-waves'
+[0.483s] INFO:colcon.colcon_core.plugin_system:Skipping extension 'colcon_core.shell.bat': Not used on non-Windows systems
+[0.483s] INFO:colcon.colcon_core.shell:Skip shell extension 'powershell' for command environment: Not usable outside of PowerShell
+[0.483s] DEBUG:colcon.colcon_core.shell:Skip shell extension 'dsv' for command environment
+[0.507s] DEBUG:colcon.colcon_core.event_handler.log_command:Invoking command in '/home/ethan/autonomy-ws-25-26/src/asv_wave_sim/build/gz-waves1': /usr/bin/cmake /home/ethan/autonomy-ws-25-26/src/asv_wave_sim/gz-waves -DCMAKE_BUILD_TYPE=RelWithDebInfo -DBUILD_TESTING=ON -DCMAKE_CXX_STANDARD=17 -DCMAKE_INSTALL_PREFIX=/home/ethan/autonomy-ws-25-26/src/asv_wave_sim/install
+[10.640s] DEBUG:colcon.colcon_core.event_handler.log_command:Invoked command in '/home/ethan/autonomy-ws-25-26/src/asv_wave_sim/build/gz-waves1' returned '0': /usr/bin/cmake /home/ethan/autonomy-ws-25-26/src/asv_wave_sim/gz-waves -DCMAKE_BUILD_TYPE=RelWithDebInfo -DBUILD_TESTING=ON -DCMAKE_CXX_STANDARD=17 -DCMAKE_INSTALL_PREFIX=/home/ethan/autonomy-ws-25-26/src/asv_wave_sim/install
+[10.647s] DEBUG:colcon.colcon_core.event_handler.log_command:Invoking command in '/home/ethan/autonomy-ws-25-26/src/asv_wave_sim/build/gz-waves1': /usr/bin/cmake --build /home/ethan/autonomy-ws-25-26/src/asv_wave_sim/build/gz-waves1 -- -j6 -l6
+[392.340s] DEBUG:colcon.colcon_core.event_handler.log_command:Invoked command in '/home/ethan/autonomy-ws-25-26/src/asv_wave_sim/build/gz-waves1' returned '0': /usr/bin/cmake --build /home/ethan/autonomy-ws-25-26/src/asv_wave_sim/build/gz-waves1 -- -j6 -l6
+[392.398s] DEBUG:colcon.colcon_core.event_handler.log_command:Invoking command in '/home/ethan/autonomy-ws-25-26/src/asv_wave_sim/build/gz-waves1': /usr/bin/cmake --install /home/ethan/autonomy-ws-25-26/src/asv_wave_sim/build/gz-waves1
+[393.136s] Level 1:colcon.colcon_core.environment:create_environment_scripts_only(gz-waves1)
+[393.141s] DEBUG:colcon.colcon_core.event_handler.log_command:Invoked command in '/home/ethan/autonomy-ws-25-26/src/asv_wave_sim/build/gz-waves1' returned '0': /usr/bin/cmake --install /home/ethan/autonomy-ws-25-26/src/asv_wave_sim/build/gz-waves1
+[393.178s] Level 1:colcon.colcon_core.environment:checking '/home/ethan/autonomy-ws-25-26/src/asv_wave_sim/install' for CMake module files
+[393.182s] Level 1:colcon.colcon_core.environment:checking '/home/ethan/autonomy-ws-25-26/src/asv_wave_sim/install' for CMake config files
+[393.184s] Level 1:colcon.colcon_core.shell:create_environment_hook('gz-waves1', 'cmake_prefix_path')
+[393.185s] INFO:colcon.colcon_core.shell:Creating environment hook '/home/ethan/autonomy-ws-25-26/src/asv_wave_sim/install/share/gz-waves1/hook/cmake_prefix_path.ps1'
+[393.196s] INFO:colcon.colcon_core.shell:Creating environment descriptor '/home/ethan/autonomy-ws-25-26/src/asv_wave_sim/install/share/gz-waves1/hook/cmake_prefix_path.dsv'
+[393.209s] INFO:colcon.colcon_core.shell:Creating environment hook '/home/ethan/autonomy-ws-25-26/src/asv_wave_sim/install/share/gz-waves1/hook/cmake_prefix_path.sh'
+[393.213s] Level 1:colcon.colcon_core.environment:checking '/home/ethan/autonomy-ws-25-26/src/asv_wave_sim/install/lib'
+[393.213s] Level 1:colcon.colcon_core.shell:create_environment_hook('gz-waves1', 'ld_library_path_lib')
+[393.214s] INFO:colcon.colcon_core.shell:Creating environment hook '/home/ethan/autonomy-ws-25-26/src/asv_wave_sim/install/share/gz-waves1/hook/ld_library_path_lib.ps1'
+[393.216s] INFO:colcon.colcon_core.shell:Creating environment descriptor '/home/ethan/autonomy-ws-25-26/src/asv_wave_sim/install/share/gz-waves1/hook/ld_library_path_lib.dsv'
+[393.217s] INFO:colcon.colcon_core.shell:Creating environment hook '/home/ethan/autonomy-ws-25-26/src/asv_wave_sim/install/share/gz-waves1/hook/ld_library_path_lib.sh'
+[393.218s] Level 1:colcon.colcon_core.environment:checking '/home/ethan/autonomy-ws-25-26/src/asv_wave_sim/install/bin'
+[393.218s] Level 1:colcon.colcon_core.shell:create_environment_hook('gz-waves1', 'path')
+[393.219s] INFO:colcon.colcon_core.shell:Creating environment hook '/home/ethan/autonomy-ws-25-26/src/asv_wave_sim/install/share/gz-waves1/hook/path.ps1'
+[393.220s] INFO:colcon.colcon_core.shell:Creating environment descriptor '/home/ethan/autonomy-ws-25-26/src/asv_wave_sim/install/share/gz-waves1/hook/path.dsv'
+[393.222s] INFO:colcon.colcon_core.shell:Creating environment hook '/home/ethan/autonomy-ws-25-26/src/asv_wave_sim/install/share/gz-waves1/hook/path.sh'
+[393.223s] Level 1:colcon.colcon_core.environment:checking '/home/ethan/autonomy-ws-25-26/src/asv_wave_sim/install/lib/pkgconfig/gz-waves1.pc'
+[393.223s] Level 1:colcon.colcon_core.shell:create_environment_hook('gz-waves1', 'pkg_config')
+[393.224s] INFO:colcon.colcon_core.shell:Creating environment hook '/home/ethan/autonomy-ws-25-26/src/asv_wave_sim/install/share/gz-waves1/hook/pkg_config.ps1'
+[393.225s] INFO:colcon.colcon_core.shell:Creating environment descriptor '/home/ethan/autonomy-ws-25-26/src/asv_wave_sim/install/share/gz-waves1/hook/pkg_config.dsv'
+[393.226s] INFO:colcon.colcon_core.shell:Creating environment hook '/home/ethan/autonomy-ws-25-26/src/asv_wave_sim/install/share/gz-waves1/hook/pkg_config.sh'
+[393.241s] Level 1:colcon.colcon_core.environment:checking '/home/ethan/autonomy-ws-25-26/src/asv_wave_sim/install/lib/python3.10/site-packages'
+[393.242s] Level 1:colcon.colcon_core.environment:checking '/home/ethan/autonomy-ws-25-26/src/asv_wave_sim/install/bin'
+[393.242s] Level 1:colcon.colcon_core.shell:create_environment_hook('gz-waves1', 'pythonscriptspath')
+[393.243s] INFO:colcon.colcon_core.shell:Creating environment hook '/home/ethan/autonomy-ws-25-26/src/asv_wave_sim/install/share/gz-waves1/hook/pythonscriptspath.ps1'
+[393.244s] INFO:colcon.colcon_core.shell:Creating environment descriptor '/home/ethan/autonomy-ws-25-26/src/asv_wave_sim/install/share/gz-waves1/hook/pythonscriptspath.dsv'
+[393.245s] INFO:colcon.colcon_core.shell:Creating environment hook '/home/ethan/autonomy-ws-25-26/src/asv_wave_sim/install/share/gz-waves1/hook/pythonscriptspath.sh'
+[393.247s] INFO:colcon.colcon_core.shell:Creating package script '/home/ethan/autonomy-ws-25-26/src/asv_wave_sim/install/share/gz-waves1/package.ps1'
+[393.252s] INFO:colcon.colcon_core.shell:Creating package descriptor '/home/ethan/autonomy-ws-25-26/src/asv_wave_sim/install/share/gz-waves1/package.dsv'
+[393.255s] INFO:colcon.colcon_core.shell:Creating package script '/home/ethan/autonomy-ws-25-26/src/asv_wave_sim/install/share/gz-waves1/package.sh'
+[393.259s] INFO:colcon.colcon_core.shell:Creating package script '/home/ethan/autonomy-ws-25-26/src/asv_wave_sim/install/share/gz-waves1/package.bash'
+[393.263s] INFO:colcon.colcon_core.shell:Creating package script '/home/ethan/autonomy-ws-25-26/src/asv_wave_sim/install/share/gz-waves1/package.zsh'
+[393.268s] Level 1:colcon.colcon_core.environment:create_file_with_runtime_dependencies(/home/ethan/autonomy-ws-25-26/src/asv_wave_sim/install/share/colcon-core/packages/gz-waves1)
+[393.270s] DEBUG:colcon.colcon_parallel_executor.executor.parallel:closing loop
+[393.275s] DEBUG:colcon.colcon_parallel_executor.executor.parallel:loop closed
+[393.277s] DEBUG:colcon.colcon_parallel_executor.executor.parallel:run_until_complete finished with '0'
+[393.277s] DEBUG:colcon.colcon_core.event_reactor:joining thread
+[393.420s] INFO:colcon.colcon_core.plugin_system:Skipping extension 'colcon_notification.desktop_notification.terminal_notifier': Not used on non-Darwin systems
+[393.420s] INFO:colcon.colcon_core.plugin_system:Skipping extension 'colcon_notification.desktop_notification.win32': Not used on non-Windows systems
+[393.421s] INFO:colcon.colcon_notification.desktop_notification:Sending desktop notification using 'notify2'
+[393.887s] DEBUG:colcon.colcon_core.event_reactor:joined thread
+[393.888s] INFO:colcon.colcon_core.shell:Creating prefix script '/home/ethan/autonomy-ws-25-26/src/asv_wave_sim/install/local_setup.ps1'
+[393.896s] INFO:colcon.colcon_core.shell:Creating prefix util module '/home/ethan/autonomy-ws-25-26/src/asv_wave_sim/install/_local_setup_util_ps1.py'
+[393.911s] INFO:colcon.colcon_core.shell:Creating prefix chain script '/home/ethan/autonomy-ws-25-26/src/asv_wave_sim/install/setup.ps1'
+[393.946s] INFO:colcon.colcon_core.shell:Creating prefix script '/home/ethan/autonomy-ws-25-26/src/asv_wave_sim/install/local_setup.sh'
+[393.992s] INFO:colcon.colcon_core.shell:Creating prefix util module '/home/ethan/autonomy-ws-25-26/src/asv_wave_sim/install/_local_setup_util_sh.py'
+[393.994s] INFO:colcon.colcon_core.shell:Creating prefix chain script '/home/ethan/autonomy-ws-25-26/src/asv_wave_sim/install/setup.sh'
+[394.008s] INFO:colcon.colcon_core.shell:Creating prefix script '/home/ethan/autonomy-ws-25-26/src/asv_wave_sim/install/local_setup.bash'
+[394.023s] INFO:colcon.colcon_core.shell:Creating prefix chain script '/home/ethan/autonomy-ws-25-26/src/asv_wave_sim/install/setup.bash'
+[394.047s] INFO:colcon.colcon_core.shell:Creating prefix script '/home/ethan/autonomy-ws-25-26/src/asv_wave_sim/install/local_setup.zsh'
+[394.062s] INFO:colcon.colcon_core.shell:Creating prefix chain script '/home/ethan/autonomy-ws-25-26/src/asv_wave_sim/install/setup.zsh'
