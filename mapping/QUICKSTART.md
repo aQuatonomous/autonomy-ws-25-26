@@ -9,12 +9,19 @@ Short guide to run the LiDAR stack and check that you get correct output.
   Raw LiDAR is published on `/unilidar/cloud` (frame: `unilidar_lidar`).
 - From this repo: build the `mapping` workspace so `pointcloud_filters` is installed.
 
+### Build (from the mapping folder)
+
 ```bash
-# From your ROS 2 workspace that contains both unitree_lidar_ros2 and pointcloud_filters
-cd /path/to/your/ros2_ws
-colcon build --packages-select pointcloud_filters
+cd /home/lorenzo/autonomy-ws-25-26/mapping
+source /opt/ros/humble/setup.bash   # or iron
+colcon build --packages-select unitree_lidar_ros2 pointcloud_filters --symlink-install
 source install/setup.bash
 ```
+
+**Note (lidar on Windows, dev in WSL2):** If the LiDAR is plugged into your Windows laptop and you run ROS 2 in WSL2, the USB device is not visible in WSL2 by default. Either:
+- **Option A:** Attach the LiDAR to WSL2 using [usbipd-win](https://github.com/dorssel/usbipd-win) (on Windows: `usbipd list`, then `usbipd bind -b <BUSID>` and in WSL2: `usbipd attach -w -b <BUSID>`), then run the full pipeline in WSL2; or  
+- **Option B:** Run the pipeline with the driver disabled and no point cloud until the device is available in WSL2:  
+  `ros2 launch pointcloud_filters buoy_pipeline.launch.py launch_lidar_driver:=false`
 
 ---
 
@@ -22,10 +29,11 @@ source install/setup.bash
 
 ### Option 1: One-command launch (recommended)
 
-Starts LiDAR driver, range filter, buoy detector, tracker, visualizer, and RViz in one go. **Single terminal**, workspace sourced:
+Starts LiDAR driver, range filter, buoy detector, tracker, visualizer, and RViz in one go. **Single terminal**, from the mapping workspace:
 
 ```bash
-source /path/to/your/ros2_ws/install/setup.bash
+cd /home/lorenzo/autonomy-ws-25-26/mapping
+source install/setup.bash
 ros2 launch pointcloud_filters buoy_pipeline.launch.py
 ```
 

@@ -22,6 +22,7 @@
   <!-- Python dependencies -->
   <exec_depend>python3-numpy</exec_depend>
   <exec_depend>python3-sklearn</exec_depend>
+  <depend>sensor_msgs_py</depend>
   
   <exec_depend>rosidl_default_runtime</exec_depend>
   <!-- ros_numpy is ROS 1; avoid depending on it in ROS 2. Use sensor_msgs_py.point_cloud2 instead. -->

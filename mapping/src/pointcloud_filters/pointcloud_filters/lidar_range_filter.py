@@ -59,6 +59,12 @@ class LidarRangeFilterNode(Node):
         self.declare_parameter('keep_publisher', True)
         self.declare_parameter('enable_accumulation', False)
         self.declare_parameter('accumulation_window', 0.2)
+        # Clockwise rotation in degrees around Z (0 = no rotation). Applied to all points after reading, before other filters.
+        self.declare_parameter('rotate_cw_deg', 202.5)  # 22.5 + 180
+        # Counter-clockwise rotation in degrees around Y (0 = no rotation). Applied after Z rotation.
+        self.declare_parameter('rotate_ccw_y_deg', 15.0)
+        # Field of view limit: max angle from +X axis to keep (degrees). 105° = 210° total coverage centered on +X. 0 = no FOV filter.
+        self.declare_parameter('fov_max_angle_from_x', 105.0)
 
         self.input_topic = self.get_parameter('input_topic').get_parameter_value().string_value
         self.output_topic = self.get_parameter('output_topic').get_parameter_value().string_value
@@ -71,6 +77,17 @@ class LidarRangeFilterNode(Node):
         self.keep_publisher = self.get_parameter('keep_publisher').get_parameter_value().bool_value
         self.enable_accumulation = self.get_parameter('enable_accumulation').get_parameter_value().bool_value
         self.accumulation_window = float(self.get_parameter('accumulation_window').get_parameter_value().double_value)
+        self.rotate_cw_deg = float(self.get_parameter('rotate_cw_deg').get_parameter_value().double_value)
+        self.rotate_ccw_y_deg = float(self.get_parameter('rotate_ccw_y_deg').get_parameter_value().double_value)
+        self.fov_max_angle_from_x = float(self.get_parameter('fov_max_angle_from_x').get_parameter_value().double_value)
+        # Precompute rotation around Z (clockwise = negative angle around Z)
+        self._rot_z_rad = math.radians(-self.rotate_cw_deg)
+        self._cos_z = math.cos(self._rot_z_rad)
+        self._sin_z = math.sin(self._rot_z_rad)
+        # Precompute rotation around Y (counter-clockwise = positive angle around Y)
+        self._rot_y_rad = math.radians(self.rotate_ccw_y_deg)
+        self._cos_y = math.cos(self._rot_y_rad)
+        self._sin_y = math.sin(self._rot_y_rad)
 
         # Time-ordered buffer for filtered clouds (stores up to max_buffer_duration_sec)
         self.cloud_buffer = deque()
@@ -110,7 +127,9 @@ class LidarRangeFilterNode(Node):
         self.get_logger().info(
             f'lidar_range_filter started: input={self.input_topic}, output={self.output_topic if self.keep_publisher else "(disabled)"}, '
             f'z=[{self.z_min},{self.z_max}] m, range_max={self.range_max} m, base_frame={self.base_frame}, '
-            f'use_tf_transform={self.use_tf_transform}, max_buffer_duration_sec={self.max_buffer_duration_sec}, '
+            f'use_tf_transform={self.use_tf_transform}, rotate_cw_deg={self.rotate_cw_deg}, rotate_ccw_y_deg={self.rotate_ccw_y_deg}, '
+            f'fov_max_angle_from_x={self.fov_max_angle_from_x}°, '
+            f'max_buffer_duration_sec={self.max_buffer_duration_sec}, '
             f'accumulation: {"enabled (" + str(self.accumulation_window) + "s)" if self.enable_accumulation else "disabled"}'
         )
 
@@ -169,6 +188,73 @@ class LidarRangeFilterNode(Node):
         x = pts[:, 0].astype(np.float64, copy=False)
         y = pts[:, 1].astype(np.float64, copy=False)
         z = pts[:, 2].astype(np.float64, copy=False)
+        if keep_intensity:
+            intens = pts[:, 3].astype(np.float64, copy=False)
+
+        # Apply rotations: first Z (clockwise), then Y (counter-clockwise)
+        # Rotation 1: Clockwise around Z by rotate_cw_deg (e.g. 22.5°)
+        if self.rotate_cw_deg != 0.0:
+            x_new = self._cos_z * x - self._sin_z * y
+            y_new = self._sin_z * x + self._cos_z * y
+            x = x_new
+            y = y_new
+
+        # Rotation 2: Counter-clockwise around Y by rotate_ccw_y_deg (e.g. 15°)
+        # Rotation around Y: [x', y', z'] = [cos(θ)*x + sin(θ)*z, y, -sin(θ)*x + cos(θ)*z]
+        if self.rotate_ccw_y_deg != 0.0:
+            x_new = self._cos_y * x + self._sin_y * z
+            z_new = -self._sin_y * x + self._cos_y * z
+            x = x_new
+            z = z_new
+
+        # Field of view filter: keep only points within fov_max_angle_from_x degrees from +X axis
+        # This creates a cone of 2*fov_max_angle_from_x degrees centered on +X (e.g., 115° = 230° total)
+        if self.fov_max_angle_from_x > 0.0 and self.fov_max_angle_from_x < 180.0:
+            # Calculate angle from +X axis in 3D: angle = atan2(sqrt(y² + z²), x)
+            perpendicular_dist = np.sqrt(y * y + z * z)
+            angle_from_x_rad = np.arctan2(perpendicular_dist, x)
+            angle_from_x_deg = np.degrees(angle_from_x_rad)
+            
+            # Debug: log some sample angles
+            if len(angle_from_x_deg) > 0:
+                neg_x_count = np.sum(x < 0)
+                max_angle = np.max(angle_from_x_deg)
+                min_angle = np.min(angle_from_x_deg)
+                above_threshold = np.sum(angle_from_x_deg > self.fov_max_angle_from_x)
+                self.get_logger().info(
+                    f'FOV BEFORE: {len(x)} pts, angle [{min_angle:.1f}°-{max_angle:.1f}°], '
+                    f'neg_X: {neg_x_count}, above_{self.fov_max_angle_from_x}°: {above_threshold}'
+                )
+            
+            fov_mask = angle_from_x_deg <= self.fov_max_angle_from_x
+            # Apply FOV mask
+            x = x[fov_mask]
+            y = y[fov_mask]
+            z = z[fov_mask]
+            if keep_intensity:
+                intens = intens[fov_mask]
+            
+            # Debug after filtering
+            if len(x) > 0:
+                neg_x_after = np.sum(x < 0)
+                angles_after = np.degrees(np.arctan2(np.sqrt(y*y + z*z), x))
+                max_angle_after = np.max(angles_after)
+                self.get_logger().info(f'FOV AFTER: {len(x)} pts, max_angle: {max_angle_after:.1f}°, neg_X: {neg_x_after}')
+            
+            # If no points remain after FOV filter, publish empty cloud
+            if len(x) == 0:
+                header = msg.header
+                src_frame = msg.header.frame_id
+                if self.use_tf_transform:
+                    header.frame_id = self.base_frame if False else (src_frame or self.base_frame)
+                else:
+                    header.frame_id = src_frame or self.base_frame
+                out_msg = pc2.create_cloud_xyz32(header, [])
+                if self.pub:
+                    self.pub.publish(out_msg)
+                with self.buffer_lock:
+                    self._append_to_buffer(out_msg)
+                return
 
         # Transform to base_frame if requested and frames differ
         src_frame = msg.header.frame_id
