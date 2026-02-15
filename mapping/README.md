@@ -78,6 +78,59 @@ LiDAR driver (unitree_lidar_ros2)
     → /tracked_buoy_markers (RViz)
 ```
 
+## Final LiDAR output (downstream)
+
+The **main topic for mission/planning** is:
+
+| Topic | Type | Description |
+|-------|------|-------------|
+| **`/tracked_buoys`** | `pointcloud_filters/TrackedBuoyArray` | **Final LiDAR output**: persistent buoy tracks with `id`, `range` (m), `bearing` (rad), `x`, `y` (base_link), `z_mean`, `color` (initially `"unknown"`; use CV–LiDAR fusion for red/green/yellow/black), `confidence`, `observation_count`, `first_seen`, `last_seen`. Published by `buoy_tracker` at detection rate (~10–30 Hz). |
+
+Downstream (e.g. planning) should subscribe to **`/tracked_buoys`**. For color-labeled buoys, run the fusion node (`cv_lidar_fusion`) which subscribes to `/tracked_buoys` and `/combined/detection_info` and publishes **`/fused_buoys`** (same message type with `color` filled from vision).
+
+**Sample topic output — `/tracked_buoys`** (`ros2 topic echo /tracked_buoys`):
+
+```yaml
+header:
+  stamp:
+    sec: 1739123456
+    nanosec: 789000000
+  frame_id: 'base_link'
+buoys:
+  - id: 0
+    range: 5.24
+    bearing: 0.31
+    x: 4.98
+    y: 1.58
+    z_mean: -0.12
+    color: 'unknown'
+    confidence: 0.82
+    observation_count: 12
+    first_seen:
+      sec: 1739123450
+      nanosec: 100000000
+    last_seen:
+      sec: 1739123456
+      nanosec: 789000000
+  - id: 1
+    range: 8.10
+    bearing: -0.52
+    x: 7.12
+    y: -3.89
+    z_mean: 0.05
+    color: 'red'
+    confidence: 0.91
+    observation_count: 8
+    first_seen:
+      sec: 1739123452
+      nanosec: 500000000
+    last_seen:
+      sec: 1739123456
+      nanosec: 789000000
+```
+
+*(With CV–LiDAR fusion running, **`/fused_buoys`** has the same structure with `color` set to `"red"`, `"green"`, `"yellow"`, or `"black"` when matched to vision; otherwise `"unknown"`.)*
+
 ## Custom Messages
 
 - **BuoyDetection:** `range`, `bearing`, `z_mean`, `num_points`, `lateral_extent`, `radial_extent`, `confidence`

@@ -76,6 +76,112 @@ Combiner subscribes to `/camera{N}/detection_info`, `/camera{N}/task4_detections
 
 ---
 
+## Final combined CV output (downstream)
+
+The **main topic for mission/planning** is:
+
+| Topic | Type | Description |
+|-------|------|-------------|
+| **`/combined/detection_info`** | `std_msgs/String` (JSON) | **Final combined detections** from all 3 cameras: one list with `camera_id`, `class_name`, `score`, `bbox` (local frame), `bearing_deg`, `elevation_deg`, plus `camera_info` and `camera_stats`. Includes YOLO buoys, optional indicator buoys, Task4 supply drops, and number detections when enabled. ~15 Hz. |
+
+When the **maritime distance estimator** is running (default with the launch file), use:
+
+| Topic | Type | Description |
+|-------|------|-------------|
+| **`/combined/detection_info_with_distance`** | `std_msgs/String` (JSON) | Same structure as `/combined/detection_info` with **`distance_m`** and **`distance_ft`** added per detection. This is the **final CV output** for navigation (bearing, elevation, and distance). |
+
+Subscribe to **`/combined/detection_info_with_distance`** when you need distance; otherwise **`/combined/detection_info`** is the final combined detections without distance.
+
+**Sample output — `/combined/detection_info`** (excerpt; the payload is in the `data` field as JSON):
+
+```json
+{
+  "timestamp": 1739123456.789,
+  "num_cameras": 3,
+  "num_active_cameras": 3,
+  "total_detections": 2,
+  "camera_info": {
+    "frame_width": 1920,
+    "frame_height": 1200,
+    "horizontal_fov_deg": 85.0,
+    "vertical_fov_deg": 69.0,
+    "mounting_angles_deg": [-57.7, 0.0, 57.7]
+  },
+  "camera_stats": {
+    "0": {"status": "active", "num_detections": 1, "fps": 14.2},
+    "1": {"status": "active", "num_detections": 1, "fps": 14.5},
+    "2": {"status": "active", "num_detections": 0, "fps": 14.1}
+  },
+  "detections": [
+    {
+      "camera_id": 0,
+      "class_id": 3,
+      "class_name": "red_buoy",
+      "score": 0.87,
+      "bbox": [420, 380, 580, 620],
+      "bearing_deg": -32.5,
+      "elevation_deg": 2.1
+    },
+    {
+      "camera_id": 1,
+      "class_id": 5,
+      "class_name": "yellow_buoy",
+      "score": 0.91,
+      "bbox": [880, 450, 1020, 710],
+      "bearing_deg": 8.2,
+      "elevation_deg": -4.3
+    }
+  ]
+}
+```
+
+**Sample output — `/combined/detection_info_with_distance`** (same structure with distance fields per detection):
+
+```json
+{
+  "timestamp": 1739123456.789,
+  "num_cameras": 3,
+  "num_active_cameras": 3,
+  "total_detections": 2,
+  "camera_info": { "frame_width": 1920, "frame_height": 1200 },
+  "detections": [
+    {
+      "camera_id": 0,
+      "class_id": 3,
+      "class_name": "red_buoy",
+      "score": 0.87,
+      "bbox": [420, 380, 580, 620],
+      "bearing_deg": -32.5,
+      "elevation_deg": 2.1,
+      "distance_m": 4.52,
+      "distance_ft": 14.8,
+      "reference_height_m": 0.254
+    },
+    {
+      "camera_id": 1,
+      "class_id": 5,
+      "class_name": "yellow_buoy",
+      "score": 0.91,
+      "bbox": [880, 450, 1020, 710],
+      "bearing_deg": 8.2,
+      "elevation_deg": -4.3,
+      "distance_m": 6.11,
+      "distance_ft": 20.0,
+      "reference_height_m": 0.254
+    }
+  ],
+  "distance_estimation": {
+    "method": "specs_based",
+    "camera_model": "AR0234",
+    "distance_scale_factor": 0.87
+  }
+}
+```
+
+*(To view live: `ros2 topic echo /combined/detection_info --field data` or `ros2 topic echo /combined/detection_info_with_distance --field data` then parse the JSON.)*
+
+---
+
 ## Launch overrides and optional nodes
 
 **Overrides:** `resolution:=1920,1200`, `camera_devices:=/path1,/path2,/path3` (exactly 3), `engine_path:=/path/to/model.engine`, `conf_threshold:=0.25`, `staleness_threshold:=1.0`, `enable_task4:=true`, `enable_indicator_buoy:=true`, `enable_number_detection:=true`, `number_detection_engine:=/path/to/number_detection.engine`, `number_conf_threshold:=0.25`, `distance_scale_factor:=1.0` (one-point calibration, see below).
@@ -217,7 +323,9 @@ Development and testing are on a **Think** (x86). Default camera device paths in
 
 ```
 computer_vision/
-├── src/cv_ros_nodes/       # cv_ros_nodes package (nodes, launch_cv.py)
+├── src/
+│   ├── cv_ros_nodes/       # cv_ros_nodes package (nodes, launch_cv.py)
+│   └── cv_lidar_fusion/    # cv_lidar_fusion package (vision_lidar_fusion → /fused_buoys)
 ├── cv_scripts/             # model.engine, class_mapping.yaml
 ├── model_training/         # weights.pt, weights.onnx, test_inference.py, TENSORRT.md
 ├── set_camera_fps.sh       # Set 15 FPS on all 3 cameras (Think USB paths)
@@ -225,6 +333,7 @@ computer_vision/
 ├── DESIGN_STRATEGY.md
 ├── SIMULATIONS.md
 ├── FUSION_NODE_GUIDE.md
+├── TOPICS_LIDAR_AND_CV.md  # Every LiDAR and CV topic output (reference)
 └── DISTANCE_ESTIMATOR_CHANGES.md
 ```
 
@@ -238,6 +347,7 @@ computer_vision/
 | [SIMULATIONS.md](SIMULATIONS.md) | Running the sim |
 | [model_training/TENSORRT.md](model_training/TENSORRT.md) | TensorRT setup and model conversion |
 | [FUSION_NODE_GUIDE.md](FUSION_NODE_GUIDE.md) | CV + LiDAR fusion |
+| [TOPICS_LIDAR_AND_CV.md](TOPICS_LIDAR_AND_CV.md) | Every LiDAR and CV topic output (reference) |
 | [DISTANCE_ESTIMATOR_CHANGES.md](DISTANCE_ESTIMATOR_CHANGES.md) | Distance estimation (maritime_distance_estimator) |
 
 ---
