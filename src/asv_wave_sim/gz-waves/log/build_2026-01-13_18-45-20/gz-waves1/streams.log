@@ -1,0 +1,144 @@
+[0.025s] Invoking command in '/home/ethan/autonomy-ws-25-26/src/asv_wave_sim/gz-waves/build/gz-waves1': /usr/bin/cmake /home/ethan/autonomy-ws-25-26/src/asv_wave_sim/gz-waves -DCMAKE_BUILD_TYPE=RelWithDebInfo -DBUILD_TESTING=ON -DCMAKE_CXX_STANDARD=17 -DCMAKE_INSTALL_PREFIX=/home/ethan/autonomy-ws-25-26/src/asv_wave_sim/gz-waves/install
+[0.145s] -- The C compiler identification is GNU 11.4.0
+[0.272s] -- The CXX compiler identification is GNU 11.4.0
+[0.299s] -- Detecting C compiler ABI info
+[0.427s] -- Detecting C compiler ABI info - done
+[0.448s] -- Check for working C compiler: /usr/lib/ccache/cc - skipped
+[0.448s] -- Detecting C compile features
+[0.449s] -- Detecting C compile features - done
+[0.459s] -- Detecting CXX compiler ABI info
+[0.594s] -- Detecting CXX compiler ABI info - done
+[0.617s] -- Check for working CXX compiler: /usr/lib/ccache/c++ - skipped
+[0.618s] -- Detecting CXX compile features
+[0.619s] -- Detecting CXX compile features - done
+[0.640s] -- gz-waves1 version 1.0.0
+[0.641s] -- Operating system is Linux
+[0.667s] -- Found CPack generators: DEB
+[2.429s] -- Found Boost: /usr/lib/aarch64-linux-gnu/cmake/Boost-1.74.0/BoostConfig.cmake (found version "1.74.0") found components: iostreams system filesystem 
+[2.437s] -- Looking for gz-math7 -- found version 7.5.1
+[2.439s] -- Searching for dependencies of gz-math7
+[2.443s] -- Looking for gz-utils2 -- found version 2.2.1
+[2.445s] -- Searching for dependencies of gz-utils2
+[2.448s] -- Searching for <gz-math7> component [eigen3]
+[2.452s] -- Looking for gz-math7-eigen3 -- found version 7.5.1
+[2.453s] -- Searching for dependencies of gz-math7-eigen3
+[2.472s] -- Looking for gz-math7 - found
+[2.472s] 
+[2.476s] -- Looking for gz-plugin2 -- found version 2.0.4
+[2.477s] -- Searching for dependencies of gz-plugin2
+[2.478s] -- Looking for gz-utils2 -- found version 2.2.1
+[2.479s] -- Searching for dependencies of gz-utils2
+[2.480s] -- Searching for <gz-utils2> component [cli]
+[2.483s] -- Looking for gz-utils2-cli -- found version 2.2.1
+[2.483s] -- Searching for dependencies of gz-utils2-cli
+[2.485s] -- Searching for <gz-plugin2> component [loader]
+[2.488s] -- Looking for gz-plugin2-loader -- found version 2.0.4
+[2.489s] -- Searching for dependencies of gz-plugin2-loader
+[2.490s] -- Searching for <gz-plugin2> component [register]
+[2.493s] -- Looking for gz-plugin2-register -- found version 2.0.4
+[2.494s] -- Searching for dependencies of gz-plugin2-register
+[2.494s] -- Looking for gz-plugin2 - found
+[2.495s] 
+[2.498s] -- Looking for gz-common5 -- found version 5.7.1
+[2.499s] -- Searching for dependencies of gz-common5
+[2.499s] -- Looking for gz-utils2 -- found version 2.2.1
+[2.500s] -- Looking for dlfcn.h - found
+[2.515s] -- Looking for libdl - found
+[2.518s] -- Found DL: TRUE  
+[2.529s] -- Checking for module 'uuid'
+[2.551s] --   Found uuid, version 2.37.2
+[2.610s] -- Found UUID: TRUE  
+[2.612s] -- Searching for <gz-common5> component [graphics]
+[2.616s] -- Looking for gz-common5-graphics -- found version 5.7.1
+[2.618s] -- Searching for dependencies of gz-common5-graphics
+[2.619s] -- Looking for gz-math7 -- found version 7.5.1
+[2.631s] -- Found GzAssimp: TRUE (found version "5.2.0") 
+[2.632s] -- Searching for <gz-common5> component [events]
+[2.635s] -- Looking for gz-common5-events -- found version 5.7.1
+[2.636s] -- Searching for dependencies of gz-common5-events
+[2.637s] -- Looking for gz-math7 -- found version 7.5.1
+[2.639s] -- Looking for gz-common5 - found
+[2.639s] 
+[2.644s] -- Looking for gz-msgs10 -- found version 10.3.2
+[2.645s] -- Searching for dependencies of gz-msgs10
+[3.107s] -- Found Protobuf: /usr/lib/aarch64-linux-gnu/libprotobuf.so (found version "3.12.4") 
+[3.111s] -- Looking for gz-utils2 -- found version 2.2.1
+[3.112s] -- Looking for gz-math7 -- found version 7.5.1
+[3.125s] -- Checking for module 'tinyxml2'
+[3.152s] --   Found tinyxml2, version 9.0.0
+[4.087s] -- Found Python3: /usr/bin/python3.10 (found version "3.10.12") found components: Interpreter 
+[4.091s] -- Looking for gz-msgs10 - found
+[4.092s] 
+[4.098s] -- Looking for gz-transport13 -- found version 13.5.0
+[4.099s] -- Searching for dependencies of gz-transport13
+[4.192s] -- Config-file not installed for ZeroMQ -- checking for pkg-config
+[4.203s] -- Checking for module 'libzmq >= 4'
+[4.227s] --   Found libzmq , version 4.3.4
+[4.302s] -- Found ZeroMQ: TRUE (Required is at least version "4") 
+[4.323s] -- Looking for gz-utils2 -- found version 2.2.1
+[4.324s] -- Looking for gz-msgs10 -- found version 10.3.2
+[4.325s] -- Looking for gz-transport13 - found
+[4.325s] 
+[4.330s] -- Looking for gz-rendering8 -- found version 8.2.3
+[4.332s] -- Searching for dependencies of gz-rendering8
+[4.333s] -- Looking for gz-math7 -- found version 7.5.1
+[4.334s] -- Looking for gz-common5 -- found version 5.7.1
+[4.336s] -- Searching for dependencies of gz-common5
+[4.336s] -- Looking for gz-utils2 -- found version 2.2.1
+[4.337s] -- Looking for dlfcn.h - found
+[4.337s] -- Looking for libdl - found
+[4.356s] -- Searching for <gz-common5> component [graphics]
+[4.357s] -- Searching for <gz-common5> component [events]
+[4.358s] -- Searching for <gz-common5> component [geospatial]
+[4.361s] -- Looking for gz-common5-geospatial -- found version 5.7.1
+[4.362s] -- Searching for dependencies of gz-common5-geospatial
+[4.363s] -- Looking for gz-math7 -- found version 7.5.1
+[4.363s] -- Looking for gz-common5 -- found version 5.7.1
+[4.366s] -- Looking for gz-plugin2 -- found version 2.0.4
+[4.367s] -- Searching for dependencies of gz-plugin2
+[4.368s] -- Looking for gz-utils2 -- found version 2.2.1
+[4.368s] -- Searching for <gz-plugin2> component [all]
+[4.371s] -- Looking for all libraries of gz-plugin2 -- found version 2.0.4
+[4.372s] -- Looking for gz-plugin2 -- found version 2.0.4
+[4.376s] -- Looking for gz-utils2 -- found version 2.2.1
+[4.386s] -- Found OpenGL: /usr/lib/aarch64-linux-gnu/libOpenGL.so  found components: OpenGL 
+[4.388s] -- Looking for gz-rendering8 - found
+[4.388s] 
+[4.391s] -- Looking for gz-sim8 -- found version 8.10.0
+[4.392s] -- Searching for dependencies of gz-sim8
+[4.395s] -- Looking for sdformat14 -- found version 14.8.0
+[4.396s] -- Searching for dependencies of sdformat14
+[4.408s] -- Looking for gz-math7 -- found version 7.5.1
+[4.408s] -- Looking for gz-utils2 -- found version 2.2.1
+[4.411s] -- Looking for gz-plugin2 -- found version 2.0.4
+[4.411s] -- Looking for gz-transport13 -- found version 13.5.0
+[4.412s] -- Searching for dependencies of gz-transport13
+[4.475s] -- Config-file not installed for ZeroMQ -- checking for pkg-config
+[4.484s] -- Checking for module 'libzmq >= 4'
+[4.504s] --   Found libzmq , version 4.3.4
+[4.591s] -- Looking for gz-utils2 -- found version 2.2.1
+[4.591s] -- Looking for gz-msgs10 -- found version 10.3.2
+[4.592s] -- Searching for <gz-transport13> component [log]
+[4.596s] -- Looking for gz-transport13-log -- found version 13.5.0
+[4.597s] -- Searching for dependencies of gz-transport13-log
+[4.599s] -- Searching for <gz-transport13> component [parameters]
+[4.602s] -- Looking for gz-transport13-parameters -- found version 13.5.0
+[4.604s] -- Searching for dependencies of gz-transport13-parameters
+[4.606s] -- Looking for gz-msgs10 -- found version 10.3.2
+[4.607s] -- Looking for gz-common5 -- found version 5.7.1
+[4.608s] -- Searching for dependencies of gz-common5
+[4.609s] -- Looking for gz-utils2 -- found version 2.2.1
+[4.610s] -- Looking for dlfcn.h - found
+[4.610s] -- Looking for libdl - found
+[4.629s] -- Searching for <gz-common5> component [av]
+[4.632s] -- Looking for gz-common5-av -- found version 5.7.1
+[4.633s] -- Searching for dependencies of gz-common5-av
+[4.645s] -- Checking for module 'libswscale'
+[4.671s] --   Found libswscale, version 5.9.100
+[4.739s] -- Found SWSCALE: TRUE  
+[4.750s] -- Checking for module 'libavdevice >= 56.4.100'
+[4.776s] --   Found libavdevice , version 58.13.100
+[4.850s] -- Found AVDEVICE: TRUE (Required is at least version "56.4.100") 
+[4.864s] -- Checking for module 'libavformat'
+[4.889s] --   Found libavformat, version 58.76.100
+[4.930s] Invoked command in '/home/ethan/autonomy-ws-25-26/src/asv_wave_sim/gz-waves/build/gz-waves1' returned '-2': /usr/bin/cmake /home/ethan/autonomy-ws-25-26/src/asv_wave_sim/gz-waves -DCMAKE_BUILD_TYPE=RelWithDebInfo -DBUILD_TESTING=ON -DCMAKE_CXX_STANDARD=17 -DCMAKE_INSTALL_PREFIX=/home/ethan/autonomy-ws-25-26/src/asv_wave_sim/gz-waves/install
