@@ -1,6 +1,6 @@
 # TensorRT Setup and Model Conversion
 
-Machine-specific TensorRT usage, ONNX→engine conversion, and where artifacts live. For the full pipeline design (train → ONNX → engine → validate → deploy), see [DESIGN_STRATEGY.md](DESIGN_STRATEGY.md).
+Machine-specific TensorRT usage, ONNX→engine conversion, and where artifacts live. For the full pipeline design (train → ONNX → engine → validate → deploy), see [README.md](../README.md) and [NODES.md](../NODES.md).
 
 **Pipeline (summary):** `.pt` → `.onnx` (export) → `.engine` (trtexec) → `vision_inference` / launch.
 

@@ -1,5 +1,5 @@
 from launch import LaunchDescription
-from launch.actions import DeclareLaunchArgument, GroupAction, LogInfo, OpaqueFunction
+from launch.actions import DeclareLaunchArgument, GroupAction, LogInfo, OpaqueFunction, TimerAction
 from launch.conditions import IfCondition, UnlessCondition
 from launch_ros.actions import Node
 from launch.substitutions import LaunchConfiguration
@@ -13,7 +13,7 @@ def _create_camera_nodes(context):
     dev_list = [d.strip() for d in devs.split(',')]
     if len(dev_list) != 3:
         raise ValueError(
-            "camera_devices must be 3 comma-separated paths, e.g. /dev/v4l/by-path/platform-3610000.usb-usb-0:1.2.2:1.0-video-index0,/dev/v4l/by-path/platform-3610000.usb-usb-0:1.2.3:1.0-video-index0,/dev/v4l/by-path/platform-3610000.usb-usb-0:1.2.4:1.0-video-index0"
+            "camera_devices must be 3 comma-separated paths, e.g. /dev/v4l/by-path/platform-3610000.usb-usb-0:1.4.2:1.0-video-index0,/dev/v4l/by-path/platform-3610000.usb-usb-0:1.4.3:1.0-video-index0,/dev/v4l/by-path/platform-3610000.usb-usb-0:1.4.4:1.0-video-index0"
         )
     return [
         Node(
@@ -63,7 +63,7 @@ def generate_launch_description():
 
     camera_devices_arg = DeclareLaunchArgument(
         'camera_devices',
-        default_value='/dev/v4l/by-path/platform-3610000.usb-usb-0:1.2.2:1.0-video-index0,/dev/v4l/by-path/platform-3610000.usb-usb-0:1.2.3:1.0-video-index0,/dev/v4l/by-path/platform-3610000.usb-usb-0:1.2.4:1.0-video-index0',
+        default_value='/dev/v4l/by-path/platform-3610000.usb-usb-0:1.4.2:1.0-video-index0,/dev/v4l/by-path/platform-3610000.usb-usb-0:1.4.3:1.0-video-index0,/dev/v4l/by-path/platform-3610000.usb-usb-0:1.4.4:1.0-video-index0',
         description='Comma-separated paths to 3 camera devices (using persistent USB port paths)'
     )
 
@@ -75,14 +75,15 @@ def generate_launch_description():
 
     conf_threshold_arg = DeclareLaunchArgument(
         'conf_threshold',
-        default_value='0.25',
+        default_value='0.1',
         description='Confidence threshold for detections'
     )
 
     staleness_threshold_arg = DeclareLaunchArgument(
         'staleness_threshold',
-        default_value='1.0',
-        description='Staleness threshold for combiner (seconds)'
+        default_value='3.0',
+        description='Staleness threshold for combiner (seconds). On Jetson Orin Nano with 3 cameras sharing GPU, '
+                    'inference runs at ~1.5 FPS per camera (~670ms between updates). Set >= 2.0 to avoid false stale warnings.'
     )
 
     enable_task4_arg = DeclareLaunchArgument(
@@ -119,6 +120,17 @@ def generate_launch_description():
         default_value='0.25',
         description='Confidence threshold for number detection'
     )
+    
+    inference_interval_front_arg = DeclareLaunchArgument(
+        'inference_interval_front',
+        default_value='1',
+        description='Run inference every N frames for front camera (camera1). 1=every frame (highest priority).'
+    )
+    inference_interval_sides_arg = DeclareLaunchArgument(
+        'inference_interval_sides',
+        default_value='4',
+        description='Run inference every N frames for side cameras (camera0, camera2). Higher values reduce GPU load.'
+    )
 
     # Preprocessing nodes
     preprocess0 = Node(
@@ -140,7 +152,7 @@ def generate_launch_description():
         arguments=['--camera_id', '2']
     )
 
-    # Inference nodes
+    # Inference nodes (front/camera1 starts immediately; sides staggered to avoid GPU OOM)
     inference0 = Node(
         package='cv_ros_nodes',
         executable='vision_inference',
@@ -152,6 +164,8 @@ def generate_launch_description():
             '--enable_number_detection', LaunchConfiguration('enable_number_detection'),
             '--number_detection_engine', LaunchConfiguration('number_detection_engine'),
             '--number_conf_threshold', LaunchConfiguration('number_conf_threshold'),
+            '--sim_image_rgb', 'false',
+            '--inference_interval', LaunchConfiguration('inference_interval_sides'),
         ]
     )
     inference1 = Node(
@@ -165,6 +179,8 @@ def generate_launch_description():
             '--enable_number_detection', LaunchConfiguration('enable_number_detection'),
             '--number_detection_engine', LaunchConfiguration('number_detection_engine'),
             '--number_conf_threshold', LaunchConfiguration('number_conf_threshold'),
+            '--sim_image_rgb', 'false',
+            '--inference_interval', LaunchConfiguration('inference_interval_front'),
         ]
     )
     inference2 = Node(
@@ -178,6 +194,8 @@ def generate_launch_description():
             '--enable_number_detection', LaunchConfiguration('enable_number_detection'),
             '--number_detection_engine', LaunchConfiguration('number_detection_engine'),
             '--number_conf_threshold', LaunchConfiguration('number_conf_threshold'),
+            '--sim_image_rgb', 'false',
+            '--inference_interval', LaunchConfiguration('inference_interval_sides'),
         ]
     )
 
@@ -227,6 +245,8 @@ def generate_launch_description():
         enable_number_detection_arg,
         number_detection_engine_arg,
         number_conf_threshold_arg,
+        inference_interval_front_arg,
+        inference_interval_sides_arg,
         distance_scale_factor_arg,
         LogInfo(msg='Starting computer vision pipeline...'),
         GroupAction(
@@ -236,9 +256,9 @@ def generate_launch_description():
         preprocess0,
         preprocess1,
         preprocess2,
-        inference0,
         inference1,
-        inference2,
+        TimerAction(period=15.0, actions=[inference0]),
+        TimerAction(period=30.0, actions=[inference2]),
         combiner,
         task4_supply_processor,
         indicator_buoy_processor,

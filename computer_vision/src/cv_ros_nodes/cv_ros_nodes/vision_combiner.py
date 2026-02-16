@@ -8,7 +8,7 @@ Publishes to: /combined/detection_info (String with all detections; bbox in loca
 PER-CAMERA BEARING APPROACH:
 - Each camera detection stays in its local frame (bbox is per-camera coordinates)
 - Bearing is computed using:
-  1. Camera mounting angle: [-57.7°, 0°, +57.7°] for [left, center, right]
+  1. Camera mounting angle: [-70.0°, 0°, +70.0°] for [left, center, right]
   2. Camera intrinsics derived from 85° horizontal FOV and 1920×1200 resolution
   3. Formula: bearing_deg = mounting_angle + atan2((u - cx), fx)
 - Output: boat-relative bearing for each detection (0° = forward, + = right, - = left)
@@ -52,7 +52,7 @@ from rclpy.node import Node
 from std_msgs.msg import String
 import json
 import yaml
-from typing import Dict, List, Optional
+from typing import Dict, List, Optional, Tuple
 import time
 
 # Camera specifications (Arducam B0495 2.3MP AR0234)
@@ -63,7 +63,13 @@ CAMERA_RESOLUTION_HEIGHT = 1200
 
 # Camera mounting angles (boat frame: 0° = forward, + = right, - = left)
 # Camera 0 = left, Camera 1 = center, Camera 2 = right
-CAMERA_MOUNTING_ANGLES_DEG = [-57.7, 0.0, 57.7]
+CAMERA_MOUNTING_ANGLES_DEG = [-70.0, 0.0, 70.0]
+
+# Overlap-based duplicate detection: 20% of image width at each adjacent camera seam
+OVERLAP_FRACTION = 0.2
+OVERLAP_BBOX_AREA_MIN_RATIO = 0.4
+OVERLAP_BBOX_AREA_MAX_RATIO = 2.5
+ADJACENT_CAMERA_PAIRS: List[Tuple[int, int]] = [(0, 1), (1, 2)]
 
 
 
@@ -207,8 +213,9 @@ class DetectionCombiner(Node):
         # Get initial class name from mapping
         initial_class_name = self._class_id_to_name.get(int(cid), f'class_{cid}')
         
-        # Apply aspect ratio logic for red/green buoy classification
-        if initial_class_name in ['red_buoy', 'green_buoy']:
+        # Apply aspect ratio logic for red/green buoy classification (bidirectional)
+        # Check both regular buoys and pole buoys to correct misclassification
+        if initial_class_name in ['red_buoy', 'green_buoy', 'red_pole_buoy', 'green_pole_buoy']:
             bbox = det.get('bbox') or [det.get('x1', 0), det.get('y1', 0), det.get('x2', 0), det.get('y2', 0)]
             
             if len(bbox) >= 4:
@@ -219,16 +226,23 @@ class DetectionCombiner(Node):
                     aspect_ratio = width / height
                     
                     # Classification thresholds:
-                    # - aspect_ratio close to 1.0: square-ish → regular buoy (1 ft)
-                    # - aspect_ratio < 0.7: tall/vertical → pole buoy (39 in)
-                    # - 0.7 ≤ aspect_ratio < 1.3: borderline, keep as regular buoy
+                    # - aspect_ratio < 0.7: tall/vertical (height >> width) → pole buoy (39 in)
+                    # - aspect_ratio >= 0.7: square-ish or wider (width ≈ height or width > height) → regular buoy (1 ft)
                     
-                    if aspect_ratio < 0.7:  # Significantly taller than wide
+                    if aspect_ratio < 0.7:
+                        # Tall/vertical → pole buoy
                         if initial_class_name == 'red_buoy':
                             return 'red_pole_buoy'
                         elif initial_class_name == 'green_buoy':
                             return 'green_pole_buoy'
-                    # else: keep as regular buoy (square-ish or borderline)
+                        # If already pole buoy, keep it
+                    else:
+                        # Square-ish or wider → regular buoy
+                        if initial_class_name == 'red_pole_buoy':
+                            return 'red_buoy'
+                        elif initial_class_name == 'green_pole_buoy':
+                            return 'green_buoy'
+                        # If already regular buoy, keep it
         
         return initial_class_name
 
@@ -287,7 +301,162 @@ class DetectionCombiner(Node):
             'camera_angle_deg': camera_angle_deg,
             'mounting_angle_deg': mounting_angle_deg
         }
-    
+
+    @staticmethod
+    def _bbox_center_x(bbox: List[float]) -> float:
+        """Return horizontal center of bbox [x1, y1, x2, y2]. Returns 0 if invalid."""
+        if not bbox or len(bbox) < 4:
+            return 0.0
+        return (float(bbox[0]) + float(bbox[2])) / 2.0
+
+    @staticmethod
+    def _in_overlap_strip_toward(camera_id: int, bbox: List[float], neighbor_id: int, frame_width: int) -> bool:
+        """
+        True iff bbox center x lies in this camera's overlap strip toward neighbor_id.
+        Camera 0: right 20% toward 1 (x >= 0.8*W). Camera 1: left 20% toward 0 (x <= 0.2*W), right 20% toward 2 (x >= 0.8*W). Camera 2: left 20% toward 1 (x <= 0.2*W).
+        """
+        if frame_width <= 0:
+            return False
+        cx = DetectionCombiner._bbox_center_x(bbox)
+        if camera_id == 0 and neighbor_id == 1:
+            return cx >= (1.0 - OVERLAP_FRACTION) * frame_width
+        if camera_id == 1 and neighbor_id == 0:
+            return cx <= OVERLAP_FRACTION * frame_width
+        if camera_id == 1 and neighbor_id == 2:
+            return cx >= (1.0 - OVERLAP_FRACTION) * frame_width
+        if camera_id == 2 and neighbor_id == 1:
+            return cx <= OVERLAP_FRACTION * frame_width
+        return False
+
+    @staticmethod
+    def _bbox_area(bbox: List[float]) -> float:
+        """Return area of bbox [x1, y1, x2, y2]. Returns 0 if invalid."""
+        if not bbox or len(bbox) < 4:
+            return 0.0
+        w = abs(float(bbox[2]) - float(bbox[0]))
+        h = abs(float(bbox[3]) - float(bbox[1]))
+        return w * h
+
+    @staticmethod
+    def _bbox_sizes_similar(
+        bbox_a: List[float],
+        bbox_b: List[float],
+        min_ratio: float = OVERLAP_BBOX_AREA_MIN_RATIO,
+        max_ratio: float = OVERLAP_BBOX_AREA_MAX_RATIO,
+    ) -> bool:
+        """True if area ratio (smaller/larger) is in [min_ratio, max_ratio]. Handles zero area (returns False)."""
+        area_a = DetectionCombiner._bbox_area(bbox_a)
+        area_b = DetectionCombiner._bbox_area(bbox_b)
+        if area_a <= 0 or area_b <= 0:
+            return False
+        ratio = min(area_a, area_b) / max(area_a, area_b)
+        return min_ratio <= ratio <= max_ratio
+
+    def _find_overlap_pairs(self, all_detections: List[Dict]) -> List[Tuple[int, int]]:
+        """
+        Find pairs of indices (i, j) with i < j that are overlap duplicates: adjacent cameras,
+        both in overlap strip toward each other, same class_id, similar bbox size.
+        Each detection appears in at most one pair (greedy by smallest bearing difference).
+        """
+        pairs: List[Tuple[int, int]] = []
+        used = set()
+        n = len(all_detections)
+        fw = self.frame_width
+
+        for (cam_a, cam_b) in ADJACENT_CAMERA_PAIRS:
+            candidates_a = []
+            candidates_b = []
+            for idx in range(n):
+                if idx in used:
+                    continue
+                d = all_detections[idx]
+                if d.get('class_id') is None:
+                    continue
+                cid = d.get('camera_id')
+                bbox = d.get('bbox')
+                if not bbox or len(bbox) < 4:
+                    continue
+                if cid == cam_a and self._in_overlap_strip_toward(cam_a, bbox, cam_b, fw):
+                    candidates_a.append(idx)
+                elif cid == cam_b and self._in_overlap_strip_toward(cam_b, bbox, cam_a, fw):
+                    candidates_b.append(idx)
+
+            # Greedy: sort by bearing_deg, then for each candidate in A find best in B (same class_id, similar size, min bearing diff)
+            def bearing_deg_key(idx: int) -> float:
+                return float(all_detections[idx].get('bearing_deg', 0.0))
+
+            candidates_a.sort(key=bearing_deg_key)
+            candidates_b.sort(key=bearing_deg_key)
+
+            for i in candidates_a:
+                if i in used:
+                    continue
+                di = all_detections[i]
+                class_i = di.get('class_id')
+                bbox_i = di.get('bbox')
+                bear_i = float(di.get('bearing_deg', 0.0))
+                best_j: Optional[int] = None
+                best_diff: float = 1e9
+                for j in candidates_b:
+                    if j in used:
+                        continue
+                    dj = all_detections[j]
+                    if dj.get('class_id') != class_i:
+                        continue
+                    bbox_j = dj.get('bbox')
+                    if not self._bbox_sizes_similar(bbox_i, bbox_j):
+                        continue
+                    diff = abs(bear_i - float(dj.get('bearing_deg', 0.0)))
+                    if diff < best_diff:
+                        best_diff = diff
+                        best_j = j
+                if best_j is not None:
+                    pairs.append((min(i, best_j), max(i, best_j)))
+                    used.add(i)
+                    used.add(best_j)
+
+        return pairs
+
+    def _apply_overlap_merge(self, all_detections: List[Dict]) -> List[Dict]:
+        """
+        Merge overlap duplicate pairs into single detections with duplicate=true,
+        both bboxes, and averaged bearing/elevation. Returns new list (unpaired + merged).
+        """
+        pairs = self._find_overlap_pairs(all_detections)
+        used = set()
+        for (i, j) in pairs:
+            used.add(i)
+            used.add(j)
+
+        out: List[Dict] = []
+        for idx, det in enumerate(all_detections):
+            if idx in used:
+                continue
+            out.append(det.copy())
+
+        for (i, j) in pairs:
+            di = all_detections[i]
+            dj = all_detections[j]
+            cam_i = di.get('camera_id', 0)
+            cam_j = dj.get('camera_id', 0)
+            primary_idx, other_idx = (i, j) if cam_i <= cam_j else (j, i)
+            d_primary = all_detections[primary_idx]
+            d_other = all_detections[other_idx]
+            merged = dict(d_primary)
+            merged['duplicate'] = True
+            merged['bbox'] = list(d_primary.get('bbox') or [])
+            merged['bbox_other'] = list(d_other.get('bbox') or [])
+            merged['camera_id_other'] = d_other.get('camera_id')
+            b1 = float(d_primary.get('bearing_deg', 0.0))
+            b2 = float(d_other.get('bearing_deg', 0.0))
+            e1 = float(d_primary.get('elevation_deg', 0.0))
+            e2 = float(d_other.get('elevation_deg', 0.0))
+            merged['bearing_deg'] = (b1 + b2) / 2.0
+            merged['elevation_deg'] = (e1 + e2) / 2.0
+            out.append(merged)
+
+        return out
+
     def detection_callback(self, msg: String, camera_id: int):
         """Callback for individual camera detection info"""
         try:
@@ -466,6 +635,8 @@ class DetectionCombiner(Node):
         # Add class_name for every detection
         for det in all_detections:
             det['class_name'] = self._resolve_class_name(det)
+        # Overlap merge: merge duplicate detections in adjacent camera overlap strips
+        all_detections = self._apply_overlap_merge(all_detections)
         # Trim output: drop x1,y1,x2,y2,width,height and radian fields
         all_detections = [self._trim_detection_for_output(d) for d in all_detections]
 
@@ -566,11 +737,15 @@ class DetectionCombiner(Node):
                     'fps': detection_data.get('output_fps', detection_data.get('fps', 0.0)),
                     'last_timestamp': detection_data.get('timestamp', 0.0)
                 }
-                # Exclude stale camera from output - don't add its detections
-                self.get_logger().warn(
-                    f'Camera{camera_id} is stale: {time_since_update:.3f}s since last update '
-                    f'(threshold: {self.staleness_threshold}s) - excluding from output'
-                )
+                # Log stale warning at most once per second per camera (avoid flooding terminal)
+                last_warn_key = f'_last_stale_warn_{camera_id}'
+                last_warn_time = getattr(self, last_warn_key, 0.0)
+                if current_time - last_warn_time >= 1.0:
+                    self.get_logger().warn(
+                        f'Camera{camera_id} is stale: {time_since_update:.3f}s since last update '
+                        f'(threshold: {self.staleness_threshold}s) - excluding from output'
+                    )
+                    setattr(self, last_warn_key, current_time)
                 continue
             
             # Camera is active and fresh - include ALL its detections (bbox already in preprocessed frame from inference)
@@ -615,6 +790,8 @@ class DetectionCombiner(Node):
         # Add class_name for every detection
         for det in all_detections:
             det['class_name'] = self._resolve_class_name(det)
+        # Overlap merge: merge duplicate detections in adjacent camera overlap strips
+        all_detections = self._apply_overlap_merge(all_detections)
         # Trim output: drop x1,y1,x2,y2,width,height and radian fields
         all_detections = [self._trim_detection_for_output(d) for d in all_detections]
 

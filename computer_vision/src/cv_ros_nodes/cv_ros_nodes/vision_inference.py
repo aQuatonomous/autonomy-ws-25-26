@@ -41,6 +41,18 @@ class CudaRuntime:
         self.cuda.cudaMemcpy.argtypes = [ctypes.c_void_p, ctypes.c_void_p, ctypes.c_size_t, ctypes.c_int]
         self.cuda.cudaMemcpy.restype = ctypes.c_int
         
+        self.cuda.cudaMemcpyAsync.argtypes = [ctypes.c_void_p, ctypes.c_void_p, ctypes.c_size_t, ctypes.c_int, ctypes.c_void_p]
+        self.cuda.cudaMemcpyAsync.restype = ctypes.c_int
+        
+        self.cuda.cudaStreamCreate.argtypes = [ctypes.POINTER(ctypes.c_void_p)]
+        self.cuda.cudaStreamCreate.restype = ctypes.c_int
+        
+        self.cuda.cudaStreamSynchronize.argtypes = [ctypes.c_void_p]
+        self.cuda.cudaStreamSynchronize.restype = ctypes.c_int
+        
+        self.cuda.cudaStreamDestroy.argtypes = [ctypes.c_void_p]
+        self.cuda.cudaStreamDestroy.restype = ctypes.c_int
+        
         self.cuda.cudaFree.argtypes = [ctypes.c_void_p]
         self.cuda.cudaFree.restype = ctypes.c_int
         
@@ -78,6 +90,35 @@ class CudaRuntime:
     def synchronize(self):
         """Synchronize CUDA operations"""
         self.cuda.cudaDeviceSynchronize()
+    
+    def create_stream(self):
+        """Create a CUDA stream for async operations"""
+        stream = ctypes.c_void_p()
+        result = self.cuda.cudaStreamCreate(ctypes.byref(stream))
+        if result != 0:
+            raise RuntimeError(f"CUDA stream creation failed: {result}")
+        return stream.value
+    
+    def memcpy_htod_async(self, dst, src, size, stream):
+        """Copy from host to device asynchronously"""
+        result = self.cuda.cudaMemcpyAsync(dst, src, size, self.cudaMemcpyHostToDevice, stream)
+        if result != 0:
+            raise RuntimeError(f"CUDA memcpy H2D async failed: {result}")
+    
+    def memcpy_dtoh_async(self, dst, src, size, stream):
+        """Copy from device to host asynchronously"""
+        result = self.cuda.cudaMemcpyAsync(dst, src, size, self.cudaMemcpyDeviceToHost, stream)
+        if result != 0:
+            raise RuntimeError(f"CUDA memcpy D2H async failed: {result}")
+    
+    def stream_synchronize(self, stream):
+        """Synchronize a specific CUDA stream"""
+        self.cuda.cudaStreamSynchronize(stream)
+    
+    def destroy_stream(self, stream):
+        """Destroy a CUDA stream"""
+        if stream:
+            self.cuda.cudaStreamDestroy(stream)
 
 
 # ============================================================================
@@ -125,10 +166,15 @@ class TensorRTInference:
         # Set tensor addresses
         self.context.set_tensor_address(self.input_name, self.d_input)
         self.context.set_tensor_address(self.output_name, self.d_output)
+        
+        # Create CUDA stream for async operations
+        self.stream = self.cuda.create_stream()
     
     def __del__(self):
         """Cleanup GPU memory"""
         if hasattr(self, 'cuda'):
+            if hasattr(self, 'stream'):
+                self.cuda.destroy_stream(self.stream)
             if hasattr(self, 'd_input'):
                 self.cuda.free(self.d_input)
             if hasattr(self, 'd_output'):
@@ -136,21 +182,29 @@ class TensorRTInference:
     
     def preprocess(self, image: np.ndarray, is_rgb: bool = False):
         """Prepare image for the model with letterbox (preserve aspect ratio). Returns (tensor, letterbox_info).
-        If is_rgb=True, image is already RGB (e.g. from Gazebo sim); otherwise assumed BGR."""
+        If is_rgb=True, image is already RGB (e.g. from Gazebo sim); otherwise assumed BGR.
+        Optimized: uses faster cv2 operations and avoids unnecessary copies."""
         orig_h, orig_w = image.shape[:2]
         scale = min(self.imgsz / orig_w, self.imgsz / orig_h)
         new_w = int(round(orig_w * scale))
         new_h = int(round(orig_h * scale))
-        img_resized = cv2.resize(image, (new_w, new_h), interpolation=cv2.INTER_LINEAR)
+        # Use INTER_AREA for downscaling (faster), INTER_LINEAR for upscaling
+        interp = cv2.INTER_AREA if scale < 1.0 else cv2.INTER_LINEAR
+        img_resized = cv2.resize(image, (new_w, new_h), interpolation=interp)
         pad_left = (self.imgsz - new_w) // 2
         pad_top = (self.imgsz - new_h) // 2
-        canvas = np.zeros((self.imgsz, self.imgsz, 3), dtype=img_resized.dtype)
-        canvas[pad_top:pad_top + new_h, pad_left:pad_left + new_w] = img_resized
+        
+        # Pre-allocate canvas as float32 to avoid conversion later
+        canvas = np.zeros((self.imgsz, self.imgsz, 3), dtype=np.float32)
+        canvas[pad_top:pad_top + new_h, pad_left:pad_left + new_w] = img_resized.astype(np.float32) / 255.0
 
-        img_rgb = canvas if is_rgb else cv2.cvtColor(canvas, cv2.COLOR_BGR2RGB)
-        img_normalized = img_rgb.astype(np.float32) / 255.0
-        img_chw = np.transpose(img_normalized, (2, 0, 1))
-        img_batch = np.expand_dims(img_chw, axis=0)
+        # Convert BGR->RGB if needed, then transpose in one step
+        if not is_rgb:
+            # Swap channels: BGR -> RGB (faster than cvtColor for this case)
+            canvas = canvas[:, :, ::-1]  # Reverse last dimension
+        
+        # Transpose HWC -> CHW and add batch dimension in one step
+        img_batch = np.expand_dims(canvas.transpose(2, 0, 1), axis=0)
 
         letterbox_info = {
             'pad_left': pad_left,
@@ -162,38 +216,41 @@ class TensorRTInference:
         return img_batch, letterbox_info
     
     def infer(self, input_data: np.ndarray) -> np.ndarray:
-        """Run model inference on GPU"""
+        """Run model inference on GPU with async operations for better performance"""
         # Ensure input is contiguous and float32
         input_data = np.ascontiguousarray(input_data, dtype=np.float32)
         
-        # Copy input to GPU
-        self.cuda.memcpy_htod(
+        # Copy input to GPU asynchronously
+        self.cuda.memcpy_htod_async(
             self.d_input,
             input_data.ctypes.data,
-            self.input_size
+            self.input_size,
+            self.stream
         )
         
-        # Execute inference
-        self.context.execute_async_v3(stream_handle=0)
+        # Execute inference asynchronously (using stream)
+        self.context.execute_async_v3(stream_handle=self.stream)
         
-        # Synchronize
-        self.cuda.synchronize()
-        
-        # Allocate output array
+        # Allocate output array (do this while GPU is working)
         output = np.empty(self.output_shape, dtype=np.float32)
         
-        # Copy output from GPU
-        self.cuda.memcpy_dtoh(
+        # Copy output from GPU asynchronously
+        self.cuda.memcpy_dtoh_async(
             output.ctypes.data,
             self.d_output,
-            self.output_size
+            self.output_size,
+            self.stream
         )
+        
+        # Synchronize stream (waits for all async operations to complete)
+        self.cuda.stream_synchronize(self.stream)
         
         return output
     
     def postprocess_yolo(self, output: np.ndarray, conf_threshold=0.25, iou_threshold=0.45) -> List:
         """Convert raw model output into bounding boxes"""
-        # Output shape: (1, 27, 8400) -> reshape to (8400, 27)
+        # Output shape: (1, C, 8400) -> reshape to (8400, C)
+        # Supports both (1, 13, 8400) for 8-class model and (1, 27, 8400) for 22-class model
         predictions = output[0].transpose((1, 0))
         
         # Extract boxes and scores
@@ -201,12 +258,28 @@ class TensorRTInference:
         objectness = predictions[:, 4:5]
         class_scores = predictions[:, 5:]
         
-        # Calculate final scores
-        if objectness.max() < 0.01:
-            objectness_sigmoid = 1.0 / (1.0 + np.exp(-np.clip(objectness, -500, 500)))
-            scores = objectness_sigmoid * class_scores
+        # Calculate final scores - handle low objectness by trying multiple methods
+        # Method 1: objectness * class_scores (standard YOLO)
+        scores_method1 = objectness * class_scores
+        
+        # Method 2: sigmoid(objectness) * class_scores
+        objectness_sigmoid = 1.0 / (1.0 + np.exp(-np.clip(objectness, -500, 500)))
+        scores_method2 = objectness_sigmoid * class_scores
+        
+        # Method 3: class_scores only (ignore objectness if it's too low)
+        scores_method3 = class_scores
+        
+        # Choose best method based on max score
+        max1 = np.max(scores_method1)
+        max2 = np.max(scores_method2)
+        max3 = np.max(scores_method3)
+        
+        if max3 >= max(max1, max2) * 0.5:  # If class_scores alone gives reasonable scores
+            scores = scores_method3
+        elif max2 > max1:
+            scores = scores_method2
         else:
-            scores = objectness * class_scores
+            scores = scores_method1
         
         # Get class IDs and max scores
         class_ids = np.argmax(scores, axis=1)
@@ -531,6 +604,11 @@ class InferenceNode(Node):
                     )
             else:
                 inference_fps = (len(self._output_timestamps) - 1) / (self._output_timestamps[-1] - self._output_timestamps[0]) if len(self._output_timestamps) >= 2 else 0.0
+                # Publish detection_info even on non-inference frames so combiner knows camera is alive
+                if self._last_detection_info_json:
+                    info_msg = String()
+                    info_msg.data = self._last_detection_info_json
+                    self.detection_info_pub.publish(info_msg)
 
             # Publish detection image every frame. Draw boxes: fresh when we ran inference, or last (stale) for smooth display.
             if run_inference:

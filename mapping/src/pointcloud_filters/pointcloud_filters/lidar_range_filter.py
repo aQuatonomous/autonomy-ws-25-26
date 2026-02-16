@@ -60,9 +60,9 @@ class LidarRangeFilterNode(Node):
         self.declare_parameter('enable_accumulation', False)
         self.declare_parameter('accumulation_window', 0.2)
         # Clockwise rotation in degrees around Z (0 = no rotation). Applied to all points after reading, before other filters.
-        self.declare_parameter('rotate_cw_deg', 202.5)  # 22.5 + 180
+        self.declare_parameter('rotate_cw_deg', 112.5)  # 22.5 + 180
         # Counter-clockwise rotation in degrees around Y (0 = no rotation). Applied after Z rotation.
-        self.declare_parameter('rotate_ccw_y_deg', 15.0)
+        self.declare_parameter('rotate_ccw_y_deg', 30.0)
         # Field of view limit: max angle from +X axis to keep (degrees). 105° = 210° total coverage centered on +X. 0 = no FOV filter.
         self.declare_parameter('fov_max_angle_from_x', 105.0)
         # Z ceiling: remove every point with z above this (m). E.g. 1.5 = cut off everything above 1.5 m. Set very large (e.g. 1000) to disable.

@@ -34,7 +34,7 @@ CX_PX = SENSOR_WIDTH_PX / 2.0
 CY_PX = SENSOR_HEIGHT_PX / 2.0
 
 # --- Same as vision_combiner.py: camera 0=left, 1=center(forward), 2=right ---
-CAMERA_MOUNTING_ANGLES_DEG = [-57.7, 0.0, 57.7]
+CAMERA_MOUNTING_ANGLES_DEG = [-70.0, 0.0, 70.0]
 
 # Reference dimensions (m) — same as maritime_distance_estimator
 REFERENCE_DIMENSIONS = {
@@ -232,7 +232,7 @@ def main():
     print("=" * 60)
     print("Distance & angle (YOLO aqua_main.pt, same formulas as maritime_distance_estimator + vision_combiner)")
     print("  Model: {}  |  conf threshold: {}".format(model_path, args.conf))
-    print("  Scale factor: {}  |  Camera 0 = left (-57.7°)  |  Camera 1 = forward (0°)".format(args.scale))
+    print("  Scale factor: {}  |  Camera 0 = left (-70.0°)  |  Camera 1 = forward (0°)".format(args.scale))
     print("=" * 60)
     print()
     print("FORWARD camera (center, mounting 0°) —", args.forward)
@@ -243,7 +243,7 @@ def main():
             print("  Object {}:  class = {}  |  distance = {:.2f} m ({:.1f} ft)  |  bearing = {:.1f}°  |  elevation = {:.1f}°  |  confidence = {:.2f}  (height_px = {})".format(
                 i + 1, r["class_name"], r["distance_m"], r["distance_ft"], r["bearing_deg"], r["elevation_deg"], r["confidence"], r["height_px"]))
     print()
-    print("LEFT camera (mounting -57.7°) —", args.left)
+    print("LEFT camera (mounting -70.0°) —", args.left)
     if not left_results:
         print("  No detections.")
     else:

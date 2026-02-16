@@ -64,12 +64,20 @@ ros2 launch pointcloud_filters buoy_pipeline.launch.py eps:=0.6
 
 | Check | Command |
 |-------|---------|
-| Raw LiDAR | `ros2 topic hz /unilidar/cloud` |
-| Filtered cloud | `ros2 topic hz /points_filtered` |
-| Detections | `ros2 topic echo /buoy_detections` |
-| Tracked buoys | `ros2 topic echo /tracked_buoys` |
+| Raw LiDAR frequency | `ros2 topic hz /unilidar/cloud --window 20` |
+| Filtered cloud frequency | `ros2 topic hz /points_filtered --window 20` |
+| Detections frequency | `ros2 topic hz /buoy_detections --window 20` |
+| Tracked buoys frequency | `ros2 topic hz /tracked_buoys --window 20` |
+| Fused buoys frequency | `ros2 topic hz /fused_buoys --window 20` |
+| Detections (basic) | `ros2 topic echo /buoy_detections` |
+| Tracked buoys (basic) | `ros2 topic echo /tracked_buoys` |
+| Tracked buoys (full, no truncation) | `ros2 topic echo /tracked_buoys --no-arr` |
+| Tracked buoys JSON (pretty) | `ros2 topic echo /tracked_buoys_json --once --field data \| jq .` |
+| Fused buoys (full, no truncation) | `ros2 topic echo /fused_buoys --no-arr` |
 
 **RViz:** Fixed frame `unilidar_lidar`. Add PointCloud2 `/unilidar/cloud`, `/points_filtered`; MarkerArray `/tracked_buoy_markers`. Labels show ID, distance (m), angle (°) with 0° = +X.
+
+**Note:** Use `--no-arr` flag with `ros2 topic echo` to see full messages without truncation, especially useful for arrays with many buoys.
 
 ---
 

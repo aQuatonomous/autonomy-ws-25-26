@@ -50,7 +50,7 @@ detection_info          (or update              (with color)
 
 ### Message Structure (summary)
 
-Top-level: `timestamp`, `num_cameras`, `num_active_cameras`, `num_stale_cameras`, `num_no_data_cameras`, `staleness_threshold`, `total_detections`, `global_frame` (`{ "width": 1920, "height": 480 }`), `camera_stats` (per-camera status, fps, `time_since_update`), `detections` (array). Each detection: `camera_id`, `class_id`, `score`, `bbox` in **global 1920×480**; Task4 supply drops also have `source: "task4"`, `type` in `"yellow_supply_drop"`, `"black_supply_drop"`. Full format: [README.md](README.md#detection-info-format).
+Top-level: `timestamp`, `num_cameras`, `num_active_cameras`, `num_stale_cameras`, `num_no_data_cameras`, `staleness_threshold`, `total_detections`, `global_frame` (`{ "width": 1920, "height": 480 }`), `camera_stats` (per-camera status, fps, `time_since_update`), `detections` (array). Each detection: `camera_id`, `class_id`, `score`, `bbox` in **global 1920×480**; Task4 supply drops also have `source: "task4"`, `type` in `"yellow_supply_drop"`, `"black_supply_drop"`. Overlap-merged detections include `duplicate: true`, `bbox_other`, `camera_id_other`, and averaged `bearing_deg`/`elevation_deg`. Full format: [README.md](README.md#detection-info-format).
 
 ### Detection Fields
 

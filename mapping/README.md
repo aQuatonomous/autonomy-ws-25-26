@@ -129,6 +129,150 @@ buoys:
 - `tf2_ros` (optional, for range filter transform)
 - Unitree LiDAR driver (`unitree_lidar_ros2`) and `rviz2` for the full pipeline launch
 
+## Monitoring and Debugging
+
+### Basic topic monitoring
+
+```bash
+# List all topics
+ros2 topic list
+
+# Check topic frequency
+ros2 topic hz /unilidar/cloud --window 20
+ros2 topic hz /points_filtered --window 20
+ros2 topic hz /buoy_detections --window 20
+ros2 topic hz /tracked_buoys --window 20
+ros2 topic hz /fused_buoys --window 20
+
+# Check topic type
+ros2 topic type /tracked_buoys
+ros2 topic type /fused_buoys
+
+# See topic info
+ros2 topic info /tracked_buoys --verbose
+ros2 topic info /fused_buoys --verbose
+```
+
+### Viewing topic messages
+
+**Basic echo:**
+```bash
+ros2 topic echo /tracked_buoys
+ros2 topic echo /fused_buoys
+ros2 topic echo /buoy_detections
+```
+
+**View long messages (no truncation):**
+```bash
+# Use --no-arr to see full arrays/lists without truncation
+ros2 topic echo /tracked_buoys --no-arr
+ros2 topic echo /fused_buoys --no-arr
+ros2 topic echo /buoy_detections --no-arr
+
+# For JSON topics, extract and pretty-print with jq
+ros2 topic echo /tracked_buoys_json --once --field data | jq .
+
+# View full message continuously without truncation
+ros2 topic echo /tracked_buoys_json --no-arr --field data | jq .
+```
+
+**Single message:**
+```bash
+# Get one message and exit
+ros2 topic echo /tracked_buoys --once
+ros2 topic echo /fused_buoys --once
+
+# Single message, specific field, pretty-printed (for JSON topics)
+ros2 topic echo /tracked_buoys_json --once --field data | jq .
+```
+
+**Point cloud topics:**
+```bash
+# Check point cloud data (use RViz for visualization)
+ros2 topic echo /unilidar/cloud --once
+ros2 topic echo /points_filtered --once
+
+# Check point cloud frequency and size
+ros2 topic hz /unilidar/cloud --window 20
+ros2 topic hz /points_filtered --window 20
+```
+
+### Debugging specific nodes
+
+**Check if nodes are running:**
+```bash
+ros2 node list
+ros2 node info /lidar_range_filter
+ros2 node info /buoy_detector
+ros2 node info /buoy_tracker
+ros2 node info /tracked_buoy_visualizer
+```
+
+**View node parameters:**
+```bash
+ros2 param list /buoy_detector
+ros2 param get /buoy_detector eps
+ros2 param get /buoy_detector min_samples
+ros2 param get /buoy_tracker association_threshold
+ros2 param get /buoy_tracker min_observations_to_add
+```
+
+**Monitor node output/logs:**
+```bash
+# Check if nodes are publishing
+ros2 topic info /buoy_detections --verbose
+ros2 topic info /tracked_buoys --verbose
+
+# Enable debug logging for detector
+ros2 launch pointcloud_filters buoy_pipeline.launch.py buoy_detector_log_level:=debug
+```
+
+### Common debugging commands
+
+```bash
+# Check all LiDAR-related topics
+ros2 topic list | grep -E "(unilidar|points|buoy|tracked|fused)"
+
+# Monitor pipeline health
+ros2 topic hz /unilidar/cloud --window 20
+ros2 topic hz /points_filtered --window 20
+ros2 topic hz /buoy_detections --window 20
+ros2 topic hz /tracked_buoys --window 20
+ros2 topic hz /fused_buoys --window 20
+
+# Save topic messages to bag file for later analysis
+ros2 bag record /tracked_buoys /fused_buoys /buoy_detections /points_filtered
+
+# Play back bag file
+ros2 bag play <bag_file_name>
+```
+
+### RViz visualization
+
+**Fixed frame:** `unilidar_lidar` (or `base_link` if TF transform is enabled)
+
+**Topics to add in RViz:**
+- PointCloud2: `/unilidar/cloud` (raw LiDAR)
+- PointCloud2: `/points_filtered` (filtered cloud)
+- MarkerArray: `/tracked_buoy_markers` (visualized buoys with labels)
+
+**Marker labels show:**
+- ID (track ID)
+- Distance (m)
+- Angle (°) where 0° = +X axis, above X = negative angle, below = positive
+
+### Troubleshooting
+
+- **No `/unilidar/cloud`:** Start the Unitree LiDAR driver; ensure device is connected (or use `launch_lidar_driver:=false` if cloud comes from elsewhere)
+- **No `/points_filtered`:** Start the range filter after the driver. Check `range_max`, `z_min`, `z_max` parameters
+- **No or bad buoy detections:** Tune `eps` (e.g. 0.8 → 1.0 if buoys split; 0.6 if they merge). Run with `buoy_detector_log_level:=debug` to see why clusters are rejected
+- **Truncated output:** Use `--no-arr` flag with `ros2 topic echo` to see full messages
+- **Wrong workspace:** Always `source install/setup.bash` from the **mapping** workspace (`~/autonomy-ws-25-26/mapping`)
+- **CycloneDDS / rmw handle invalid:** Use FastRTPS: `export RMW_IMPLEMENTATION=rmw_fastrtps_cpp` before launching
+- **ModuleNotFoundError: sklearn:** `sudo apt install python3-sklearn`
+
+For WSL2-specific issues (usbipd, serial port, RViz crashes), see [WSL2_LIDAR_SETUP.md](WSL2_LIDAR_SETUP.md). For competition-specific overrides and tuning, see [COMPETITION.md](COMPETITION.md).
+
 ## Notes
 
 - Range filter uses BEST_EFFORT to match the Unitree driver; detector publishes every frame (including empty); tracker and visualizers use RELIABLE, depth 1 for low latency.
