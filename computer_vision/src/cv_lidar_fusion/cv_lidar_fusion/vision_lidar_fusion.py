@@ -2,51 +2,69 @@
 """
 Vision-LiDAR fusion node.
 
-Subscribes to /combined/detection_info (CV) and /tracked_buoys (LiDAR).
-Matches by angle: CV provides bearing_deg per detection; LiDAR provides bearing (radians).
-Publishes /fused_buoys (TrackedBuoyArray) with color from CV.
+Fuses **final CV output** (/combined/detection_info_with_distance) with LiDAR
+(/tracked_buoys). For each CV detection, finds the **closest LiDAR track in that
+direction** (by bearing only). Assigns class_id and class_name from CV to that track.
+Distance from camera (distance_m) is present in the topic for future use but is NOT
+used for matching.
+
+Subscribes: /combined/detection_info_with_distance, /tracked_buoys
+Publishes:  /fused_buoys (FusedBuoyArray)
 """
 
 import json
 import math
-from typing import List, Tuple
+from typing import Dict, List, Optional, Tuple
 
 import rclpy
 from rclpy.node import Node
 from std_msgs.msg import String
-from pointcloud_filters.msg import TrackedBuoyArray, TrackedBuoy
+from pointcloud_filters.msg import TrackedBuoyArray, TrackedBuoy, FusedBuoyArray, FusedBuoy
 
 
-# Buoy class_ids from CV (0-5); 6-8 are cross/dock/triangle, not buoys
-BUOY_CLASS_IDS = {0, 1, 2, 3, 4, 5}
+# class_id for unmatched LiDAR tracks (no CV detection in that direction)
+CLASS_ID_UNKNOWN = 255
+
+
+def _track_to_fused(track: TrackedBuoy, class_id: int, class_name: str) -> FusedBuoy:
+    """Copy TrackedBuoy to FusedBuoy and set class_id, class_name."""
+    fused = FusedBuoy()
+    fused.id = track.id
+    fused.range = track.range
+    fused.bearing = track.bearing
+    fused.x = track.x
+    fused.y = track.y
+    fused.z_mean = track.z_mean
+    fused.class_id = class_id
+    fused.class_name = class_name
+    fused.confidence = track.confidence
+    fused.observation_count = track.observation_count
+    fused.first_seen = track.first_seen
+    fused.last_seen = track.last_seen
+    return fused
 
 
 class VisionLidarFusionNode(Node):
-    """Fusion node: match LiDAR tracks to CV detections by bearing; assign color from class_id; publish /fused_buoys."""
+    """
+    CV-driven fusion: for each CV detection, find closest LiDAR track in that direction
+    (by bearing only). Assign class_id and class_name from CV. Publish all LiDAR tracks
+    as FusedBuoyArray. Distance from camera is not used for matching (available for later).
+    """
 
     def __init__(self):
         super().__init__('vision_lidar_fusion')
 
-        self.declare_parameter('bearing_threshold', 0.15)
+        self.declare_parameter('bearing_threshold_rad', 0.15)
         self._bearing_threshold = float(
-            self.get_parameter('bearing_threshold').get_parameter_value().double_value
+            self.get_parameter('bearing_threshold_rad').get_parameter_value().double_value
         )
 
-        self._class_to_color = {
-            0: 'black',
-            1: 'green',
-            2: 'green',
-            3: 'red',
-            4: 'red',
-            5: 'yellow',
-        }
-
-        self._latest_cv_detections = []
-        self._latest_cv_timestamp = None
+        self._latest_cv_detections: List[Dict] = []
+        self._latest_lidar: Optional[TrackedBuoyArray] = None
 
         self._cv_sub = self.create_subscription(
             String,
-            '/combined/detection_info',
+            '/combined/detection_info_with_distance',
             self._cv_callback,
             10,
         )
@@ -57,96 +75,99 @@ class VisionLidarFusionNode(Node):
             10,
         )
         self._fused_pub = self.create_publisher(
-            TrackedBuoyArray,
+            FusedBuoyArray,
             '/fused_buoys',
             10,
         )
 
         self.get_logger().info(
             f'Vision-LiDAR fusion: bearing_threshold={self._bearing_threshold:.2f} rad. '
-            'Subscribed to /combined/detection_info and /tracked_buoys; publishing /fused_buoys.'
+            'CV-driven: for each CV detection, closest LiDAR track in that direction gets class_id/class_name. '
+            'Distance from camera not used for matching (available in topic for later).'
         )
 
     def _cv_callback(self, msg: String) -> None:
-        """Parse CV JSON and store detections (combiner provides bearing_deg per detection)."""
         try:
             data = json.loads(msg.data)
         except json.JSONDecodeError as e:
             self.get_logger().warn(f'CV: invalid JSON: {e}')
             return
         self._latest_cv_detections = data.get('detections', [])
-        self._latest_cv_timestamp = data.get('timestamp')
+        self._maybe_publish_fused()
+
+    def _lidar_callback(self, msg: TrackedBuoyArray) -> None:
+        self._latest_lidar = msg
+        self._maybe_publish_fused()
+
+    def _maybe_publish_fused(self) -> None:
+        if self._latest_lidar is None:
+            return
+        self._run_fusion(self._latest_lidar)
 
     def _run_fusion(self, msg: TrackedBuoyArray) -> None:
         """
-        Match LiDAR tracks to CV detections by bearing; assign color from class_id; publish /fused_buoys.
-        CV bearing_deg: 0=forward, negative=left, positive=right. LiDAR bearing: radians, 0=forward, +left.
-        Convert: angle_rad = math.radians(bearing_deg), cv_bearing = -angle_rad for comparison with LiDAR.
+        CV-driven: for each CV detection, find the closest LiDAR track in that direction
+        by bearing only. Assign that track the CV class_id and class_name.
+        Unmatched tracks get class_id=CLASS_ID_UNKNOWN, class_name="unknown".
         """
-        out = TrackedBuoyArray()
+        out = FusedBuoyArray()
         out.header = msg.header
+        out.header.stamp = self.get_clock().now().to_msg()
 
         if len(msg.buoys) == 0:
             self._fused_pub.publish(out)
             return
 
-        # Build list of CV detections with valid bearing and buoy class_id; compute cv_bearing (radians, same convention as LiDAR)
-        cv_candidates: List[Tuple[float, str, float]] = []
+        # Build CV candidates: (cv_bearing_rad, class_id, class_name, score)
+        # CV bearing_deg: 0=forward, -left, +right. LiDAR: 0=+X, +left. So cv_bearing_rad = -rad(deg).
+        cv_candidates: List[Tuple[float, int, str, float]] = []
         for d in self._latest_cv_detections:
             cid = d.get('class_id')
-            if cid is None or cid not in BUOY_CLASS_IDS:
+            if cid is None:
                 continue
-            # Combiner publishes bearing_deg (bearing_rad is trimmed from output)
+            try:
+                cid = int(cid)
+            except (TypeError, ValueError):
+                continue
+            class_name = d.get('class_name')
+            if not class_name:
+                class_name = f'class_{cid}'
             bearing_deg = d.get('bearing_deg')
             if bearing_deg is None:
                 continue
-            angle_rad = math.radians(float(bearing_deg))
-            cv_bearing = -angle_rad  # match LiDAR convention
-            color = self._class_to_color.get(cid, 'unknown')
+            cv_bearing = -math.radians(float(bearing_deg))
             score = float(d.get('score', 0.0))
-            cv_candidates.append((cv_bearing, color, score))
+            cv_candidates.append((cv_bearing, cid, class_name, score))
 
-        # Greedy 1-to-1: for each LiDAR track, pick closest CV detection within threshold; mark used
-        used_cv_indices = set()
+        # For each CV detection, find closest LiDAR track in that direction (bearing only)
+        # track_id -> (class_id, class_name, best_bearing_diff)
+        assigned: Dict[int, Tuple[int, str, float]] = {}
 
-        for track in msg.buoys:
-            fused = TrackedBuoy()
-            fused.id = track.id
-            fused.range = track.range
-            fused.bearing = track.bearing
-            fused.x = track.x
-            fused.y = track.y
-            fused.z_mean = track.z_mean
-            fused.confidence = track.confidence
-            fused.observation_count = track.observation_count
-            fused.first_seen = track.first_seen
-            fused.last_seen = track.last_seen
+        for cv_bearing, class_id, class_name, score in cv_candidates:
+            best_track_id = None
+            best_bearing_diff = self._bearing_threshold + 1.0
 
-            lidar_bearing = track.bearing
-            best_idx = None
-            best_diff = self._bearing_threshold + 1.0
-
-            for idx, (cv_bearing, color, score) in enumerate(cv_candidates):
-                if idx in used_cv_indices:
+            for track in msg.buoys:
+                bearing_diff = abs(cv_bearing - track.bearing)
+                if bearing_diff > self._bearing_threshold:
                     continue
-                diff = abs(cv_bearing - lidar_bearing)
-                if diff < best_diff:
-                    best_diff = diff
-                    best_idx = idx
+                if bearing_diff < best_bearing_diff:
+                    best_bearing_diff = bearing_diff
+                    best_track_id = track.id
 
-            if best_idx is not None:
-                fused.color = cv_candidates[best_idx][1]
-                used_cv_indices.add(best_idx)
+            if best_track_id is not None:
+                if best_track_id not in assigned or best_bearing_diff < assigned[best_track_id][2]:
+                    assigned[best_track_id] = (class_id, class_name, best_bearing_diff)
+
+        # Build output: every LiDAR track with assigned class or unknown
+        for track in msg.buoys:
+            if track.id in assigned:
+                cid, cname, _ = assigned[track.id]
+                out.buoys.append(_track_to_fused(track, cid, cname))
             else:
-                fused.color = 'unknown'
-
-            out.buoys.append(fused)
+                out.buoys.append(_track_to_fused(track, CLASS_ID_UNKNOWN, 'unknown'))
 
         self._fused_pub.publish(out)
-
-    def _lidar_callback(self, msg: TrackedBuoyArray) -> None:
-        """On each LiDAR update, run fusion and publish /fused_buoys."""
-        self._run_fusion(msg)
 
 
 def main(args=None):

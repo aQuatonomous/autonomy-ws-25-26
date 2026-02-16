@@ -3,9 +3,9 @@
 <package format="3">
   <name>cv_ros_nodes</name>
   <version>0.0.0</version>
-  <description>TODO: Package description</description>
+  <description>ROS 2 nodes for computer vision: preprocessing, inference, combiner, and task processors (buoy detection, supply drop, indicator buoy, distance estimation).</description>
   <maintainer email="lorenzodemarni666@gmail.com">lorenzo</maintainer>
-  <license>TODO: License declaration</license>
+  <license>MIT</license>
 
   <depend>rclpy</depend>
   <depend>sensor_msgs</depend>

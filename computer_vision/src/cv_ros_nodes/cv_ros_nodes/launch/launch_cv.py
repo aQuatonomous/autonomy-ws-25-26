@@ -1,6 +1,6 @@
 from launch import LaunchDescription
-from launch.actions import DeclareLaunchArgument, LogInfo, OpaqueFunction
-from launch.conditions import IfCondition
+from launch.actions import DeclareLaunchArgument, GroupAction, LogInfo, OpaqueFunction
+from launch.conditions import IfCondition, UnlessCondition
 from launch_ros.actions import Node
 from launch.substitutions import LaunchConfiguration
 import os
@@ -53,6 +53,12 @@ def generate_launch_description():
         'resolution',
         default_value='1920,1200',
         description='Camera resolution as W,H (e.g. 1920,1200)'
+    )
+
+    use_sim_arg = DeclareLaunchArgument(
+        'use_sim',
+        default_value='false',
+        description='Set to true when using simulation (Gazebo bridges publish /cameraN/image_raw). Skips v4l2 camera nodes.'
     )
 
     camera_devices_arg = DeclareLaunchArgument(
@@ -201,6 +207,7 @@ def generate_launch_description():
         default_value='1.0',
         description='One-point calibration: scale factor = measured_distance_m / distance_specs (1.0 = no correction)'
     )
+    # Final CV output: /combined/detection_info_with_distance (bearing, elevation, distance per detection)
     maritime_distance_estimator = Node(
         package='cv_ros_nodes',
         executable='maritime_distance_estimator',
@@ -210,6 +217,7 @@ def generate_launch_description():
 
     return LaunchDescription([
         resolution_arg,
+        use_sim_arg,
         camera_devices_arg,
         engine_path_arg,
         conf_threshold_arg,
@@ -221,7 +229,10 @@ def generate_launch_description():
         number_conf_threshold_arg,
         distance_scale_factor_arg,
         LogInfo(msg='Starting computer vision pipeline...'),
-        OpaqueFunction(function=_create_camera_nodes),
+        GroupAction(
+            condition=UnlessCondition(LaunchConfiguration('use_sim')),
+            actions=[OpaqueFunction(function=_create_camera_nodes)]
+        ),
         preprocess0,
         preprocess1,
         preprocess2,

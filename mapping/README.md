@@ -52,14 +52,14 @@ Maintains persistent buoy identities across frames with data association and a p
 
 - **Subscribes:** `/buoy_detections`.
 - **Publishes:** `/tracked_buoys` (pointcloud_filters/TrackedBuoyArray).
-- **Logic:** Nearest-neighbor association (distance threshold); unmatched detections become candidates; a candidate is promoted to a tracked buoy after being seen **min_observations_to_add** times in the same area; candidates dropped after **candidate_max_consecutive_misses** frames without match. Tracks are published only after **min_observations_for_publish**; removed after **max_consecutive_misses**. Supports color/confidence from vision fusion.
+- **Logic:** Nearest-neighbor association (distance threshold); unmatched detections become candidates; a candidate is promoted to a tracked buoy after being seen **min_observations_to_add** times in the same area; candidates dropped after **candidate_max_consecutive_misses** frames without match. Tracks are published only after **min_observations_for_publish**; removed after **max_consecutive_misses**. Class is not set here; the fusion node assigns class_id/class_name from CV to produce `/fused_buoys`.
 - **Key parameters:** `association_threshold` (m), `min_observations_to_add`, `candidate_max_consecutive_misses`, `min_observations_for_publish`, `max_consecutive_misses`.
 
 ### 4. Tracked Buoy Visualizer (`tracked_buoy_visualizer`)
 
-Visualizes tracked buoys in RViz with cylinders (color-coded) and text labels.
+Visualizes fused buoys in RViz with cylinders and text labels (class_name from CV, e.g. red_buoy, red_pole_buoy).
 
-- **Subscribes:** `/tracked_buoys`.
+- **Subscribes:** `/fused_buoys` (FusedBuoyArray). Run the fusion node so this topic is published.
 - **Publishes:** `/tracked_buoy_markers` (visualization_msgs/MarkerArray): cylinder markers and, when `show_text_labels` is true, text showing **ID**, **distance (m)**, and **angle (°)**. Angle convention: **0° = +X**; above the X axis = negative angle, below = positive (i.e. angle = −degrees(bearing), bearing = atan2(y, x)).
 - **Parameters:** `marker_height`, `marker_radius`, `marker_lifetime`, `show_text_labels` (default true).
 
@@ -72,30 +72,25 @@ LiDAR driver (unitree_lidar_ros2)
     → /points_filtered
     → buoy_detector (optional RANSAC, DBSCAN, validation)
     → /buoy_detections
-    → buoy_tracker
-    → /tracked_buoys
-    → tracked_buoy_visualizer
-    → /tracked_buoy_markers (RViz)
+    → buoy_tracker → /tracked_buoys (final LiDAR output, no color) and /tracked_buoys_json (same as JSON, similar to CV)
+    → (fusion node: /tracked_buoys + /combined/detection_info_with_distance → /fused_buoys with class_id, class_name)
+    → tracked_buoy_visualizer (/fused_buoys) → /tracked_buoy_markers (RViz)
 ```
 
 ## Final LiDAR output (downstream)
 
-The **main topic for mission/planning** is:
+LiDAR does **not** set class; the fusion node assigns **class_id** and **class_name** from CV and publishes **`/fused_buoys`**.
 
 | Topic | Type | Description |
 |-------|------|-------------|
-| **`/tracked_buoys`** | `pointcloud_filters/TrackedBuoyArray` | **Final LiDAR output**: persistent buoy tracks with `id`, `range` (m), `bearing` (rad), `x`, `y` (base_link), `z_mean`, `color` (initially `"unknown"`; use CV–LiDAR fusion for red/green/yellow/black), `confidence`, `observation_count`, `first_seen`, `last_seen`. Published by `buoy_tracker` at detection rate (~10–30 Hz). |
+| **`/tracked_buoys`** | `pointcloud_filters/TrackedBuoyArray` | **Final LiDAR output**: persistent buoy tracks with `id`, `range` (m), `bearing` (rad), `x`, `y` (base_link), `z_mean`, `confidence`, `observation_count`, `first_seen`, `last_seen`. No class field. Published by `buoy_tracker` at detection rate (~10–30 Hz). |
+| **`/tracked_buoys_json`** | `std_msgs/String` (JSON) | Same content as `/tracked_buoys` in JSON form (similar format to CV final output), published by **buoy_tracker**. `timestamp`, `frame_id`, `num_detections`, `detections[]` with `id`, `range`, `bearing`, `x`, `y`, `z_mean`, etc. |
+| **`/fused_buoys`** | `pointcloud_filters/FusedBuoyArray` | **Output of CV–LiDAR fusion**: same geometry as `/tracked_buoys` with **`class_id`** and **`class_name`** from vision (e.g. `red_buoy`, `red_pole_buoy`, `green_buoy`, `yellow_buoy`, `unknown`). Run the fusion node (`cv_lidar_fusion`) subscribing to `/combined/detection_info_with_distance` and `/tracked_buoys`. Planning and the tracked-buoy visualizer use **`/fused_buoys`**. |
 
-Downstream (e.g. planning) should subscribe to **`/tracked_buoys`**. For color-labeled buoys, run the fusion node (`cv_lidar_fusion`) which subscribes to `/tracked_buoys` and `/combined/detection_info` and publishes **`/fused_buoys`** (same message type with `color` filled from vision).
-
-**Sample topic output — `/tracked_buoys`** (`ros2 topic echo /tracked_buoys`):
+**Sample — `/tracked_buoys`** (no class):
 
 ```yaml
-header:
-  stamp:
-    sec: 1739123456
-    nanosec: 789000000
-  frame_id: 'base_link'
+header: { stamp: {...}, frame_id: 'base_link' }
 buoys:
   - id: 0
     range: 5.24
@@ -103,40 +98,22 @@ buoys:
     x: 4.98
     y: 1.58
     z_mean: -0.12
-    color: 'unknown'
     confidence: 0.82
     observation_count: 12
-    first_seen:
-      sec: 1739123450
-      nanosec: 100000000
-    last_seen:
-      sec: 1739123456
-      nanosec: 789000000
-  - id: 1
-    range: 8.10
-    bearing: -0.52
-    x: 7.12
-    y: -3.89
-    z_mean: 0.05
-    color: 'red'
-    confidence: 0.91
-    observation_count: 8
-    first_seen:
-      sec: 1739123452
-      nanosec: 500000000
-    last_seen:
-      sec: 1739123456
-      nanosec: 789000000
+    first_seen: {...}
+    last_seen: {...}
 ```
 
-*(With CV–LiDAR fusion running, **`/fused_buoys`** has the same structure with `color` set to `"red"`, `"green"`, `"yellow"`, or `"black"` when matched to vision; otherwise `"unknown"`.)*
+**`/fused_buoys`** has the same fields per buoy plus **`class_id`** (0–22 per CV class_mapping; 255 = unknown) and **`class_name`** (e.g. `"red_buoy"`, `"red_pole_buoy"`, `"unknown"`).
 
 ## Custom Messages
 
 - **BuoyDetection:** `range`, `bearing`, `z_mean`, `num_points`, `lateral_extent`, `radial_extent`, `confidence`
 - **BuoyDetectionArray:** Array of BuoyDetection
-- **TrackedBuoy:** `id`, `range`, `bearing`, `x`, `y`, `z_mean`, `color`, `confidence`, `observation_count`, `first_seen`, `last_seen`
+- **TrackedBuoy:** `id`, `range`, `bearing`, `x`, `y`, `z_mean`, `confidence`, `observation_count`, `first_seen`, `last_seen` (no class)
 - **TrackedBuoyArray:** Array of TrackedBuoy
+- **FusedBuoy:** TrackedBuoy fields plus **`class_id`** and **`class_name`** (from CV fusion)
+- **FusedBuoyArray:** Array of FusedBuoy
 
 ## Launch
 

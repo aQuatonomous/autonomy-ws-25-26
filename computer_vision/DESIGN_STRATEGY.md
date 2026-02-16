@@ -15,7 +15,7 @@
 12. [Task-Specific Computer Vision Requirements](#task-specific-computer-vision-requirements)
 13. [Monitoring and Diagnostics](#monitoring-and-diagnostics)
 
-**Related documentation:** [README.md](README.md) is the runbook (quick start, launch, cameras, nodes, topics). This document is the full design reference. For specific topics: [SIMULATIONS.md](SIMULATIONS.md), [DISTANCE_ESTIMATOR_CHANGES.md](DISTANCE_ESTIMATOR_CHANGES.md), [FUSION_NODE_GUIDE.md](FUSION_NODE_GUIDE.md), [model_training/TENSORRT.md](model_training/TENSORRT.md).
+**Related documentation:** [README.md](README.md) is the runbook (quick start, launch, cameras, nodes, topics). This document is the full design reference. For specific topics: [simulations/README.md](../simulations/README.md) (sim + CV), [DISTANCE_ESTIMATOR_CHANGES.md](DISTANCE_ESTIMATOR_CHANGES.md), [FUSION_NODE_GUIDE.md](FUSION_NODE_GUIDE.md), [model_training/TENSORRT.md](model_training/TENSORRT.md).
 
 ---
 
@@ -935,7 +935,6 @@ python test_inference.py --camera 0
 ├── set_camera_fps.sh
 ├── README.md
 ├── DESIGN_STRATEGY.md
-├── SIMULATIONS.md
 ├── FUSION_NODE_GUIDE.md
 └── DISTANCE_ESTIMATOR_CHANGES.md
 ```

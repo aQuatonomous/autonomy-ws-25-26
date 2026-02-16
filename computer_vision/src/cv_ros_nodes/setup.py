@@ -12,14 +12,14 @@ setup(
         ('share/' + package_name, ['package.xml']),
         ('share/' + package_name, ['../../cv_scripts/class_mapping.yaml']),
         ('share/' + package_name + '/launch',
-        ['cv_ros_nodes/launch/launch_cv.py']),
+        ['cv_ros_nodes/launch/launch_cv.py', 'cv_ros_nodes/launch/launch_cv_sim.py']),
     ],
     install_requires=['setuptools'],
     zip_safe=True,
     maintainer='lorenzo',
     maintainer_email='lorenzodemarni666@gmail.com',
-    description='TODO: Package description',
-    license='TODO: License declaration',
+    description='ROS 2 nodes for computer vision: preprocessing, inference, combiner, and task processors.',
+    license='MIT',
     extras_require={
         'test': [
             'pytest',

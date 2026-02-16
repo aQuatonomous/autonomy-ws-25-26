@@ -12,18 +12,20 @@ This folder holds the **canonical simulation setup** for the autonomy boat: Gaze
 4. [Key Files and Paths](#key-files-and-paths)
 5. [User and Directory Setup (Ethan vs Lorenzo)](#user-and-directory-setup-ethan-vs-lorenzo)
 6. [How to Run the Simulation](#how-to-run-the-simulation)
-7. [Tmux Layout and Navigation](#tmux-layout-and-navigation)
-8. [How to Control the Boat](#how-to-control-the-boat)
-9. [Ports and Communication](#ports-and-communication)
-10. [Issues We Hit and How We Fixed Them](#issues-we-hit-and-how-we-fixed-them)
-11. [One-Time Setup and Dependencies](#one-time-setup-and-dependencies)
-12. [Troubleshooting](#troubleshooting)
+7. [Quick command reference](#quick-command-reference)
+8. [Tmux Layout and Navigation](#tmux-layout-and-navigation)
+9. [How to Control the Boat](#how-to-control-the-boat)
+10. [Running computer vision with the simulation](#running-computer-vision-with-the-simulation)
+11. [Ports and Communication](#ports-and-communication)
+12. [Issues We Hit and How We Fixed Them](#issues-we-hit-and-how-we-fixed-them)
+13. [One-Time Setup and Dependencies](#one-time-setup-and-dependencies)
+14. [Troubleshooting](#troubleshooting)
 
 ---
 
 ## What This Is
 
-- **Gazebo Sim (gz sim)** runs a boat world (`super_cool_test.sdf`) with water, buoys, gates, and the **ourboat** model.
+- **Gazebo Sim (gz sim)** runs the **Aquatonomous** boat world (`aquatonomous_world.sdf` in `simulations/worlds/`) with water, buoys, gates, and the **ourboat** model.
 - **ros_gz_bridge** bridges Gazebo topics to ROS 2 (lidar + 3 cameras).
 - **MAVROS** (ROS 2) talks to ArduPilot over MAVLink.
 - **ArduPilot SITL** (Rover, JSON model) simulates the autopilot; it receives sensor data from Gazebo and sends motor commands back so the boat moves in the world.
@@ -90,7 +92,7 @@ Gazebo must be running **before** SITL starts so the plugin is bound to 9002 whe
 
 ## What Is Working Right Now
 
-- **Gazebo** loads the world `super_cool_test.sdf` with water (waves model), buoys, gates, and the ourboat model.
+- **Gazebo** loads the world `aquatonomous_world.sdf` (in `simulations/worlds/`) with water (waves model), buoys, gates, and the ourboat model.
 - **Water physics:** WavesModel and Hydrodynamics plugins load; the boat **floats** on the water and does not fall through (requires correct `LD_LIBRARY_PATH` and model name; see fixes below).
 - **ArduPilotPlugin** loads; SITL connects to it on 9002; the boat **moves in Gazebo** when you send position/velocity commands.
 - **MAVProxy** connects to SITL; you can run `mode GUIDED`, `arm throttle`, `position X Y Z`, `velocity X Y Z` and see the boat move.
@@ -106,7 +108,8 @@ Gazebo must be running **before** SITL starts so the plugin is bound to 9002 whe
 |------|------|
 | **This folder** | `autonomy-ws-25-26/simulations/` |
 | **Launch script** | `simulations/simulation_full.bash` (or `~/simulation_full.bash` if you copy it) |
-| **World (map)** | `autonomy-ws-25-26/src/asv_wave_sim/gz-waves-models/worlds/super_cool_test.sdf` |
+| **World (map)** | `autonomy-ws-25-26/simulations/worlds/aquatonomous_world.sdf` |
+| **Wave/course models** | `.../gz-waves-models/models/` and `.../gz-waves-models/world_models/` (waves, RedSurMark, buoys, etc.; must be in `GZ_SIM_RESOURCE_PATH`) |
 | **Boat model** | `~/SITL_Models/Gazebo/models/ourboat/` (model.sdf, model.config, meshes) |
 | **ArduPilot plugin build** | `~/ardupilot_gazebo/build/` (must contain `libArduPilotPlugin.so`) |
 | **ArduPilot repo (SITL)** | `~/ardupilot` (often a symlink; see [User and Directory Setup](#user-and-directory-setup-ethan-vs-lorenzo)) |
@@ -176,12 +179,11 @@ To avoid “wrong user” and “wrong path” issues:
    bash simulations/simulation_full.bash
    ```
 
-2. **From anywhere (if you copy the script):**
+2. **From anywhere** (single canonical script in the repo):
    ```bash
-  cp ~/autonomy-ws-25-26/simulations/simulation_full.bash ~/simulation_full.bash
-   chmod +x ~/simulation_full.bash
-   ~/simulation_full.bash
+   bash ~/autonomy-ws-25-26/simulations/simulation_full.bash
    ```
+   Optionally symlink for a shorter command: `ln -s ~/autonomy-ws-25-26/simulations/simulation_full.bash ~/simulation_full.bash`
 
 The script will:
 
@@ -191,6 +193,55 @@ The script will:
 
 If you run the script from an environment that can’t attach (e.g. some IDEs), the session still starts in the background. Attach manually:
 
+```bash
+tmux attach -t simfull
+```
+
+**On the Jetson (or any machine with a physical display):** Run the script from a **local graphical session** — e.g. open a terminal on the Jetson desktop and run `./simulation_full.bash` there. Gazebo needs a real display: if you run over SSH without X11 forwarding (or from a headless/IDE terminal with no `DISPLAY`), the Gazebo GUI will crash with “could not connect to display” / “Qt platform plugin xcb” and you’ll get a white screen or no window. If you’re logged in at the Jetson with a monitor but your terminal has no `DISPLAY`, try `export DISPLAY=:0` then run the script.
+
+---
+
+## Quick command reference
+
+Copy-paste friendly commands. Run from appropriate directories or adjust paths.
+
+**1. Start the simulation (from repo root or simulations folder):**
+```bash
+cd ~/autonomy-ws-25-26
+bash simulations/simulation_full.bash
+```
+
+**2. On Jetson only — if you see libEGL / Mesa / nvidia-drm or 0 entities, run before starting the sim:**
+```bash
+sudo modprobe nvidia-drm modeset=1
+export __GLX_VENDOR_LIBRARY_NAME=nvidia
+```
+
+**3. In MAVProxy (tmux window 2, left pane) — control the boat (order matters):**
+```text
+param set ARMING_REQUIRE 0
+mode GUIDED
+arm throttle
+position 10 0 0
+```
+(or `velocity 2 0 0` for constant velocity)
+
+**4. ArduPilot SITL build permission error (Jetson / .wafpickle):**
+```bash
+cd ~/autonomy-ws-25-26/simulations
+./fix_ardupilot_build_permissions.sh
+```
+Or by hand: `cd ~/ardupilot && sudo chown -R $USER:$USER . && rm -rf build/sitl && ./waf configure && ./waf rover`
+
+**5. Run computer vision with the sim (in a second terminal, after sim is up):**
+```bash
+source /opt/ros/humble/setup.bash
+source ~/autonomy-ws-25-26/computer_vision/install/setup.bash
+ros2 launch cv_ros_nodes launch_cv_sim.py single_camera:=true
+```
+Use **camera1 (center)** only to save GPU memory on Jetson. For more buoy detections in sim, add `conf_threshold:=0.15`. For **smoother FPS** in rqt (display at ~30 FPS, inference every 2nd frame), add `inference_interval:=2`. View detections in RViz: Image topic `/camera1/detections`.
+
+**6. Attach to sim if it started in background:**
 ```bash
 tmux attach -t simfull
 ```
@@ -216,9 +267,24 @@ All ArduPilot/MAVProxy commands are typed in **window 2, left pane**.
 
 **In MAVProxy (window 2, left pane), after the SITL is up:**
 
+For **simulation** you must set the arming parameter **first**, then switch mode and arm. If you run `mode GUIDED` before this, you will get **“AP: flight mode change failed”** and stay in MANUAL.
+
+**1. One-time (each SITL session) — required for sim:**
+
+```text
+param set ARMING_REQUIRE 0
+```
+
+**2. Then switch to GUIDED and arm:**
+
 ```text
 mode GUIDED
 arm throttle
+```
+
+**3. Drive the boat:**
+
+```text
 position 10 0 0     # 10 m north (NED: North, East, Down)
 velocity 2 0 0      # 2 m/s north
 position 5 5 0      # 5 m north, 5 m east
@@ -227,15 +293,7 @@ position 5 5 0      # 5 m north, 5 m east
 - Use **`position X Y Z`** (meters in NED from home) or **`velocity X Y Z`** (m/s in NED).
 - Do **not** use `guided lat lon` in MAVProxy for Rover—that syntax is for other vehicle types and can cause errors or crashes. Use `position` / `velocity` or send global setpoints via ROS 2/MAVROS.
 
-**Arming without GPS (simulation):**
-
-If you see “need position estimate” or “gyros inconsistent” and want to arm anyway:
-
-```text
-param set ARMING_REQUIRE 0
-mode GUIDED
-arm throttle
-```
+**If you already tried `mode GUIDED` and it failed:** run **`param set ARMING_REQUIRE 0`** first, then **`mode GUIDED`** and **`arm throttle`** again.
 
 **From ROS 2 (e.g. shell pane with ROS sourced):**
 
@@ -245,6 +303,77 @@ arm throttle
     "{header: {frame_id: 'map'}, pose: {position: {latitude: 51.5662, longitude: -4.0343, altitude: 0.0}}}" --once
   ```
 - Use MAVROS services for mode, arm, etc., as needed.
+
+---
+
+## Running computer vision with the simulation
+
+The sim bridges publish **`/camera0/image_raw`**, **`/camera1/image_raw`**, **`/camera2/image_raw`** from Gazebo. You can run the computer vision pipeline (preprocess → inference → combiner) on these topics **without** real cameras.
+
+**Order:** Start the **simulation first** (so the bridges are publishing), then in a **second terminal** start the CV launch.
+
+**Launch CV (sim-only, no v4l2 camera nodes):**
+```bash
+source /opt/ros/humble/setup.bash
+source ~/autonomy-ws-25-26/computer_vision/install/setup.bash
+ros2 launch cv_ros_nodes launch_cv_sim.py
+```
+
+**On Jetson — use one camera to avoid GPU OOM (NvMapMemAlloc error 12 / inference crash):**
+```bash
+ros2 launch cv_ros_nodes launch_cv_sim.py single_camera:=true
+```
+This runs **camera1 (center)** only. Combiner will show “1 active, 2 no data”. View detections: **`/camera1/detections`** (Image) and **`/camera1/detection_info`** or **`/combined/detection_info`** (JSON).
+
+**Optional — lower confidence so more sim buoys are detected:**
+```bash
+ros2 launch cv_ros_nodes launch_cv_sim.py single_camera:=true conf_threshold:=0.15
+```
+Default is `0.25`; try `0.1` if you still see no buoy boxes.
+
+**Viewing detections:** In RViz, add an **Image** display and set the topic to **`/camera1/detections`** (or `/camera0/detections`, `/camera2/detections` when not using single_camera). The `detection_info` topics are JSON strings, not images.
+
+**Alternative (main launch with flag):** `ros2 launch cv_ros_nodes launch_cv.py use_sim:=true` — skips v4l2 camera nodes so image_raw comes from the bridges. Prefer `launch_cv_sim.py` for sim.
+
+**Build CV workspace once** so the sim launch and args are available:
+```bash
+cd ~/autonomy-ws-25-26/computer_vision
+colcon build --packages-select cv_ros_nodes
+source install/setup.bash
+```
+
+**If you see “3 no data” in the combiner:** You need to use `launch_cv_sim.py` or `launch_cv.py use_sim:=true` so the pipeline does not start v4l2 camera nodes; image_raw must come from the sim bridges. Start the sim first, then CV.
+
+**Buoy detection in sim:** The YOLO model was trained on real (or different) imagery; sim buoys often look different, so you may get few or no detections. Lowering `conf_threshold` (e.g. `0.15` or `0.1`) can show more boxes. If you see any boxes at all, the pipeline is working.
+
+**Flickering (Gazebo or image topics):** On Jetson, Gazebo + RViz + CV can overload the GPU. Close extra viewers or run with single_camera. Ensure only one CV pipeline subscribes to each `/cameraN/image_raw`.
+
+**FPS and inference speed:** On Jetson, TensorRT inference is the bottleneck (~2–5 FPS depending on engine and GPU). To get **higher FPS and detections on every frame**:
+
+- **Detections on every frame:** With `inference_interval:=2` or `3`, the node runs inference every 2nd or 3rd frame. By default **`draw_stale_boxes:=true`**: on non-inference frames it still draws the **last** detections (dimmer green, “prev” label) so you see boxes on every frame and display FPS stays high (~30). New detections appear at inference rate; boxes may lag slightly when the boat moves fast. Set `draw_stale_boxes:=false` if you prefer no boxes on skip frames.
+- **Max inference rate (detections per second):** Use `inference_interval:=1` to run inference on **every** frame. That gives the highest detections/second and best accuracy, but display FPS will match inference FPS (~2–5 on Jetson). Good when you need fresh detections every frame and can accept lower FPS.
+- **Faster inference (higher FPS):** Rebuild the TensorRT engine with **FP16** for roughly 2× speed with minimal accuracy loss. From the computer_vision repo (see `model_training/TENSORRT.md`):
+  ```bash
+  # Export ONNX first if needed, then build FP16 engine (replace path to trtexec if needed)
+  cd ~/autonomy-ws-25-26/computer_vision
+  python model_training/export_onnx.py model_training/aqua_main.pt
+  /usr/src/tensorrt/bin/trtexec --onnx=model_training/aqua_main.onnx --saveEngine=cv_scripts/model.engine --fp16 --memPoolSize=workspace:4096 --skipInference
+  ```
+  Copy the new `model.engine` to where launch expects it (`engine_path`). INT8 is faster still but requires calibration.
+- **Competition-like (max detections, best accuracy):** Use **`inference_interval:=1`** (default) so every frame is inferred—same as on the real boat. See [computer_vision/README.md](../computer_vision/README.md#roboat-competition-best-for-detections-and-accuracy) for the full competition recommendation (FP16 engine, conf_threshold, etc.).
+- Example for smooth 30 Hz display with detections drawn every frame (debug only; fewer detection updates):
+  ```bash
+  ros2 launch cv_ros_nodes launch_cv_sim.py single_camera:=true inference_interval:=2
+  ```
+  Preprocess and inference use **QoS depth 1** so only the latest image is processed (no backlog).
+
+**Sim camera resolution:** The ourboat model cameras are set to **1920×1200** (same as real AR0234 cameras). So `/cameraN/image_raw` from the sim is 1920×1200; the CV pipeline letterboxes to 640×640 for inference, then outputs detections and images at **1920×1200**. This matches the real-camera flow.
+
+**Detection consistency (weird or missing boxes):** The pipeline uses **letterbox** preprocessing (aspect ratio preserved, no stretch) for **any** input resolution (1920×1200 real or sim, 640×480, etc.). The model sees correct geometry; boxes are transformed back to the original image size. **Real 1920×1200 cameras are supported and improved** (no stretch). With `draw_stale_boxes:=true` (default), when `inference_interval` > 1 you still see boxes on every frame (last result reused); they may lag slightly when moving. If buoys still aren’t detected when close or when still, sim appearance may differ from training; try `conf_threshold:=0.1` and ensure the buoy is well in frame.
+
+**RViz point cloud (lidar):** Set the transform frame to `ourboat/lidar_link/lidar` (or your boat model name).
+
+**RAM:** The sim uses a lot of RAM; run one instance at a time. If it runs out of memory, try closing other heavy apps (e.g. VSCode/Cursor).
 
 ---
 
@@ -308,13 +437,14 @@ Do not use port 5763; nothing is bound there. If MAVROS fails to connect, ensure
 
 ### 4. Model name mismatch (ourboat vs blueboat)
 
-- **Symptom:** Possible load or link errors; Hydrodynamics not applying to the boat.
-- **Cause:** Directory was `ourboat`, but the SDF had `<model name="blueboat">` and mesh URIs like `models://blueboat/...`.
+- **Symptom:** Possible load or link errors; Hydrodynamics not applying; or boat doesn’t move because Thruster/ArduPilotPlugin use wrong topic namespace.
+- **Cause:** Directory was `ourboat`, but the SDF had `<model name="blueboat">`, mesh URIs `models://blueboat/...`, or **Thruster/ArduPilotPlugin** used `<namespace>blueboat</namespace>` and `<cmd_topic>/model/blueboat/...</cmd_topic>` so commands go to the wrong topic.
 - **Fix:** In `~/SITL_Models/Gazebo/models/ourboat/model.sdf`:
   - Set `<model name="ourboat">`.
   - Replace all `models://blueboat/` with `models://ourboat/`.
   - Set Hydrodynamics `<enable>ourboat::base_link</enable>` (as above).
-- **Result:** Gazebo and plugins consistently use `ourboat`; no name/link mismatch.
+  - Set Thruster `<namespace>ourboat</namespace>` and ArduPilotPlugin `<cmd_topic>/model/ourboat/joint/.../cmd_thrust</cmd_topic>` (not `blueboat`).
+- **Result:** Gazebo and plugins consistently use `ourboat`; thrust commands reach the boat.
 
 ### 5. Pre-arm: “AP ARM gyros inconsistent”, “need position estimate”
 
@@ -344,12 +474,73 @@ Do not use port 5763; nothing is bound there. If MAVROS fails to connect, ensure
   ```
 - **Result:** SITL and builds can run without Git blocking.
 
-### 8. Gazebo black screen (Jetson / headless)
+### 8. Gazebo black or white screen / “could not connect to display” (Jetson)
 
-- **Symptom:** Gazebo window opens but stays black.
-- **Cause:** EGL/GPU drivers or library path; ogre2 not finding the right libs.
-- **Fix:** Script already sets `LD_LIBRARY_PATH=/usr/lib/aarch64-linux-gnu/nvidia:...`. If still black, add `--render-engine-gui ogre` to the `gz sim` command in `simulation_full.bash` (worse quality but more compatible).
-- **Result:** Gazebo GUI becomes visible.
+- **Symptom:** Gazebo window doesn’t open, or stays black/white; or you see **“qt.qpa.xcb: could not connect to display”** / “Could not load the Qt platform plugin” in the Gazebo pane.
+- **Cause:** (1) No display: you ran the script from SSH without X11 forwarding, or from a terminal/IDE that has no `DISPLAY` set — the Gazebo GUI then exits immediately. (2) Or: EGL/GPU/ogre2 on Jetson (black or white window).
+- **Fix:** (1) **Run on the Jetson from a local graphical session:** open a terminal on the Jetson desktop (with a monitor attached) and run `./simulation_full.bash` there so `DISPLAY` is set. If you’re at the Jetson but the shell has no display, run `export DISPLAY=:0` then the script. (2) For black/white only: script already sets `LD_LIBRARY_PATH=.../nvidia:...`; try adding `--render-engine-gui ogre` to the `gz sim` line; ensure NVIDIA drivers are installed.
+- **Result:** Gazebo GUI starts and world becomes visible.
+
+### 9. SITL build fails: Permission denied on `.wafpickle` (Jetson / multi-user)
+
+- **Symptom:** ArduPilot SITL pane shows `PermissionError: [Errno 13] Permission denied: '.../ardupilot/build/sitl/.wafpickle-...'`; build reaches link stage then Waf aborts; SITL never starts, so MAVROS stays on “Waiting for SITL on 5760”.
+- **Cause:** `ardupilot` or `build/sitl` was created or built with `sudo`, or files are owned by another user. Waf then cannot write its state file in `build/sitl/`.
+- **Fix:** On the machine where `~/ardupilot` lives (e.g. the Jetson), reset ownership and do a clean SITL rebuild (do **not** use `sudo` for builds):
+
+  ```bash
+  cd ~/ardupilot
+  sudo chown -R $USER:$USER .
+  rm -rf build/sitl
+  ./waf configure
+  ./waf rover
+  ```
+
+  Or run the helper script from this repo (on that machine): `simulations/fix_ardupilot_build_permissions.sh`.
+- **Result:** SITL builds and starts; MAVROS can connect to port 5760.
+
+### 10. Gazebo shows “0 entities” (empty world)
+
+- **Symptom:** Gazebo window opens but the Entities panel on the right shows **0 entities**; no boat, no water, nothing in the scene.
+- **Cause:** The world or its included models failed to load. The world `aquatonomous_world.sdf` uses `model://waves`, `model://ourboat`, `model://RedSurMark`, etc. Gazebo looks these up in `GZ_SIM_RESOURCE_PATH`. If that variable is missing the **gz-waves-models** dirs, Gazebo finds nothing and loads 0 entities. Other causes: world file not found (wrong path on Jetson); missing `~/SITL_Models` or `~/ardupilot_gazebo`; workspace not at `~/autonomy-ws-25-26` on this machine.
+- **Fix:**
+  1. **Resource path (script fix):** The launch script must set `GZ_SIM_RESOURCE_PATH` to include the wave/course models: `.../gz-waves-models/models` and `.../gz-waves-models/world_models` (so `model://waves`, `model://RedSurMark`, etc. resolve), plus `~/SITL_Models/Gazebo/models` (for `model://ourboat`) and `~/ardupilot_gazebo/models` and `~/ardupilot_gazebo/worlds`. The current `simulation_full.bash` includes these; if you edited it, restore the full `GZ_SIM_RESOURCE_PATH` line.
+  2. **Paths:** Ensure on the Jetson you have: `~/autonomy-ws-25-26/simulations/worlds/aquatonomous_world.sdf`, `gz-waves-models/models/`, `gz-waves-models/world_models/`, `~/SITL_Models/Gazebo/models`, `~/ardupilot_gazebo/models`. Same layout under `$HOME` as on the machine where the script was written.
+  3. **Gazebo output:** In the tmux pane where `gz sim` runs (window 0, left), look for “could not find model”, “failed to load”, “resource path”, “plugin … failed” to see which asset is missing.
+- **Result:** Gazebo loads the world and shows entities (boat, water, buoys, etc.); then SITL can connect to the ArduPilotPlugin and you can arm and use GUIDED.
+
+### 11. “DO SET MODE failed: ap: flight mode change failed” (GUIDED / arm)
+
+- **Symptom:** In MAVProxy you run `mode GUIDED` and/or `arm throttle` and get **DO SET MODE failed: ap: flight mode change failed**.
+- **Cause:** ArduPilot is refusing the mode change. This usually happens when it has no position estimate or fails pre-arm checks. If Gazebo shows **0 entities**, the boat (and ArduPilotPlugin) never loaded, so SITL never receives pose/IMU from Gazebo on port 9002 — ArduPilot then has no “vehicle state” and will reject GUIDED and arming.
+- **Fix:**
+  1. **Fix “0 entities” first** (see §10). Once the world and ourboat load, the plugin feeds SITL; then mode change and arming can succeed.
+  2. **Relax arming for sim:** In MAVProxy run:
+     ```text
+     param set ARMING_REQUIRE 0
+     mode GUIDED
+     arm throttle
+     ```
+  3. If you already have entities and still get the error, check the SITL/MAVProxy pane for “need position estimate” or gyro/accel errors; ensure SITL is actually connected to the plugin (you should see activity on 9002 when the boat is in the world).
+- **Result:** After the world loads and you set `ARMING_REQUIRE 0`, GUIDED and `arm throttle` succeed.
+
+### 12. Gazebo “0 entities” again + libEGL / Mesa / nvidia-drm warnings (Jetson)
+
+- **Symptom:** Gazebo shows **0 entities** again; in the Gazebo (or terminal) output you see **libEGL** warnings, **MESA-LOADER**, or **nvidia-drm** messages. The world or GUI may fail to load properly.
+- **Cause:** The display/rendering stack is using Mesa’s software or a wrong EGL/OpenGL path instead of the NVIDIA driver, so Gazebo (or its GUI) can’t initialise the scene correctly. That can happen after a driver update, a bad login session, or if `LD_LIBRARY_PATH` doesn’t put NVIDIA libs first.
+- **Fix:**
+  1. **Force NVIDIA DRM mode** (one-time or after boot):  
+     `sudo modprobe nvidia-drm modeset=1`
+  2. **Run Gazebo with NVIDIA libs first:** The script already sets  
+     `LD_LIBRARY_PATH=/usr/lib/aarch64-linux-gnu/nvidia:...`  
+     If you start `gz sim` by hand, set that too. Ensure no other `LD_LIBRARY_PATH` or `LIBGL_ALWAYS_SOFTWARE=1` is set in the same shell.
+  3. **Force NVIDIA EGL/GL vendor** (if Mesa still wins):  
+     Before starting the sim:  
+     `export __GLX_VENDOR_LIBRARY_NAME=nvidia`  
+     and optionally  
+     `export __EGL_VENDOR_LIBRARY_FILENAMES=/usr/share/glvnd/egl_vendor.d/10_nvidia.json`  
+     (path may differ; check `ls /usr/share/glvnd/egl_vendor.d/`).
+  4. **Re-check “0 entities” path cause:** Even with a good display, 0 entities can still be due to `GZ_SIM_RESOURCE_PATH` or missing world/models (see §10). In the tmux pane where `gz sim` runs, look for “could not find model”, “resource path”, or EGL/load errors.
+- **Result:** Gazebo uses the NVIDIA driver, the window and world load, and entities appear.
 
 ---
 
@@ -375,7 +566,11 @@ Do not use port 5763; nothing is bound there. If MAVROS fails to connect, ensure
 | MAVProxy not found | Script exports `PATH` and `PYTHONPATH` for the SITL window; `~/.local/bin/mavproxy.py` exists; use `python3 ./sim_vehicle.py`. |
 | MAVROS connection refused | SITL listening on 5760; use `fcu_url:=tcp://localhost:5760`; wait for SITL to be up (script waits for port 5760). |
 | Can’t arm: position / gyros | For sim, `param set ARMING_REQUIRE 0` then `mode GUIDED` and `arm throttle`. |
-| Gazebo black screen | `LD_LIBRARY_PATH` for NVIDIA libs; try `--render-engine-gui ogre` on `gz sim`. |
+| Gazebo black or white screen | `LD_LIBRARY_PATH` for NVIDIA libs (Jetson); try `--render-engine-gui ogre` on `gz sim`; ensure NVIDIA drivers installed. |
+| SITL build: Permission denied .wafpickle | Run `fix_ardupilot_build_permissions.sh` on the machine with `~/ardupilot`, or `chown -R $USER:$USER ~/ardupilot`, `rm -rf ~/ardupilot/build/sitl`, then `./waf configure` and `./waf rover` (no sudo). |
+| Gazebo shows 0 entities | `GZ_SIM_RESOURCE_PATH` must include `.../gz-waves-models/models` and `.../gz-waves-models/world_models` (for waves, buoys, gates) plus `~/SITL_Models/...` (ourboat). Script has this; ensure those dirs exist. Check Gazebo tmux pane for “could not find model” errors. |
+| Gazebo 0 entities + libEGL / Mesa / nvidia-drm | Run `sudo modprobe nvidia-drm modeset=1`. Ensure `LD_LIBRARY_PATH` starts with `/usr/lib/aarch64-linux-gnu/nvidia`; try `export __GLX_VENDOR_LIBRARY_NAME=nvidia`. See §12. |
+| DO SET MODE failed: flight mode change failed / stuck on MANUAL | **Set the param first:** `param set ARMING_REQUIRE 0`, then `mode GUIDED`, then `arm throttle`. If you run `mode GUIDED` before setting the param, the mode change is rejected. |
 | SITL crash / Git errors | Add ArduPilot repo path as `safe.directory`; ensure you run from `~/ardupilot/Tools/autotest`. |
 
 **Restart everything:** Run `simulation_full.bash` again; it kills the existing `simfull` session and starts clean.
@@ -385,7 +580,7 @@ Do not use port 5763; nothing is bound there. If MAVROS fails to connect, ensure
 ## Summary
 
 - **One script:** `simulations/simulation_full.bash` starts Gazebo, bridges, MAVROS, and SITL in a tmux session.
-- **One world:** `super_cool_test.sdf` in `src/asv_wave_sim/gz-waves-models/worlds/`.
+- **One world:** `aquatonomous_world.sdf` in `simulations/worlds/`.
 - **One boat model:** `ourboat` in `~/SITL_Models/Gazebo/models/ourboat/` with ArduPilotPlugin and Hydrodynamics enabled for `ourboat::base_link`.
 - **Ports:** 5760 (MAVROS/SITL), 9002 (SITL ↔ Gazebo plugin).
 - **Users:** Use `~/ardupilot` (symlink if needed), build plugin under your user, set Git safe directory if repo is under another user.

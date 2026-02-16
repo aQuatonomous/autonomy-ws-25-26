@@ -1,4 +1,5 @@
 import rclpy
+from rclpy.qos import QoSProfile
 from rclpy.node import Node
 from sensor_msgs.msg import Image
 from cv_bridge import CvBridge
@@ -7,18 +8,20 @@ import argparse
 
 class PreprocessCamera(Node):
     
-    def __init__(self, camera_id: int):
+    def __init__(self, camera_id: int, image_encoding: str = 'bgr8'):
         super().__init__(f'preprocess_camera{camera_id}')
         self.camera_id = camera_id
+        self.image_encoding = image_encoding if image_encoding in ('bgr8', 'rgb8') else 'bgr8'
         self.bridge = CvBridge()
         self.frame_count = 0
 
-        # Subscribe to raw camera images
+        # QoS depth 1 so we only pass the latest frame (avoids backlog and improves FPS)
+        qos_latest = QoSProfile(depth=1)
         self.subscription = self.create_subscription(
             Image,
             f'/camera{camera_id}/image_raw',
             self.image_callback,
-            10
+            qos_latest
         )
 
         # Publisher for processed images
@@ -28,19 +31,19 @@ class PreprocessCamera(Node):
             10
         )
         
-        self.get_logger().info(f'Preprocessing node for camera{camera_id} initialized')
+        self.get_logger().info(f'Preprocessing node for camera{camera_id} initialized (encoding={self.image_encoding})')
         self.get_logger().info(f'Subscribed to: /camera{camera_id}/image_raw')
         self.get_logger().info(f'Publishing to: /camera{camera_id}/image_preprocessed')
         
     def image_callback(self, msg: Image):
-        # 1) ROS2 Image -> OpenCV image
-        cv_image = self.bridge.imgmsg_to_cv2(msg, desired_encoding='bgr8')
+        # 1) ROS2 Image -> OpenCV (use rgb8 for sim when Gazebo bridge publishes RGB)
+        cv_image = self.bridge.imgmsg_to_cv2(msg, desired_encoding=self.image_encoding)
 
         # 2) Pass-through at camera resolution (no resize; blob and other CV run on full res)
         processed = cv_image
 
         # 3) OpenCV -> ROS2 Image
-        out_msg = self.bridge.cv2_to_imgmsg(processed, encoding='bgr8')
+        out_msg = self.bridge.cv2_to_imgmsg(processed, encoding=self.image_encoding)
 
         # Preserve original header (timestamp + frame_id)
         out_msg.header = msg.header
@@ -62,13 +65,15 @@ def main(args=None):
     parser = argparse.ArgumentParser(description='ROS2 Camera Preprocessing Node')
     parser.add_argument('--camera_id', type=int, default=0,
                        help='Camera ID (0, 1, or 2)')
+    parser.add_argument('--image_encoding', type=str, default='bgr8', choices=('bgr8', 'rgb8'),
+                       help='Image encoding: bgr8 (real cameras) or rgb8 (Gazebo sim often publishes RGB).')
     args_parsed, _ = parser.parse_known_args(args=args)
     
     if args_parsed.camera_id not in [0, 1, 2]:
         print("Error: camera_id must be 0, 1, or 2")
         return
     
-    node = PreprocessCamera(camera_id=args_parsed.camera_id)
+    node = PreprocessCamera(camera_id=args_parsed.camera_id, image_encoding=args_parsed.image_encoding)
     try:
         rclpy.spin(node)
     except KeyboardInterrupt:

@@ -9,6 +9,7 @@ Usage: python3 vision_inference.py --camera_id 0
 """
 
 import rclpy
+from rclpy.qos import QoSProfile
 from rclpy.node import Node
 from sensor_msgs.msg import Image
 from std_msgs.msg import String
@@ -133,23 +134,32 @@ class TensorRTInference:
             if hasattr(self, 'd_output'):
                 self.cuda.free(self.d_output)
     
-    def preprocess(self, image: np.ndarray) -> np.ndarray:
-        """Prepare image for the model"""
-        # Resize to 640x640
-        img_resized = cv2.resize(image, (640, 640))
-        
-        # Convert BGR to RGB
-        img_rgb = cv2.cvtColor(img_resized, cv2.COLOR_BGR2RGB)
-        
-        # Normalize to [0, 1]
+    def preprocess(self, image: np.ndarray, is_rgb: bool = False):
+        """Prepare image for the model with letterbox (preserve aspect ratio). Returns (tensor, letterbox_info).
+        If is_rgb=True, image is already RGB (e.g. from Gazebo sim); otherwise assumed BGR."""
+        orig_h, orig_w = image.shape[:2]
+        scale = min(self.imgsz / orig_w, self.imgsz / orig_h)
+        new_w = int(round(orig_w * scale))
+        new_h = int(round(orig_h * scale))
+        img_resized = cv2.resize(image, (new_w, new_h), interpolation=cv2.INTER_LINEAR)
+        pad_left = (self.imgsz - new_w) // 2
+        pad_top = (self.imgsz - new_h) // 2
+        canvas = np.zeros((self.imgsz, self.imgsz, 3), dtype=img_resized.dtype)
+        canvas[pad_top:pad_top + new_h, pad_left:pad_left + new_w] = img_resized
+
+        img_rgb = canvas if is_rgb else cv2.cvtColor(canvas, cv2.COLOR_BGR2RGB)
         img_normalized = img_rgb.astype(np.float32) / 255.0
-        
-        # Change from HWC to CHW format
         img_chw = np.transpose(img_normalized, (2, 0, 1))
-        
-        # Add batch dimension: (1, 3, imgsz, imgsz)
         img_batch = np.expand_dims(img_chw, axis=0)
-        return img_batch
+
+        letterbox_info = {
+            'pad_left': pad_left,
+            'pad_top': pad_top,
+            'scale': scale,
+            'orig_w': orig_w,
+            'orig_h': orig_h,
+        }
+        return img_batch, letterbox_info
     
     def infer(self, input_data: np.ndarray) -> np.ndarray:
         """Run model inference on GPU"""
@@ -279,20 +289,23 @@ class TensorRTInference:
         
         return []
     
-    def draw_detections(self, image: np.ndarray, detections: List, scale_to_original=True) -> np.ndarray:
-        """Draw bounding boxes on image"""
+    def draw_detections(self, image: np.ndarray, detections: List, scale_to_original=True, boxes_in_original_space=False, stale=False) -> np.ndarray:
+        """Draw bounding boxes on image. If boxes_in_original_space=True, box coords are already in image space (no scaling). If stale=True, draw dimmer and label as previous (for smooth display when inference_interval>1)."""
         img_copy = image.copy()
         orig_h, orig_w = image.shape[:2]
-        
+        color = (0, 180, 0) if stale else (0, 255, 0)  # BGR: dimmer green for stale
+        suffix = " (prev)" if stale else ""
+
         for det in detections:
             x1, y1, x2, y2 = det['box']
             score = det['score']
             class_id = int(det['class_id'])
-            
-            # Scale coordinates if image was resized
-            if scale_to_original and (orig_w != 640 or orig_h != 640):
-                scale_x = orig_w / 640.0
-                scale_y = orig_h / 640.0
+
+            if boxes_in_original_space:
+                x1, y1, x2, y2 = int(round(x1)), int(round(y1)), int(round(x2)), int(round(y2))
+            elif scale_to_original and (orig_w != self.imgsz or orig_h != self.imgsz):
+                scale_x = orig_w / float(self.imgsz)
+                scale_y = orig_h / float(self.imgsz)
                 x1 = int(x1 * scale_x)
                 y1 = int(y1 * scale_y)
                 x2 = int(x2 * scale_x)
@@ -307,19 +320,35 @@ class TensorRTInference:
             y2 = max(0, min(y2, orig_h))
             
             # Draw rectangle
-            cv2.rectangle(img_copy, (x1, y1), (x2, y2), (0, 255, 0), 2)
+            cv2.rectangle(img_copy, (x1, y1), (x2, y2), color, 2)
             # Label: number detection (class_id 20,21,22 = digits 1,2,3) or generic
             if 20 <= class_id <= 22:
-                label = f"{class_id - 19}: {score:.2f}"
+                label = f"{class_id - 19}: {score:.2f}{suffix}"
             else:
-                label = f"Class {class_id}: {score:.2f}"
+                label = f"Class {class_id}: {score:.2f}{suffix}"
             cv2.putText(img_copy, label, (x1, y1 - 10),
-                       cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 2)
+                       cv2.FONT_HERSHEY_SIMPLEX, 0.5, color, 2)
         return img_copy
 
 
 # Number detection: map model class 0,1,2 (digits 1,2,3) to reserved IDs to avoid collision with main model (0-8)
 NUMBER_CLASS_OFFSET = 20  # class_id 20=digit1, 21=digit2, 22=digit3
+
+
+def letterbox_boxes_to_original(detections: List, letterbox_info: dict) -> List:
+    """Transform detection boxes from 640x640 letterbox space to original image coordinates."""
+    pad_left = letterbox_info['pad_left']
+    pad_top = letterbox_info['pad_top']
+    scale = letterbox_info['scale']
+    out = []
+    for det in detections:
+        x1, y1, x2, y2 = det['box']
+        x1_o = (x1 - pad_left) / scale
+        y1_o = (y1 - pad_top) / scale
+        x2_o = (x2 - pad_left) / scale
+        y2_o = (y2 - pad_top) / scale
+        out.append({**det, 'box': np.array([x1_o, y1_o, x2_o, y2_o], dtype=np.float64)})
+    return out
 
 
 # ============================================================================
@@ -335,10 +364,16 @@ class InferenceNode(Node):
         enable_number_detection: bool = False,
         number_detection_engine: str = "",
         number_conf_threshold: float = 0.25,
+        inference_interval: int = 1,
+        sim_image_rgb: bool = True,
+        draw_stale_boxes: bool = True,
     ):
         super().__init__(f'inference_node_camera{camera_id}')
         self.camera_id = camera_id
         self.conf_threshold = conf_threshold
+        self.sim_image_rgb = sim_image_rgb
+        self.inference_interval = max(1, int(inference_interval))
+        self.draw_stale_boxes = draw_stale_boxes
         self.number_conf_threshold = number_conf_threshold
         self.enable_number_detection = enable_number_detection
         self.number_inferencer = None
@@ -364,16 +399,20 @@ class InferenceNode(Node):
         self.bridge = CvBridge()
         self.frame_count = 0
         self.total_inference_time = 0
+        # Frame-skip: store last detections and last detection_info so we can publish every frame
+        self._last_detections = []
+        self._last_detection_info_json = None
         # Actual output FPS: timestamps of when we publish detection_info (sliding window)
         self._output_timestamps = []
         self._output_fps_window = 60  # number of publishes to use for output FPS (e.g. ~2 s at 30 Hz)
         
-        # Subscribe to preprocessed images
+        # QoS depth 1: only process latest frame to avoid backlog and improve effective FPS
+        qos_latest = QoSProfile(depth=1)
         self.subscription = self.create_subscription(
             Image,
             f'/camera{camera_id}/image_preprocessed',
             self.image_callback,
-            10
+            qos_latest
         )
         
         # Publisher for images with bounding boxes
@@ -390,134 +429,132 @@ class InferenceNode(Node):
             10
         )
         
-        self.get_logger().info(f'Inference node for camera{camera_id} ready!')
+        # Display FPS: rate at which we publish detection images (for rqt)
+        self._display_timestamps = []
+        self.get_logger().info(f'Inference node for camera{camera_id} ready! (inference_interval={self.inference_interval}, sim_image_rgb={self.sim_image_rgb})')
         self.get_logger().info(f'Subscribed to: /camera{camera_id}/image_preprocessed')
         self.get_logger().info(f'Publishing to: /camera{camera_id}/detections, /camera{camera_id}/detection_info')
     
     def image_callback(self, msg: Image):
-        """Process incoming images and run inference"""
+        """Process incoming images: run inference every inference_interval frames; publish detection image every frame."""
         try:
-            # Convert ROS2 Image to OpenCV
-            cv_image = self.bridge.imgmsg_to_cv2(msg, desired_encoding='bgr8')
+            # Sim (Gazebo/ros_gz_bridge) often publishes RGB; real cameras typically BGR. Use sim_image_rgb=true for sim.
+            encoding = 'rgb8' if self.sim_image_rgb else 'bgr8'
+            cv_image = self.bridge.imgmsg_to_cv2(msg, desired_encoding=encoding)
             orig_h, orig_w = cv_image.shape[:2]
-            
-            # Preprocess (resize to 640x640 only for the model)
-            input_data = self.inferencer.preprocess(cv_image)
-            
-            # Run inference
-            start_time = time.time()
-            output = self.inferencer.infer(input_data)
-            inference_time = time.time() - start_time
-            
-            # Post-process main model
-            detections = self.inferencer.postprocess_yolo(
-                output,
-                conf_threshold=self.conf_threshold
+            self.frame_count += 1
+            # Run inference every Nth frame, or on first frame so we have detections to reuse
+            run_inference = (
+                (self.frame_count % self.inference_interval == 0) or
+                (len(self._output_timestamps) == 0)
             )
 
-            # Optional number detection (docking task: digits 1, 2, 3)
-            if self.number_inferencer is not None:
-                try:
-                    num_input = self.number_inferencer.preprocess(cv_image)
-                    num_output = self.number_inferencer.infer(num_input)
-                    num_dets = self.number_inferencer.postprocess_yolo(
-                        num_output,
-                        conf_threshold=self.number_conf_threshold
-                    )
-                    # Remap class_id 0,1,2 -> 20,21,22 and scale bbox from 960 to 640 for combiner
-                    scale_960_to_640 = 640.0 / 960.0
-                    for d in num_dets:
-                        x1, y1, x2, y2 = d['box']
-                        d['box'] = [
-                            x1 * scale_960_to_640,
-                            y1 * scale_960_to_640,
-                            x2 * scale_960_to_640,
-                            y2 * scale_960_to_640,
-                        ]
-                        d['class_id'] = int(d['class_id']) + NUMBER_CLASS_OFFSET  # 0,1,2 -> 20,21,22
-                        d['source'] = 'number_detection'
-                    detections = detections + num_dets
-                except Exception as e:
-                    self.get_logger().warn(f'Number detection failed: {e}')
+            if run_inference:
+                # Full pipeline: letterbox preprocess -> infer -> postprocess -> transform boxes to orig
+                input_data, letterbox_info = self.inferencer.preprocess(cv_image, is_rgb=self.sim_image_rgb)
+                start_time = time.time()
+                output = self.inferencer.infer(input_data)
+                inference_time = time.time() - start_time
+                self.total_inference_time += inference_time
 
-            # Update statistics
-            self.frame_count += 1
-            self.total_inference_time += inference_time
-            
-            # Actual output FPS (publish rate of detection_info)
-            now = time.time()
-            self._output_timestamps.append(now)
-            if len(self._output_timestamps) > self._output_fps_window:
-                self._output_timestamps.pop(0)
-            if len(self._output_timestamps) >= 2:
-                span = self._output_timestamps[-1] - self._output_timestamps[0]
-                actual_output_fps = (len(self._output_timestamps) - 1) / span if span > 0 else 0.0
+                detections = self.inferencer.postprocess_yolo(
+                    output,
+                    conf_threshold=self.conf_threshold
+                )
+                # Diagnostic: when 0 detections, log max raw score so we can see if model outputs anything
+                if len(detections) == 0 and self.frame_count % 30 == 1:
+                    predictions = output[0].transpose((1, 0))
+                    obj = predictions[:, 4:5]
+                    cls = predictions[:, 5:]
+                    if obj.max() < 0.01:
+                        obj = 1.0 / (1.0 + np.exp(-np.clip(obj, -500, 500)))
+                    raw_scores = obj * cls
+                    max_raw = float(np.max(raw_scores))
+                    self.get_logger().warn(
+                        f'Zero detections (conf>={self.conf_threshold}). Max raw score this frame: {max_raw:.4f}. '
+                        'Try sim_image_rgb:=true (default for sim) or conf_threshold:=0.05.'
+                    )
+                # Transform main-model boxes from 640x640 letterbox to original image coordinates
+                detections = letterbox_boxes_to_original(detections, letterbox_info)
+
+                if self.number_inferencer is not None:
+                    try:
+                        num_input, num_letterbox = self.number_inferencer.preprocess(cv_image, is_rgb=self.sim_image_rgb)
+                        num_output = self.number_inferencer.infer(num_input)
+                        num_dets = self.number_inferencer.postprocess_yolo(
+                            num_output,
+                            conf_threshold=self.number_conf_threshold
+                        )
+                        for d in num_dets:
+                            d['class_id'] = int(d['class_id']) + NUMBER_CLASS_OFFSET
+                            d['source'] = 'number_detection'
+                        num_dets = letterbox_boxes_to_original(num_dets, num_letterbox)
+                        detections = detections + num_dets
+                    except Exception as e:
+                        self.get_logger().warn(f'Number detection failed: {e}')
+                self._last_detections = detections
+                now = time.time()
+                self._output_timestamps.append(now)
+                if len(self._output_timestamps) > self._output_fps_window:
+                    self._output_timestamps.pop(0)
+                inference_fps = (len(self._output_timestamps) - 1) / (self._output_timestamps[-1] - self._output_timestamps[0]) if len(self._output_timestamps) >= 2 else (1.0 / inference_time if inference_time > 0 else 0.0)
+
+                detection_info = {
+                    'camera_id': self.camera_id,
+                    'timestamp': msg.header.stamp.sec + msg.header.stamp.nanosec * 1e-9,
+                    'frame_id': msg.header.frame_id,
+                    'num_detections': len(detections),
+                    'inference_time_ms': inference_time * 1000,
+                    'fps': 1.0 / inference_time if inference_time > 0 else 0,
+                    'output_fps': round(inference_fps, 2),
+                    'frame_width': orig_w,
+                    'frame_height': orig_h,
+                    'detections': []
+                }
+                for det in detections:
+                    x1, y1, x2, y2 = float(det['box'][0]), float(det['box'][1]), float(det['box'][2]), float(det['box'][3])
+                    detection_info['detections'].append({
+                        'class_id': int(det['class_id']),
+                        'score': float(det['score']),
+                        'x1': x1, 'y1': y1, 'x2': x2, 'y2': y2,
+                        'width': float(x2 - x1), 'height': float(y2 - y1),
+                        'bbox': [x1, y1, x2, y2]
+                    })
+                self._last_detection_info_json = json.dumps(detection_info)
+                info_msg = String()
+                info_msg.data = self._last_detection_info_json
+                self.detection_info_pub.publish(info_msg)
+
+                if self.frame_count % 15 == 0:
+                    self.get_logger().info(
+                        f'Processed {self.frame_count} frames | Inference FPS: {inference_fps:.2f} | Det: {len(detections)}'
+                    )
             else:
-                actual_output_fps = 0.0
-            
-            # Draw detections
-            result_image = self.inferencer.draw_detections(cv_image, detections)
-            
-            # Add FPS info to image (show actual output FPS, not inference FPS)
-            inference_fps = 1.0 / inference_time if inference_time > 0 else 0
-            cv2.putText(result_image, f"Output FPS: {actual_output_fps:.1f} | Det: {len(detections)}",
+                inference_fps = (len(self._output_timestamps) - 1) / (self._output_timestamps[-1] - self._output_timestamps[0]) if len(self._output_timestamps) >= 2 else 0.0
+
+            # Publish detection image every frame. Draw boxes: fresh when we ran inference, or last (stale) for smooth display.
+            if run_inference:
+                result_image = self.inferencer.draw_detections(
+                    cv_image, self._last_detections, boxes_in_original_space=True, stale=False
+                )
+            elif self.draw_stale_boxes and len(self._last_detections) > 0:
+                result_image = self.inferencer.draw_detections(
+                    cv_image, self._last_detections, boxes_in_original_space=True, stale=True
+                )
+            else:
+                result_image = cv_image.copy()
+            now = time.time()
+            self._display_timestamps.append(now)
+            if len(self._display_timestamps) > self._output_fps_window:
+                self._display_timestamps.pop(0)
+            display_fps = (len(self._display_timestamps) - 1) / (self._display_timestamps[-1] - self._display_timestamps[0]) if len(self._display_timestamps) >= 2 else 0.0
+            cv2.putText(result_image, f"Display FPS: {display_fps:.1f} | Inference FPS: {inference_fps:.1f} | Det: {len(self._last_detections)}",
                        (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 255, 0), 2)
-            
-            # Publish detection image
-            detection_msg = self.bridge.cv2_to_imgmsg(result_image, encoding='bgr8')
+            out_encoding = 'rgb8' if self.sim_image_rgb else 'bgr8'
+            detection_msg = self.bridge.cv2_to_imgmsg(result_image, encoding=out_encoding)
             detection_msg.header = msg.header
             self.detection_image_pub.publish(detection_msg)
-            
-            # Publish detection info as JSON (bbox scaled from 640x640 to preprocessed frame)
-            scale_x = orig_w / 640.0
-            scale_y = orig_h / 640.0
-            detection_info = {
-                'camera_id': self.camera_id,
-                'timestamp': msg.header.stamp.sec + msg.header.stamp.nanosec * 1e-9,
-                'frame_id': msg.header.frame_id,
-                'num_detections': len(detections),
-                'inference_time_ms': inference_time * 1000,
-                'fps': inference_fps,
-                'output_fps': round(actual_output_fps, 2),
-                'frame_width': orig_w,
-                'frame_height': orig_h,
-                'detections': []
-            }
-            
-            # Extract detailed information for each detection (scale bbox 640x640 -> orig size)
-            for det in detections:
-                x1, y1, x2, y2 = det['box']
-                x1 = float(x1) * scale_x
-                y1 = float(y1) * scale_y
-                x2 = float(x2) * scale_x
-                y2 = float(y2) * scale_y
-                width = float(x2 - x1)
-                height = float(y2 - y1)
-                bbox_scaled = [x1, y1, x2, y2]
-                
-                detection_info['detections'].append({
-                    'class_id': int(det['class_id']),
-                    'score': float(det['score']),
-                    'x1': x1,
-                    'y1': y1,
-                    'x2': x2,
-                    'y2': y2,
-                    'width': width,
-                    'height': height,
-                    'bbox': bbox_scaled
-                })
-            info_msg = String()
-            info_msg.data = json.dumps(detection_info)
-            self.detection_info_pub.publish(info_msg)
-            
-            # Log every 15 frames (~1 s at 15 fps): show actual output FPS (publish rate)
-            if self.frame_count % 15 == 0:
-                self.get_logger().info(
-                    f'Processed {self.frame_count} frames | '
-                    f'Output FPS: {actual_output_fps:.2f} | '
-                    f'Detections: {len(detections)}'
-                )
-        
+
         except Exception as e:
             self.get_logger().error(f'Error processing image: {str(e)}')
 
@@ -539,6 +576,12 @@ def main(args=None):
                         help='Path to number detection TensorRT engine (e.g. number_detection.engine)')
     parser.add_argument('--number_conf_threshold', type=float, default=0.25,
                         help='Confidence threshold for number detection (0.0-1.0)')
+    parser.add_argument('--inference_interval', type=int, default=1,
+                        help='Run inference every N frames (1=every frame). Use 2 or 3 for smoother display FPS on Jetson.')
+    parser.add_argument('--sim_image_rgb', type=str, default='true',
+                        help='If true, treat images as RGB (use for Gazebo sim; bridge often publishes RGB). Use false for real BGR cameras.')
+    parser.add_argument('--draw_stale_boxes', type=str, default='true',
+                        help='When inference_interval>1, draw last detections on non-inference frames (smooth display; boxes may lag slightly).')
     args_parsed, _ = parser.parse_known_args(args=args)
 
     if args_parsed.camera_id not in [0, 1, 2]:
@@ -552,6 +595,9 @@ def main(args=None):
         enable_number_detection=args_parsed.enable_number_detection.lower() == 'true',
         number_detection_engine=args_parsed.number_detection_engine or '',
         number_conf_threshold=args_parsed.number_conf_threshold,
+        inference_interval=args_parsed.inference_interval,
+        sim_image_rgb=args_parsed.sim_image_rgb.lower() == 'true',
+        draw_stale_boxes=args_parsed.draw_stale_boxes.lower() == 'true',
     )
     
     try:

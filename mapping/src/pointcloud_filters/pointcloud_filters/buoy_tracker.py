@@ -4,16 +4,17 @@ Buoy Tracker Node
 
 Maintains persistent tracking of detected buoys with stable IDs across frames.
 Performs data association to match new detections with existing tracked buoys.
-Supports data fusion with vision system for color information.
+Color is not set by LiDAR; the fusion node assigns color from CV and publishes /fused_buoys.
 
 Subscribes to:
     /buoy_detections (pointcloud_filters/BuoyDetectionArray): Raw detections from DBSCAN
-    /buoy_colors (optional, future): Color information from vision system
 
 Publishes:
-    /tracked_buoys (pointcloud_filters/TrackedBuoyArray): Buoys with persistent IDs
+    /tracked_buoys (pointcloud_filters/TrackedBuoyArray): Buoys with persistent IDs (no color)
+    /tracked_buoys_json (std_msgs/String): Same content as JSON so downstream/fusion can use LiDAR like CV
 """
 
+import json
 import math
 from typing import Dict, Set, Tuple, List, Optional
 
@@ -21,9 +22,15 @@ import rclpy
 from rclpy.node import Node
 from rclpy.qos import QoSProfile, QoSReliabilityPolicy, QoSDurabilityPolicy, QoSHistoryPolicy
 from rclpy.time import Time
+from std_msgs.msg import String
 
 from pointcloud_filters.msg import BuoyDetectionArray, BuoyDetection
 from pointcloud_filters.msg import TrackedBuoyArray, TrackedBuoy
+
+
+def _time_to_float(t) -> float:
+    """Convert builtin_interfaces/Time to seconds (for JSON)."""
+    return float(t.sec) + float(t.nanosec) * 1e-9
 
 
 class BuoyTracker(Node):
@@ -82,8 +89,10 @@ class BuoyTracker(Node):
             '/tracked_buoys',
             qos
         )
-        
-        self.get_logger().info('Buoy tracker started')
+        # JSON publisher (same content as TrackedBuoyArray, for fusion/downstream in CV-like format)
+        self.json_pub = self.create_publisher(String, '/tracked_buoys_json', qos)
+
+        self.get_logger().info('Buoy tracker started (publishes /tracked_buoys and /tracked_buoys_json)')
         self.get_logger().info(
             f'Association threshold: {self.association_threshold:.2f}m, '
             f'Max misses: {self.max_consecutive_misses}, '
@@ -284,7 +293,6 @@ class BuoyTracker(Node):
             'x': cand['x'],
             'y': cand['y'],
             'z_mean': cand['z_mean'],
-            'color': 'unknown',
             'confidence': cand['confidence'],
             'observation_count': cand['observation_count'],
             'first_seen': cand['first_seen'],
@@ -339,7 +347,6 @@ class BuoyTracker(Node):
             tracked_msg.x = buoy['x']
             tracked_msg.y = buoy['y']
             tracked_msg.z_mean = buoy['z_mean']
-            tracked_msg.color = buoy['color']
             tracked_msg.confidence = buoy['confidence']
             tracked_msg.observation_count = buoy['observation_count']
             try:
@@ -351,6 +358,31 @@ class BuoyTracker(Node):
             msg.buoys.append(tracked_msg)
 
         self.tracked_pub.publish(msg)
+
+        # Publish same content as JSON (format similar to CV for fusion/downstream)
+        detections = []
+        for b in msg.buoys:
+            detections.append({
+                'id': b.id,
+                'range': b.range,
+                'bearing': b.bearing,
+                'x': b.x,
+                'y': b.y,
+                'z_mean': b.z_mean,
+                'confidence': b.confidence,
+                'observation_count': b.observation_count,
+                'first_seen': _time_to_float(b.first_seen),
+                'last_seen': _time_to_float(b.last_seen),
+            })
+        payload = {
+            'timestamp': _time_to_float(msg.header.stamp) if msg.header.stamp else 0.0,
+            'frame_id': msg.header.frame_id or 'base_link',
+            'num_detections': len(detections),
+            'detections': detections,
+        }
+        json_msg = String()
+        json_msg.data = json.dumps(payload)
+        self.json_pub.publish(json_msg)
 
 
 def main(args=None):

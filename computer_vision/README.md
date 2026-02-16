@@ -38,6 +38,32 @@ For Task 5, ensure the number detection TensorRT engine exists (e.g. build from 
 
 ---
 
+## RoboBoat competition: best for detections and accuracy
+
+For the actual competition you want **maximum detections per second** and **best accuracy** so autonomy gets fresh, frequent updates. Here’s what actually matters and what to use.
+
+**What the robot uses:** The combiner and any autonomy nodes only receive **`/combined/detection_info`** (and `..._with_distance`) when the inference node **runs inference** and publishes. So “detections per second” = how often you run inference. Display options (e.g. drawing boxes on every frame) do **not** change what the robot gets—only inference rate does.
+
+| Goal | Setting | Why |
+|------|--------|-----|
+| **Most detections, best accuracy** | **`inference_interval:=1`** (default) | Run inference on **every** frame. No skipped frames, so you never miss a buoy that appeared only on a skip. Max detections/sec and lowest latency. |
+| **Faster inference (higher FPS)** | **FP16 TensorRT engine** | Build the engine with `--fp16` (~2× faster, minimal accuracy loss). So with interval=1 you get more FPS (e.g. 4–6 instead of 2–3 on Jetson). See [model_training/TENSORRT.md](model_training/TENSORRT.md). |
+| **Confidence** | **`conf_threshold:=0.25`** (default) | Good balance. Use **`0.2`** only if you need more marginal detections (e.g. distant buoys, glare) and accept more false positives. |
+| **Real cameras at competition** | **`ros2 launch cv_ros_nodes launch_cv.py`** (+ task flags) | Main launch uses real cameras and does **not** pass `inference_interval`; the node default is **1**, so you already get inference every frame. Do **not** use `sim_image_rgb` (that’s for sim). |
+| **Sim / testing** | **`launch_cv_sim.py`** with **`inference_interval:=1`** | Matches competition: every frame inferred. Use `inference_interval:=2` only for smoother display when debugging; that halves the detection updates the robot would see. |
+| **Jetson GPU memory** | **`single_camera:=true`** (sim only) | If you hit OOM with sim + CV, run one camera so the pipeline is stable. On real hardware use as many cameras as the GPU can handle. |
+
+**Summary:** For competition, use **`launch_cv.py`** (real cameras) with task flags as in the table above. Ensure **`model.engine`** is built with **FP16** so inference is as fast as possible. Keep **`inference_interval=1`** (default) so every frame is sent to the model and the combiner gets the maximum number of detection updates. `draw_stale_boxes` only affects the operator display; with interval=1 every frame is fresh anyway.
+
+**Build FP16 engine (recommended before competition):**
+```bash
+cd ~/autonomy-ws-25-26/computer_vision
+python model_training/export_onnx.py model_training/aqua_main.pt
+/usr/src/tensorrt/bin/trtexec --onnx=model_training/aqua_main.onnx --saveEngine=cv_scripts/model.engine --fp16 --memPoolSize=workspace:4096 --skipInference
+```
+
+---
+
 ## Camera mapping
 
 The launch file uses **persistent USB device paths** by default (Think). Same ROS namespace per camera regardless of boot order or plug order.
@@ -53,6 +79,8 @@ The launch file uses **persistent USB device paths** by default (Think). Same RO
 **Troubleshooting:** `ls -la /dev/v4l/by-path/` — list by-path symlinks. `v4l2-ctl --list-devices` — verify cameras. `udevadm info --query=all --name=/dev/video0 | grep ID_PATH` — see which USB port a device is on.
 
 **Backward compatibility:** To use `/dev/video*` instead: `ros2 launch cv_ros_nodes launch_cv.py camera_devices:=/dev/video0,/dev/video2,/dev/video4`. Persistent paths are recommended for production.
+
+**Simulation:** When running with Gazebo (sim bridges publishing `/camera0/image_raw` etc.), use **`ros2 launch cv_ros_nodes launch_cv_sim.py`** or **`launch_cv.py use_sim:=true`** so the pipeline does not start v4l2 camera nodes. See [simulations/README.md](../simulations/README.md) for CV + sim, detections in RViz, and troubleshooting.
 
 ---
 
@@ -78,19 +106,15 @@ Combiner subscribes to `/camera{N}/detection_info`, `/camera{N}/task4_detections
 
 ## Final combined CV output (downstream)
 
-The **main topic for mission/planning** is:
+The **maritime distance estimator** is always included in the launch file. The **main final CV output** for mission/planning and fusion is:
 
 | Topic | Type | Description |
 |-------|------|-------------|
-| **`/combined/detection_info`** | `std_msgs/String` (JSON) | **Final combined detections** from all 3 cameras: one list with `camera_id`, `class_name`, `score`, `bbox` (local frame), `bearing_deg`, `elevation_deg`, plus `camera_info` and `camera_stats`. Includes YOLO buoys, optional indicator buoys, Task4 supply drops, and number detections when enabled. ~15 Hz. |
-
-When the **maritime distance estimator** is running (default with the launch file), use:
+| **`/combined/detection_info_with_distance`** | `std_msgs/String` (JSON) | **Final CV output**: combined detections from all 3 cameras with `camera_id`, `class_name`, `score`, `bbox`, `bearing_deg`, `elevation_deg`, **`distance_m`**, **`distance_ft`**, plus `camera_info` and `camera_stats`. Use this for navigation and CV–LiDAR fusion. ~15 Hz. |
 
 | Topic | Type | Description |
 |-------|------|-------------|
-| **`/combined/detection_info_with_distance`** | `std_msgs/String` (JSON) | Same structure as `/combined/detection_info` with **`distance_m`** and **`distance_ft`** added per detection. This is the **final CV output** for navigation (bearing, elevation, and distance). |
-
-Subscribe to **`/combined/detection_info_with_distance`** when you need distance; otherwise **`/combined/detection_info`** is the final combined detections without distance.
+| `/combined/detection_info` | `std_msgs/String` (JSON) | Same structure without distance (intermediate output; distance estimator consumes this and publishes the final topic above). |
 
 **Sample output — `/combined/detection_info`** (excerpt; the payload is in the `data` field as JSON):
 
@@ -331,7 +355,6 @@ computer_vision/
 ├── set_camera_fps.sh       # Set 15 FPS on all 3 cameras (Think USB paths)
 ├── README.md
 ├── DESIGN_STRATEGY.md
-├── SIMULATIONS.md
 ├── FUSION_NODE_GUIDE.md
 ├── TOPICS_LIDAR_AND_CV.md  # Every LiDAR and CV topic output (reference)
 └── DISTANCE_ESTIMATOR_CHANGES.md
@@ -344,7 +367,7 @@ computer_vision/
 | Doc | Description |
 |-----|-------------|
 | [DESIGN_STRATEGY.md](DESIGN_STRATEGY.md) | Full design and architecture |
-| [SIMULATIONS.md](SIMULATIONS.md) | Running the sim |
+| [simulations/README.md](../simulations/README.md) | Sim + CV, run commands, troubleshooting |
 | [model_training/TENSORRT.md](model_training/TENSORRT.md) | TensorRT setup and model conversion |
 | [FUSION_NODE_GUIDE.md](FUSION_NODE_GUIDE.md) | CV + LiDAR fusion |
 | [TOPICS_LIDAR_AND_CV.md](TOPICS_LIDAR_AND_CV.md) | Every LiDAR and CV topic output (reference) |

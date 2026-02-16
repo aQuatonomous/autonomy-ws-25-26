@@ -177,7 +177,7 @@ def generate_launch_description() -> LaunchDescription:
         ],
     )
 
-    # ----- Tracked buoy visualizer -----
+    # ----- Tracked buoy visualizer (subscribes to /fused_buoys from fusion node; run cv_lidar_fusion for colors) -----
     tracked_visualizer_node = Node(
         package='pointcloud_filters',
         executable='tracked_buoy_visualizer',

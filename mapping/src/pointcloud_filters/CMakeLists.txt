@@ -16,6 +16,8 @@ rosidl_generate_interfaces(${PROJECT_NAME}
   "msg/BuoyDetectionArray.msg"
   "msg/TrackedBuoy.msg"
   "msg/TrackedBuoyArray.msg"
+  "msg/FusedBuoy.msg"
+  "msg/FusedBuoyArray.msg"
   DEPENDENCIES sensor_msgs std_msgs builtin_interfaces
 )
 
