@@ -18,7 +18,7 @@ import yaml
 # Paths
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 CV_ROOT = os.path.dirname(SCRIPT_DIR)
-MODEL_TRAINING = os.path.join(CV_ROOT, "model_training")
+MODEL_TRAINING = os.path.join(CV_ROOT, "model_building_and_training")
 sys.path.insert(0, MODEL_TRAINING)
 
 from test_inference import TensorRTInference

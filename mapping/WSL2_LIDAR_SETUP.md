@@ -63,49 +63,20 @@ sudo usermod -aG dialout $USER
 
 ---
 
-## 2b. WSL: Build this workspace (one-time)
+## 2b. WSL: Build the mapping workspace (one-time)
 
-From the **repo root** (e.g. `~/autonomy-ws-25-26`):
-
-```bash
-./setup_wsl_build.sh
-```
-
-The first run will ask for your password to install `colcon` and `rosdep` if missing; then run `./setup_wsl_build.sh` again to build. After that, `install/setup.bash` will exist and you can source it.
-
----
-
-## 3. WSL: Install the Unitree LiDAR ROS2 driver
-
-The pipeline expects the **unitree_lidar_ros2** package in your workspace. It lives inside Unitree’s **unilidar_sdk** repo.
-
-### 3.1 Clone the driver
-
-From the repo root (e.g. `~/autonomy-ws-25-26`):
+From the **mapping** folder (this repo):
 
 ```bash
-cd ~/autonomy-ws-25-26
-mkdir -p src
-cd src
-git clone --depth 1 https://github.com/unitreerobotics/unilidar_sdk.git
-cd ..
-```
-
-This gives you `src/unilidar_sdk/unitree_lidar_ros2/` (the ROS2 package). The SDK targets L1 LiDAR; if you have a 4D/L2 device and it fails, check Unitree’s **unilidar_sdk2** for an L2-specific driver.
-
-### 3.2 Build the driver
-
-```bash
-cd ~/autonomy-ws-25-26
+cd ~/autonomy-ws-25-26/mapping
 source /opt/ros/humble/setup.bash
-[ -f install/setup.bash ] && source install/setup.bash
-colcon build --symlink-install --packages-select unitree_lidar_ros2
+colcon build --symlink-install --packages-select unitree_lidar_ros2 pointcloud_filters
 source install/setup.bash
 ```
 
-Then build the rest of the workspace if needed: `./setup_wsl_build.sh` or `colcon build --symlink-install`.
+The **unitree_lidar_ros2** package lives in this repo under `mapping/src/unitree_lidar_ros2`. The C++ SDK is in `mapping/unilidar_sdk/unitree_lidar_sdk` (vendor dependency; prebuilt lib used at build time). No separate clone is needed.
 
-**After changing any Python code** (e.g. range filter, buoy detector), rebuild so the install runs the new code:  
+**After changing any Python code** (e.g. range filter, buoy detector), rebuild:  
 `colcon build --symlink-install --packages-select pointcloud_filters` then `source install/setup.bash`.
 
 ---
@@ -114,43 +85,40 @@ Then build the rest of the workspace if needed: `./setup_wsl_build.sh` or `colco
 
 The launch file defaults to `/dev/ttyUSB0`. If your LiDAR is on another port (e.g. `/dev/ttyACM0`), override with `lidar_port:=/dev/ttyACM0`.
 
-**Single terminal – full pipeline (driver + filter + detector + tracker + RViz) and see LiDAR output:**
+**Single terminal – full pipeline (driver + filter + detector + tracker + RViz):**
 
-From the repo root, use the helper script (it uses FastRTPS to avoid CycloneDDS config issues):
-
-```bash
-./run_buoy_pipeline.sh launch_lidar_driver:=true
-```
-
-**Defaults:** The launch uses **+X forward** (`rotate_yaw_bias_deg:=180`) and **15° tilt correction** (`tilt_correction_deg:=15`) by default, so the wall in front of the LiDAR should appear along the +X axis. If the wall is not on +X, try `rotate_yaw_bias_deg:=0` or use `yaw_offset_deg:=±10` for fine-tuning in the range filter.
-
-If the LiDAR is on a different serial port:
+From the **mapping** folder:
 
 ```bash
-./run_buoy_pipeline.sh launch_lidar_driver:=true lidar_port:=/dev/ttyACM0
-```
-
-Or without the script (from repo root after sourcing):
-
-```bash
+cd ~/autonomy-ws-25-26/mapping
 source install/setup.bash
 export RMW_IMPLEMENTATION=rmw_fastrtps_cpp
 ros2 launch pointcloud_filters buoy_pipeline.launch.py launch_lidar_driver:=true
 ```
+
+If the LiDAR is on a different serial port (e.g. `/dev/ttyACM0`):
+
+```bash
+ros2 launch pointcloud_filters buoy_pipeline.launch.py launch_lidar_driver:=true lidar_port:=/dev/ttyACM0
+```
+
+**Defaults:** The launch uses **+X forward** (`rotate_yaw_bias_deg:=180`) and **15° tilt correction** (`tilt_correction_deg:=15`) by default. If the wall is not on +X, try `rotate_yaw_bias_deg:=0` or `yaw_offset_deg:=±10` in the range filter.
 
 **Alternative – run driver and pipeline separately:**
 
 **Terminal 1 – LiDAR driver only (e.g. custom port):**
 
 ```bash
-source ~/autonomy-ws-25-26/install/setup.bash
+cd ~/autonomy-ws-25-26/mapping
+source install/setup.bash
 ros2 run unitree_lidar_ros2 unitree_lidar_ros2_node --ros-args -p port:=/dev/ttyACM0
 ```
 
 **Terminal 2 – Pipeline without launching the driver:**
 
 ```bash
-source ~/autonomy-ws-25-26/install/setup.bash
+cd ~/autonomy-ws-25-26/mapping
+source install/setup.bash
 ros2 launch pointcloud_filters buoy_pipeline.launch.py launch_lidar_driver:=false
 ```
 
@@ -177,19 +145,19 @@ The L1 has a **fixed scan rate** (~21,600 pts/s); there are **no driver paramete
 ## 5. Troubleshooting
 
 ### "can't open configuration file .cyclonedds.xml" / "rmw handle is invalid"
-ROS2 is using CycloneDDS and trying to load a missing config. **Fix:** use FastRTPS instead when launching:
+ROS2 is using CycloneDDS and trying to load a missing config. **Fix:** use FastRTPS instead when launching (from mapping folder):
 ```bash
-./run_buoy_pipeline.sh
+cd ~/autonomy-ws-25-26/mapping && source install/setup.bash && export RMW_IMPLEMENTATION=rmw_fastrtps_cpp && ros2 launch pointcloud_filters buoy_pipeline.launch.py launch_lidar_driver:=false
 ```
-Or: `RMW_IMPLEMENTATION=rmw_fastrtps_cpp ros2 launch pointcloud_filters buoy_pipeline.launch.py launch_lidar_driver:=false`
 
 ### "ModuleNotFoundError: No module named 'sklearn'"
 Install scikit-learn: `sudo apt install python3-sklearn` (or re-run `./setup_wsl_build.sh`, which installs it).
 
 ### RViz crashes when moving/orbiting to view the point cloud
-WSLg/OpenGL can crash under load. **Try the lighter config** (one cloud, lower frame rate):
+WSLg/OpenGL can crash under load. **Try the lighter config** (from mapping folder):
 
 ```bash
+cd ~/autonomy-ws-25-26/mapping
 export RMW_IMPLEMENTATION=rmw_fastrtps_cpp
 source install/setup.bash
 rviz2 -d install/pointcloud_filters/share/pointcloud_filters/rviz/buoy_pipeline_wsl.rviz
@@ -215,8 +183,8 @@ If it still crashes, run the pipeline without RViz and inspect data in the termi
 
 1. **Windows:** Install usbipd-win → plug LiDAR → `usbipd bind --busid <BUSID>` → `usbipd attach --wsl --busid <BUSID>`.
 2. **WSL:** Verify with `lsusb` and `ls /dev/ttyUSB* /dev/ttyACM*`; add user to `dialout` if needed.
-3. **WSL:** Clone and build Unitree’s ROS2 LiDAR driver in your workspace; build `pointcloud_filters` in the same workspace.
-4. **WSL:** Run `buoy_pipeline.launch.py` (or run the driver with `port:=/dev/ttyACM0` and the pipeline with `launch_lidar_driver:=false`).
+3. **WSL:** Build the mapping workspace from `~/autonomy-ws-25-26/mapping` (driver is in `mapping/src/unitree_lidar_ros2`, SDK in `mapping/unilidar_sdk/unitree_lidar_sdk`).
+4. **WSL:** Run `buoy_pipeline.launch.py` from the mapping folder (or run the driver with `port:=/dev/ttyACM0` and the pipeline with `launch_lidar_driver:=false`).
 5. Check `ros2 topic hz /unilidar/cloud` and RViz with fixed frame `unilidar_lidar`.
 
-For the rest of the pipeline (range filter, buoy detector, tracker, fusion), see [QUICKSTART.md](QUICKSTART.md) and [README.md](README.md).
+For overrides, tuning, and troubleshooting, see [COMPETITION.md](COMPETITION.md) and [README.md](README.md).

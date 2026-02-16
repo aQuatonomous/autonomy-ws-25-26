@@ -15,7 +15,7 @@
 12. [Task-Specific Computer Vision Requirements](#task-specific-computer-vision-requirements)
 13. [Monitoring and Diagnostics](#monitoring-and-diagnostics)
 
-**Related documentation:** [README.md](README.md) is the runbook (quick start, launch, cameras, nodes, topics). This document is the full design reference. For specific topics: [simulations/README.md](../simulations/README.md) (sim + CV), [DISTANCE_ESTIMATOR_CHANGES.md](DISTANCE_ESTIMATOR_CHANGES.md), [FUSION_NODE_GUIDE.md](FUSION_NODE_GUIDE.md), [model_training/TENSORRT.md](model_training/TENSORRT.md).
+**Related documentation:** [README.md](README.md) is the entry point. [COMPETITION.md](COMPETITION.md) covers what to run at competition and when; [NODES.md](NODES.md) covers build, launch, and topic I/O. This document is the full design reference. See also: [simulations/README.md](../simulations/README.md) (sim + CV), [DISTANCE_ESTIMATOR_CHANGES.md](DISTANCE_ESTIMATOR_CHANGES.md), [FUSION_NODE_GUIDE.md](FUSION_NODE_GUIDE.md), [model_building_and_training/TENSORRT.md](model_building_and_training/TENSORRT.md).
 
 ---
 
@@ -607,7 +607,7 @@ For machine-specific trtexec path, PATH, conversion commands (FP32/FP16/INT8), a
 **Input**: TensorRT engine (`.engine`)
 **Output**: Validation report
 
-**Process**: Use `model_training/test_inference.py` (or equivalent) on validation images; compare with ground truth, compute mAP/precision/recall. See [TENSORRT.md](TENSORRT.md).
+**Process**: Use `model_building_and_training/test_inference.py` (or equivalent) on validation images; compare with ground truth, compute mAP/precision/recall. See [TENSORRT.md](TENSORRT.md).
 
 **Metrics**:
 - Mean Average Precision (mAP@0.5)
@@ -630,8 +630,8 @@ For machine-specific trtexec path, PATH, conversion commands (FP32/FP16/INT8), a
 
 **File Locations**:
 - Engine file: `/home/lorenzo/autonomy-ws-25-26/computer_vision/cv_scripts/model.engine`
-- ONNX file: `/home/lorenzo/autonomy-ws-25-26/computer_vision/model_training/weights.onnx`
-- PyTorch weights: `/home/lorenzo/autonomy-ws-25-26/computer_vision/model_training/weights.pt`
+- ONNX file: `/home/lorenzo/autonomy-ws-25-26/computer_vision/model_building_and_training/weights.onnx`
+- PyTorch weights: `/home/lorenzo/autonomy-ws-25-26/computer_vision/model_building_and_training/weights.pt`
 
 ### Model Versioning
 
@@ -928,7 +928,7 @@ python test_inference.py --camera 0
 ├── cv_scripts/
 │   ├── model.engine
 │   └── class_mapping.yaml
-├── model_training/
+├── model_building_and_training/
 │   ├── weights.pt
 │   ├── weights.onnx
 │   └── TENSORRT.md

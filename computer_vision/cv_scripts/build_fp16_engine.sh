@@ -6,13 +6,13 @@
 set -e
 CV_ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 cd "$CV_ROOT"
-ONNX="${CV_ROOT}/model_training/aqua_main.onnx"
+ONNX="${CV_ROOT}/model_building_and_training/aqua_main.onnx"
 ENGINE="${CV_ROOT}/cv_scripts/model.engine"
 TRTEXEC="/usr/src/tensorrt/bin/trtexec"
 
 if [[ ! -f "$ONNX" ]]; then
   echo "ONNX not found: $ONNX"
-  echo "Export first: python model_training/export_onnx.py model_training/aqua_main.pt"
+  echo "Export first: python model_building_and_training/export_onnx.py model_building_and_training/aqua_main.pt"
   exit 1
 fi
 if [[ ! -x "$TRTEXEC" ]]; then

@@ -2,12 +2,13 @@
 
 ROS 2 perception pipeline for autonomous surface vehicle navigation using LiDAR-based buoy detection and tracking.
 
+**Quick start:** `ros2 launch pointcloud_filters buoy_pipeline.launch.py` (from this folder after `source install/setup.bash`).  
+**Competition and testing:** [COMPETITION.md](COMPETITION.md) — what to run when, overrides, inside-bay, tuning, troubleshooting.  
+**WSL2 + USB LiDAR:** [WSL2_LIDAR_SETUP.md](WSL2_LIDAR_SETUP.md).
+
 ## Overview
 
 This repository implements a multi-stage perception system that processes LiDAR point clouds to detect and track navigation buoys. The pipeline integrates with computer vision and planning systems to provide reliable landmark detection for autonomous navigation.
-
-**Quick start:** See [QUICKSTART.md](QUICKSTART.md) to run the full pipeline (LiDAR driver, range filter, detector, tracker, visualizer, RViz) in one command:  
-`ros2 launch pointcloud_filters buoy_pipeline.launch.py`
 
 ## Core Components
 
@@ -117,7 +118,7 @@ buoys:
 
 ## Launch
 
-- **All-in-one (recommended):** `ros2 launch pointcloud_filters buoy_pipeline.launch.py` — driver, range filter, detector, tracker, visualizer, RViz. Launch defaults: `z_min` -0.37, `z_max` 10, `range_max` 30, `eps` 0.8, `min_samples` 2, `min_lateral_extent` 0.01, `ransac_enabled` false. See [QUICKSTART.md](QUICKSTART.md) for overrides.
+- **All-in-one (recommended):** `ros2 launch pointcloud_filters buoy_pipeline.launch.py` — driver, range filter, detector, tracker, visualizer, RViz. Launch defaults: `z_min` -0.37, `z_max` 10, `range_max` 30, `eps` 0.8, `min_samples` 2, `min_lateral_extent` 0.01, `ransac_enabled` false. See [COMPETITION.md](COMPETITION.md) for overrides and tuning.
 - **Individual nodes:** `buoy_detector.launch.py`, or `ros2 run pointcloud_filters lidar_range_filter` / `buoy_detector` / `buoy_tracker` / `tracked_buoy_visualizer` with `--ros-args -p ...`.
 
 ## Dependencies

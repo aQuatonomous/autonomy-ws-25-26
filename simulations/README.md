@@ -352,12 +352,12 @@ source install/setup.bash
 
 - **Detections on every frame:** With `inference_interval:=2` or `3`, the node runs inference every 2nd or 3rd frame. By default **`draw_stale_boxes:=true`**: on non-inference frames it still draws the **last** detections (dimmer green, “prev” label) so you see boxes on every frame and display FPS stays high (~30). New detections appear at inference rate; boxes may lag slightly when the boat moves fast. Set `draw_stale_boxes:=false` if you prefer no boxes on skip frames.
 - **Max inference rate (detections per second):** Use `inference_interval:=1` to run inference on **every** frame. That gives the highest detections/second and best accuracy, but display FPS will match inference FPS (~2–5 on Jetson). Good when you need fresh detections every frame and can accept lower FPS.
-- **Faster inference (higher FPS):** Rebuild the TensorRT engine with **FP16** for roughly 2× speed with minimal accuracy loss. From the computer_vision repo (see `model_training/TENSORRT.md`):
+- **Faster inference (higher FPS):** Rebuild the TensorRT engine with **FP16** for roughly 2× speed with minimal accuracy loss. From the computer_vision repo (see `model_building_and_training/TENSORRT.md`):
   ```bash
   # Export ONNX first if needed, then build FP16 engine (replace path to trtexec if needed)
   cd ~/autonomy-ws-25-26/computer_vision
-  python model_training/export_onnx.py model_training/aqua_main.pt
-  /usr/src/tensorrt/bin/trtexec --onnx=model_training/aqua_main.onnx --saveEngine=cv_scripts/model.engine --fp16 --memPoolSize=workspace:4096 --skipInference
+  python model_building_and_training/export_onnx.py model_building_and_training/aqua_main.pt
+  /usr/src/tensorrt/bin/trtexec --onnx=model_building_and_training/aqua_main.onnx --saveEngine=cv_scripts/model.engine --fp16 --memPoolSize=workspace:4096 --skipInference
   ```
   Copy the new `model.engine` to where launch expects it (`engine_path`). INT8 is faster still but requires calibration.
 - **Competition-like (max detections, best accuracy):** Use **`inference_interval:=1`** (default) so every frame is inferred—same as on the real boat. See [computer_vision/README.md](../computer_vision/README.md#roboat-competition-best-for-detections-and-accuracy) for the full competition recommendation (FP16 engine, conf_threshold, etc.).

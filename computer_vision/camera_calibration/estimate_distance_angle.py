@@ -210,7 +210,7 @@ def main():
         if not model_path.is_file():
             model_path = cv_root / "camera_calibration" / "aqua_main.pt"
         if not model_path.is_file():
-            model_path = cv_root / "model_training" / "aqua_main.pt"
+            model_path = cv_root / "model_building_and_training" / "aqua_main.pt"
     if not model_path.is_file():
         print(f"Error: Model not found: {model_path}", file=sys.stderr)
         return 1
