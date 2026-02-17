@@ -13,7 +13,7 @@ def _create_camera_nodes(context):
     dev_list = [d.strip() for d in devs.split(',')]
     if len(dev_list) != 3:
         raise ValueError(
-            "camera_devices must be 3 comma-separated paths, e.g. /dev/v4l/by-path/...-1.2:1.0-video-index0,...-1.1:1.0-video-index0,...-1.4.2:1.0-video-index0"
+            "camera_devices must be 3 comma-separated paths, e.g. /dev/v4l/by-path/...-1.4.2:1.0-video-index0,...-1.2:1.0-video-index0,...-1.4.3:1.0-video-index0"
         )
     
     # Sequential startup to avoid USB driver race condition
@@ -98,8 +98,8 @@ def generate_launch_description():
 
     camera_devices_arg = DeclareLaunchArgument(
         'camera_devices',
-        default_value='/dev/v4l/by-path/platform-3610000.usb-usb-0:1.2:1.0-video-index0,/dev/v4l/by-path/platform-3610000.usb-usb-0:1.1:1.0-video-index0,/dev/v4l/by-path/platform-3610000.usb-usb-0:1.4.2:1.0-video-index0',
-        description='Camera0=1.2, Camera1=1.1, Camera2=1.4.2 (by-path). Run list_usb_ports.sh if paths change.'
+        default_value='/dev/v4l/by-path/platform-3610000.usb-usb-0:1.4.2:1.0-video-index0,/dev/v4l/by-path/platform-3610000.usb-usb-0:1.2:1.0-video-index0,/dev/v4l/by-path/platform-3610000.usb-usb-0:1.4.3:1.0-video-index0',
+        description='Camera0=1.4.2, Camera1=1.2, Camera2=1.4.3 (by-path). Match set_camera_fps.sh; run monitor_camera_move.sh if paths change.'
     )
 
     engine_path_arg = DeclareLaunchArgument(

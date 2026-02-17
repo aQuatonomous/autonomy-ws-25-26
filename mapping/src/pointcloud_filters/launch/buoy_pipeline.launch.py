@@ -1,39 +1,22 @@
 """
 All-in-one LiDAR buoy pipeline: Unitree driver → range filter → detector → tracker → visualizer.
-Optionally launches RViz. Use lidar_port to pin the LiDAR to a stable by-path device.
+Optionally launches RViz. LiDAR is always /dev/ttyUSB0.
 """
 import os
 from launch import LaunchDescription
-from launch.actions import DeclareLaunchArgument, IncludeLaunchDescription, OpaqueFunction
+from launch.actions import DeclareLaunchArgument
 from launch.conditions import IfCondition
 from launch.substitutions import LaunchConfiguration
 from launch_ros.actions import Node
 from ament_index_python.packages import get_package_share_directory
 
 
-def _assert_lidar_port_exists(context):
-    """Fail at launch if lidar_port does not exist (avoids unitree node silent fail)."""
-    port = LaunchConfiguration('lidar_port').perform(context)
-    if not port or not os.path.exists(port):
-        by_path = '/dev/serial/by-path'
-        hint = f"Run: ls -l {by_path}" if os.path.isdir(by_path) else "Check /dev/ttyUSB* and set lidar_port:=/dev/ttyUSB0"
-        raise RuntimeError(
-            f"LiDAR port does not exist: {port!r}. {hint}"
-        )
-    return []
-
-
 def generate_launch_description() -> LaunchDescription:
-    # Default LiDAR port: by-path for stable device identity.
-    # - 2.4.1.2: LiDAR on hub or as detected by list_usb_ports.sh.
-    # - 2.1: LiDAR plugged directly into Jetson (no hub). Override: lidar_port:=/dev/serial/by-path/...2.1:1.0-port0
-    default_lidar_port = '/dev/serial/by-path/platform-3610000.usb-usb-0:2.4.1.2:1.0-port0'
-
-    lidar_port_arg = DeclareLaunchArgument(
-        'lidar_port',
-        default_value=default_lidar_port,
-        description='Serial port for Unitree LiDAR (by-path or /dev/ttyUSB0). Override if different: lidar_port:=/dev/serial/by-path/...',
-    )
+    lidar_port = '/dev/ttyUSB0'
+    if not os.path.exists(lidar_port):
+        raise RuntimeError(
+            f"LiDAR port {lidar_port!r} not found. Is the LiDAR plugged in? Check: ls /dev/ttyUSB*"
+        )
     launch_rviz_arg = DeclareLaunchArgument(
         'launch_rviz',
         default_value='false',
@@ -50,7 +33,7 @@ def generate_launch_description() -> LaunchDescription:
         name='unitree_lidar_ros2_node',
         output='screen',
         parameters=[
-            {'port': LaunchConfiguration('lidar_port')},
+            {'port': '/dev/ttyUSB0'},
             {'rotate_yaw_bias': 0.0},
             {'range_scale': 0.001},
             {'range_bias': 0.0},
@@ -110,7 +93,15 @@ def generate_launch_description() -> LaunchDescription:
         output='screen',
     )
 
-    visualizer_node = Node(
+    # LiDAR-only: shows raw detections as markers in RViz (topic /buoy_markers)
+    buoy_visualizer_node = Node(
+        package='pointcloud_filters',
+        executable='buoy_visualizer',
+        name='buoy_visualizer',
+        output='screen',
+    )
+    # Fused (CV+LiDAR): shows tracked buoys with class from CV (topic /tracked_buoy_markers); only has data when fusion runs
+    tracked_buoy_visualizer_node = Node(
         package='pointcloud_filters',
         executable='tracked_buoy_visualizer',
         name='tracked_buoy_visualizer',
@@ -131,14 +122,13 @@ def generate_launch_description() -> LaunchDescription:
     )
 
     return LaunchDescription([
-        lidar_port_arg,
         launch_rviz_arg,
         buoy_detector_log_level_arg,
-        OpaqueFunction(function=_assert_lidar_port_exists),
         unitree_node,
         range_filter_node,
         buoy_detector_node,
         buoy_tracker_node,
-        visualizer_node,
+        buoy_visualizer_node,
+        tracked_buoy_visualizer_node,
         rviz_node,
     ])

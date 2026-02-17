@@ -7,6 +7,7 @@
 #define BOOST_BIND_NO_PLACEHOLDERS
 
 #include <memory>
+#include <stdexcept>
 #include "iostream"
 #include <string>
 #include <stdio.h>
@@ -103,15 +104,15 @@ UnitreeLidarSDKNode::UnitreeLidarSDKNode(const rclcpp::NodeOptions& options)
   imu_frame_ = get_parameter("imu_frame").as_string();
   imu_topic_ = get_parameter("imu_topic").as_string();
 
-  // std::cout << "port_ = " << port_ 
-  //           << ", cloud_topic_ = " << cloud_topic_
-  //           << ", cloud_scan_num_ = " << cloud_scan_num_
-  //           << std::endl;
-
   // Initialize UnitreeLidarReader
   lsdk_ = createUnitreeLidarReader();
-  lsdk_->initialize(cloud_scan_num_, port_, 2000000, rotate_yaw_bias_, 
+  int ret = lsdk_->initialize(cloud_scan_num_, port_, 2000000, rotate_yaw_bias_,
         range_scale_, range_bias_, range_max_, range_min_);
+  if (ret != 0) {
+    RCLCPP_ERROR(this->get_logger(), "LiDAR init failed (port %s). Check connection and permissions (e.g. dialout group).", port_.c_str());
+    throw std::runtime_error("Unitree LiDAR initialize failed");
+  }
+  RCLCPP_INFO(this->get_logger(), "LiDAR driver started: port=%s, topic=%s", port_.c_str(), cloud_topic_.c_str());
 
   // ROS2
   pub_cloud_ = this->create_publisher<sensor_msgs::msg::PointCloud2>(cloud_topic_, 10);

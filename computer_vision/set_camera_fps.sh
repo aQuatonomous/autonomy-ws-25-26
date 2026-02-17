@@ -12,9 +12,9 @@ echo "Setting cameras to ${WIDTH}x${HEIGHT} YUYV @ ${FPS} FPS..."
 
 # By-path: 1.2→Cam0, 1.1→Cam1, 1.4.2→Cam2 (see ../monitor_camera_move.sh if paths change)
 CAMERA_DEVICES=(
-    "/dev/v4l/by-path/platform-3610000.usb-usb-0:1.2:1.0-video-index0"   # Camera 0
-    "/dev/v4l/by-path/platform-3610000.usb-usb-0:1.1:1.0-video-index0"   # Camera 1
-    "/dev/v4l/by-path/platform-3610000.usb-usb-0:1.4.2:1.0-video-index0" # Camera 2
+    "/dev/v4l/by-path/platform-3610000.usb-usb-0:1.4.2:1.0-video-index0"   # Camera 0
+    "/dev/v4l/by-path/platform-3610000.usb-usb-0:1.2:1.0-video-index0"   # Camera 1
+    "/dev/v4l/by-path/platform-3610000.usb-usb-0:1.4.3:1.0-video-index0" # Camera 2
 )
 
 # Set resolution and FPS for each camera
@@ -46,5 +46,5 @@ for i in "${!CAMERA_DEVICES[@]}"; do
 done
 
 echo ""
-echo "Done! Ports: 1.2→Cam0, 1.1→Cam1, 1.4.2→Cam2. Launch with:"
-echo "  ros2 launch cv_ros_nodes launch_cv.py camera_devices:=/dev/v4l/by-path/platform-3610000.usb-usb-0:1.2:1.0-video-index0,/dev/v4l/by-path/platform-3610000.usb-usb-0:1.1:1.0-video-index0,/dev/v4l/by-path/platform-3610000.usb-usb-0:1.4.2:1.0-video-index0"
+echo "Done! Ports: 1.4.2→Cam0, 1.2→Cam1, 1.4.3→Cam2. Launch with:"
+echo "  ros2 launch cv_ros_nodes launch_cv.py camera_devices:=/dev/v4l/by-path/platform-3610000.usb-usb-0:1.4.2:1.0-video-index0,/dev/v4l/by-path/platform-3610000.usb-usb-0:1.2:1.0-video-index0,/dev/v4l/by-path/platform-3610000.usb-usb-0:1.4.3:1.0-video-index0"
