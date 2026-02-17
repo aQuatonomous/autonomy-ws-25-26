@@ -13,29 +13,64 @@ def _create_camera_nodes(context):
     dev_list = [d.strip() for d in devs.split(',')]
     if len(dev_list) != 3:
         raise ValueError(
-            "camera_devices must be 3 comma-separated paths, e.g. /dev/v4l/by-path/platform-3610000.usb-usb-0:1.4.2:1.0-video-index0,/dev/v4l/by-path/platform-3610000.usb-usb-0:1.4.3:1.0-video-index0,/dev/v4l/by-path/platform-3610000.usb-usb-0:1.4.4:1.0-video-index0"
+            "camera_devices must be 3 comma-separated paths, e.g. /dev/v4l/by-path/...-1.2:1.0-video-index0,...-1.1:1.0-video-index0,...-1.4.2:1.0-video-index0"
         )
+    
+    # Sequential startup to avoid USB driver race condition
+    # Camera0: Start immediately (0s delay)
+    # Camera1: Start after 2s delay  
+    # Camera2: Start after 4s delay
     return [
+        # Camera 0 - Start immediately
         Node(
             package='v4l2_camera',
             executable='v4l2_camera_node',
             name='camera0_node',
             namespace='camera0',
-            parameters=[{'video_device': dev_list[0], 'image_size': [w, h]}]
+            parameters=[{
+                'video_device': dev_list[0], 
+                'image_size': [w, h],
+                'output_encoding': 'yuv422_yuy2',  # Keep native YUYV, don't convert to RGB
+                'pixel_format': 'YUYV'             # Explicitly request YUYV from hardware
+            }]
         ),
-        Node(
-            package='v4l2_camera',
-            executable='v4l2_camera_node',
-            name='camera1_node',
-            namespace='camera1',
-            parameters=[{'video_device': dev_list[1], 'image_size': [w, h]}]
+        # Camera 1 - Start after 2 second delay
+        TimerAction(
+            period=2.0,
+            actions=[
+                LogInfo(msg='Starting Camera 1 (2s delay to avoid race condition)'),
+                Node(
+                    package='v4l2_camera',
+                    executable='v4l2_camera_node',
+                    name='camera1_node',
+                    namespace='camera1',
+                    parameters=[{
+                        'video_device': dev_list[1], 
+                        'image_size': [w, h],
+                        'output_encoding': 'yuv422_yuy2',  # Keep native YUYV, don't convert to RGB
+                        'pixel_format': 'YUYV'             # Explicitly request YUYV from hardware
+                    }]
+                )
+            ]
         ),
-        Node(
-            package='v4l2_camera',
-            executable='v4l2_camera_node',
-            name='camera2_node',
-            namespace='camera2',
-            parameters=[{'video_device': dev_list[2], 'image_size': [w, h]}]
+        # Camera 2 - Start after 4 second delay
+        TimerAction(
+            period=4.0,
+            actions=[
+                LogInfo(msg='Starting Camera 2 (4s delay to avoid race condition)'),
+                Node(
+                    package='v4l2_camera',
+                    executable='v4l2_camera_node',
+                    name='camera2_node',
+                    namespace='camera2',
+                    parameters=[{
+                        'video_device': dev_list[2], 
+                        'image_size': [w, h],
+                        'output_encoding': 'yuv422_yuy2',  # Keep native YUYV, don't convert to RGB
+                        'pixel_format': 'YUYV'             # Explicitly request YUYV from hardware
+                    }]
+                )
+            ]
         ),
     ]
 
@@ -51,8 +86,8 @@ def generate_launch_description():
 
     resolution_arg = DeclareLaunchArgument(
         'resolution',
-        default_value='1920,1200',
-        description='Camera resolution as W,H (e.g. 1920,1200)'
+        default_value='960,600',
+        description='Camera resolution as W,H. Default 960x600 for native YUYV (no RGB conversion). Override with resolution:=480,360 for lower bandwidth if needed.'
     )
 
     use_sim_arg = DeclareLaunchArgument(
@@ -63,8 +98,8 @@ def generate_launch_description():
 
     camera_devices_arg = DeclareLaunchArgument(
         'camera_devices',
-        default_value='/dev/v4l/by-path/platform-3610000.usb-usb-0:1.4.2:1.0-video-index0,/dev/v4l/by-path/platform-3610000.usb-usb-0:1.4.3:1.0-video-index0,/dev/v4l/by-path/platform-3610000.usb-usb-0:1.4.4:1.0-video-index0',
-        description='Comma-separated paths to 3 camera devices (using persistent USB port paths)'
+        default_value='/dev/v4l/by-path/platform-3610000.usb-usb-0:1.2:1.0-video-index0,/dev/v4l/by-path/platform-3610000.usb-usb-0:1.1:1.0-video-index0,/dev/v4l/by-path/platform-3610000.usb-usb-0:1.4.2:1.0-video-index0',
+        description='Camera0=1.2, Camera1=1.1, Camera2=1.4.2 (by-path). Run list_usb_ports.sh if paths change.'
     )
 
     engine_path_arg = DeclareLaunchArgument(
@@ -81,9 +116,8 @@ def generate_launch_description():
 
     staleness_threshold_arg = DeclareLaunchArgument(
         'staleness_threshold',
-        default_value='3.0',
-        description='Staleness threshold for combiner (seconds). On Jetson Orin Nano with 3 cameras sharing GPU, '
-                    'inference runs at ~1.5 FPS per camera (~670ms between updates). Set >= 2.0 to avoid false stale warnings.'
+        default_value='20.0',
+        description='Staleness threshold for combiner (seconds). Raised to 20 for debugging; lower to 8 when pipeline is stable.'
     )
 
     enable_task4_arg = DeclareLaunchArgument(
@@ -123,36 +157,42 @@ def generate_launch_description():
     
     inference_interval_front_arg = DeclareLaunchArgument(
         'inference_interval_front',
-        default_value='1',
-        description='Run inference every N frames for front camera (camera1). 1=every frame (highest priority).'
+        default_value='4',
+        description='Run inference every N frames for front camera (camera1). 4 = ~1.25 inf/sec at 5 FPS; reduced to prevent CPU overload.'
     )
     inference_interval_sides_arg = DeclareLaunchArgument(
         'inference_interval_sides',
-        default_value='4',
-        description='Run inference every N frames for side cameras (camera0, camera2). Higher values reduce GPU load.'
+        default_value='6',
+        description='Run inference every N frames for side cameras (camera0, camera2). 6 = ~0.83 inf/sec each at 5 FPS; reduced to prevent CPU overload.'
     )
 
-    # Preprocessing nodes
+    preprocess_fps_arg = DeclareLaunchArgument(
+        'preprocess_fps',
+        default_value='5',
+        description='Max FPS for preprocessing output. Throttles 15 FPS camera input down to 5 FPS to reduce CPU load. Sequential camera startup prevents race condition. 0 = no limit.'
+    )
+
+    # Preprocessing nodes (throttle to preprocess_fps; driver keeps its own FPS)
     preprocess0 = Node(
         package='cv_ros_nodes',
         executable='vision_preprocessing',
         name='preprocess_camera0',
-        arguments=['--camera_id', '0']
+        arguments=['--camera_id', '0', '--max_fps', LaunchConfiguration('preprocess_fps')]
     )
     preprocess1 = Node(
         package='cv_ros_nodes',
         executable='vision_preprocessing',
         name='preprocess_camera1',
-        arguments=['--camera_id', '1']
+        arguments=['--camera_id', '1', '--max_fps', LaunchConfiguration('preprocess_fps')]
     )
     preprocess2 = Node(
         package='cv_ros_nodes',
         executable='vision_preprocessing',
         name='preprocess_camera2',
-        arguments=['--camera_id', '2']
+        arguments=['--camera_id', '2', '--max_fps', LaunchConfiguration('preprocess_fps')]
     )
 
-    # Inference nodes (front/camera1 starts immediately; sides staggered to avoid GPU OOM)
+    # Inference nodes (all start simultaneously - GPU serializes them automatically)
     inference0 = Node(
         package='cv_ros_nodes',
         executable='vision_inference',
@@ -247,6 +287,7 @@ def generate_launch_description():
         number_conf_threshold_arg,
         inference_interval_front_arg,
         inference_interval_sides_arg,
+        preprocess_fps_arg,
         distance_scale_factor_arg,
         LogInfo(msg='Starting computer vision pipeline...'),
         GroupAction(
@@ -256,9 +297,9 @@ def generate_launch_description():
         preprocess0,
         preprocess1,
         preprocess2,
+        inference0,
         inference1,
-        TimerAction(period=15.0, actions=[inference0]),
-        TimerAction(period=30.0, actions=[inference2]),
+        inference2,
         combiner,
         task4_supply_processor,
         indicator_buoy_processor,

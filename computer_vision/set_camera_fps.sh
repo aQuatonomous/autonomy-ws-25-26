@@ -1,45 +1,50 @@
 #!/bin/bash
 
-# Set camera FPS using persistent USB device paths.
-# Sets all 3 cameras to 15 FPS. Paths below are for the Think (development machine);
-# on other hardware (e.g. Jetson) run: v4l2-ctl --list-devices
-# and edit CAMERA_DEVICES to match your /dev/v4l/by-path/... paths.
+# Set camera resolution and FPS using persistent USB device paths.
+# Camera positions (by-path): Cam0 = 1.2, Cam1 = 1.1, Cam2 = 1.4.2
+# If you move cables, run ../monitor_camera_move.sh to see new paths and update CAMERA_DEVICES below.
+# FPS: 15 fps at 960x600. Launch uses sequential startup (0s, 2s, 4s) to avoid USB race.
 
-echo "Setting camera FPS to 15 using persistent USB paths..."
+RESOLUTION="${CAMERA_RESOLUTION:-960,600}"
+FPS="${CAMERA_FPS:-15}"
+IFS=',' read -r WIDTH HEIGHT <<< "$RESOLUTION"
+echo "Setting cameras to ${WIDTH}x${HEIGHT} YUYV @ ${FPS} FPS..."
 
-# Define the persistent device paths
+# By-path: 1.2→Cam0, 1.1→Cam1, 1.4.2→Cam2 (see ../monitor_camera_move.sh if paths change)
 CAMERA_DEVICES=(
-    "/dev/v4l/by-path/platform-3610000.usb-usb-0:1.4.2:1.0-video-index0"  # Camera 0 (USB port 1.4.2)
-    "/dev/v4l/by-path/platform-3610000.usb-usb-0:1.4.3:1.0-video-index0"  # Camera 1 (USB port 1.4.3)
-    "/dev/v4l/by-path/platform-3610000.usb-usb-0:1.4.4:1.0-video-index0"  # Camera 2 (USB port 1.4.4)
+    "/dev/v4l/by-path/platform-3610000.usb-usb-0:1.2:1.0-video-index0"   # Camera 0
+    "/dev/v4l/by-path/platform-3610000.usb-usb-0:1.1:1.0-video-index0"   # Camera 1
+    "/dev/v4l/by-path/platform-3610000.usb-usb-0:1.4.2:1.0-video-index0" # Camera 2
 )
 
-# Set FPS for each camera
+# Set resolution and FPS for each camera
 for i in "${!CAMERA_DEVICES[@]}"; do
     device="${CAMERA_DEVICES[$i]}"
     if [ -e "$device" ]; then
-        echo "Setting FPS for Camera $i: $device"
-        v4l2-ctl -d "$device" --set-parm 15
+        echo "Camera $i: $device"
+        v4l2-ctl -d "$device" --set-fmt-video=width="$WIDTH",height="$HEIGHT",pixelformat=YUYV
+        v4l2-ctl -d "$device" --set-parm "$FPS"
         if [ $? -eq 0 ]; then
-            echo "✓ Camera $i FPS set successfully"
+            echo "  ✓ ${WIDTH}x${HEIGHT} @ ${FPS} fps"
         else
-            echo "✗ Failed to set FPS for Camera $i"
+            echo "  ✗ Failed"
         fi
     else
-        echo "⚠ Camera $i device not found: $device"
-        echo "  Check if the camera is plugged into the correct USB port"
+        echo "⚠ Camera $i not found: $device (run ../monitor_camera_move.sh to see current by-path devices)"
     fi
     echo
 done
 
-echo "Verifying FPS settings..."
+echo "Verifying..."
 for i in "${!CAMERA_DEVICES[@]}"; do
     device="${CAMERA_DEVICES[$i]}"
     if [ -e "$device" ]; then
-        echo "=== Camera $i FPS: $device ==="
-        v4l2-ctl -d "$device" --get-parm
+        echo "=== Camera $i ==="
+        v4l2-ctl -d "$device" --get-fmt-video 2>/dev/null | grep -E "Width|Height|Pixel"
+        v4l2-ctl -d "$device" --get-parm 2>/dev/null
     fi
 done
 
-echo "Done! You can now launch the ROS pipeline with:"
-echo "ros2 launch cv_ros_nodes launch_cv.py"
+echo ""
+echo "Done! Ports: 1.2→Cam0, 1.1→Cam1, 1.4.2→Cam2. Launch with:"
+echo "  ros2 launch cv_ros_nodes launch_cv.py camera_devices:=/dev/v4l/by-path/platform-3610000.usb-usb-0:1.2:1.0-video-index0,/dev/v4l/by-path/platform-3610000.usb-usb-0:1.1:1.0-video-index0,/dev/v4l/by-path/platform-3610000.usb-usb-0:1.4.2:1.0-video-index0"

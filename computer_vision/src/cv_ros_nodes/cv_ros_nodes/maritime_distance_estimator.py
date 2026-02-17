@@ -34,6 +34,7 @@ from typing import Optional, Dict, List
 
 import numpy as np
 import rclpy
+from rclpy.executors import ExternalShutdownException
 from rclpy.node import Node
 from rclpy.parameter import ParameterType
 from std_msgs.msg import String
@@ -281,14 +282,15 @@ def main(args=None):
     
     try:
         rclpy.spin(node)
-    except KeyboardInterrupt:
+    except (KeyboardInterrupt, ExternalShutdownException):
         node.get_logger().info('Maritime distance estimator shutting down...')
     finally:
-        node.destroy_node()
         try:
-            rclpy.shutdown()
+            node.destroy_node()
         except Exception:
             pass
+        if rclpy.ok():
+            rclpy.shutdown()
 
 
 if __name__ == '__main__':

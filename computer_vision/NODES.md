@@ -805,6 +805,13 @@ ros2 bag play <bag_file_name>
 
 ### Troubleshooting
 
+- **"Camera health: 0 active, 0 stale, 3 no data"** (combiner never sees any camera):
+  - **DDS discovery:** Ensure all nodes use the same DDS config. Set before launching: `export RMW_IMPLEMENTATION=rmw_cyclonedds_cpp`, `export ROS_DOMAIN_ID=42` (or your value), `export CYCLONEDDS_URI=file://$HOME/.cyclonedds.xml` if you use CycloneDDS.
+  - **Stale daemon:** Restart the ROS2 daemon so topic/node discovery is fresh: `ros2 daemon stop && sleep 1 && ros2 daemon start`. Then start the CV launch again. Using `comp.sh` does this automatically.
+  - **Single camera test:** Run one camera + preprocessing + inference in the same shell (with the same env), then `ros2 topic hz /camera0/detection_info` to confirm data flow before running the full launch.
+- **USB ports / cameras or LiDAR not found after moving cables:**
+  - Launch defaults: **Cameras** = by-path `1.4.2`, `1.4.3`, `1.4.4` (Jetson, three Arducams e.g. on a hub). **LiDAR** = by-path `2.1` (Unitree LiDAR plugged directly into Jetson). If you moved the LiDAR from hub to Jetson, the LiDAR port is now `2.1` (default updated in buoy_pipeline).
+  - From repo root run: `./list_usb_ports.sh` to see current `/dev/v4l/by-path/` and `/dev/serial/by-path/` devices. Then override: `CAMERA_DEVICES="/path1,/path2,/path3" LIDAR_PORT="/dev/serial/by-path/..." ./comp.sh`, or pass `camera_devices:=...` and `lidar_port:=...` to the respective launch commands. Update `set_camera_fps.sh` with the same camera paths (or set env `CAMERA_DEVICES`) so FPS is set on the correct devices.
 - **No messages on topic:** Check if nodes are running (`ros2 node list`), check topic exists (`ros2 topic list`), verify camera devices are correct
 - **Low frequency:** Check camera FPS (`./set_camera_fps.sh`), check inference engine path, verify preprocessing is completing
 - **Truncated output:** Use `--no-arr` flag with `ros2 topic echo` to see full messages

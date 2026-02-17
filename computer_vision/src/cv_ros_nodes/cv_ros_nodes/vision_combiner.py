@@ -48,6 +48,7 @@ Usage:
 import math
 import os
 import rclpy
+from rclpy.executors import ExternalShutdownException
 from rclpy.node import Node
 from std_msgs.msg import String
 import json
@@ -161,8 +162,8 @@ class DetectionCombiner(Node):
         self.get_logger().info(f'Camera intrinsics: fx={self.fx:.1f}, fy={self.fy:.1f}, cx={self.cx:.1f}, cy={self.cy:.1f}')
         self.get_logger().info(f'Camera mounting angles: {CAMERA_MOUNTING_ANGLES_DEG}')
         
-        # Timer to periodically publish combined detections (~30 Hz so combined output stays responsive)
-        self.timer = self.create_timer(0.033, self.publish_combined)
+        # Timer to periodically publish combined detections (10 Hz; matches ~5 fps camera pipeline to avoid CPU spin)
+        self.timer = self.create_timer(0.1, self.publish_combined)
 
     def _load_class_mapping(self) -> Dict[int, str]:
         """Load class_id -> class_name from class_mapping.yaml. Returns dict; missing IDs get 'class_N'."""
@@ -872,11 +873,15 @@ def main(args=None):
     
     try:
         rclpy.spin(node)
-    except KeyboardInterrupt:
+    except (KeyboardInterrupt, ExternalShutdownException):
         pass
     finally:
-        node.destroy_node()
-        rclpy.shutdown()
+        try:
+            node.destroy_node()
+        except Exception:
+            pass
+        if rclpy.ok():
+            rclpy.shutdown()
 
 
 if __name__ == '__main__':
