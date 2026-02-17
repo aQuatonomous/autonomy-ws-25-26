@@ -17,7 +17,7 @@ CAMERA_DEVICES="${CAMERA_DEVICES:-}"
 # Free cameras and serial port from any leftover processes (avoids "Device or resource busy")
 echo "=== Stopping any leftover camera/LiDAR/vision processes ==="
 pkill -f "ros2 launch" 2>/dev/null || true
-pkill -f "cv_ros_nodes|v4l2_camera|vision_preprocessing|vision_inference|vision_combiner|maritime_distance" 2>/dev/null || true
+pkill -f "cv_ros_nodes|v4l2_camera|vision_preprocessing|vision_inference|vision_combiner|maritime_distance|vision_lidar_fusion" 2>/dev/null || true
 pkill -f "pointcloud_filters|unitree_lidar" 2>/dev/null || true
 sleep 2
 
@@ -33,20 +33,22 @@ source "${CV_WS}/install/setup.bash"
 set -m
 LIDAR_PID=""
 CV_PID=""
+FUSION_PID=""
 cleanup() {
     echo ""
-    echo "=== Stopping LiDAR and CV pipelines ==="
+    echo "=== Stopping LiDAR, CV, and fusion pipelines ==="
     [ -n "$LIDAR_PID" ] && kill -TERM -"$LIDAR_PID" 2>/dev/null || true
     [ -n "$CV_PID" ]   && kill -TERM -"$CV_PID" 2>/dev/null || true
+    [ -n "$FUSION_PID" ] && kill -TERM -"$FUSION_PID" 2>/dev/null || true
     sleep 1
     # Kill by name in case children escaped the process group (ros2 launch spawns nodes separately)
     pkill -f "ros2 launch" 2>/dev/null || true
-    pkill -f "cv_ros_nodes|v4l2_camera|vision_preprocessing|vision_inference|vision_combiner|maritime_distance" 2>/dev/null || true
+    pkill -f "cv_ros_nodes|v4l2_camera|vision_preprocessing|vision_inference|vision_combiner|maritime_distance|vision_lidar_fusion" 2>/dev/null || true
     pkill -f "pointcloud_filters|unitree_lidar|lidar_range_filter|buoy_detector|buoy_tracker" 2>/dev/null || true
     sleep 1
     # Force-kill any stragglers
     pkill -9 -f "ros2 launch" 2>/dev/null || true
-    pkill -9 -f "cv_ros_nodes|v4l2_camera|vision_preprocessing|vision_inference|vision_combiner|maritime_distance" 2>/dev/null || true
+    pkill -9 -f "cv_ros_nodes|v4l2_camera|vision_preprocessing|vision_inference|vision_combiner|maritime_distance|vision_lidar_fusion" 2>/dev/null || true
     pkill -9 -f "pointcloud_filters|unitree_lidar" 2>/dev/null || true
     echo "Done."
     exit 130
@@ -62,7 +64,12 @@ echo "=== Launching CV pipeline ==="
 ros2 launch cv_ros_nodes launch_cv.py use_sim:=false resolution:=960,600 conf_threshold:=0.1 preprocess_fps:=5 inference_interval_front:=4 inference_interval_sides:=6 &
 CV_PID=$!
 
-echo "=== Both pipelines started. LiDAR PID: $LIDAR_PID  CV PID: $CV_PID ==="
-echo "Press Ctrl+C to stop both."
+sleep 8
+echo "=== Starting CV-LiDAR fusion ==="
+ros2 run cv_lidar_fusion vision_lidar_fusion &
+FUSION_PID=$!
+
+echo "=== All pipelines started. LiDAR PID: $LIDAR_PID  CV PID: $CV_PID  FUSION PID: $FUSION_PID ==="
+echo "Press Ctrl+C to stop all."
 wait -n
 cleanup

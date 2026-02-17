@@ -10,69 +10,68 @@ def _create_camera_nodes(context):
     res = LaunchConfiguration('resolution').perform(context)
     devs = LaunchConfiguration('camera_devices').perform(context)
     w, h = map(int, res.split(','))
-    dev_list = [d.strip() for d in devs.split(',')]
-    if len(dev_list) != 3:
-        raise ValueError(
-            "camera_devices must be 3 comma-separated paths, e.g. /dev/v4l/by-path/...-1.4.2:1.0-video-index0,...-1.2:1.0-video-index0,...-1.4.3:1.0-video-index0"
-        )
+    dev_list = [d.strip() for d in devs.split(',') if d.strip()]  # Remove empty strings
     
-    # Sequential startup to avoid USB driver race condition
-    # Camera0: Start immediately (0s delay)
-    # Camera1: Start after 2s delay  
-    # Camera2: Start after 4s delay
-    return [
-        # Camera 0 - Start immediately
-        Node(
-            package='v4l2_camera',
-            executable='v4l2_camera_node',
-            name='camera0_node',
-            namespace='camera0',
-            parameters=[{
-                'video_device': dev_list[0], 
-                'image_size': [w, h],
-                'output_encoding': 'yuv422_yuy2',  # Keep native YUYV, don't convert to RGB
-                'pixel_format': 'YUYV'             # Explicitly request YUYV from hardware
-            }]
-        ),
-        # Camera 1 - Start after 2 second delay
-        TimerAction(
-            period=2.0,
-            actions=[
-                LogInfo(msg='Starting Camera 1 (2s delay to avoid race condition)'),
+    # Check which camera devices actually exist
+    existing_devices = []
+    for i, dev in enumerate(dev_list):
+        if os.path.exists(dev):
+            existing_devices.append((i, dev))
+            print(f"Camera {i} found: {dev}")
+        else:
+            print(f"Camera {i} NOT found (skipping): {dev}")
+    
+    if not existing_devices:
+        print("WARNING: No camera devices found! CV pipeline will run without cameras.")
+        return []
+    
+    print(f"Starting CV pipeline with {len(existing_devices)} camera(s)")
+    
+    # Create camera nodes only for existing devices with sequential startup delays
+    nodes = []
+    for cam_idx, (orig_idx, device_path) in enumerate(existing_devices):
+        delay = cam_idx * 2.0  # 0s, 2s, 4s delays
+        
+        if delay == 0:
+            # First camera: start immediately
+            nodes.append(
                 Node(
                     package='v4l2_camera',
                     executable='v4l2_camera_node',
-                    name='camera1_node',
-                    namespace='camera1',
+                    name=f'camera{orig_idx}_node',
+                    namespace=f'camera{orig_idx}',
                     parameters=[{
-                        'video_device': dev_list[1], 
+                        'video_device': device_path, 
                         'image_size': [w, h],
                         'output_encoding': 'yuv422_yuy2',  # Keep native YUYV, don't convert to RGB
                         'pixel_format': 'YUYV'             # Explicitly request YUYV from hardware
                     }]
                 )
-            ]
-        ),
-        # Camera 2 - Start after 4 second delay
-        TimerAction(
-            period=4.0,
-            actions=[
-                LogInfo(msg='Starting Camera 2 (4s delay to avoid race condition)'),
-                Node(
-                    package='v4l2_camera',
-                    executable='v4l2_camera_node',
-                    name='camera2_node',
-                    namespace='camera2',
-                    parameters=[{
-                        'video_device': dev_list[2], 
-                        'image_size': [w, h],
-                        'output_encoding': 'yuv422_yuy2',  # Keep native YUYV, don't convert to RGB
-                        'pixel_format': 'YUYV'             # Explicitly request YUYV from hardware
-                    }]
+            )
+        else:
+            # Subsequent cameras: use timer delay to avoid USB race conditions
+            nodes.append(
+                TimerAction(
+                    period=delay,
+                    actions=[
+                        LogInfo(msg=f'Starting Camera {orig_idx} ({delay}s delay to avoid race condition)'),
+                        Node(
+                            package='v4l2_camera',
+                            executable='v4l2_camera_node',
+                            name=f'camera{orig_idx}_node',
+                            namespace=f'camera{orig_idx}',
+                            parameters=[{
+                                'video_device': device_path, 
+                                'image_size': [w, h],
+                                'output_encoding': 'yuv422_yuy2',  # Keep native YUYV, don't convert to RGB
+                                'pixel_format': 'YUYV'             # Explicitly request YUYV from hardware
+                            }]
+                        )
+                    ]
                 )
-            ]
-        ),
-    ]
+            )
+    
+    return nodes
 
 
 def generate_launch_description():
@@ -99,7 +98,7 @@ def generate_launch_description():
     camera_devices_arg = DeclareLaunchArgument(
         'camera_devices',
         default_value='/dev/v4l/by-path/platform-3610000.usb-usb-0:1.4.2:1.0-video-index0,/dev/v4l/by-path/platform-3610000.usb-usb-0:1.2:1.0-video-index0,/dev/v4l/by-path/platform-3610000.usb-usb-0:1.4.3:1.0-video-index0',
-        description='Camera0=1.4.2, Camera1=1.2, Camera2=1.4.3 (by-path). Match set_camera_fps.sh; run monitor_camera_move.sh if paths change.'
+        description='Comma-separated camera device paths. Can be 1, 2, or 3 cameras. Only existing devices will be started. Match set_camera_fps.sh; run monitor_camera_move.sh if paths change.'
     )
 
     engine_path_arg = DeclareLaunchArgument(
