@@ -47,6 +47,7 @@ def generate_launch_description() -> LaunchDescription:
         ],
     )
 
+    # --- Range filter: accumulate point clouds for denser, more accurate clusters (adds ~0.3s delay) ---
     range_filter_node = Node(
         package='pointcloud_filters',
         executable='lidar_range_filter',
@@ -59,10 +60,13 @@ def generate_launch_description() -> LaunchDescription:
                 'z_min': -0.37,
                 'z_max': 10.0,
                 'range_max': 30.0,
+                'enable_accumulation': True,          # buffer multiple scans for denser clusters
+                'accumulation_window': 0.6,           # seconds to accumulate (4-6x more points)
             }
         ],
     )
 
+    # --- Buoy detector: edit these to tune sensitivity (higher = more detections, more false positives) ---
     buoy_detector_node = Node(
         package='pointcloud_filters',
         executable='buoy_detector',
@@ -72,12 +76,16 @@ def generate_launch_description() -> LaunchDescription:
             {
                 'input_topic': '/points_filtered',
                 'output_topic': '/buoy_detections',
-                'eps': 0.8,
-                'min_samples': 2,
-                'min_lateral_extent': 0.01,
-                'max_lateral_extent': 1.0,
-                'min_points_final': 2,
-                'confidence_scale': 15.0,
+                'eps': 0.85,                          # DBSCAN neighbor distance (m); larger = merge more into one cluster
+                'min_samples': 1,                     # min pts to form cluster (1 = very sensitive)
+                'min_lateral_extent': 0.005,          # min blob size (m)
+                'max_lateral_extent': 2.5,            # max blob size before reject as wall
+                'min_points_final': 1,                # min pts to accept cluster (1 = accept tiny)
+                'min_points_for_aspect_ratio': 999,   # skip aspect-ratio reject below this many pts (999 = effectively off)
+                'small_cluster_max_points': 80,       # clusters <= this use isolation rule
+                'small_cluster_isolation_radius': 0.6,
+                'small_cluster_max_nearby': 25,       # small cluster ok if at most this many other pts in radius
+                'confidence_scale': 8.0,              # pts needed for high confidence (lower = confident with fewer pts)
                 'ransac_enabled': False,
                 'ransac_iterations': 80,
                 'ransac_distance_threshold': 0.15,
@@ -86,11 +94,22 @@ def generate_launch_description() -> LaunchDescription:
         ],
     )
 
+    # --- Buoy tracker: tuned for persistence (buoys stay visible longer, appear faster) ---
     buoy_tracker_node = Node(
         package='pointcloud_filters',
         executable='buoy_tracker',
         name='buoy_tracker',
         output='screen',
+        parameters=[
+            {
+                'max_consecutive_misses': 50,         # frames before removing track (high = persistent)
+                'min_observations_for_publish': 1,    # observations before track appears (low = fast)
+                'min_observations_to_add': 2,         # observations before becoming a track (low = fast)
+                'candidate_max_consecutive_misses': 8, # candidate persistence
+                'position_alpha': 0.6,                # smoothing: 0.6 = 60% new pos, 40% old (smoother)
+                'association_threshold': 0.9,         # distance (m) to match detection to existing track
+            }
+        ],
     )
 
     # LiDAR-only: shows raw detections as markers in RViz (topic /buoy_markers)

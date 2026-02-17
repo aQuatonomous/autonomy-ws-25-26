@@ -41,8 +41,13 @@ class BuoyDetectorNode(Node):
         self.declare_parameter('min_points_final', 2)  # Minimum points after validation
         self.declare_parameter('min_isolation_margin', 0.0)  # 0 = off. Non-zero rejects clusters near other points (can drop buoys near water).
         self.declare_parameter('max_aspect_ratio', 10.0)  # Max bbox aspect ratio; small clusters (2–3 pts along beam) are elongated, so keep high
+        self.declare_parameter('min_points_for_aspect_ratio', 20)  # Only apply aspect-ratio filter when cluster has >= this many points; skip for small buoys (10–20 pts)
         self.declare_parameter('max_external_points_nearby', -1)  # -1 = off. Non-zero can reject buoys near water/ground points.
         self.declare_parameter('external_density_radius', 0.8)  # Radius (m) for counting nearby external points; use with max_external_points_nearby
+        # Isolated small clusters: accept small blobs only when no/few other points nearby (solid cluster, nothing connected)
+        self.declare_parameter('small_cluster_max_points', 30)  # Clusters with <= this many points are "small"
+        self.declare_parameter('small_cluster_isolation_radius', 0.5)  # Radius (m) around cluster to check for other points
+        self.declare_parameter('small_cluster_max_nearby', 4)  # Small cluster accepted only if at most this many other points in radius (else reject as not isolated)
         self.declare_parameter('confidence_scale', 15.0)  # Points for 100% confidence
         
         # RANSAC water plane removal parameters
@@ -60,8 +65,12 @@ class BuoyDetectorNode(Node):
         self.min_points_final = int(self.get_parameter('min_points_final').get_parameter_value().integer_value)
         self.min_isolation_margin = float(self.get_parameter('min_isolation_margin').get_parameter_value().double_value)
         self.max_aspect_ratio = float(self.get_parameter('max_aspect_ratio').get_parameter_value().double_value)
+        self.min_points_for_aspect_ratio = int(self.get_parameter('min_points_for_aspect_ratio').get_parameter_value().integer_value)
         self.max_external_points_nearby = int(self.get_parameter('max_external_points_nearby').get_parameter_value().integer_value)
         self.external_density_radius = float(self.get_parameter('external_density_radius').get_parameter_value().double_value)
+        self.small_cluster_max_points = int(self.get_parameter('small_cluster_max_points').get_parameter_value().integer_value)
+        self.small_cluster_isolation_radius = float(self.get_parameter('small_cluster_isolation_radius').get_parameter_value().double_value)
+        self.small_cluster_max_nearby = int(self.get_parameter('small_cluster_max_nearby').get_parameter_value().integer_value)
         self.confidence_scale = self.get_parameter('confidence_scale').get_parameter_value().double_value
         
         _re = self.get_parameter('ransac_enabled').get_parameter_value()
@@ -367,10 +376,10 @@ class BuoyDetectorNode(Node):
                 self.get_logger().debug(f'Reject cluster at {range_m:.1f}m: {len(cluster_points)} pts < min_points_final {self.min_points_final}')
                 continue
 
-            # Aspect ratio: reject elongated clusters (walls); skip for very small clusters (often 2–3 pts along one beam)
+            # Aspect ratio: reject elongated clusters (walls); only apply to larger clusters so small buoys (10–20 pts) are not rejected
             span_min = min(x_span, y_span)
             span_max = max(x_span, y_span)
-            if span_min > 1e-6 and len(cluster_points) > 3:
+            if span_min > 1e-6 and len(cluster_points) >= self.min_points_for_aspect_ratio:
                 aspect_ratio = span_max / span_min
                 if aspect_ratio > self.max_aspect_ratio:
                     self.get_logger().debug(f'Reject cluster at {range_m:.1f}m: aspect_ratio {aspect_ratio:.1f} > max {self.max_aspect_ratio}')
@@ -386,6 +395,15 @@ class BuoyDetectorNode(Node):
                 if self.min_isolation_margin > 0.0 and min_dist_to_other < self.min_isolation_margin:
                     self.get_logger().debug(f'Reject cluster at {range_m:.1f}m: min_dist_to_other {min_dist_to_other:.2f} < isolation_margin {self.min_isolation_margin}')
                     continue
+                # Isolated small clusters: accept small blobs only when no/few other points in radius (solid cluster, nothing connected)
+                if len(cluster_points) <= self.small_cluster_max_points and self.small_cluster_isolation_radius > 0.0:
+                    num_nearby = int(np.sum(dists < self.small_cluster_isolation_radius))
+                    if num_nearby > self.small_cluster_max_nearby:
+                        self.get_logger().debug(
+                            f'Reject cluster at {range_m:.1f}m: small cluster ({len(cluster_points)} pts) not isolated '
+                            f'({num_nearby} other pts within {self.small_cluster_isolation_radius}m > {self.small_cluster_max_nearby})'
+                        )
+                        continue
                 if self.max_external_points_nearby >= 0 and self.external_density_radius > 0.0:
                     num_nearby = int(np.sum(dists < self.external_density_radius))
                     if num_nearby > self.max_external_points_nearby:
