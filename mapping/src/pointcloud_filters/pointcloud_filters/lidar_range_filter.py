@@ -66,6 +66,8 @@ class LidarRangeFilterNode(Node):
         self.declare_parameter('rotate_ccw_y_deg', 0.0)
         # Clockwise rotation in degrees around positive X (0 = no rotation). Applied after Z, before Y.
         self.declare_parameter('rotate_cw_x_deg', 30.0)
+        # Counter-clockwise rotation in degrees around Z (0 = no rotation). Applied after X rotation.
+        self.declare_parameter('rotate_ccw_z2_deg', 90.0)
         # Field of view limit: max angle from +X axis to keep (degrees). 105° = 210° total coverage centered on +X. 0 = no FOV filter.
         self.declare_parameter('fov_max_angle_from_x', 105.0)
         # Z ceiling: remove every point with z above this (m). E.g. 1.5 = cut off everything above 1.5 m. Set very large (e.g. 1000) to disable.
@@ -85,6 +87,7 @@ class LidarRangeFilterNode(Node):
         self.rotate_cw_deg = float(self.get_parameter('rotate_cw_deg').get_parameter_value().double_value)
         self.rotate_ccw_y_deg = float(self.get_parameter('rotate_ccw_y_deg').get_parameter_value().double_value)
         self.rotate_cw_x_deg = float(self.get_parameter('rotate_cw_x_deg').get_parameter_value().double_value)
+        self.rotate_ccw_z2_deg = float(self.get_parameter('rotate_ccw_z2_deg').get_parameter_value().double_value)
         self.fov_max_angle_from_x = float(self.get_parameter('fov_max_angle_from_x').get_parameter_value().double_value)
         self.z_max_cutoff = float(self.get_parameter('z_max_cutoff').get_parameter_value().double_value)
         # Precompute rotation around Z (clockwise = negative angle around Z)
@@ -95,6 +98,10 @@ class LidarRangeFilterNode(Node):
         self._rot_x_rad = math.radians(-self.rotate_cw_x_deg)
         self._cos_x = math.cos(self._rot_x_rad)
         self._sin_x = math.sin(self._rot_x_rad)
+        # Precompute second rotation around Z (counter-clockwise = positive angle around Z)
+        self._rot_z2_rad = math.radians(self.rotate_ccw_z2_deg)
+        self._cos_z2 = math.cos(self._rot_z2_rad)
+        self._sin_z2 = math.sin(self._rot_z2_rad)
         # Precompute rotation around Y (counter-clockwise = positive angle around Y)
         self._rot_y_rad = math.radians(self.rotate_ccw_y_deg)
         self._cos_y = math.cos(self._rot_y_rad)
@@ -138,7 +145,7 @@ class LidarRangeFilterNode(Node):
         self.get_logger().info(
             f'lidar_range_filter started: input={self.input_topic}, output={self.output_topic if self.keep_publisher else "(disabled)"}, '
             f'z=[{self.z_min},{self.z_max}] m, range_max={self.range_max} m, base_frame={self.base_frame}, '
-            f'use_tf_transform={self.use_tf_transform}, rotate_cw_deg={self.rotate_cw_deg}, rotate_cw_x_deg={self.rotate_cw_x_deg}, rotate_ccw_y_deg={self.rotate_ccw_y_deg}, '
+            f'use_tf_transform={self.use_tf_transform}, rotate_cw_deg={self.rotate_cw_deg}, rotate_cw_x_deg={self.rotate_cw_x_deg}, rotate_ccw_z2_deg={self.rotate_ccw_z2_deg}, rotate_ccw_y_deg={self.rotate_ccw_y_deg}, '
             f'fov_max_angle_from_x={self.fov_max_angle_from_x}°, z_max_cutoff={self.z_max_cutoff} m, '
             f'max_buffer_duration_sec={self.max_buffer_duration_sec}, '
             f'accumulation: {"enabled (" + str(self.accumulation_window) + "s)" if self.enable_accumulation else "disabled"}'
@@ -218,7 +225,15 @@ class LidarRangeFilterNode(Node):
             y = y_new
             z = z_new
 
-        # Rotation 3: Counter-clockwise around Y by rotate_ccw_y_deg
+        # Rotation 3: Counter-clockwise around Z by rotate_ccw_z2_deg (e.g. 90°)
+        # Rz(θ): x'=cos(θ)*x - sin(θ)*y, y'=sin(θ)*x + cos(θ)*y, z'=z (θ positive for CCW)
+        if self.rotate_ccw_z2_deg != 0.0:
+            x_new = self._cos_z2 * x - self._sin_z2 * y
+            y_new = self._sin_z2 * x + self._cos_z2 * y
+            x = x_new
+            y = y_new
+
+        # Rotation 4: Counter-clockwise around Y by rotate_ccw_y_deg
         # Rotation around Y: [x', y', z'] = [cos(θ)*x + sin(θ)*z, y, -sin(θ)*x + cos(θ)*z]
         if self.rotate_ccw_y_deg != 0.0:
             x_new = self._cos_y * x + self._sin_y * z

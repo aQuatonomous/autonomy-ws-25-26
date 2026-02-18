@@ -61,6 +61,7 @@ def generate_launch_description() -> LaunchDescription:
                 'use_tf_transform': False,
                 'rotate_cw_deg': 202.5,      # 202.5° clockwise around Z
                 'rotate_cw_x_deg': -30.0,    # 30° counter-clockwise around positive X
+                'rotate_ccw_z2_deg': 90.0,   # 90° counter-clockwise around Z (after X rotation)
                 'rotate_ccw_y_deg': 0.0,
                 'z_min': -0.37,
                 'z_max': 5.0,                         # Reduce Z range too
