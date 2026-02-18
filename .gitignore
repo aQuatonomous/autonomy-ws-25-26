@@ -20,14 +20,6 @@ __pycache__/
 *~
 .DS_Store
 
-# Virtual environments
-.venv/
-venv/
-trt-env/
-
-# Computer Vision
-camera_images/
-testing_media/
 
 # Vendor Packages (clone separately)
 mapping/src/unilidar_sdk/
@@ -48,3 +40,17 @@ unitree_lidar_ros2/log
 # SDK binaries
 unitree_lidar_sdk/bin
 unitree_lidar_sdk/build
+
+# Virtual environments
+.venv/
+venv/
+trt-env/
+
+computer_vision/testing_media
+
+
+# Task 2/3 debug + final outputs
+computer_vision/task_specific/task_2_3/debug_outputs/
+computer_vision/task_specific/task_2_3/final_outputs/
+computer_vision/task_specific/task_2_3/input_images/
+computer_vision/camera_calibration/angle_testing
