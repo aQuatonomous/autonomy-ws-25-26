@@ -21,7 +21,7 @@ from typing import Optional
 import rclpy
 from rclpy.executors import ExternalShutdownException
 from rclpy.node import Node
-from rclpy.qos import QoSProfile, QoSReliabilityPolicy, QoSHistoryPolicy
+from rclpy.qos import QoSProfile, QoSReliabilityPolicy, QoSHistoryPolicy, QoSDurabilityPolicy
 from sensor_msgs.msg import NavSatFix
 from std_msgs.msg import Float64
 from geometry_msgs.msg import PoseStamped, Quaternion, TransformStamped
@@ -94,16 +94,23 @@ class BoatStateNode(Node):
         self._last_north: Optional[float] = None
         self._last_heading_rad: Optional[float] = None
 
-        qos = QoSProfile(
+        # RELIABLE QoS for our own publishers and any internal subscribers
+        qos_reliable = QoSProfile(
             reliability=QoSReliabilityPolicy.RELIABLE,
             history=QoSHistoryPolicy.KEEP_LAST,
             depth=5,
         )
+        # BEST_EFFORT QoS to match MAVROS sensor publishers (NavSatFix, Float64 compass)
+        qos_sensor = QoSProfile(
+            reliability=QoSReliabilityPolicy.BEST_EFFORT,
+            history=QoSHistoryPolicy.KEEP_LAST,
+            depth=5,
+        )
 
-        self._boat_pose_pub = self.create_publisher(BoatPose, "/boat_pose", qos)
+        self._boat_pose_pub = self.create_publisher(BoatPose, "/boat_pose", qos_reliable)
         if self._publish_pose_stamped:
             self._pose_pub = self.create_publisher(
-                PoseStamped, "/boat_pose_stamped", qos
+                PoseStamped, "/boat_pose_stamped", qos_reliable
             )
         if self._publish_tf:
             self._tf_broadcaster = tf2_ros.TransformBroadcaster(self)
@@ -112,7 +119,7 @@ class BoatStateNode(Node):
             NavSatFix,
             self._global_position_topic,
             self._gps_callback,
-            qos,
+            qos_sensor,
         )
 
         if self._heading_topic_type == "pose":
@@ -121,14 +128,14 @@ class BoatStateNode(Node):
                 PoseStampedMsg,
                 self._heading_topic,
                 self._heading_pose_callback,
-                qos,
+                qos_sensor,
             )
         else:
             self._heading_sub = self.create_subscription(
                 Float64,
                 self._heading_topic,
                 self._heading_compass_callback,
-                qos,
+                qos_sensor,
             )
 
         self.get_logger().info(
@@ -137,13 +144,20 @@ class BoatStateNode(Node):
         )
 
     def _heading_compass_callback(self, msg: Float64) -> None:
-        # compass_hdg: 0 = North, 90 = East (degrees). Convert to angle from East (radians).
+        # compass_hdg: 0 = North, 90 = East (degrees). Convert to ENU heading (0 = East, 90 = North).
         hdg_deg = float(msg.data)
-        self._last_heading_rad = math.radians(hdg_deg - 90.0)
+        self._last_heading_rad = math.radians(90.0 - hdg_deg)
+        # Publish with whatever position we have (0,0 if no GPS yet) so heading is always live
+        east = self._last_east if self._last_east is not None else 0.0
+        north = self._last_north if self._last_north is not None else 0.0
+        self._publish_pose(east, north, self._last_heading_rad, self.get_clock().now().to_msg())
 
     def _heading_pose_callback(self, msg: PoseStamped) -> None:
         yaw = yaw_from_quaternion(msg.pose.orientation)
         self._last_heading_rad = yaw
+        east = self._last_east if self._last_east is not None else 0.0
+        north = self._last_north if self._last_north is not None else 0.0
+        self._publish_pose(east, north, self._last_heading_rad, msg.header.stamp)
 
     def _gps_callback(self, msg: NavSatFix) -> None:
         if msg.status.status < 0:

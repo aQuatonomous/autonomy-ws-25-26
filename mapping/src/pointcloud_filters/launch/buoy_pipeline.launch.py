@@ -47,7 +47,7 @@ def generate_launch_description() -> LaunchDescription:
         ],
     )
 
-    # --- Range filter: accumulate point clouds for denser, more accurate clusters (adds ~0.3s delay) ---
+    # --- Range filter: manual rotations only (no TF). Output frame = base_link. ---
     range_filter_node = Node(
         package='pointcloud_filters',
         executable='lidar_range_filter',
@@ -57,11 +57,17 @@ def generate_launch_description() -> LaunchDescription:
             {
                 'input_topic': '/unilidar/cloud',
                 'output_topic': '/points_filtered',
+                'base_frame': 'base_link',
+                'use_tf_transform': False,
+                'rotate_cw_deg': 202.5,      # 202.5° clockwise around Z
+                'rotate_cw_x_deg': -30.0,    # 30° counter-clockwise around positive X
+                'rotate_ccw_y_deg': 0.0,
                 'z_min': -0.37,
-                'z_max': 10.0,
-                'range_max': 30.0,
-                'enable_accumulation': True,          # buffer multiple scans for denser clusters
-                'accumulation_window': 0.6,           # seconds to accumulate (4-6x more points)
+                'z_max': 5.0,                         # Reduce Z range too
+                'range_max': 15.0,                    # Reduce range to get fewer points
+                'fov_max_angle_from_x': 0.0,          # Disable FOV filter - see all around (360°)
+                'enable_accumulation': True,          # Enable accumulation for denser cloud
+                'accumulation_window': 0.6,
             }
         ],
     )

@@ -20,10 +20,10 @@ class PreprocessCamera(Node):
         self.min_interval_ns = int(1e9 / self.max_fps) if self.max_fps > 0 else 0
         self.last_publish_ns = 0
 
-        # v4l2_camera publishes with BEST_EFFORT (sensor data QoS).
-        # Subscriber MUST match: RELIABLE sub cannot receive BEST_EFFORT pub.
+        # v4l2_camera publishes with RELIABLE QoS.
+        # Subscriber MUST match: use RELIABLE to receive messages.
         qos_sensor = QoSProfile(
-            reliability=QoSReliabilityPolicy.BEST_EFFORT,
+            reliability=QoSReliabilityPolicy.RELIABLE,
             history=QoSHistoryPolicy.KEEP_LAST,
             depth=1,
         )

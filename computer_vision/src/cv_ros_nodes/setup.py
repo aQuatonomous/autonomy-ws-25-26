@@ -12,7 +12,7 @@ setup(
         ('share/' + package_name, ['package.xml']),
         ('share/' + package_name, ['../../cv_scripts/class_mapping.yaml']),
         ('share/' + package_name + '/launch',
-        ['cv_ros_nodes/launch/launch_cv.py', 'cv_ros_nodes/launch/launch_cv_sim.py']),
+        ['cv_ros_nodes/launch/launch_cv.py', 'cv_ros_nodes/launch/launch_cv_sim.py', 'cv_ros_nodes/launch/launch_cv_single_camera1.py']),
     ],
     install_requires=['setuptools'],
     zip_safe=True,

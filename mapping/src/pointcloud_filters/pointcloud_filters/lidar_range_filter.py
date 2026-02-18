@@ -61,9 +61,11 @@ class LidarRangeFilterNode(Node):
         self.declare_parameter('enable_accumulation', False)
         self.declare_parameter('accumulation_window', 0.2)
         # Clockwise rotation in degrees around Z (0 = no rotation). Applied to all points after reading, before other filters.
-        self.declare_parameter('rotate_cw_deg', 112.5)  # 22.5 + 180
-        # Counter-clockwise rotation in degrees around Y (0 = no rotation). Applied after Z rotation.
-        self.declare_parameter('rotate_ccw_y_deg', 30.0)
+        self.declare_parameter('rotate_cw_deg', 202.5)
+        # Counter-clockwise rotation in degrees around Y (0 = no rotation). Applied after Z and X.
+        self.declare_parameter('rotate_ccw_y_deg', 0.0)
+        # Clockwise rotation in degrees around positive X (0 = no rotation). Applied after Z, before Y.
+        self.declare_parameter('rotate_cw_x_deg', 30.0)
         # Field of view limit: max angle from +X axis to keep (degrees). 105° = 210° total coverage centered on +X. 0 = no FOV filter.
         self.declare_parameter('fov_max_angle_from_x', 105.0)
         # Z ceiling: remove every point with z above this (m). E.g. 1.5 = cut off everything above 1.5 m. Set very large (e.g. 1000) to disable.
@@ -82,12 +84,17 @@ class LidarRangeFilterNode(Node):
         self.accumulation_window = float(self.get_parameter('accumulation_window').get_parameter_value().double_value)
         self.rotate_cw_deg = float(self.get_parameter('rotate_cw_deg').get_parameter_value().double_value)
         self.rotate_ccw_y_deg = float(self.get_parameter('rotate_ccw_y_deg').get_parameter_value().double_value)
+        self.rotate_cw_x_deg = float(self.get_parameter('rotate_cw_x_deg').get_parameter_value().double_value)
         self.fov_max_angle_from_x = float(self.get_parameter('fov_max_angle_from_x').get_parameter_value().double_value)
         self.z_max_cutoff = float(self.get_parameter('z_max_cutoff').get_parameter_value().double_value)
         # Precompute rotation around Z (clockwise = negative angle around Z)
         self._rot_z_rad = math.radians(-self.rotate_cw_deg)
         self._cos_z = math.cos(self._rot_z_rad)
         self._sin_z = math.sin(self._rot_z_rad)
+        # Precompute rotation around X (clockwise = negative angle): y'=cos*y-sin*z, z'=sin*y+cos*z
+        self._rot_x_rad = math.radians(-self.rotate_cw_x_deg)
+        self._cos_x = math.cos(self._rot_x_rad)
+        self._sin_x = math.sin(self._rot_x_rad)
         # Precompute rotation around Y (counter-clockwise = positive angle around Y)
         self._rot_y_rad = math.radians(self.rotate_ccw_y_deg)
         self._cos_y = math.cos(self._rot_y_rad)
@@ -131,7 +138,7 @@ class LidarRangeFilterNode(Node):
         self.get_logger().info(
             f'lidar_range_filter started: input={self.input_topic}, output={self.output_topic if self.keep_publisher else "(disabled)"}, '
             f'z=[{self.z_min},{self.z_max}] m, range_max={self.range_max} m, base_frame={self.base_frame}, '
-            f'use_tf_transform={self.use_tf_transform}, rotate_cw_deg={self.rotate_cw_deg}, rotate_ccw_y_deg={self.rotate_ccw_y_deg}, '
+            f'use_tf_transform={self.use_tf_transform}, rotate_cw_deg={self.rotate_cw_deg}, rotate_cw_x_deg={self.rotate_cw_x_deg}, rotate_ccw_y_deg={self.rotate_ccw_y_deg}, '
             f'fov_max_angle_from_x={self.fov_max_angle_from_x}°, z_max_cutoff={self.z_max_cutoff} m, '
             f'max_buffer_duration_sec={self.max_buffer_duration_sec}, '
             f'accumulation: {"enabled (" + str(self.accumulation_window) + "s)" if self.enable_accumulation else "disabled"}'
@@ -196,14 +203,22 @@ class LidarRangeFilterNode(Node):
             intens = pts[:, 3].astype(np.float64, copy=False)
 
         # Apply rotations: first Z (clockwise), then Y (counter-clockwise)
-        # Rotation 1: Clockwise around Z by rotate_cw_deg (e.g. 22.5°)
+        # Rotation 1: Clockwise around Z by rotate_cw_deg (e.g. 202.5°)
         if self.rotate_cw_deg != 0.0:
             x_new = self._cos_z * x - self._sin_z * y
             y_new = self._sin_z * x + self._cos_z * y
             x = x_new
             y = y_new
 
-        # Rotation 2: Counter-clockwise around Y by rotate_ccw_y_deg (e.g. 15°)
+        # Rotation 2: Clockwise around positive X by rotate_cw_x_deg (e.g. 30°)
+        # Rx(θ): x'=x, y'=cos(θ)*y - sin(θ)*z, z'=sin(θ)*y + cos(θ)*z (θ negative for CW)
+        if self.rotate_cw_x_deg != 0.0:
+            y_new = self._cos_x * y - self._sin_x * z
+            z_new = self._sin_x * y + self._cos_x * z
+            y = y_new
+            z = z_new
+
+        # Rotation 3: Counter-clockwise around Y by rotate_ccw_y_deg
         # Rotation around Y: [x', y', z'] = [cos(θ)*x + sin(θ)*z, y, -sin(θ)*x + cos(θ)*z]
         if self.rotate_ccw_y_deg != 0.0:
             x_new = self._cos_y * x + self._sin_y * z
@@ -230,11 +245,7 @@ class LidarRangeFilterNode(Node):
             # If no points remain after FOV filter, publish empty cloud
             if len(x) == 0:
                 header = msg.header
-                src_frame = msg.header.frame_id
-                if self.use_tf_transform:
-                    header.frame_id = self.base_frame if False else (src_frame or self.base_frame)
-                else:
-                    header.frame_id = src_frame or self.base_frame
+                header.frame_id = self.base_frame
                 out_msg = pc2.create_cloud_xyz32(header, [])
                 if self.pub:
                     self.pub.publish(out_msg)
@@ -252,11 +263,7 @@ class LidarRangeFilterNode(Node):
                 intens = intens[z_ceiling_mask]
             if len(x) == 0:
                 header = msg.header
-                src_frame = msg.header.frame_id
-                if self.use_tf_transform:
-                    header.frame_id = self.base_frame if False else (src_frame or self.base_frame)
-                else:
-                    header.frame_id = src_frame or self.base_frame
+                header.frame_id = self.base_frame
                 out_msg = pc2.create_cloud_xyz32(header, [])
                 if self.pub:
                     self.pub.publish(out_msg)
@@ -274,8 +281,8 @@ class LidarRangeFilterNode(Node):
                 q = tf.transform.rotation
                 R = quaternion_to_rotation_matrix(q.x, q.y, q.z, q.w)
                 T = np.array([t.x, t.y, t.z], dtype=np.float64)
-                pts = np.vstack((x, y, z))  # 3xN
-                pts_tf = (R @ pts) + T.reshape(3, 1)
+                pts_xyz = np.vstack((x, y, z))  # 3xN (do not overwrite pts; keep_intensity needs pts)
+                pts_tf = (R @ pts_xyz) + T.reshape(3, 1)
                 x, y, z = pts_tf[0, :], pts_tf[1, :], pts_tf[2, :]
                 transformed = True
             else:
@@ -286,11 +293,7 @@ class LidarRangeFilterNode(Node):
         rng = np.sqrt(x * x + y * y)
         mask = (rng <= self.range_max) & (z >= self.z_min) & (z <= self.z_max)
         header = msg.header
-        if self.use_tf_transform:
-            # Only relabel to base_frame if transform actually applied; otherwise keep source frame
-            header.frame_id = self.base_frame if transformed else (src_frame or self.base_frame)
-        else:
-            header.frame_id = src_frame or self.base_frame
+        header.frame_id = self.base_frame
 
         if not np.any(mask):
             # Publish empty XYZ cloud
@@ -303,8 +306,7 @@ class LidarRangeFilterNode(Node):
             return
 
         if keep_intensity:
-            # Keep intensity; pack points as tuples (x,y,z,intensity)
-            intens = pts[:, 3]
+            # Keep intensity; use the already-sliced intens variable (not pts[:,3] which is original unfiltered array)
             sel = mask
             points_list = list(map(lambda i: (float(x[i]), float(y[i]), float(z[i]), float(intens[i])), np.flatnonzero(sel)))
             from sensor_msgs.msg import PointField

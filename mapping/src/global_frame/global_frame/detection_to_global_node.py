@@ -28,6 +28,15 @@ from builtin_interfaces.msg import Time
 from global_frame.msg import BoatPose, GlobalDetection, GlobalDetectionArray
 
 
+def _normalize_angle(angle_rad: float) -> float:
+    """Normalize angle to [-π, π]."""
+    while angle_rad > math.pi:
+        angle_rad -= 2.0 * math.pi
+    while angle_rad < -math.pi:
+        angle_rad += 2.0 * math.pi
+    return angle_rad
+
+
 class DetectionToGlobalNode(Node):
     def __init__(self):
         super().__init__("detection_to_global_node")
@@ -97,7 +106,7 @@ class DetectionToGlobalNode(Node):
         """Convert boat-relative (range, bearing) to global (east, north)."""
         if self._boat_east is None or self._boat_north is None or self._boat_heading_rad is None:
             return (0.0, 0.0)
-        alpha = self._boat_heading_rad + bearing_rad
+        alpha = _normalize_angle(self._boat_heading_rad + bearing_rad)
         east = self._boat_east + range_m * math.cos(alpha)
         north = self._boat_north + range_m * math.sin(alpha)
         return (east, north)
@@ -139,10 +148,10 @@ class DetectionToGlobalNode(Node):
             east = sum(d.east for d in dets) / len(dets)
             north = sum(d.north for d in dets) / len(dets)
             range_m = sum(d.range_m for d in dets) / len(dets)
-            bearing_global_rad = math.atan2(
+            bearing_global_rad = _normalize_angle(math.atan2(
                 north - (self._boat_north or 0),
                 east - (self._boat_east or 0),
-            )
+            ))
             class_name = "unknown"
             class_id = 255
             for d in dets:
@@ -191,7 +200,7 @@ class DetectionToGlobalNode(Node):
             range_m = float(d.get("range", 0.0))
             bearing_rad = float(d.get("bearing", 0.0))
             east, north = self._to_global(range_m, bearing_rad)
-            alpha = (self._boat_heading_rad or 0.0) + bearing_rad
+            alpha = _normalize_angle((self._boat_heading_rad or 0.0) + bearing_rad)
             g = GlobalDetection()
             g.header.stamp = stamp
             g.header.frame_id = self._map_frame
@@ -214,18 +223,20 @@ class DetectionToGlobalNode(Node):
         except json.JSONDecodeError:
             return
         detections = data.get("detections", [])
+        self.get_logger().info(f"CV callback: {len(detections)} detections received", throttle_duration_sec=2.0)
         stamp = self._boat_stamp or self.get_clock().now().to_msg()
         self._last_cv_detections = []
         for d in detections:
             dist = d.get("distance_m")
             if dist is None:
+                self.get_logger().warn(f"CV detection missing distance_m: {d.get('class_name', 'unknown')}", throttle_duration_sec=2.0)
                 continue
             range_m = float(dist)
             bearing_deg = d.get("bearing_deg", 0.0)
             # CV: 0 = forward, + = right. Base_link: 0 = +X forward, +Y = left -> bearing from +X: right positive = -bearing_deg in rad
             bearing_rad = -math.radians(float(bearing_deg))
             east, north = self._to_global(range_m, bearing_rad)
-            alpha = (self._boat_heading_rad or 0.0) + bearing_rad
+            alpha = _normalize_angle((self._boat_heading_rad or 0.0) + bearing_rad)
             g = GlobalDetection()
             g.header.stamp = stamp
             g.header.frame_id = self._map_frame
@@ -237,6 +248,7 @@ class DetectionToGlobalNode(Node):
             g.class_name = str(d.get("class_name", "unknown"))
             g.class_id = int(d.get("class_id", 255))
             g.id = 0
+            self.get_logger().info(f"CV detection added: {g.class_name} at east={east:.2f}, north={north:.2f}, range={range_m:.2f}m", throttle_duration_sec=2.0)
             self._last_cv_detections.append(g)
         if self._last_cv_detections:
             self._publish_combined()

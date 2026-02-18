@@ -1,8 +1,8 @@
 #!/bin/bash
 
 # Set camera resolution and FPS using persistent USB device paths.
-# Camera positions (by-path): Cam0 = 1.2, Cam1 = 1.1, Cam2 = 1.4.2
-# If you move cables, run ../monitor_camera_move.sh to see new paths and update CAMERA_DEVICES below.
+# Accepts CAMERA_DEVICES as comma-separated string (e.g., "/path1,/path2,/path3").
+# Camera mapping is handled by the calling script (e.g., comp.sh).
 # FPS: 15 fps at 960x600. Launch uses sequential startup (0s, 2s, 4s) to avoid USB race.
 
 RESOLUTION="${CAMERA_RESOLUTION:-960,600}"
@@ -10,12 +10,18 @@ FPS="${CAMERA_FPS:-15}"
 IFS=',' read -r WIDTH HEIGHT <<< "$RESOLUTION"
 echo "Setting cameras to ${WIDTH}x${HEIGHT} YUYV @ ${FPS} FPS..."
 
-# By-path: 1.2→Cam0, 1.1→Cam1, 1.4.2→Cam2 (see ../monitor_camera_move.sh if paths change)
-CAMERA_DEVICES=(
-    "/dev/v4l/by-path/platform-3610000.usb-usb-0:1.4.2:1.0-video-index0"   # Camera 0
-    "/dev/v4l/by-path/platform-3610000.usb-usb-0:1.2:1.0-video-index0"   # Camera 1
-    "/dev/v4l/by-path/platform-3610000.usb-usb-0:1.4.3:1.0-video-index0" # Camera 2
-)
+# Parse CAMERA_DEVICES from comma-separated string to array
+# If CAMERA_DEVICES is not set, script will exit with error
+if [ -z "${CAMERA_DEVICES}" ]; then
+    echo "Error: CAMERA_DEVICES environment variable is not set."
+    echo "Set it in your calling script (e.g., comp.sh) as a comma-separated string:"
+    echo "  CAMERA_DEVICES=\"/path1,/path2,/path3\""
+    exit 1
+fi
+
+# Convert comma-separated string to array
+IFS=',' read -ra CAMERA_DEVICES_ARRAY <<< "${CAMERA_DEVICES}"
+CAMERA_DEVICES=("${CAMERA_DEVICES_ARRAY[@]}")
 
 # Set resolution and FPS for each camera
 for i in "${!CAMERA_DEVICES[@]}"; do
@@ -46,5 +52,4 @@ for i in "${!CAMERA_DEVICES[@]}"; do
 done
 
 echo ""
-echo "Done! Ports: 1.4.2→Cam0, 1.2→Cam1, 1.4.3→Cam2. Launch with:"
-echo "  ros2 launch cv_ros_nodes launch_cv.py camera_devices:=/dev/v4l/by-path/platform-3610000.usb-usb-0:1.4.2:1.0-video-index0,/dev/v4l/by-path/platform-3610000.usb-usb-0:1.2:1.0-video-index0,/dev/v4l/by-path/platform-3610000.usb-usb-0:1.4.3:1.0-video-index0"
+echo "Done! Configured ${#CAMERA_DEVICES[@]} camera(s)."

@@ -1,5 +1,6 @@
 #!/bin/bash
-# Competition launch: set camera FPS, then start LiDAR and CV pipelines.
+# Competition launch (single camera): set camera FPS, then start LiDAR and CV pipelines.
+# Runs only camera1 (middle camera) in the CV pipeline.
 # Run from autonomy-ws-25-26 (or use absolute paths below).
 # Ctrl+C kills everything (cameras, inference, lidar, etc.) reliably.
 
@@ -8,18 +9,14 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 MAPPING_WS="${SCRIPT_DIR}/mapping"
 CV_WS="${SCRIPT_DIR}/computer_vision"
 
-# Camera device mapping. Override if needed (e.g. after moving cables):
-#   CAMERA_DEVICES="/path1,/path2,/path3" ./comp.sh
-# Run ./monitor_camera_move.sh to see current by-path devices.
-# Default matches launch_cv.py default (Cam0, Cam1, Cam2).
-# LiDAR is always /dev/ttyUSB0. Pixhawk is /dev/ttyACM0 (override with FCU_URL, e.g. /dev/ttyACM0:57600).
+# Run only the middle camera as camera1 (so /camera1/* topics in RViz).
+# Uses dedicated single-camera launch file that only starts camera1 pipeline.
+# Override the middle camera path if needed: CAMERA1_DEVICE="/path/to/middle" ./comp_single_camera.sh
+# LiDAR is always /dev/ttyUSB0. Pixhawk is /dev/ttyACM0 (override with FCU_URL for serial, e.g. /dev/ttyACM0:57600).
 FCU_URL="${FCU_URL:-/dev/ttyACM0:57600}"
-if [ -z "${CAMERA_DEVICES}" ]; then
-  CAMERA_DEVICES="/dev/v4l/by-path/platform-3610000.usb-usb-0:1.2.2:1.0-video-index0,"\
-"/dev/v4l/by-path/platform-3610000.usb-usb-0:1.4:1.0-video-index0,"\
-"/dev/v4l/by-path/platform-3610000.usb-usb-0:2.1:1.0-video-index0"
-fi
-
+CAMERA1_DEVICE="${CAMERA1_DEVICE:-/dev/v4l/by-path/platform-3610000.usb-usb-0:1.3:1.0-video-index0}"
+# For set_camera_fps: only configure the one physical camera
+CAMERA_DEVICES="${CAMERA1_DEVICE}"
 
 echo "=== Setting camera format (YUYV @ 960x600 @ 15fps) ==="
 CAMERA_FPS="${CAMERA_FPS:-15}" CAMERA_DEVICES="${CAMERA_DEVICES}" bash "${CV_WS}/set_camera_fps.sh" || { echo "Warning: set_camera_fps failed (check camera paths or CAMERA_DEVICES)"; }
@@ -75,8 +72,8 @@ ros2 launch pointcloud_filters buoy_pipeline.launch.py launch_rviz:=false &
 LIDAR_PID=$!
 
 sleep 5
-echo "=== Launching CV pipeline ==="
-ros2 launch cv_ros_nodes launch_cv.py use_sim:=false resolution:=960,600 conf_threshold:=0.1 preprocess_fps:=5 inference_interval_front:=4 inference_interval_sides:=6 camera_devices:="${CAMERA_DEVICES}" &
+echo "=== Launching CV pipeline (camera1 only) ==="
+ros2 launch cv_ros_nodes launch_cv_single_camera1.py resolution:=960,600 conf_threshold:=0.1 preprocess_fps:=5 inference_interval_front:=4 camera1_device:="${CAMERA1_DEVICE}" &
 CV_PID=$!
 
 sleep 8
