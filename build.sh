@@ -6,6 +6,7 @@ set -e
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 MAPPING_WS="${SCRIPT_DIR}/mapping"
 CV_WS="${SCRIPT_DIR}/computer_vision"
+PLANNING_WS="${SCRIPT_DIR}/planning"
 
 echo "=== Building All ROS2 Workspaces ==="
 echo
@@ -28,9 +29,21 @@ colcon build --symlink-install
 echo "✓ Computer vision workspace built successfully"
 echo
 
+# Build planning workspace
+echo "=== Building planning workspace ==="
+cd "${PLANNING_WS}"
+if [ -d "Global_Planner" ]; then
+    colcon build --symlink-install --paths Global_Planner
+    echo "✓ Planning workspace built successfully"
+else
+    echo "⚠ Global_Planner not found in planning directory"
+fi
+echo
+
 echo "=== Build Summary ==="
 echo "✓ Mapping workspace:        ${MAPPING_WS}"
 echo "✓ Computer vision workspace: ${CV_WS}"
+echo "✓ Planning workspace:        ${PLANNING_WS}"
 echo
-echo "Both workspaces built successfully!"
+echo "All workspaces built successfully!"
 echo "You can now run: ./comp.sh"
