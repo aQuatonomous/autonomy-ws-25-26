@@ -23,7 +23,7 @@ Key rules implemented:
     - Define the forward direction as the unit vector perpendicular to the
       most recently detected gate line (red_buoy → green_buoy)
     - Generate a temporary forward waypoint by projecting straight ahead
-      along this direction, up to a maximum of 100 ft
+      along this direction, up to a maximum of 100 m
     - Exit fallback immediately once the next gate is detected
 
 One-shot mode:
@@ -43,6 +43,8 @@ import numpy as np
 
 from Local.potential_fields_planner import PotentialFieldsPlanner
 
+from Global.goal_utils import nudge_goal_away_from_obstacles, segments_intersect
+
 Vec2 = Tuple[float, float]
 Pose = Tuple[float, float, float]  # x, y, heading (rad)
 
@@ -55,11 +57,7 @@ class GoalPlan:
     completed: bool = False
 
 
-@dataclass
-class DetectedEntity:
-    entity_id: int
-    entity_type: str
-    position: Vec2
+from Global.types import DetectedEntity
 
 
 class TaskStatus(Enum):
@@ -69,47 +67,13 @@ class TaskStatus(Enum):
 
 
 # -------------------------
-# geometry: segment intersection
-# -------------------------
-
-def _orient(a: np.ndarray, b: np.ndarray, c: np.ndarray) -> float:
-    return float((b[0] - a[0]) * (c[1] - a[1]) - (b[1] - a[1]) * (c[0] - a[0]))
-
-def _on_segment(a: np.ndarray, b: np.ndarray, c: np.ndarray) -> bool:
-    return (
-        min(a[0], b[0]) - 1e-9 <= c[0] <= max(a[0], b[0]) + 1e-9
-        and min(a[1], b[1]) - 1e-9 <= c[1] <= max(a[1], b[1]) + 1e-9
-    )
-
-def segments_intersect(p1: Vec2, p2: Vec2, q1: Vec2, q2: Vec2) -> bool:
-    a = np.array(p1, dtype=float)
-    b = np.array(p2, dtype=float)
-    c = np.array(q1, dtype=float)
-    d = np.array(q2, dtype=float)
-
-    o1 = _orient(a, b, c)
-    o2 = _orient(a, b, d)
-    o3 = _orient(c, d, a)
-    o4 = _orient(c, d, b)
-
-    if (o1 * o2 < 0.0) and (o3 * o4 < 0.0):
-        return True
-
-    if abs(o1) < 1e-9 and _on_segment(a, b, c): return True
-    if abs(o2) < 1e-9 and _on_segment(a, b, d): return True
-    if abs(o3) < 1e-9 and _on_segment(c, d, a): return True
-    if abs(o4) < 1e-9 and _on_segment(c, d, b): return True
-    return False
-
-
-# -------------------------
 # Task 1 manager
 # -------------------------
 
 class Task1Manager:
-    def __init__(self, entities, map_bounds: Vec2, start_pose: Pose):
+    def __init__(self, entities, map_bounds: Optional[Vec2], start_pose: Pose):
         self.entities = entities
-        self.map_bounds = (float(map_bounds[0]), float(map_bounds[1]))
+        self.map_bounds = (float(map_bounds[0]), float(map_bounds[1])) if map_bounds else None
 
         self.start_pos: Vec2 = (float(start_pose[0]), float(start_pose[1]))
         self.pose: Pose = start_pose
@@ -131,16 +95,17 @@ class Task1Manager:
         self.current_speeds = np.zeros((0,), dtype=float)
 
     def update_pose(self, x: float, y: float, heading: float) -> None:
+        # prev_pos is updated at end of tick() so it is always "previous tick's position". Here only init if needed.
         if self.prev_pos is None:
-            self.prev_pos = (self.pose[0], self.pose[1])
-        else:
             self.prev_pos = (self.pose[0], self.pose[1])
         self.pose = (float(x), float(y), float(heading))
 
     def add_detected(self, det: DetectedEntity) -> None:
-        """Add detected entity with deduplication"""
-        self.entities.add_or_update(det.entity_type, det.position, 
-                                   name=f"{det.entity_type}_{det.entity_id}")
+        """Add detected entity by id (same id = same entity). Skip add_or_update if already in list (e.g. from fusion)."""
+        already = any(getattr(e, "entity_id", None) == det.entity_id for e in self.entities.entities)
+        if not already:
+            self.entities.add_or_update(det.entity_type, det.position, det.entity_id,
+                                        name=f"{det.entity_type}_{det.entity_id}")
 
     def _lock_gates_once(self) -> None:
         """Lock the 2 gates once discovered to prevent flicker/order changes"""
@@ -156,15 +121,17 @@ class Task1Manager:
             self.goal_plan = []
             centers = [((r[0] + g[0]) / 2.0, (r[1] + g[1]) / 2.0) for (r, g) in self.locked_gates]
             
-            # Order by forward direction
+            # Order by forward direction (same order for goals and gate segments)
             fwd = self._forward_dir(centers)
-            s = np.array(self.start_pos, dtype=float)
+            s = np.array(getattr(self.entities, "get_start", lambda: self.start_pos)(), dtype=float)
             scored = []
             for i, c in enumerate(centers):
                 v = np.array(c, dtype=float) - s
                 proj = float(v.dot(fwd))
                 scored.append((proj, i, c))
             scored.sort(key=lambda t: t[0])
+            # Reorder locked_gates so goal_plan[i] corresponds to locked_gates[i] for completion check
+            self.locked_gates = [self.locked_gates[t[1]] for t in scored]
             
             for i, (_, _, center) in enumerate(scored):
                 goal = GoalPlan(
@@ -175,19 +142,22 @@ class Task1Manager:
                 self.goal_plan.append(goal)
 
     def publish_goals(self) -> None:
-        """Publish only current active goals to EntityList as goal_wp*"""
+        """Publish only current active goals to EntityList as goal_wp*; nudge away from obstacles."""
         self.entities.clear_goals()
-        
+        obstacles = self._obstacles()
+        from_pt = (self.pose[0], self.pose[1])
+
         active_goals = []
         for goal in self.goal_plan:
             if not goal.completed:
-                active_goals.append(goal.position)
+                pos = nudge_goal_away_from_obstacles(goal.position, obstacles, from_pt)
+                active_goals.append(pos)
                 # Only publish the next goal, not all remaining goals
                 break
-        
+
         for i, pos in enumerate(active_goals, start=1):
             self.entities.add("goal", pos, name=f"goal_wp{i}")
-        
+
         self.goal_queue = active_goals
 
     def _forward_dir(self, centers: List[Vec2]) -> np.ndarray:
@@ -197,9 +167,9 @@ class Task1Manager:
         if np.linalg.norm(v) > 1e-6:
             return v / (np.linalg.norm(v) + 1e-9)
 
-        # else start -> nearest center
+        # else start -> nearest center (use mission start if available)
         if centers:
-            s = np.array(self.start_pos, dtype=float)
+            s = np.array(getattr(self.entities, "get_start", lambda: self.start_pos)(), dtype=float)
             c = np.array(centers, dtype=float)
             idx = int(np.argmin(np.linalg.norm(c - s[None, :], axis=1)))
             u = c[idx] - s
@@ -210,44 +180,14 @@ class Task1Manager:
         # else default north
         return np.array([0.0, 1.0], dtype=float)
 
-    def _compute_gate_centers_ordered(self) -> None:
-        gates = self.entities.get_gates()
-        if len(gates) == 0:
-            self.ordered_gates = []
-            self.gate_centers = []
-            return
-
-        # update last_gate_normal from ANY seen gate
-        red, green = gates[-1]
-        gate_vec = np.array([green[0] - red[0], green[1] - red[1]], dtype=float)
-        if np.linalg.norm(gate_vec) > 1e-6:
-            n = np.array([-gate_vec[1], gate_vec[0]], dtype=float)
-            self.last_gate_normal = n / (np.linalg.norm(n) + 1e-9)
-
-        # center list
-        centers = [((r[0] + g[0]) / 2.0, (r[1] + g[1]) / 2.0) for (r, g) in gates]
-        fwd = self._forward_dir(centers)
-        s = np.array(self.start_pos, dtype=float)
-
-        # sort by projection along fwd (then distance)
-        scored = []
-        for (gate, c) in zip(gates, centers):
-            v = np.array(c, dtype=float) - s
-            proj = float(v.dot(fwd))
-            dist = float(np.linalg.norm(v))
-            scored.append((proj, dist, gate, c))
-        scored.sort(key=lambda t: (t[0], t[1]))
-
-        # ONLY 2 gates for task 1
-        scored = scored[:2]
-        self.ordered_gates = [t[2] for t in scored]
-        self.gate_centers = [t[3] for t in scored]
-
-        # if next_gate_index is out of range (e.g., reset), clamp
-        self.next_gate_index = min(self.next_gate_index, max(0, len(self.gate_centers) - 1))
+    def _obstacles(self) -> List[Vec2]:
+        """Obstacles = buoys + no-go (gate walls + map bounds when map_bounds set)."""
+        return list(self.entities.get_obstacles()) + list(
+            self.entities.get_no_go_obstacle_points(map_bounds=self.map_bounds)
+        )
 
     def _fallback_goal(self) -> Vec2:
-        # perpendicular to most recently detected gate line, forward 100ft
+        # perpendicular to most recently detected gate line, forward 100 m; nudge away from obstacles
         x, y, hdg = self.pose
         if self.last_gate_normal is None:
             # if no history, move along heading
@@ -258,15 +198,11 @@ class Task1Manager:
 
         step = 100.0
         p = np.array([x, y], dtype=float) + d * step
-        p[0] = float(np.clip(p[0], 0, self.map_bounds[0]))
-        p[1] = float(np.clip(p[1], 0, self.map_bounds[1]))
-        return (float(p[0]), float(p[1]))
-
-    def _write_goals(self, goals: List[Vec2]) -> None:
-        self.entities.clear_goals()
-        for i, g in enumerate(goals, start=1):
-            self.entities.add("goal", g, name=f"goal_wp{i}")
-        self.goal_queue = list(goals)
+        if self.map_bounds is not None:
+            p[0] = float(np.clip(p[0], 0, self.map_bounds[0]))
+            p[1] = float(np.clip(p[1], 0, self.map_bounds[1]))
+        desired = (float(p[0]), float(p[1]))
+        return nudge_goal_away_from_obstacles(desired, self._obstacles(), (x, y))
 
     def _check_goal_completion(self) -> None:
         """Check if current goal was reached and mark it complete"""
@@ -300,6 +236,16 @@ class Task1Manager:
         # Check if current goal was completed
         self._check_goal_completion()
         
+        # Update last_gate_normal from any detected gate (for fallback direction)
+        gates = self.entities.get_gates()
+        if gates:
+            red, green = gates[0]
+            along = np.array([green[0] - red[0], green[1] - red[1]], dtype=float)
+            n = np.array([-along[1], along[0]], dtype=float)
+            nnorm = np.linalg.norm(n) + 1e-9
+            if nnorm > 1e-6:
+                self.last_gate_normal = n / nnorm
+
         # If no locked gates yet, use fallback
         if not self.gates_locked:
             fallback_goal = self._fallback_goal()
@@ -309,7 +255,10 @@ class Task1Manager:
         else:
             # Publish current active goals
             self.publish_goals()
-    
+
+        # So next tick _check_goal_completion uses segment (this tick, next tick)
+        self.prev_pos = (self.pose[0], self.pose[1])
+
     def done(self) -> bool:
         """Return True if all goals completed (SUCCESS)"""
         return all(goal.completed for goal in self.goal_plan) and len(self.goal_plan) > 0
@@ -322,7 +271,7 @@ class Task1Manager:
             return
 
         start = (self.pose[0], self.pose[1])
-        obstacles = list(self.entities.get_obstacles())
+        obstacles = self._obstacles()
         gates = self.locked_gates if self.gates_locked else self.entities.get_gates()
         goals = self.goal_queue[:max_goals]
 
@@ -334,7 +283,7 @@ class Task1Manager:
 
 def run_task1(
     entities,
-    map_bounds: Vec2,
+    map_bounds: Optional[Vec2],
     *,
     one_shot: bool = True,
     get_pose: Optional[Callable[[], Pose]] = None,
@@ -350,7 +299,7 @@ def run_task1(
       - requires get_pose, runs until SUCCESS or max_iters
     """
     start = entities.get_start()
-    mgr = Task1Manager(entities, map_bounds, (float(start[0]), float(start[1]), 0.0))
+    mgr = Task1Manager(entities, map_bounds, (float(start[0]), float(start[1]), 0.0))  # map_bounds can be None
     planner = PotentialFieldsPlanner(resolution=0.5)
 
     def step_once():

@@ -42,6 +42,10 @@ Key rules implemented:
    - Stop timing when the exit gate is crossed after circling the buoy
    - Record task completion time and detected indicator color
 
+6) Pose and bounds:
+   - Pose from odom (e.g. MAVROS/PX4); prev_pos = last odom, pose = current for gate-cross segment.
+   - map_bounds = (width, height) for arena walls; use same source as entities extruded no-go when available; goals clipped to bounds.
+
 Communications / reporting:
 - Report:
     - Detected color of the indicator buoy
@@ -64,6 +68,8 @@ import numpy as np
 
 from Local.potential_fields_planner import PotentialFieldsPlanner
 
+from Global.goal_utils import nudge_goal_away_from_obstacles, segments_intersect
+
 Vec2 = Tuple[float, float]
 Pose = Tuple[float, float, float]
 
@@ -76,11 +82,7 @@ class GoalPlan:
     completed: bool = False
 
 
-@dataclass
-class DetectedEntity:
-    entity_id: int
-    entity_type: str
-    position: Vec2
+from Global.types import DetectedEntity
 
 
 class TaskStatus(Enum):
@@ -96,34 +98,11 @@ class Phase(Enum):
     EXIT = "EXIT"
 
 
-def segments_intersect(p1: Vec2, p2: Vec2, q1: Vec2, q2: Vec2) -> bool:
-    """Check if two line segments intersect"""
-    def _orient(a, b, c):
-        return (b[0] - a[0]) * (c[1] - a[1]) - (b[1] - a[1]) * (c[0] - a[0])
-
-    def _on_segment(a, b, c):
-        return (min(a[0], b[0]) <= c[0] <= max(a[0], b[0]) and
-                min(a[1], b[1]) <= c[1] <= max(a[1], b[1]))
-
-    o1 = _orient(p1, p2, q1)
-    o2 = _orient(p1, p2, q2)
-    o3 = _orient(q1, q2, p1)
-    o4 = _orient(q1, q2, p2)
-
-    if (o1 * o2 < 0) and (o3 * o4 < 0):
-        return True
-
-    if abs(o1) < 1e-9 and _on_segment(p1, p2, q1): return True
-    if abs(o2) < 1e-9 and _on_segment(p1, p2, q2): return True
-    if abs(o3) < 1e-9 and _on_segment(q1, q2, p1): return True
-    if abs(o4) < 1e-9 and _on_segment(q1, q2, p2): return True
-    return False
-
-
 class Task3Manager:
-    def __init__(self, entities, map_bounds: Vec2, start_pose: Pose):
+    def __init__(self, entities, map_bounds: Optional[Vec2], start_pose: Pose):
         self.entities = entities
-        self.map_bounds = (float(map_bounds[0]), float(map_bounds[1]))
+        # map_bounds = (width, height) for arena walls / clipping; align with entities no-go extent when available
+        self.map_bounds = (float(map_bounds[0]), float(map_bounds[1])) if map_bounds else None
         self.pose: Pose = start_pose
         self.prev_pos: Optional[Vec2] = None
 
@@ -157,34 +136,48 @@ class Task3Manager:
         self.current_speeds = np.zeros((0,), dtype=float)
 
     def update_pose(self, x: float, y: float, heading: float) -> None:
-        # keep previous position for gate-crossing segment test
+        # Pose from odom (e.g. MAVROS/PX4): prev_pos = last odom position, then pose = current odom (for gate-cross segment).
         if self.prev_pos is None:
             self.prev_pos = (self.pose[0], self.pose[1])
         else:
             self.prev_pos = (self.pose[0], self.pose[1])
-
         self.pose = (float(x), float(y), float(heading))
 
     def add_detected(self, det: DetectedEntity) -> None:
-        # Prefer dedup if available, otherwise fallback to add()
-        if hasattr(self.entities, "add_or_update"):
-            self.entities.add_or_update(det.entity_type, det.position,
-                                        name=f"{det.entity_type}_{det.entity_id}")
-        else:
-            self.entities.add(det.entity_type, det.position,
-                              name=f"{det.entity_type}_{det.entity_id}")
+        """Skip add_or_update if entity already in list (e.g. from fusion)."""
+        already = any(getattr(e, "entity_id", None) == det.entity_id for e in self.entities.entities)
+        if not already:
+            if hasattr(self.entities, "add_or_update"):
+                self.entities.add_or_update(det.entity_type, det.position, det.entity_id,
+                                            name=f"{det.entity_type}_{det.entity_id}")
+            else:
+                self.entities.add(det.entity_type, det.position,
+                                  name=f"{det.entity_type}_{det.entity_id}")
 
+        # Indicator is ahead of yellow; set once (initial search). If never seen we commit to left and never re-look.
         if det.entity_type in ("red_indicator", "green_indicator") and self.indicator_color is None:
             self.indicator_color = "red" if det.entity_type == "red_indicator" else "green"
 
         if det.entity_type == "yellow_buoy":
             self.yellow_pos = det.position
 
+    def _obstacles(self) -> List[Vec2]:
+        """Obstacles = buoys + no-go (gate walls + map bounds when map_bounds set)."""
+        return list(self.entities.get_obstacles()) + list(
+            self.entities.get_no_go_obstacle_points(map_bounds=self.map_bounds)
+        )
+
     def _write_goals(self, goals: List[Vec2]) -> None:
+        """Write goals to entity list; nudge each away from obstacles (black buoys, etc.)."""
         self.entities.clear_goals()
+        obstacles = self._obstacles()
+        from_pt = (self.pose[0], self.pose[1])
+        nudged = []
         for i, g in enumerate(goals, start=1):
-            self.entities.add("goal", g, name=f"goal_wp{i}")
-        self.goal_queue = goals[:]
+            pos = nudge_goal_away_from_obstacles(g, obstacles, from_pt)
+            self.entities.add("goal", pos, name=f"goal_wp{i}")
+            nudged.append(pos)
+        self.goal_queue = nudged
 
     def _ensure_gate(self) -> None:
         if self.entrance_gate is not None:
@@ -226,18 +219,22 @@ class Task3Manager:
             t = np.array([r[1], -r[0]], dtype=float)
 
         beyond = yb + t * 20.0
-        beyond[0] = float(np.clip(beyond[0], 0, self.map_bounds[0]))
-        beyond[1] = float(np.clip(beyond[1], 0, self.map_bounds[1]))
+        if self.map_bounds is not None:
+            beyond[0] = float(np.clip(beyond[0], 0, self.map_bounds[0]))
+            beyond[1] = float(np.clip(beyond[1], 0, self.map_bounds[1]))
         return (float(beyond[0]), float(beyond[1]))
 
     def tick(self) -> None:
         self._ensure_gate()
         self._check_gate_cross()
 
-        # No gate yet: move forward a bit
+        # No gate yet: boat is in line with gate (gate ahead). Move forward along heading; if gate not detected assume buoys ahead and go straight.
         if self.entrance_gate is None or self.gate_center is None:
             x, y, hdg = self.pose
-            g = (min(self.map_bounds[0], x + 40.0), min(self.map_bounds[1], y + 40.0))
+            step = 40.0
+            g = (float(x + step * np.cos(hdg)), float(y + step * np.sin(hdg)))
+            if self.map_bounds is not None:
+                g = (float(np.clip(g[0], 0, self.map_bounds[0])), float(np.clip(g[1], 0, self.map_bounds[1])))
             self._write_goals([g])
             return
 
@@ -257,8 +254,9 @@ class Task3Manager:
                 + bias * 25.0
                 + np.array([np.cos(hdg), np.sin(hdg)], dtype=float) * 25.0
             )
-            target[0] = float(np.clip(target[0], 0, self.map_bounds[0]))
-            target[1] = float(np.clip(target[1], 0, self.map_bounds[1]))
+            if self.map_bounds is not None:
+                target[0] = float(np.clip(target[0], 0, self.map_bounds[0]))
+                target[1] = float(np.clip(target[1], 0, self.map_bounds[1]))
             self._write_goals([tuple(target)])
 
             if self.yellow_pos is not None and self.indicator_color is not None:
@@ -273,10 +271,12 @@ class Task3Manager:
             self._write_goals([self.loop_goal])
 
             boat = np.array(self.pose[:2], dtype=float)
-            if float(np.linalg.norm(boat - np.array(self.loop_goal))) < 4.0:
+            target = self.goal_queue[0] if self.goal_queue else self.loop_goal
+            if float(np.linalg.norm(boat - np.array(target))) < 4.0:
                 self.phase = Phase.EXIT
 
         elif self.phase == Phase.EXIT:
+            # Return to original entrance gate (same red-green gate we started from) to finish.
             self._write_goals([self.gate_center])
             return
 
@@ -288,7 +288,7 @@ class Task3Manager:
             return
 
         start = (self.pose[0], self.pose[1])
-        obstacles = list(self.entities.get_obstacles())
+        obstacles = self._obstacles()
         gates = self.entities.get_gates()
 
         result = planner.plan_multi_goal_path(
@@ -308,7 +308,7 @@ class Task3Manager:
 
 def run_task3(
     entities,
-    map_bounds,
+    map_bounds: Optional[Vec2],
     *,
     get_pose=None,
     get_detections=None,

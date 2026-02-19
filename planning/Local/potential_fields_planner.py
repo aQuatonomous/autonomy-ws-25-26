@@ -23,28 +23,30 @@ import numpy as np
 # Potential Field Gains
 K_ATT = 1.8          # Attractive gain - higher = stronger pull toward goals
 K_REP = 140.0        # Repulsive gain - higher = stronger push from obstacles
-D_INFLUENCE = 10.0   # Influence distance for obstacles (ft)
+D_INFLUENCE = 10.0   # Influence distance for obstacles (m)
 
 # Movement Control
-MAX_VELOCITY = 2.0   # Maximum velocity (ft/s) - reduce for smoother motion
+MAX_VELOCITY = 2.0   # Maximum velocity (m/s) - reduce for smoother motion
 STEP_SIZE = 0.25     # Base step size for gradient descent
 MAX_STEP = 0.5       # Hard cap on max motion per iteration
 GRADIENT_DAMPING = 0.3  # Damping factor for gradient (higher = smoother, slower)
 
 # Gate Approach
-GATE_APPROACH_DIST = 35.0  # Distance to start gate alignment (ft)
+GATE_APPROACH_DIST = 35.0  # Distance to start gate alignment (m)
 GATE_STRENGTH = 0.6        # Gate alignment force strength
 GATE_OFFSET = 0.8          # Offset bias toward red buoy side
 
 # Convergence Criteria
-GOAL_THRESHOLD = 2.0       # Distance to consider goal reached (ft)
+GOAL_THRESHOLD = 2.0       # Distance to consider goal reached (m)
 MIN_GRADIENT = 1e-3        # Minimum gradient to escape local minima
-LOCAL_MIN_NUDGE = 0.2      # Random nudge distance when stuck
+LOCAL_MIN_NUDGE = 0.2      # Base nudge distance when stuck (m)
+MAX_NUDGE_COUNT = 50       # Max consecutive nudges before fallback to straight line to goal
+NUDGE_ANGLE_SPREAD = 0.6 * np.pi  # Nudge direction: goal direction ± this (rad), so we can go around obstacles
 
 # Path Smoothing
 SMOOTH_WINDOW = 5          # Window size for path smoothing
 SMOOTH_ITERATIONS = 2      # Number of smoothing passes
-MIN_POINT_SPACING = 0.1    # Minimum distance between path points (ft)
+MIN_POINT_SPACING = 0.1    # Minimum distance between path points (m)
 
 # Velocity Computation
 DT = 0.1                   # Time step for velocity computation (seconds)
@@ -83,6 +85,8 @@ class PotentialFieldsPlanner:
         self.goal_threshold = GOAL_THRESHOLD
         self.min_gradient = MIN_GRADIENT
         self.local_min_nudge = LOCAL_MIN_NUDGE
+        self.max_nudge_count = MAX_NUDGE_COUNT
+        self.nudge_angle_spread = NUDGE_ANGLE_SPREAD
         self.smooth_window = SMOOTH_WINDOW
         self.smooth_iterations = SMOOTH_ITERATIONS
         self.min_point_spacing = MIN_POINT_SPACING
@@ -96,48 +100,7 @@ class PotentialFieldsPlanner:
         self.x = np.arange(0, map_width, self.resolution)
         self.y = np.arange(0, map_height, self.resolution)
         self.X, self.Y = np.meshgrid(self.x, self.y)
-        
-    def compute_attractive_potential(self, goal_x, goal_y):
-        """Compute attractive potential field toward goal"""
-        if self.X is None:
-            raise ValueError("Grid not initialized. Call initialize_grid() first.")
-        dist = np.sqrt((self.X - goal_x)**2 + (self.Y - goal_y)**2)
-        return 0.5 * self.k_att * dist**2
-    
-    def compute_repulsive_potential(self, obstacle_x, obstacle_y):
-        """Compute repulsive potential field from obstacle"""
-        if self.X is None:
-            raise ValueError("Grid not initialized. Call initialize_grid() first.")
-        dist = np.sqrt((self.X - obstacle_x)**2 + (self.Y - obstacle_y)**2)
-        potential = np.zeros_like(dist)
-        
-        # Apply strong repulsive force within influence distance
-        mask = dist <= self.d_influence
-        # Use exponential repulsion for stronger effect
-        potential[mask] = self.k_rep * np.exp(-dist[mask] / 2.0)
-        
-        return potential
-    
-    def compute_total_potential(self, goal, obstacles):
-        """
-        Compute total potential field
-        
-        Args:
-            goal: Tuple (x, y) of goal position
-            obstacles: List of tuples [(x1, y1), (x2, y2), ...] of obstacle positions
-        """
-        if self.X is None:
-            raise ValueError("Grid not initialized. Call initialize_grid() first.")
-            
-        goal_x, goal_y = goal
-        U_total = self.compute_attractive_potential(goal_x, goal_y)
-        
-        # Add repulsive potentials from all obstacles
-        for obs_x, obs_y in obstacles:
-            U_total += self.compute_repulsive_potential(obs_x, obs_y)
-        
-        return U_total
-    
+
     def gradient_descent_path(self, start_x, start_y, goal_x, goal_y, obstacles, 
                               red_pos=None, green_pos=None, max_steps=4000):
         """
@@ -156,21 +119,22 @@ class PotentialFieldsPlanner:
         """
         path = [(start_x, start_y)]
         x, y = start_x, start_y
-        
+        nudge_count = 0  # Consecutive nudges; reset on any normal gradient step
+
         # Gate direction vector (red to green) if provided
         gate_normal = None
         if red_pos is not None and green_pos is not None:
             gate_vec = np.array([green_pos[0] - red_pos[0], green_pos[1] - red_pos[1]])
             gate_normal = np.array([-gate_vec[1], gate_vec[0]])  # Perpendicular (left normal)
             gate_normal = gate_normal / np.linalg.norm(gate_normal)
-        
+
         for step in range(max_steps):
             # Check if goal reached
             dist_to_goal = np.sqrt((x - goal_x)**2 + (y - goal_y)**2)
             if dist_to_goal < self.goal_threshold:
                 path.append((goal_x, goal_y))
                 break
-            
+
             # Compute gradient at current position
             # Attractive gradient (toward goal)
             grad_att_x = self.k_att * (x - goal_x)
@@ -214,21 +178,28 @@ class PotentialFieldsPlanner:
             grad_norm = np.hypot(grad_x, grad_y)
 
             if grad_norm < self.min_gradient:
-                # Almost at an equilibrium – if we're close to goal, stop
-                if dist_to_goal < self.goal_threshold:
+                # Stuck in local minimum (gradient near zero, not at goal)
+                if nudge_count >= self.max_nudge_count:
+                    # Fallback: append straight line from current position to goal and stop
                     path.append((goal_x, goal_y))
                     break
-                # Else tiny random nudge to escape a local minimum
-                angle = np.random.uniform(0, 2*np.pi)
+                # Biased nudge: toward goal with random spread so we can escape around obstacles
+                if dist_to_goal > 1e-6:
+                    angle_to_goal = np.arctan2(goal_y - y, goal_x - x)
+                    angle = angle_to_goal + np.random.uniform(
+                        -self.nudge_angle_spread, self.nudge_angle_spread
+                    )
+                else:
+                    angle = np.random.uniform(0, 2 * np.pi)
                 x += self.local_min_nudge * np.cos(angle)
                 y += self.local_min_nudge * np.sin(angle)
+                nudge_count += 1
             else:
-                # Smoother step control
+                # Normal gradient step
+                nudge_count = 0
                 base_step = self.step_size
                 step = base_step / (1.0 + self.gradient_damping * grad_norm)
-                # Hard cap on max motion per iteration
                 step = min(step, self.max_step / grad_norm)
-
                 x -= step * grad_x
                 y -= step * grad_y
 
@@ -300,51 +271,6 @@ class PotentialFieldsPlanner:
         
         return velocities, speeds
     
-    def plan_path(self, start, goal, obstacles, gates=None, map_bounds=None):
-        """
-        Plan a path from start to goal avoiding obstacles
-        
-        Args:
-            start: Tuple (x, y) start position
-            goal: Tuple (x, y) goal position
-            obstacles: List of obstacle positions [(x1, y1), ...]
-            gates: Optional list of gate pairs [((red_x, red_y), (green_x, green_y)), ...]
-            map_bounds: Optional tuple (width, height) for map bounds
-            
-        Returns:
-            dict with keys:
-                'path': numpy array of waypoints
-                'velocities': numpy array of velocity setpoints
-                'speeds': numpy array of speed magnitudes
-        """
-        # Initialize grid if bounds provided
-        if map_bounds is not None:
-            self.initialize_grid(map_bounds[0], map_bounds[1])
-        
-        # Extract gate positions if provided
-        red_pos = None
-        green_pos = None
-        if gates is not None and len(gates) > 0:
-            red_pos, green_pos = gates[0]  # Use first gate
-        
-        # Compute path
-        path = self.gradient_descent_path(
-            start[0], start[1], goal[0], goal[1], 
-            obstacles, red_pos, green_pos
-        )
-        
-        # Smooth path
-        smoothed_path = self.smooth_path(path)
-        
-        # Compute velocities
-        velocities, speeds = self.compute_velocities(smoothed_path)
-        
-        return {
-            'path': smoothed_path,
-            'velocities': velocities,
-            'speeds': speeds
-        }
-    
     def plan_multi_goal_path(self, start, goals, obstacles, gates=None, map_bounds=None):
         """
         Plan a path through multiple goals sequentially
@@ -406,60 +332,3 @@ class PotentialFieldsPlanner:
             'speeds': speeds,
             'segment_indices': segment_indices
         }
-
-    def plan_local_path(self, start, visible_goals, obstacles, gates=None, 
-                        map_bounds=None, horizon_limit=3):
-        """
-        Plan path using rolling horizon - only to nearest visible goals.
-        Optimized for continuous replanning with partial information.
-        
-        This is preferred for real-time navigation with dynamic entity discovery
-        as it computes faster paths to nearby goals rather than the full course.
-        
-        Args:
-            start: Tuple (x, y) current position
-            visible_goals: List of currently visible goal positions
-            obstacles: List of currently visible obstacles
-            gates: Optional list of visible gate pairs
-            map_bounds: Optional tuple (width, height)
-            horizon_limit: Max number of goals to plan toward (default 3)
-            
-        Returns:
-            dict with keys:
-                'path': numpy array of waypoints to nearest goals
-                'velocities': numpy array of velocity setpoints
-                'speeds': numpy array of speed magnitudes
-                'planned_goals': number of goals included in plan
-        """
-        if not visible_goals:
-            # No goals visible - return empty path
-            return {
-                'path': np.array([start]),
-                'velocities': np.array([[0.0, 0.0]]),
-                'speeds': np.array([0.0]),
-                'planned_goals': 0
-            }
-        
-        # Sort goals by distance and take nearest ones
-        start_arr = np.array(start)
-        goal_distances = [np.linalg.norm(np.array(g) - start_arr) for g in visible_goals]
-        sorted_indices = np.argsort(goal_distances)
-        
-        # Plan to nearest N goals
-        planning_goals = [visible_goals[i] for i in sorted_indices[:horizon_limit]]
-        planning_gates = None
-        if gates:
-            planning_gates = [gates[i] for i in sorted_indices[:horizon_limit] if i < len(gates)]
-        
-        # Use multi-goal planner for the limited set
-        result = self.plan_multi_goal_path(
-            start=start,
-            goals=planning_goals,
-            obstacles=obstacles,
-            gates=planning_gates,
-            map_bounds=map_bounds
-        )
-        
-        result['planned_goals'] = len(planning_goals)
-        return result
-
