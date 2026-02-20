@@ -255,51 +255,45 @@ ros2 launch cv_ros_nodes launch_cv.py enable_indicator_buoy:=true enable_task4:=
 **Computer Vision Requirements:**
 
 **Primary Detections:**
-- **Yellow Vessels** (class_id: 7 with shape detection): Stationary vessels with black triangle on both sides
-- **Black Vessels** (class_id: 7 with shape detection): Stationary vessels with black plus/cross on both sides
-- **Triangle Shapes** (class_id: 8): Black triangle targets on yellow vessels
-- **Cross/Plus Shapes** (class_id: 6): Black plus targets on black vessels
+- **Yellow Vessels**: Stationary vessels identified by yellow colour blob with optional black triangle sign above
+- **Black Vessels**: Stationary vessels identified by black colour blob with optional black cross/plus sign above
 
-**Task4 Supply Processor** (required, `enable_task4:=true`): Subscribes to `/camera{N}/image_preprocessed` and `/camera{N}/detection_info`; publishes `/camera{N}/task4_detections` with `type` (`yellow_supply_drop`, `black_supply_drop`), `shape_bbox`, `vessel_bbox` (preprocessed frame), `source: "task4"`. Combiner merges these into `/combined/detection_info`; `bbox` in combined is in local camera frame (preprocessed frame dimensions).
+**Task4 Supply Processor** (required, `enable_task4:=true`): Subscribes only to `/camera{N}/image_preprocessed`; runs the simplified blob + shape pipeline internally; publishes `/camera{N}/task4_detections` with `type` (`yellow_supply_drop`, `black_supply_drop`), `vessel_bbox` (preprocessed frame), `confidence`, `has_shape`, `source: "task4"`. Combiner merges these into `/combined/detection_info`; `bbox` in combined is in local camera frame (preprocessed frame dimensions). Only detections with `confidence >= 0.65` are published.
 
-**Vision Processing:**
+**Vision Processing (Simplified Pipeline):**
 
-1. **Vessel Detection**:
-   - Detect yellow stationary vessels (up to 3)
-   - Detect black stationary vessels (up to 3)
-   - Estimate vessel position and orientation
+1. **Blob Detection**:
+   - Detect yellow blobs (HSV masking) and black blobs (combined HSV + LAB masking)
+   - Apply morphological open/close to clean masks
 
-2. **Target Shape Detection**:
-   - **Yellow Vessels**: Detect black triangle shape on vessel side
-   - **Black Vessels**: Detect black plus/cross shape on vessel side
-   - Calculate target center coordinates for aiming
+2. **Filtering**:
+   - **Spatial**: only blobs whose centre is in the lower 60% of the frame
+   - **Aspect ratio**: height/width must be < 0.7 (vessel must be noticeably wider than tall)
 
-3. **Aiming and Delivery**:
-   - Track target shape position in real-time
-   - Calculate aim point for water stream or ball delivery
-   - Verify target hit (water stream on triangle or ball in vessel)
+3. **Blob Merging & Overlap Resolution**:
+   - Merge nearby same-colour blobs into one bounding box
+   - When bounding boxes of any colour overlap (IoU > 0.3), keep the larger one
 
-4. **Multi-Vessel Management**:
-   - Identify all available vessels (yellow and black)
-   - Prioritize delivery order
-   - Track completion status for each vessel
+4. **Shape Verification (confidence booster)**:
+   - Search the region above each yellow vessel for a **black triangle** (≥2 similar-length sides)
+   - Search the region above each black vessel for a **black cross** (intersecting vertical + horizontal bars)
+   - A verified shape raises confidence from 0.70 up to a maximum of 1.00
+
+5. **Confidence Threshold**:
+   - Detections below 0.65 are discarded before publishing
 
 **Output Requirements:**
-- Yellow vessel detection with position
-- Black vessel detection with position
-- Triangle shape detection on yellow vessels (target center)
-- Plus/cross shape detection on black vessels (target center)
-- Real-time target tracking for aiming
-- Delivery verification (hit confirmation)
+- Yellow vessel detection with bounding box and confidence
+- Black vessel detection with bounding box and confidence
+- `has_shape` flag indicating whether a confirming shape was detected above the vessel
 
 **Performance Targets:**
 - Vessel detection range: >30 meters
-- Shape detection accuracy: >90% (for precise aiming)
-- Target center estimation: ±5cm accuracy (for water/ball delivery)
-- Real-time tracking: ≥15 Hz for dynamic aiming
+- Confidence threshold: 0.65 (blob-only detections at 0.70; shape-verified up to 1.00)
+- Real-time processing: ≥15 Hz
 
 **Special Considerations:**
-- Must detect shapes on both sides of vessels (approach from any angle)
+- No YOLO shape detection dependency — pipeline runs entirely from the raw camera image
 - Robust detection in varying lighting conditions (water reflection)
 - Handle partial occlusions (vessel may be partially visible)
 
@@ -421,7 +415,20 @@ ros2 launch cv_ros_nodes launch_cv.py enable_indicator_buoy:=false enable_task4:
 
 ### Color Indicator Detection
 
-**Overview**: Color indicators are 3D-printed cylinders that change between red and green, mounted on custom buoys. They are used across multiple tasks (Tasks 2, 3, 5) to provide dynamic state information.
+**Overview**: Color indicators are 3D-printed cylinders (red or green) mounted on custom white buoys with black diamond markers. Used in Tasks 2, 3, and 5 for dynamic state information.
+
+**Detection Method**: CV-only pipeline (not YOLO-based)
+- **Stage 1**: Detect black diamond markers using edge detection and strict shape validation
+- **Stage 2**: Validate white blob around diamonds (buoy body)
+- **Stage 3**: **Multi-diamond grouping** - Group nearby diamonds (handles angled views)
+- **Stage 4**: Detect and classify red/green indicator above diamonds
+- **Stage 5**: Width-based distance estimation (20-inch reference)
+
+**Key Features**:
+- **Multi-diamond grouping**: Groups diamonds within 2× average size for angled buoy views
+- **Collective centering**: Uses average position of grouped diamonds for accurate indicator ROI
+- **Glare handling**: Adjusted thresholds (max_black_brightness: 230) for outdoor lighting
+- **Robust classification**: Strict diamond validation + color masks for red/green
 
 **Technical Specifications:**
 - **Appearance**: Single-colored cylinder (red OR green), visible 360° horizontally
@@ -437,20 +444,27 @@ ros2 launch cv_ros_nodes launch_cv.py enable_indicator_buoy:=false enable_task4:
    - Primary vision pipeline detects custom buoy (class_id: 7 or specialized class)
    - Identifies bounding box of buoy structure
 
-2. **Color Indicator Extraction**:
-   - Extract region of interest (ROI) containing color indicator cylinder
-   - Apply color space analysis (HSV recommended for robustness)
-   - Handle varying lighting conditions (sunlight, water reflection)
+2. **Diamond Detection & Grouping**:
+   - Detect all black diamonds using edge detection and shape validation
+   - Group nearby diamonds (within 2× average size) that belong to same buoy
+   - Calculate collective center for accurate indicator positioning
+   - Validate white blob around diamonds (buoy body)
 
-3. **Color Classification**:
-   - Classify indicator as red or green
-   - Use temporal smoothing to handle transient detection errors
-   - Maintain state history for robust classification
+3. **Indicator ROI Computation**:
+   - Position ROI directly above collective diamond center
+   - ROI size: 3× diamond width, 2× diamond height
+   - Handles both single and multi-diamond cases
 
-4. **State Reporting**:
-   - Publish indicator state (red/green) to task-specific topics
-   - Include confidence score for state classification
-   - Report position of indicator for task execution
+4. **Color Classification**:
+   - Apply BGR color masks (stricter for red, lenient for green)
+   - Red mask: R > 120, R > G+25, R > B+25, G < 150, B < 150
+   - Green mask: G > 80, G > R+5, G > B+5, R < 200, B < 200
+   - Fallback: Channel dominance if primary masks fail
+
+5. **State Reporting**:
+   - Publish indicator state (red/green) with confidence scores
+   - Include full bounding box for distance estimation
+   - Report buoy confidence (diamond + white blob combined)
 
 **Challenges and Solutions:**
 
@@ -473,11 +487,20 @@ ros2 launch cv_ros_nodes launch_cv.py enable_indicator_buoy:=false enable_task4:
 - Robust to lighting: Works in direct sunlight, overcast, water reflection
 
 **Integration:**
-- Color indicator detection runs as `indicator_buoy_processor` node
-- Subscribes to `/camera{N}/image_preprocessed` for buoy detections
-- Publishes to `/camera{N}/indicator_detections` with `class_name` (`red_indicator_buoy` or `green_indicator_buoy`)
-- Combiner merges into `/combined/detection_info`
-- Task execution nodes subscribe to combined detections for decision-making
+- **Node**: `indicator_buoy_processor` (self-contained, no external dependencies)
+- **Subscribes**: `/camera{N}/image_preprocessed` (sensor_msgs/Image)
+- **Publishes**: `/camera{N}/indicator_detections` (std_msgs/String JSON)
+- **Output format**: `class_id` (9=red, 10=green), `score`, `shape_bbox`, `indicator_color`, `indicator_confidence`
+- **Distance**: Handled by `maritime_distance_estimator` using bbox width (20-inch reference)
+- **Documentation**: `task_specific/task_2_3/COLOUR_INDICATOR_BUOY.md`
+
+**Parameters** (tuned for competition):
+- `conf_threshold`: 0.6 (diamond confidence)
+- `max_black_brightness`: 230 (handles glare)
+- `buoy_conf_threshold`: 0.3 (combined diamond + white blob)
+- `white_blob_expansion`: 2.0 (tight bounding boxes)
+- `min_white_brightness`: 100 (outdoor scenes)
+- `min_white_blob_score`: 0.15 (minimum white blob)
 
 ---
 

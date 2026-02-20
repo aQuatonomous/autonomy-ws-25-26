@@ -35,6 +35,8 @@ def generate_launch_description():
         DeclareLaunchArgument('number_detection_engine', default_value=default_number_engine),
         DeclareLaunchArgument('number_conf_threshold', default_value='0.25'),
         DeclareLaunchArgument('distance_scale_factor', default_value='1.0'),
+        DeclareLaunchArgument('task', default_value='3',
+                              description='Task number (2 or 3) - determines buoy reference dimensions. Task 2: all small buoys 0.5ft. Task 3: green/red/yellow 1ft, black 0.5ft.'),
         DeclareLaunchArgument('single_camera', default_value='false',
                               description='If true, run only camera1/center (preprocess + inference). Use on Jetson to avoid GPU OOM when sim + CV run together.'),
         DeclareLaunchArgument('inference_interval', default_value='1',
@@ -95,6 +97,9 @@ def generate_launch_description():
         Node(package='cv_ros_nodes', executable='indicator_buoy_processor', name='indicator_buoy_processor',
              condition=IfCondition(LaunchConfiguration('enable_indicator_buoy'))),
         Node(package='cv_ros_nodes', executable='maritime_distance_estimator', name='maritime_distance_estimator',
-             parameters=[{'distance_scale_factor': LaunchConfiguration('distance_scale_factor')}]),
+             parameters=[{
+                 'distance_scale_factor': LaunchConfiguration('distance_scale_factor'),
+                 'task': LaunchConfiguration('task')
+             }]),
         LogInfo(msg='CV sim launch complete.')
     ])

@@ -243,22 +243,29 @@ Camera2: /camera2/image_raw → preprocessing2 → ... → inference2 → /camer
 
 **Node Name**: `task4_supply_processor`
 
-**Purpose**: Match shape detections (class 6 cross, 8 triangle) from per-camera inference to yellow/black blobs via ROI-above-blob logic; publish supply-drop targets per camera for the combiner.
+**Purpose**: Detect yellow and black supply-drop vessels directly from each camera frame using a simplified CV pipeline (color blob detection + shape verification). No YOLO shape detection dependency.
 
 **Subscriptions**:
-- `/camera{N}/image_preprocessed` (sensor_msgs/Image) – for blob detection (yellow, black)
-- `/camera{N}/detection_info` (std_msgs/String) – shape detections
+- `/camera{N}/image_preprocessed` (sensor_msgs/Image) – BGR frame for full detection pipeline
 
 **Publications**:
-- `/camera{N}/task4_detections` (std_msgs/String) – JSON: `{ "camera_id": N, "timestamp": <float>, "detections": [ { "type": "yellow_supply_drop"|"black_supply_drop", "class_id": 6|8, "score": <float>, "shape_bbox": [x1,y1,x2,y2], "vessel_bbox": [x1,y1,x2,y2], "source": "task4" } ] }`; `shape_bbox` and `vessel_bbox` in **preprocessed frame** (camera resolution)
+- `/camera{N}/task4_detections` (std_msgs/String) – JSON: `{ "camera_id": N, "timestamp": <float>, "detections": [ { "type": "yellow_supply_drop"|"black_supply_drop", "vessel_bbox": [x1,y1,x2,y2], "confidence": <float>, "has_shape": <bool>, "source": "task4" } ] }`; `vessel_bbox` in **preprocessed frame** (camera resolution)
 
-**Functionality**: Uses `camera_id` from the subscription; matches shapes to blobs; publishes only to `/camera{camera_id}/task4_detections`. No subscription to `/combined/detection_info`; no publisher to `/task4/detections`.
+**Functionality**:
+- **Simplified pipeline** (`task4_simplified_detector.py`): runs entirely from the raw image without relying on YOLO class 6/8 detections
+- **Yellow blob detection** via HSV masking; **black blob detection** via combined HSV+LAB masking
+- **Spatial filtering**: only blobs in the lower 60% of the frame are considered
+- **Aspect ratio filtering**: blobs must be noticeably wider than tall (height/width < 0.7)
+- **Blob merging**: nearby blobs of the same colour are merged into one bounding box
+- **Overlap resolution**: when bounding boxes overlap (IoU > 0.3) the larger one is kept
+- **Shape verification**: searches the region above each vessel for a black triangle (yellow boat) or black cross (black boat); confirmed shapes boost confidence
+- **Confidence threshold**: only detections with `confidence >= 0.65` are published
 
 ### 7. Indicator Buoy Processor Node (indicator_buoy_processor)
 
 **Node Name**: `indicator_buoy_processor`
 
-**Purpose**: Detect color indicator buoys (red/green) for Tasks 2, 3, and 5
+**Purpose**: Detect color indicator buoys (red/green) for Tasks 2, 3, and 5 using CV-only diamond-based detection
 
 **Subscriptions**:
 - `/camera{N}/image_preprocessed` (sensor_msgs/Image)
@@ -266,7 +273,23 @@ Camera2: /camera2/image_raw → preprocessing2 → ... → inference2 → /camer
 **Publications**:
 - `/camera{N}/indicator_detections` (std_msgs/String) – JSON format with `class_name` (`red_indicator_buoy` or `green_indicator_buoy`)
 
-**Functionality**: Detects custom buoys with color indicators, classifies as red or green, publishes detections for combiner.
+**Functionality**: 
+- **CV-only pipeline** (not YOLO-based): Detects black diamond markers on white buoy bodies
+- **Multi-diamond grouping**: Handles angled buoy views by grouping nearby diamonds (within 2× diamond size)
+- **Collective centering**: Uses average position of grouped diamonds for indicator ROI positioning
+- **Color classification**: Detects and classifies red/green indicator on top of buoy
+- **Width-based distance**: Optimized for 20-inch buoy width reference (handled by maritime_distance_estimator)
+- **Self-contained**: All detection logic embedded directly in node (no external task_specific imports)
+
+**Parameters**:
+- `--conf_threshold` (default: 0.6): Diamond shape confidence threshold
+- `--max_black_brightness` (default: 230): Max brightness for black diamonds (handles glare)
+- `--buoy_conf_threshold` (default: 0.3): Combined diamond + white blob confidence
+- `--white_blob_expansion` (default: 2.0): White blob search region multiplier
+- `--min_white_brightness` (default: 100): Minimum white brightness for outdoor scenes
+- `--min_white_blob_score` (default: 0.15): Minimum white blob score
+
+**Documentation**: See `task_specific/task_2_3/COLOUR_INDICATOR_BUOY.md` for complete pipeline details
 
 ---
 
@@ -312,12 +335,12 @@ ros2 run v4l2_camera v4l2_camera_node --ros-args -p video_device:=/dev/v4l/by-pa
 | `/camera0/detections` | sensor_msgs/Image | inference_camera0 | (monitoring/visualization) | ~15 Hz | Detection visualization 0 |
 | `/camera1/detections` | sensor_msgs/Image | inference_camera1 | (monitoring/visualization) | ~15 Hz | Detection visualization 1 |
 | `/camera2/detections` | sensor_msgs/Image | inference_camera2 | (monitoring/visualization) | ~15 Hz | Detection visualization 2 |
-| `/camera0/detection_info` | std_msgs/String | inference_camera0 | detection_combiner, task4_supply_processor | ~15 Hz | Detection metadata 0 |
-| `/camera1/detection_info` | std_msgs/String | inference_camera1 | detection_combiner, task4_supply_processor | ~15 Hz | Detection metadata 1 |
-| `/camera2/detection_info` | std_msgs/String | inference_camera2 | detection_combiner, task4_supply_processor | ~15 Hz | Detection metadata 2 |
-| `/camera0/task4_detections` | std_msgs/String | task4_supply_processor | detection_combiner | on detection_info | Task4 supply drops, camera 0 |
-| `/camera1/task4_detections` | std_msgs/String | task4_supply_processor | detection_combiner | on detection_info | Task4 supply drops, camera 1 |
-| `/camera2/task4_detections` | std_msgs/String | task4_supply_processor | detection_combiner | on detection_info | Task4 supply drops, camera 2 |
+| `/camera0/detection_info` | std_msgs/String | inference_camera0 | detection_combiner | ~15 Hz | Detection metadata 0 |
+| `/camera1/detection_info` | std_msgs/String | inference_camera1 | detection_combiner | ~15 Hz | Detection metadata 1 |
+| `/camera2/detection_info` | std_msgs/String | inference_camera2 | detection_combiner | ~15 Hz | Detection metadata 2 |
+| `/camera0/task4_detections` | std_msgs/String | task4_supply_processor | detection_combiner | on image_preprocessed | Task4 supply drops, camera 0 |
+| `/camera1/task4_detections` | std_msgs/String | task4_supply_processor | detection_combiner | on image_preprocessed | Task4 supply drops, camera 1 |
+| `/camera2/task4_detections` | std_msgs/String | task4_supply_processor | detection_combiner | on image_preprocessed | Task4 supply drops, camera 2 |
 | `/camera0/indicator_detections` | std_msgs/String | indicator_buoy_processor | detection_combiner | on image_preprocessed | Indicator buoy detections, camera 0 |
 | `/camera1/indicator_detections` | std_msgs/String | indicator_buoy_processor | detection_combiner | on image_preprocessed | Indicator buoy detections, camera 1 |
 | `/camera2/indicator_detections` | std_msgs/String | indicator_buoy_processor | detection_combiner | on image_preprocessed | Indicator buoy detections, camera 2 |
@@ -359,7 +382,7 @@ ros2 run v4l2_camera v4l2_camera_node --ros-args -p video_device:=/dev/v4l/by-pa
 | v4l2_camera (per camera) | — | `/camera{N}/image_raw` |
 | vision_preprocessing | `/camera{N}/image_raw` | `/camera{N}/image_preprocessed` |
 | vision_inference | `/camera{N}/image_preprocessed` | `/camera{N}/detections`, `/camera{N}/detection_info` |
-| task4_supply_processor | `/camera{N}/image_preprocessed`, `/camera{N}/detection_info` | `/camera{N}/task4_detections` |
+| task4_supply_processor | `/camera{N}/image_preprocessed` | `/camera{N}/task4_detections` |
 | indicator_buoy_processor | `/camera{N}/image_preprocessed` | `/camera{N}/indicator_detections` |
 | vision_combiner | `/camera{N}/detection_info`, (optional) task4, indicator | `/combined/detection_info` |
 | maritime_distance_estimator | `/combined/detection_info` | `/combined/detection_info_with_distance` |

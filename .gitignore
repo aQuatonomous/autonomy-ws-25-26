@@ -47,10 +47,20 @@ venv/
 trt-env/
 
 computer_vision/testing_media
+computer_vision/camera_calibration/angle_testing
 
-
-# Task 2/3 debug + final outputs
+# Task 2/3 debug + final outputs + test data
 computer_vision/task_specific/task_2_3/debug_outputs/
 computer_vision/task_specific/task_2_3/final_outputs/
 computer_vision/task_specific/task_2_3/input_images/
-computer_vision/camera_calibration/angle_testing
+computer_vision/task_specific/task_2_3/inputs/
+computer_vision/task_specific/task_2_3/new_outputs/
+computer_vision/task_specific/task_2_3/videos/
+computer_vision/task_specific/task_2_3/TRAINING/
+
+# Task 4 test outputs
+computer_vision/task_specific/task4/inputs/
+computer_vision/task_specific/task4/final_outputs/
+computer_vision/task_specific/task4/simplified_debug_outputs/
+computer_vision/task_specific/task4/videos/
+computer_vision/task_specific/task4/detection_videos/

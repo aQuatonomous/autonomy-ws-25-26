@@ -125,6 +125,12 @@ def generate_launch_description():
         default_value='1.0',
         description='Distance scale factor'
     )
+    
+    task_arg = DeclareLaunchArgument(
+        'task',
+        default_value='3',
+        description='Task number (2 or 3) - determines buoy reference dimensions. Task 2: all small buoys 0.5ft. Task 3: green/red/yellow 1ft, black 0.5ft.'
+    )
 
     # Only camera1 preprocessing and inference nodes
     preprocess1 = Node(
@@ -176,7 +182,10 @@ def generate_launch_description():
         package='cv_ros_nodes',
         executable='maritime_distance_estimator',
         name='maritime_distance_estimator',
-        parameters=[{'distance_scale_factor': LaunchConfiguration('distance_scale_factor')}]
+        parameters=[{
+            'distance_scale_factor': LaunchConfiguration('distance_scale_factor'),
+            'task': LaunchConfiguration('task')
+        }]
     )
 
     return LaunchDescription([
@@ -193,6 +202,7 @@ def generate_launch_description():
         inference_interval_front_arg,
         preprocess_fps_arg,
         distance_scale_factor_arg,
+        task_arg,
         LogInfo(msg='Starting single camera (camera1) CV pipeline...'),
         # Start camera node first
         OpaqueFunction(function=_create_camera1_node),

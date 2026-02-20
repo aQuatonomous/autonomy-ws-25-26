@@ -61,35 +61,74 @@ K_NATIVE = np.array([
 ], dtype=np.float64)
 
 # Reference dimensions (meters) - RoboBoat 2026 specifications / calibration test buoys
-# Based on height above waterline for consistent distance measurement
-REFERENCE_DIMENSIONS = {
-    # Small buoys (10 in used for calibration; RoboBoat spec is 1 ft)
-    'black_buoy': 0.254,        # 10 in (calibration reference)
-    'green_buoy': 0.254,        # 10 in (calibration reference)
-    'red_buoy': 0.254,          # 10 in (calibration reference)
-    'yellow_buoy': 0.254,      # 10 in (calibration reference)
-    
-    # Pole buoys (39 in above waterline) - Taylor Made Sur-Mark
-    'green_pole_buoy': 0.991,   # 39 in above waterline (950400)
-    'red_pole_buoy': 0.991,     # 39 in above waterline (950410)
-    
-    # Navigation markers - using diamond reference size
-    'cross': 0.203,             # 8 in diamond size (vertex-to-vertex)
-    'triangle': 0.203,          # 8 in diamond size (estimated similar)
-    
-    # Infrastructure and targets
-    'dock': 0.406,              # 16 in height
-    'red_indicator_buoy': 0.432,    # 17 in total height
-    'green_indicator_buoy': 0.432,  # 17 in total height
-    'yellow_supply_drop': 0.406,    # 16.0 in width (height not specified)
-    'black_supply_drop': 0.406,     # 16.0 in width (height not specified)
-    
-    # Docking number banners
-    'digit_1': 0.610,          # 24 in × 24 in banner
-    'digit_2': 0.610,          # 24 in × 24 in banner
-    'digit_3': 0.610,          # 24 in × 24 in banner
-}
+# Most objects: height above waterline for consistent distance measurement
+# Indicator buoys: actual measured width (20 inches) for width-based estimation
+# Note: Small buoy dimensions are task-specific and configured via get_task_dimensions()
 DEFAULT_REFERENCE_M = 0.305  # Default to 1 ft for unknown objects
+
+
+def get_task_dimensions(task_number):
+    """
+    Get reference dimensions based on task number.
+    
+    Task 2: Black, green, red buoys = 0.5 ft (0.1524m)
+    Task 3: Green, red, yellow buoys = 1 ft (0.3048m), black buoys = 0.5 ft (0.1524m)
+    
+    Args:
+        task_number: Task number (2 or 3)
+        
+    Returns:
+        Dictionary of reference dimensions in meters
+    """
+    # Base dimensions (same for all tasks)
+    base_dimensions = {
+        # Navigation markers (same for all tasks)
+        'cross': 0.203,             # 8 in diamond size (vertex-to-vertex)
+        'triangle': 0.203,          # 8 in diamond size (estimated similar)
+        
+        # Infrastructure (same for all tasks)
+        'red_indicator_buoy': 0.508,     # 20 in total width (actual measured)
+        'green_indicator_buoy': 0.508,   # 20 in total width (actual measured)
+        'yellow_supply_drop': 0.406,    # 16.0 in width (height not specified)
+        'black_supply_drop': 0.406,     # 16.0 in width (height not specified)
+        
+        # Pole buoys (same for all tasks)
+        'green_pole_buoy': 0.991,   # 39 in above waterline (950400)
+        'red_pole_buoy': 0.991,     # 39 in above waterline (950410)
+        
+        # Docking number banners (same for all tasks)
+        'digit_1': 0.610,          # 24 in × 24 in banner
+        'digit_2': 0.610,          # 24 in × 24 in banner
+        'digit_3': 0.610,          # 24 in × 24 in banner
+    }
+    
+    # Task-specific small buoy dimensions
+    if task_number == 2:
+        # Task 2: All small buoys are 0.5 ft
+        task_dimensions = {
+            'black_buoy': 0.1524,   # 0.5 ft
+            'green_buoy': 0.1524,   # 0.5 ft
+            'red_buoy': 0.1524,     # 0.5 ft
+            'yellow_buoy': 0.1524,  # 0.5 ft (not typically used in task 2)
+        }
+    elif task_number == 3:
+        # Task 3: Green/red/yellow = 1 ft, black = 0.5 ft
+        task_dimensions = {
+            'black_buoy': 0.1524,   # 0.5 ft
+            'green_buoy': 0.3048,   # 1 ft
+            'red_buoy': 0.3048,     # 1 ft
+            'yellow_buoy': 0.3048,  # 1 ft
+        }
+    else:
+        # Default/fallback (use calibration reference values)
+        task_dimensions = {
+            'black_buoy': 0.254,    # 10 in (calibration reference)
+            'green_buoy': 0.254,    # 10 in (calibration reference)
+            'red_buoy': 0.254,      # 10 in (calibration reference)
+            'yellow_buoy': 0.254,  # 10 in (calibration reference)
+        }
+    
+    return {**base_dimensions, **task_dimensions}
 
 
 class MaritimeDistanceEstimatorNode(Node):
@@ -113,6 +152,19 @@ class MaritimeDistanceEstimatorNode(Node):
         else:
             self._distance_scale_factor = pval.double_value
         
+        # Task parameter: determines buoy reference dimensions
+        # Task 2: All small buoys = 0.5 ft
+        # Task 3: Green/red/yellow = 1 ft, black = 0.5 ft
+        self.declare_parameter('task', 2)  # Default to task 2
+        pval_task = self.get_parameter('task').get_parameter_value()
+        if pval_task.type == ParameterType.PARAMETER_STRING:
+            self._task = int(pval_task.string_value)
+        else:
+            self._task = pval_task.integer_value
+        
+        # Get task-specific reference dimensions
+        self._reference_dimensions = get_task_dimensions(self._task)
+        
         # Camera intrinsics from AR0234 specifications
         self._native_fy = FY_PX
         self._native_fx = FX_PX
@@ -126,6 +178,9 @@ class MaritimeDistanceEstimatorNode(Node):
         self.get_logger().info(
             f'Maritime Distance Estimator initialized'
         )
+        self.get_logger().info(
+            f'Task {self._task} configuration loaded'
+        )
         if self._distance_scale_factor != 1.0:
             self.get_logger().info(
                 f'One-point calibration: distance_scale_factor={self._distance_scale_factor}'
@@ -134,7 +189,13 @@ class MaritimeDistanceEstimatorNode(Node):
             f'Camera specs: {SENSOR_WIDTH_PX}×{SENSOR_HEIGHT_PX}, {PIXEL_SIZE_UM}μm pixels, {FOCAL_LENGTH_MM}mm focal length'
         )
         self.get_logger().info(
-            f'Native fy: {self._native_fy:.1f} px, loaded {len(REFERENCE_DIMENSIONS)} object reference dimensions'
+            f'Native fy: {self._native_fy:.1f} px, loaded {len(self._reference_dimensions)} object reference dimensions'
+        )
+        # Log task-specific buoy dimensions
+        buoy_dims = {k: v for k, v in self._reference_dimensions.items() 
+                    if 'buoy' in k and 'pole' not in k and 'indicator' not in k}
+        self.get_logger().info(
+            f'Small buoy dimensions (Task {self._task}): {buoy_dims}'
         )
 
         # Subscribe to combined detections, publish with distance estimates
@@ -169,13 +230,14 @@ class MaritimeDistanceEstimatorNode(Node):
         """
         Estimate distance for a single detection using pinhole model.
         
-        Formula: distance = (fy_eff * reference_height_m) / height_px
+        For indicator buoys: Uses width-based estimation with 20-inch reference
+        For other objects: Uses height-based estimation
         
         Args:
             detection: Detection dict with bbox, class_name, camera_id
             
         Returns:
-            Distance in meters, or None if calculation fails
+            Distance in meters, or None if calculation fails or object size is unknown
         """
         # Extract bbox and validate
         bbox = detection.get('bbox')
@@ -183,17 +245,34 @@ class MaritimeDistanceEstimatorNode(Node):
             return None
             
         class_name = detection.get('class_name', '')
+        
+        # Dock always returns None (sizes vary enormously and are unknown)
+        if class_name == 'dock':
+            return None
+            
         x1, y1, x2, y2 = float(bbox[0]), float(bbox[1]), float(bbox[2]), float(bbox[3])
+        width_px = max(1.0, x2 - x1)
         height_px = max(1.0, y2 - y1)
         
-        # Get reference dimension for this object class
-        reference_height_m = REFERENCE_DIMENSIONS.get(class_name, DEFAULT_REFERENCE_M)
+        # Get reference dimension for this object class using task-specific dimensions
+        reference_dimension_m = self._reference_dimensions.get(class_name, DEFAULT_REFERENCE_M)
         
         # Compute effective focal length for current frame size
         fy_eff = self._get_effective_fy(self._frame_width, self._frame_height)
+        fx_eff = fy_eff  # Square pixels, so fx = fy
         
-        # Distance calculation: pinhole camera model
-        distance_m = (fy_eff * reference_height_m) / height_px
+        # Special handling for indicator buoys: use width-based estimation
+        if class_name in ['red_indicator_buoy', 'green_indicator_buoy']:
+            # For indicator buoys, use bounding box width with 20-inch reference
+            distance_m = (fx_eff * reference_dimension_m) / width_px
+            self.get_logger().debug(
+                f'Indicator buoy distance: bbox_width={width_px:.1f}px, '
+                f'reference={reference_dimension_m:.3f}m (20 inches), distance={distance_m:.2f}m'
+            )
+        else:
+            # Standard height-based estimation for all other objects
+            distance_m = (fy_eff * reference_dimension_m) / height_px
+        
         # Apply one-point calibration scale (measured_distance / distance_specs)
         distance_m = distance_m * self._distance_scale_factor
         distance_m = max(0.01, distance_m)  # avoid non-positive
@@ -239,7 +318,7 @@ class MaritimeDistanceEstimatorNode(Node):
                 enhanced_det['distance_ft'] = round(distance_m * 3.28084, 1)
                 # Add reference dimension used for transparency/debugging
                 class_name = detection.get('class_name', '')
-                enhanced_det['reference_height_m'] = REFERENCE_DIMENSIONS.get(class_name, DEFAULT_REFERENCE_M)
+                enhanced_det['reference_height_m'] = self._reference_dimensions.get(class_name, DEFAULT_REFERENCE_M)
             else:
                 enhanced_det['distance_m'] = None
                 enhanced_det['distance_ft'] = None
@@ -258,8 +337,9 @@ class MaritimeDistanceEstimatorNode(Node):
             'native_resolution': f'{SENSOR_WIDTH_PX}×{SENSOR_HEIGHT_PX}',
             'current_resolution': f'{self._frame_width}×{self._frame_height}',
             'effective_fy_px': round(self._get_effective_fy(self._frame_width, self._frame_height), 1),
-            'num_object_references': len(REFERENCE_DIMENSIONS),
+            'num_object_references': len(self._reference_dimensions),
             'distance_scale_factor': self._distance_scale_factor,
+            'task': self._task,
         }
 
         # Publish enhanced detections

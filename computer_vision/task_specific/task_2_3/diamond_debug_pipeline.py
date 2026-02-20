@@ -2,17 +2,19 @@
 Diamond Detection Debug Pipeline
 
 For each input image, this script saves intermediate images for every major
-stage of the diamond detection:
+stage of the buoy detection:
 
-  0) input.png                 – original BGR image
-  1) gray.png                  – grayscale
-  2) edges_raw.png             – Canny edges (raw)
-  2) edges_processed.png        – Canny edges (after morphological close)
-  3) contours.png               – all contours overlay
-  4) diamonds_stage1_shape.png  – quads classified as diamonds (no black/filter/conf)
-  5) diamonds_stage2_black.png  – diamonds after black/dark filter
-  6) diamonds_stage3_conf.png  – final diamonds after confidence threshold
-  7) colour_indicator_buoy.png  – full pipeline: diamonds + indicator ROI + colour label
+  0) input.png                      – original BGR image
+  1) gray.png                       – grayscale
+  2) edges_raw.png                  – Canny edges (raw)
+  2) edges_processed.png            – Canny edges (after morphological close)
+  3) contours.png                   – all contours overlay
+  4) diamonds_stage1_shape.png      – quads classified as diamonds (no black/filter/conf)
+  5) diamonds_stage2_black.png      – diamonds after black/dark filter
+  6) diamonds_stage3_conf.png       – diamonds after basic confidence threshold
+  7) white_blobs.png                – white blob detection around each diamond
+  8) buoy_candidates.png            – diamonds + white blobs with combined confidence
+  9) colour_indicator_buoy.png      – full pipeline: all detected buoys with indicators
 
 Outputs are written under:
   debug_outputs/<image_basename>/<stage>.png
@@ -32,9 +34,12 @@ from colour_indicator_buoy_detector import (
     detect_diamonds,
     MAX_BLACK_BRIGHTNESS,
     DEFAULT_CONF_THRESHOLD,
+    DEFAULT_BUOY_CONF_THRESHOLD,
     MIN_CONTOUR_AREA,
     EPS_RATIO,
+    MIN_WHITE_BRIGHTNESS,
     classify_colour_indicator_buoy,
+    detect_white_blob_around_diamond,
 )
 
 
@@ -156,25 +161,92 @@ def debug_one_image(img_path: Path, out_root: Path):
         )
     save_image(out_dir / "6_diamonds_stage3_conf.png", vis_stage3)
 
-    # 7) Stage 4 – Full colour indicator buoy pipeline (diamonds + ROI + indicator)
-    vis_stage4, info = classify_colour_indicator_buoy(
+    # 7) Stage 4 – White blob detection around each diamond
+    gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+    vis_white_blobs = img.copy()
+    white_blob_data = []
+    for d in stage3:
+        white_score, white_bbox = detect_white_blob_around_diamond(
+            gray, d["bbox"], d["contour"], expansion_factor=4.0, min_white_brightness=MIN_WHITE_BRIGHTNESS
+        )
+        white_blob_data.append((d, white_score, white_bbox))
+        
+        # Draw white blob region
+        wx, wy, ww, wh = white_bbox
+        cv2.rectangle(vis_white_blobs, (wx, wy), (wx + ww, wy + wh), (255, 255, 0), 2)
+        
+        # Draw diamond
+        x, y, w, h = d["bbox"]
+        cv2.rectangle(vis_white_blobs, (x, y), (x + w, y + h), (0, 255, 0), 2)
+        
+        # Label with white blob score
+        cv2.putText(
+            vis_white_blobs,
+            f"white:{white_score:.2f}",
+            (wx, max(10, wy - 5)),
+            cv2.FONT_HERSHEY_SIMPLEX,
+            0.5,
+            (255, 255, 0),
+            1,
+            cv2.LINE_AA,
+        )
+    save_image(out_dir / "7_white_blobs.png", vis_white_blobs)
+
+    # 8) Stage 5 – Buoy candidates with combined confidence
+    vis_buoy_candidates = img.copy()
+    buoy_candidates = []
+    for d, white_score, white_bbox in white_blob_data:
+        diamond_conf = d.get("confidence", 0.0)
+        buoy_conf = (diamond_conf + white_score) / 2.0
+        buoy_candidates.append((d, white_score, white_bbox, buoy_conf))
+        
+        # Draw white blob
+        wx, wy, ww, wh = white_bbox
+        cv2.rectangle(vis_buoy_candidates, (wx, wy), (wx + ww, wy + wh), (255, 255, 0), 1)
+        
+        # Draw diamond
+        x, y, w, h = d["bbox"]
+        cv2.rectangle(vis_buoy_candidates, (x, y), (x + w, y + h), (0, 255, 0), 2)
+        
+        # Label with combined confidence
+        color = (0, 255, 0) if buoy_conf >= DEFAULT_BUOY_CONF_THRESHOLD else (0, 0, 255)
+        cv2.putText(
+            vis_buoy_candidates,
+            f"buoy:{buoy_conf:.2f}",
+            (x, max(10, y - 5)),
+            cv2.FONT_HERSHEY_SIMPLEX,
+            0.5,
+            color,
+            2,
+            cv2.LINE_AA,
+        )
+    
+    high_conf_count = sum(1 for (_, _, _, bc) in buoy_candidates if bc >= DEFAULT_BUOY_CONF_THRESHOLD)
+    save_image(out_dir / "8_buoy_candidates.png", vis_buoy_candidates)
+
+    # 9) Stage 6 – Full colour indicator buoy pipeline
+    vis_final, info = classify_colour_indicator_buoy(
         img,
         conf_threshold=DEFAULT_CONF_THRESHOLD,
         max_black_brightness=MAX_BLACK_BRIGHTNESS,
         roi_conf_threshold=0.6,
+        buoy_conf_threshold=DEFAULT_BUOY_CONF_THRESHOLD,
     )
-    # Save detailed debug view inside this image's debug folder
-    save_image(out_dir / "7_colour_indicator_buoy.png", vis_stage4)
+    save_image(out_dir / "9_colour_indicator_buoy.png", vis_final)
 
     # Also save a clean final output (only final detections) into a top-level folder.
     final_root = out_root.parent / "final_outputs"
     final_path = final_root / f"{base}_colour_buoy.png"
-    save_image(final_path, vis_stage4)
+    save_image(final_path, vis_final)
 
+    num_buoys = len(info.get("buoys", []))
+    buoy_states = [b["indicator_state"] for b in info.get("buoys", [])]
+    
     print(
         f"[INFO] Debug stages saved under {out_dir} "
         f"(stage1={len(stage1)}, stage2={len(stage2)}, stage3={len(stage3)}, "
-        f"indicator={info['indicator_state']}); "
+        f"buoy_candidates={high_conf_count}, final_buoys={num_buoys}, "
+        f"states={buoy_states}); "
         f"final saved to {final_path}"
     )
 

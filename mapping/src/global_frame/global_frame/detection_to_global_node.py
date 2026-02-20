@@ -229,7 +229,12 @@ class DetectionToGlobalNode(Node):
         for d in detections:
             dist = d.get("distance_m")
             if dist is None:
-                self.get_logger().warn(f"CV detection missing distance_m: {d.get('class_name', 'unknown')}", throttle_duration_sec=2.0)
+                class_name = d.get("class_name", "unknown")
+                # Dock intentionally has distance_m=None (variable size, CV-only); skip without warning
+                if class_name == "dock":
+                    self.get_logger().debug("CV dock detection skipped (distance_m=None by design)", throttle_duration_sec=2.0)
+                else:
+                    self.get_logger().warn(f"CV detection missing distance_m: {class_name}", throttle_duration_sec=2.0)
                 continue
             range_m = float(dist)
             bearing_deg = d.get("bearing_deg", 0.0)
