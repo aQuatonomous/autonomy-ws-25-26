@@ -1,24 +1,22 @@
 cmake_minimum_required(VERSION 3.8)
-project(sound_signal)
+project(message_node_msgs)
 
 if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
   add_compile_options(-Wall -Wextra -Wpedantic)
 endif()
 
-
 # find dependencies
 find_package(ament_cmake REQUIRED)
-find_package(rclcpp REQUIRED)
-find_package(std_msgs REQUIRED)
-find_package(audio_common REQUIRED)
-find_package(audio_common_msgs REQUIRED)
+# uncomment the following section in order to fill in
+# further dependencies manually.
+# find_package(<dependency> REQUIRED)
 
-add_executable(sound_signal src/sound_signal.cpp)
-target_link_libraries(sound_signal fftw3)
+find_package(rosidl_default_generators REQUIRED)
 
-install(TARGETS	
-	sound_signal
-	DESTINATION lib/${PROJECT_NAME})
+rosidl_generate_interfaces(${PROJECT_NAME}
+  "msg/Dock.msg"
+  "msg/ObjectDetection.msg"
+)
 
 if(BUILD_TESTING)
   find_package(ament_lint_auto REQUIRED)
@@ -31,7 +29,5 @@ if(BUILD_TESTING)
   set(ament_cmake_cpplint_FOUND TRUE)
   ament_lint_auto_find_test_dependencies()
 endif()
-
-ament_target_dependencies(sound_signal rclcpp std_msgs audio_common audio_common_msgs)
 
 ament_package()

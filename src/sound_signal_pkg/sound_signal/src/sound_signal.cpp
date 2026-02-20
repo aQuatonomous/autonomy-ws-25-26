@@ -9,6 +9,7 @@
 #include "std_msgs/msg/int32.hpp"
 #include "audio_common_msgs/msg/audio_stamped.hpp"
 #include "audio_common_msgs/msg/audio.hpp"
+#include "sound_signal_msgs/msg/sound_signal_with_freq.hpp"
 
 using namespace std::chrono_literals;
 
@@ -58,6 +59,7 @@ public:
     int *onembed = n;
     fftw_plan_ = fftw_plan_many_dft(rank, n, howmany, in_buffer_, inembed, istride, idist, out_buffer_, onembed, ostride, odist, FFTW_FORWARD, FFTW_ESTIMATE);
     interupt_publisher_ = this->create_publisher<std_msgs::msg::Int32>("sound_signal_interupt", 10);
+    interupt_publisher_freq_ = this->create_publisher<sound_signal_msgs::msg::SoundSignalWithFreq>("sound_signal_interupt_freq", 10);
     audio_subscription_ = this->create_subscription<audio_common_msgs::msg::AudioStamped>("audio", rclcpp::SensorDataQoS(), std::bind(&SoundSignal::topic_callback, this, std::placeholders::_1));
 
     delay_timer_ = this->create_wall_timer(1.5s, [this]() {
@@ -120,12 +122,20 @@ private:
 		auto message = std_msgs::msg::Int32();
 		message.data = 2;
 		interupt_publisher_->publish(message);
+		auto message_freq = sound_signal_msgs::msg::SoundSignalWithFreq();
+		message_freq.signal = 2;
+		message_freq.freq = frequency_;
+		interupt_publisher_freq_->publish(message_freq);
 		delay_flag_ = 1;
 		delay_timer_->reset();
 	  } else if (output == 0b001111 && delay_flag_ != 1) {
 		auto message = std_msgs::msg::Int32();
 		message.data = 1;
 		interupt_publisher_->publish(message);
+		auto message_freq = sound_signal_msgs::msg::SoundSignalWithFreq();
+		message_freq.signal = 1;
+		message_freq.freq = frequency_;
+		interupt_publisher_freq_->publish(message_freq);
 		delay_flag_ = 1;
 		delay_timer_->reset();
 	  }
@@ -140,6 +150,7 @@ private:
   rclcpp::TimerBase::SharedPtr timer_;
   rclcpp::TimerBase::SharedPtr delay_timer_;
   rclcpp::Publisher<std_msgs::msg::Int32>::SharedPtr interupt_publisher_;
+  rclcpp::Publisher<sound_signal_msgs::msg::SoundSignalWithFreq>::SharedPtr interupt_publisher_freq_;
   fftw_complex* in_buffer_; 
   fftw_complex* out_buffer_; 
   fftw_plan fftw_plan_;
