@@ -255,51 +255,45 @@ ros2 launch cv_ros_nodes launch_cv.py enable_indicator_buoy:=true enable_task4:=
 **Computer Vision Requirements:**
 
 **Primary Detections:**
-- **Yellow Vessels** (class_id: 7 with shape detection): Stationary vessels with black triangle on both sides
-- **Black Vessels** (class_id: 7 with shape detection): Stationary vessels with black plus/cross on both sides
-- **Triangle Shapes** (class_id: 8): Black triangle targets on yellow vessels
-- **Cross/Plus Shapes** (class_id: 6): Black plus targets on black vessels
+- **Yellow Vessels**: Stationary vessels identified by yellow colour blob with optional black triangle sign above
+- **Black Vessels**: Stationary vessels identified by black colour blob with optional black cross/plus sign above
 
-**Task4 Supply Processor** (required, `enable_task4:=true`): Subscribes to `/camera{N}/image_preprocessed` and `/camera{N}/detection_info`; publishes `/camera{N}/task4_detections` with `type` (`yellow_supply_drop`, `black_supply_drop`), `shape_bbox`, `vessel_bbox` (preprocessed frame), `source: "task4"`. Combiner merges these into `/combined/detection_info`; `bbox` in combined is in local camera frame (preprocessed frame dimensions).
+**Task4 Supply Processor** (required, `enable_task4:=true`): Subscribes only to `/camera{N}/image_preprocessed`; runs the simplified blob + shape pipeline internally; publishes `/camera{N}/task4_detections` with `type` (`yellow_supply_drop`, `black_supply_drop`), `vessel_bbox` (preprocessed frame), `confidence`, `has_shape`, `source: "task4"`. Combiner merges these into `/combined/detection_info`; `bbox` in combined is in local camera frame (preprocessed frame dimensions). Only detections with `confidence >= 0.65` are published.
 
-**Vision Processing:**
+**Vision Processing (Simplified Pipeline):**
 
-1. **Vessel Detection**:
-   - Detect yellow stationary vessels (up to 3)
-   - Detect black stationary vessels (up to 3)
-   - Estimate vessel position and orientation
+1. **Blob Detection**:
+   - Detect yellow blobs (HSV masking) and black blobs (combined HSV + LAB masking)
+   - Apply morphological open/close to clean masks
 
-2. **Target Shape Detection**:
-   - **Yellow Vessels**: Detect black triangle shape on vessel side
-   - **Black Vessels**: Detect black plus/cross shape on vessel side
-   - Calculate target center coordinates for aiming
+2. **Filtering**:
+   - **Spatial**: only blobs whose centre is in the lower 60% of the frame
+   - **Aspect ratio**: height/width must be < 0.7 (vessel must be noticeably wider than tall)
 
-3. **Aiming and Delivery**:
-   - Track target shape position in real-time
-   - Calculate aim point for water stream or ball delivery
-   - Verify target hit (water stream on triangle or ball in vessel)
+3. **Blob Merging & Overlap Resolution**:
+   - Merge nearby same-colour blobs into one bounding box
+   - When bounding boxes of any colour overlap (IoU > 0.3), keep the larger one
 
-4. **Multi-Vessel Management**:
-   - Identify all available vessels (yellow and black)
-   - Prioritize delivery order
-   - Track completion status for each vessel
+4. **Shape Verification (confidence booster)**:
+   - Search the region above each yellow vessel for a **black triangle** (≥2 similar-length sides)
+   - Search the region above each black vessel for a **black cross** (intersecting vertical + horizontal bars)
+   - A verified shape raises confidence from 0.70 up to a maximum of 1.00
+
+5. **Confidence Threshold**:
+   - Detections below 0.65 are discarded before publishing
 
 **Output Requirements:**
-- Yellow vessel detection with position
-- Black vessel detection with position
-- Triangle shape detection on yellow vessels (target center)
-- Plus/cross shape detection on black vessels (target center)
-- Real-time target tracking for aiming
-- Delivery verification (hit confirmation)
+- Yellow vessel detection with bounding box and confidence
+- Black vessel detection with bounding box and confidence
+- `has_shape` flag indicating whether a confirming shape was detected above the vessel
 
 **Performance Targets:**
 - Vessel detection range: >30 meters
-- Shape detection accuracy: >90% (for precise aiming)
-- Target center estimation: ±5cm accuracy (for water/ball delivery)
-- Real-time tracking: ≥15 Hz for dynamic aiming
+- Confidence threshold: 0.65 (blob-only detections at 0.70; shape-verified up to 1.00)
+- Real-time processing: ≥15 Hz
 
 **Special Considerations:**
-- Must detect shapes on both sides of vessels (approach from any angle)
+- No YOLO shape detection dependency — pipeline runs entirely from the raw camera image
 - Robust detection in varying lighting conditions (water reflection)
 - Handle partial occlusions (vessel may be partially visible)
 
