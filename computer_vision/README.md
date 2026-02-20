@@ -307,7 +307,18 @@ For machine-specific trtexec path, PATH, conversion commands (FP32/FP16/INT8), a
 
 **Total Classes**: 23 (as defined in `cv_scripts/class_mapping.yaml`)
 
-**Note**: Class IDs 0-8 are from the main YOLO model. Classes 9-10 are from indicator buoy processor. Classes 11-12 are from Task4 supply processor. Classes 20-22 are from number detection model (remapped from model's 0,1,2).
+**Note**: 
+- Class IDs 0-8: Main YOLO model detections
+- Class IDs 9-10: **Indicator buoy processor** (CV-only, diamond-based detection with multi-diamond grouping)
+- Class IDs 11-12: Task 4 supply processor
+- Class IDs 20-22: Number detection model (remapped from model's 0,1,2)
+
+**Indicator Buoy Detection** (Classes 9-10):
+- **Method**: CV-only pipeline (not YOLO-based)
+- **Features**: Black diamond detection → white blob validation → multi-diamond grouping → red/green classification
+- **Distance**: Width-based estimation using 20-inch reference
+- **Documentation**: See `task_specific/task_2_3/COLOUR_INDICATOR_BUOY.md`
+- **Node**: `indicator_buoy_processor` (self-contained, no external dependencies)
 
 **Configuration File**: `cv_scripts/class_mapping.yaml`
 

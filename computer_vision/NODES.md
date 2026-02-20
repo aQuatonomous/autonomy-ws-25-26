@@ -258,7 +258,7 @@ Camera2: /camera2/image_raw → preprocessing2 → ... → inference2 → /camer
 
 **Node Name**: `indicator_buoy_processor`
 
-**Purpose**: Detect color indicator buoys (red/green) for Tasks 2, 3, and 5
+**Purpose**: Detect color indicator buoys (red/green) for Tasks 2, 3, and 5 using CV-only diamond-based detection
 
 **Subscriptions**:
 - `/camera{N}/image_preprocessed` (sensor_msgs/Image)
@@ -266,7 +266,23 @@ Camera2: /camera2/image_raw → preprocessing2 → ... → inference2 → /camer
 **Publications**:
 - `/camera{N}/indicator_detections` (std_msgs/String) – JSON format with `class_name` (`red_indicator_buoy` or `green_indicator_buoy`)
 
-**Functionality**: Detects custom buoys with color indicators, classifies as red or green, publishes detections for combiner.
+**Functionality**: 
+- **CV-only pipeline** (not YOLO-based): Detects black diamond markers on white buoy bodies
+- **Multi-diamond grouping**: Handles angled buoy views by grouping nearby diamonds (within 2× diamond size)
+- **Collective centering**: Uses average position of grouped diamonds for indicator ROI positioning
+- **Color classification**: Detects and classifies red/green indicator on top of buoy
+- **Width-based distance**: Optimized for 20-inch buoy width reference (handled by maritime_distance_estimator)
+- **Self-contained**: All detection logic embedded directly in node (no external task_specific imports)
+
+**Parameters**:
+- `--conf_threshold` (default: 0.6): Diamond shape confidence threshold
+- `--max_black_brightness` (default: 230): Max brightness for black diamonds (handles glare)
+- `--buoy_conf_threshold` (default: 0.3): Combined diamond + white blob confidence
+- `--white_blob_expansion` (default: 2.0): White blob search region multiplier
+- `--min_white_brightness` (default: 100): Minimum white brightness for outdoor scenes
+- `--min_white_blob_score` (default: 0.15): Minimum white blob score
+
+**Documentation**: See `task_specific/task_2_3/COLOUR_INDICATOR_BUOY.md` for complete pipeline details
 
 ---
 

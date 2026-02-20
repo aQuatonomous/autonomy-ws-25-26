@@ -2,12 +2,16 @@
 Colour Indicator Buoy Detector
 
 Pipeline:
-  1) Use the diamond detector to confidently detect the black diamonds on the
-     white colour-indicator buoy body (Task 3).
-  2) From the union of the diamond boxes, define a region *above* the buoy
-     where the red/green indicator cylinder sits.
-  3) Run the colour indicator detector on that ROI to classify RED / GREEN.
-  4) Draw diamonds, the inferred indicator ROI, and the final label on output.
+  1) Detect individual black diamonds on the buoy body.
+  2) For each diamond, check for a white/grey blob around it (2x diamond width).
+  3) Compute combined confidence (diamond shape quality + white blob presence).
+  4) For each high-confidence diamond+white blob, define an ROI directly above
+     the diamond to detect the red/green indicator.
+  5) Return multiple buoy detections, each with:
+     - Diamond detection
+     - White blob region
+     - Indicator color/confidence
+     - Full bounding box (diamond + white blob + indicator)
 """
 
 import argparse
@@ -49,41 +53,123 @@ def run_edge_detection(
 # Minimum contour area (avoid noise)
 MIN_CONTOUR_AREA = 200
 # Approx polygon: epsilon = eps_ratio * perimeter.
-# Slightly larger epsilon makes contours a bit smoother so rotated / mildly
-# warped diamonds are more likely to approximate to 4 vertices.
-EPS_RATIO = 0.06
-# Black diamond filter: mean grayscale inside contour must be below this (0–255)
-MAX_BLACK_BRIGHTNESS = 100
-# Default confidence threshold for accepting diamonds (0–1).
-DEFAULT_CONF_THRESHOLD = 0.3
+# STRICTER: Lower epsilon means tighter polygon approximation, requiring clearer corners
+EPS_RATIO = 0.03
+# Diamond filter: mean grayscale inside contour must be below this (0–255) - increased for glare/lighting
+MAX_BLACK_BRIGHTNESS = 230
+# Surrounding region (around diamond) must have mean brightness above this to be a white buoy
+MIN_SURROUND_BRIGHTNESS = 85
+# Default confidence threshold for accepting diamonds (0–1) - increased for stricter detection
+DEFAULT_CONF_THRESHOLD = 0.6
+# Default confidence threshold for accepting full buoys (diamond + white blob) (lowered for outdoor scenes)
+DEFAULT_BUOY_CONF_THRESHOLD = 0.3
+# White blob detection: minimum brightness to be considered "white/grey" (lowered for bright outdoor scenes)
+MIN_WHITE_BRIGHTNESS = 100
+# Minimum white blob score to consider it a valid buoy (lowered for outdoor lighting)
+MIN_WHITE_BLOB_SCORE = 0.15
+# When two full buoy bboxes overlap above this IoU, keep only the one with higher diamond confidence
+FULL_BBOX_OVERLAP_IOU_THRESHOLD = 0.05
+# Intersection-over-min-area: if smaller box is this fraction covered by the other, treat as overlap
+FULL_BBOX_OVERLAP_IO_MIN_THRESHOLD = 0.35
+# When two diamond bboxes overlap above this IoU, treat as same buoy (keep higher confidence)
+DIAMOND_BBOX_OVERLAP_IOU_THRESHOLD = 0.3
 
 
 def _is_diamond(pts: np.ndarray) -> bool:
     """
-    Heuristic: 4-point contour is a diamond if it looks like a rotated square or kite.
-    - 4 vertices (already guaranteed by caller).
-    - Sides roughly similar in length (or two pairs), and diagonals not too skewed.
+    STRICT diamond detection: 4-point contour must have clear corners and diamond-like geometry.
+    - 4 vertices (already guaranteed by caller)
+    - All 4 sides roughly equal length (like a rotated square)
+    - Interior angles close to 90 degrees (for squares) or two acute/two obtuse (for diamonds)
+    - Convex shape (no concave corners)
+    - Aspect ratio not too elongated
     """
     if pts is None or len(pts) != 4:
         return False
     pts = pts.reshape(4, 2).astype(np.float64)
-    # Side lengths
+    
+    # 1. Check if convex (cross products should all have same sign)
+    cross_products = []
+    for i in range(4):
+        p1 = pts[i]
+        p2 = pts[(i + 1) % 4]
+        p3 = pts[(i + 2) % 4]
+        v1 = p2 - p1
+        v2 = p3 - p2
+        cross = v1[0] * v2[1] - v1[1] * v2[0]
+        cross_products.append(cross)
+    
+    # All cross products should have same sign (all positive or all negative)
+    if not (all(c > 0 for c in cross_products) or all(c < 0 for c in cross_products)):
+        return False
+    
+    # 2. Side lengths - must be relatively uniform
     sides = []
     for i in range(4):
         a = pts[i]
         b = pts[(i + 1) % 4]
         sides.append(np.linalg.norm(b - a))
     sides = np.array(sides)
-    # For a diamond (rotated square): 4 roughly equal sides.
-    # For a kite / perspective view: allow some asymmetry.
+    
     mean_side = np.mean(sides)
     if mean_side < 1e-6:
         return False
+    
+    # STRICTER: All sides must be within 50% of mean (was 80% tolerance before)
     ratios = sides / mean_side
-    # Looser tolerance so slightly rotated / warped diamonds still pass,
-    # while rejecting extremely elongated quads.
-    if np.any(ratios < 0.2) or np.any(ratios > 2.5):
+    if np.any(ratios < 0.5) or np.any(ratios > 1.5):
         return False
+    
+    # 3. Check aspect ratio of bounding box (diamonds shouldn't be too elongated)
+    x_coords = pts[:, 0]
+    y_coords = pts[:, 1]
+    width = np.max(x_coords) - np.min(x_coords)
+    height = np.max(y_coords) - np.min(y_coords)
+    
+    if width < 1e-6 or height < 1e-6:
+        return False
+    
+    aspect_ratio = max(width, height) / min(width, height)
+    # Diamonds should be roughly square-ish, not extremely elongated
+    if aspect_ratio > 2.0:
+        return False
+    
+    # 4. Check interior angles - should be roughly 90° or two acute + two obtuse
+    angles = []
+    for i in range(4):
+        p1 = pts[(i - 1) % 4]
+        p2 = pts[i]
+        p3 = pts[(i + 1) % 4]
+        
+        v1 = p1 - p2
+        v2 = p3 - p2
+        
+        # Normalize vectors
+        v1_norm = np.linalg.norm(v1)
+        v2_norm = np.linalg.norm(v2)
+        
+        if v1_norm < 1e-6 or v2_norm < 1e-6:
+            return False
+        
+        v1 = v1 / v1_norm
+        v2 = v2 / v2_norm
+        
+        # Compute angle using dot product
+        cos_angle = np.clip(np.dot(v1, v2), -1.0, 1.0)
+        angle_deg = np.degrees(np.arccos(cos_angle))
+        angles.append(angle_deg)
+    
+    angles = np.array(angles)
+    
+    # Angles should sum to 360 degrees (within tolerance)
+    if abs(np.sum(angles) - 360.0) > 20.0:
+        return False
+    
+    # For a diamond: angles should be reasonable (not too acute or too obtuse)
+    # Reject if any angle is too extreme
+    if np.any(angles < 30) or np.any(angles > 150):
+        return False
+    
     return True
 
 
@@ -94,6 +180,77 @@ def _mean_brightness(gray: np.ndarray, contour: np.ndarray) -> float:
     mask = np.zeros_like(gray, dtype=np.uint8)
     cv2.drawContours(mask, [contour], -1, 255, -1)
     return float(cv2.mean(gray, mask=mask)[0])
+
+
+def detect_white_blob_around_diamond(
+    gray: np.ndarray,
+    diamond_bbox: Tuple[int, int, int, int],
+    diamond_contour: np.ndarray,
+    expansion_factor: float = 2.0,
+    min_white_brightness: float = MIN_WHITE_BRIGHTNESS,
+) -> Tuple[float, Tuple[int, int, int, int]]:
+    """
+    Check for white/grey blob around a diamond.
+    
+    Args:
+        gray: Grayscale image
+        diamond_bbox: (x, y, w, h) of the diamond
+        diamond_contour: Diamond contour for masking out the diamond itself
+        expansion_factor: How much to expand search region (2.0 = 2x diamond width/height)
+        min_white_brightness: Minimum brightness to consider as "white"
+    
+    Returns:
+        (white_blob_score, expanded_bbox):
+            - white_blob_score: 0-1, how much white is around the diamond
+            - expanded_bbox: (x, y, w, h) of the search region
+    """
+    img_h, img_w = gray.shape[:2]
+    x, y, w, h = diamond_bbox
+    
+    # Expand search region by expansion_factor
+    expand_w = int(w * (expansion_factor - 1.0) / 2.0)
+    expand_h = int(h * (expansion_factor - 1.0) / 2.0)
+    
+    search_x1 = max(0, x - expand_w)
+    search_y1 = max(0, y - expand_h)
+    search_x2 = min(img_w, x + w + expand_w)
+    search_y2 = min(img_h, y + h + expand_h)
+    
+    search_w = search_x2 - search_x1
+    search_h = search_y2 - search_y1
+    
+    if search_w <= 0 or search_h <= 0:
+        return 0.0, (search_x1, search_y1, search_w, search_h)
+    
+    # Extract the search region
+    search_roi = gray[search_y1:search_y2, search_x1:search_x2]
+    
+    # Create mask to exclude the diamond itself
+    mask_full = np.zeros_like(gray, dtype=np.uint8)
+    cv2.drawContours(mask_full, [diamond_contour], -1, 255, -1)
+    diamond_mask = mask_full[search_y1:search_y2, search_x1:search_x2]
+    
+    # Invert mask: we want the region AROUND the diamond, not the diamond itself
+    surround_mask = cv2.bitwise_not(diamond_mask)
+    
+    # Count white pixels in the surrounding region
+    white_pixels = np.sum((search_roi >= min_white_brightness) & (surround_mask > 0))
+    total_surround_pixels = np.sum(surround_mask > 0)
+    
+    if total_surround_pixels == 0:
+        return 0.0, (search_x1, search_y1, search_w, search_h)
+    
+    # Score: ratio of white pixels in surrounding region
+    white_ratio = white_pixels / total_surround_pixels
+    
+    # Also check mean brightness of surrounding region
+    surround_mean = cv2.mean(search_roi, mask=surround_mask)[0]
+    brightness_score = np.clip((surround_mean - min_white_brightness) / (255.0 - min_white_brightness), 0.0, 1.0)
+    
+    # Combined score: average of ratio and brightness
+    white_blob_score = float((white_ratio + brightness_score) / 2.0)
+    
+    return white_blob_score, (search_x1, search_y1, search_w, search_h)
 
 
 def _shape_name(pts: np.ndarray) -> str:
@@ -178,8 +335,32 @@ def detect_shapes(
 
         # Brightness inside the full contour (used for black filter and confidence)
         mean_brightness = _mean_brightness(gray, c)
-        if filter_black_only and mean_brightness > max_black_brightness:
-            continue
+        
+        # ADDITIONAL CHECK: Also verify the bounding box mean brightness
+        # This catches cases where the contour edge is dark but interior is bright
+        bbox_roi = gray[y:y+h, x:x+w]
+        bbox_mean_brightness = float(np.mean(bbox_roi)) if bbox_roi.size > 0 else 255.0
+        
+        if filter_black_only:
+            # BOTH the contour AND the bounding box must be dark
+            if mean_brightness > max_black_brightness or bbox_mean_brightness > max_black_brightness:
+                continue
+            
+            # ADDITIONAL CHECK: The surrounding region should be relatively bright (white buoy body)
+            # Expand bbox to check surrounding brightness
+            expand_factor = 0.5  # Expand by 50% on each side
+            expand_w = int(w * expand_factor)
+            expand_h = int(h * expand_factor)
+            surround_x1 = max(0, x - expand_w)
+            surround_y1 = max(0, y - expand_h)
+            surround_x2 = min(gray.shape[1], x + w + expand_w)
+            surround_y2 = min(gray.shape[0], y + h + expand_h)
+            
+            surround_roi = gray[surround_y1:surround_y2, surround_x1:surround_x2]
+            if surround_roi.size > 0:
+                surround_mean = float(np.mean(surround_roi))
+                if surround_mean < MIN_SURROUND_BRIGHTNESS:
+                    continue
 
         # Heuristic confidence score (0–1)
         confidence = 1.0
@@ -317,6 +498,26 @@ def _load_indicator_detector():
     return detect_indicator
 
 
+def _indicator_red_or_green(roi_bgr: np.ndarray) -> Tuple[str, float]:
+    """
+    When indicator detector returns 'none', decide red vs green from ROI.
+    Returns ('red', conf) or ('green', conf) based on which channel dominates.
+    """
+    if roi_bgr is None or roi_bgr.size == 0:
+        return "red", 0.5
+    B, G, R = cv2.split(roi_bgr)
+    mean_r = float(np.mean(R))
+    mean_g = float(np.mean(G))
+    total = mean_r + mean_g
+    if total < 1e-6:
+        return "red", 0.5
+    conf_red = mean_r / total
+    conf_green = mean_g / total
+    if conf_red >= conf_green:
+        return "red", conf_red
+    return "green", conf_green
+
+
 def _bbox_iou(b1: Tuple[int, int, int, int], b2: Tuple[int, int, int, int]) -> float:
     """Intersection-over-union of two (x, y, w, h) boxes."""
     x1, y1, w1, h1 = b1
@@ -343,6 +544,36 @@ def _bbox_iou(b1: Tuple[int, int, int, int], b2: Tuple[int, int, int, int]) -> f
     if union <= 0:
         return 0.0
     return inter_area / union
+
+
+def _full_bboxes_overlap(b1: Tuple[int, int, int, int], b2: Tuple[int, int, int, int]) -> bool:
+    """
+    True if two full buoy bboxes overlap enough that we should keep only one.
+    Uses IoU and intersection-over-min-area so we catch both similar-size overlap
+    and one-box-inside-the-other.
+    """
+    x1, y1, w1, h1 = b1
+    x2, y2, w2, h2 = b2
+    inter_x1 = max(x1, x2)
+    inter_y1 = max(y1, y2)
+    inter_x2 = min(x1 + w1, x2 + w2)
+    inter_y2 = min(y1 + h1, y2 + h2)
+    inter_w = max(0, inter_x2 - inter_x1)
+    inter_h = max(0, inter_y2 - inter_y1)
+    inter_area = inter_w * inter_h
+    if inter_area == 0:
+        return False
+    area_a = w1 * h1
+    area_b = w2 * h2
+    if area_a <= 0 or area_b <= 0:
+        return False
+    union = area_a + area_b - inter_area
+    if union > 0:
+        iou = inter_area / union
+        if iou >= FULL_BBOX_OVERLAP_IOU_THRESHOLD:
+            return True
+    io_min = inter_area / min(area_a, area_b)
+    return io_min >= FULL_BBOX_OVERLAP_IO_MIN_THRESHOLD
 
 
 def _compute_indicator_roi(
@@ -416,130 +647,327 @@ def classify_colour_indicator_buoy(
     conf_threshold: float = DEFAULT_CONF_THRESHOLD,
     max_black_brightness: float = MAX_BLACK_BRIGHTNESS,
     roi_conf_threshold: float = 0.6,
+    buoy_conf_threshold: float = DEFAULT_BUOY_CONF_THRESHOLD,
+    white_blob_expansion: float = 2.0,  # Reduced from 4.0 for tighter bounding boxes
+    min_white_brightness: float = MIN_WHITE_BRIGHTNESS,
+    min_white_blob_score: float = MIN_WHITE_BLOB_SCORE,
 ) -> Tuple[np.ndarray, dict]:
     """
-    Full pipeline on a single BGR frame.
+    Full pipeline on a single BGR frame. Detects multiple independent buoys.
 
     Returns:
       - Annotated BGR image.
       - Info dict with:
           {
-            "diamonds": [...],
-            "indicator_state": "red"/"green"/"none",
-            "indicator_conf": float,
-            "indicator_bbox": (x, y, w, h) or None
+            "buoys": [
+              {
+                "diamond": {...},
+                "white_blob_score": float,
+                "white_blob_bbox": (x, y, w, h),
+                "buoy_confidence": float,
+                "indicator_state": "red"/"green"/"none",
+                "indicator_conf": float,
+                "indicator_bbox": (x, y, w, h) or None,
+                "indicator_roi": (x, y, w, h),
+                "full_bbox": (x, y, w, h)  # encompasses everything
+              },
+              ...
+            ]
           }
     """
     detect_indicator = _load_indicator_detector()
-
-    # 1) Detect *high-confidence* diamonds (for visualization and final decisions)
-    diamonds = detect_diamonds(
+    gray = cv2.cvtColor(img_bgr, cv2.COLOR_BGR2GRAY)
+    
+    # 1) Detect all black diamonds with basic confidence threshold
+    all_diamonds = detect_diamonds(
         img_bgr,
         black_only=True,
         max_black_brightness=max_black_brightness,
         conf_threshold=conf_threshold,
     )
-
-    annotated = draw_detections(img_bgr, diamonds, labels=True)
-
-    info = {
-        "diamonds": diamonds,
-        "indicator_state": "none",
-        "indicator_conf": 0.0,
-        "indicator_bbox": None,
-    }
-
-    # 1b) Also detect black/dark diamonds used purely for ROI computation.
-    #     We typically want these to be fairly reliable, so we use a (configurable)
-    #     confidence threshold, default 0.6.
-    all_black_diamonds = detect_shapes(
-        img_bgr,
-        filter_diamond_only=True,
-        filter_black_only=True,
-        max_black_brightness=max_black_brightness,
-        conf_threshold=roi_conf_threshold,
-    )
-
-    if not all_black_diamonds:
-        return annotated, info
-
-    # First, merge out near-duplicate detections that share almost the same box
-    # (e.g. inner/outer contours of the same printed diamond). Keep the larger,
-    # higher-confidence one for ROI computation.
-    sorted_by_quality = sorted(
-        all_black_diamonds,
-        key=lambda d: (-(d.get("area", 0.0)), -(d.get("confidence", 0.0))),
-    )
-    unique_diamonds: list[dict] = []
-    for d in sorted_by_quality:
-        bbox = d["bbox"]
-        if all(_bbox_iou(bbox, u["bbox"]) < 0.7 for u in unique_diamonds):
-            unique_diamonds.append(d)
-
-    # If there are more than two distinct black diamonds, prefer the biggest,
-    # straightest ones (area + confidence). This should give us the two logo
-    # diamonds on the buoy rather than small noisy blobs.
-    roi_diamonds = unique_diamonds
-    if len(unique_diamonds) > 2:
-        roi_diamonds = unique_diamonds[:2]
-
-    diamond_boxes = [d["bbox"] for d in roi_diamonds]
-    roi_box = _compute_indicator_roi(img_bgr.shape, diamond_boxes)
-    if roi_box is None:
-        return annotated, info
-
-    rx, ry, rw, rh = roi_box
-    # Draw the search ROI for the colour indicator (for visualization)
-    cv2.rectangle(
-        annotated,
-        (rx, ry),
-        (rx + rw, ry + rh),
-        (0, 165, 255),  # orange box for indicator search region
-        2,
-    )
-
-    roi = img_bgr[ry : ry + rh, rx : rx + rw]
-
-    # 2) Run colour indicator detector on ROI
-    state, state_conf, bbox = detect_indicator(roi)
-    info["indicator_state"] = state
-    info["indicator_conf"] = float(state_conf)
-
-    # 3) Project indicator bbox back to full image and draw
-    if bbox is not None:
-        bx, by, bw, bh = bbox
-        gx1 = rx + bx
-        gy1 = ry + by
-        gx2 = gx1 + bw
-        gy2 = gy1 + bh
-        cv2.rectangle(
-            annotated,
-            (gx1, gy1),
-            (gx2, gy2),
-            (255, 0, 0),  # blue box for indicator
-            2,
+    
+    if not all_diamonds:
+        return img_bgr.copy(), {"buoys": []}
+    
+    # 2) For each diamond, check for white blob around it and compute combined confidence
+    buoy_candidates = []
+    for diamond in all_diamonds:
+        white_blob_score, white_blob_bbox = detect_white_blob_around_diamond(
+            gray,
+            diamond["bbox"],
+            diamond["contour"],
+            expansion_factor=white_blob_expansion,
+            min_white_brightness=min_white_brightness,
         )
-        info["indicator_bbox"] = (gx1, gy1, bw, bh)
-
-    # 4) Draw final label near top of buoy
-    label = f"{state.upper()} ({state_conf:.2f})"
-    color = (0, 0, 255) if state == "red" else (0, 255, 0) if state == "green" else (255, 255, 255)
-    # Place text slightly above the buoy union box
-    _, _, _, _ = roi_box
-    text_x = max(0, rx)
-    text_y = max(10, ry - 10)
-    cv2.putText(
-        annotated,
-        label,
-        (text_x, text_y),
-        cv2.FONT_HERSHEY_SIMPLEX,
-        0.6,
-        color,
-        2,
-        cv2.LINE_AA,
+        
+        # Combined confidence: average of diamond confidence and white blob score
+        diamond_conf = diamond.get("confidence", 0.0)
+        buoy_confidence = (diamond_conf + white_blob_score) / 2.0
+        
+        buoy_candidates.append({
+            "diamond": diamond,
+            "white_blob_score": white_blob_score,
+            "white_blob_bbox": white_blob_bbox,
+            "buoy_confidence": buoy_confidence,
+        })
+    
+    # 3) Filter by combined buoy confidence threshold AND minimum white blob score
+    high_conf_buoys = [
+        b for b in buoy_candidates 
+        if b["buoy_confidence"] >= buoy_conf_threshold 
+        and b["white_blob_score"] >= min_white_blob_score
+    ]
+    
+    if not high_conf_buoys:
+        return img_bgr.copy(), {"buoys": []}
+    
+    # 4) Group nearby high-confidence diamonds that likely belong to the same buoy
+    def _diamonds_are_nearby(d1_bbox, d2_bbox, max_distance_factor=2.0):
+        """Check if two diamonds are close enough to belong to the same buoy."""
+        x1, y1, w1, h1 = d1_bbox
+        x2, y2, w2, h2 = d2_bbox
+        
+        # Centers of the diamonds
+        c1_x, c1_y = x1 + w1 // 2, y1 + h1 // 2
+        c2_x, c2_y = x2 + w2 // 2, y2 + h2 // 2
+        
+        # Distance between centers
+        distance = ((c2_x - c1_x) ** 2 + (c2_y - c1_y) ** 2) ** 0.5
+        
+        # Max allowed distance based on diamond sizes
+        avg_size = (w1 + h1 + w2 + h2) / 4.0
+        max_distance = avg_size * max_distance_factor
+        
+        return distance <= max_distance
+    
+    # Group diamonds that are nearby
+    sorted_buoys = sorted(high_conf_buoys, key=lambda b: -b["buoy_confidence"])
+    buoy_groups = []
+    
+    for buoy in sorted_buoys:
+        diamond_bbox = buoy["diamond"]["bbox"]
+        
+        # Find existing group this diamond belongs to
+        assigned_to_group = False
+        for group in buoy_groups:
+            # Check if this diamond is nearby any diamond in the group
+            if any(_diamonds_are_nearby(diamond_bbox, existing["diamond"]["bbox"]) 
+                   for existing in group):
+                group.append(buoy)
+                assigned_to_group = True
+                break
+        
+        # If not assigned to any group, create a new group
+        if not assigned_to_group:
+            buoy_groups.append([buoy])
+    
+    # 5) For each buoy group, use the collective center for indicator detection
+    all_final_buoys = []
+    
+    for group in buoy_groups:
+        if len(group) == 1:
+            # Single diamond - use original logic
+            buoy = group[0]
+            diamond = buoy["diamond"]
+            dx, dy, dw, dh = diamond["bbox"]
+            white_blob_bbox = buoy["white_blob_bbox"]
+            
+            # Compute indicator ROI: directly above the diamond, centered on it
+            diamond_center_x = dx + dw // 2
+            roi_w = int(dw * 3.0)  # 3x diamond width for wider indicator search
+            roi_h = int(dh * 2.0)  # 2x diamond height above
+            
+            roi_x1 = max(0, diamond_center_x - roi_w // 2)
+            roi_x2 = min(img_bgr.shape[1], roi_x1 + roi_w)
+            roi_y2 = max(0, dy)  # Bottom of ROI at top of diamond
+            roi_y1 = max(0, roi_y2 - roi_h)
+            
+            indicator_roi = (roi_x1, roi_y1, roi_x2 - roi_x1, roi_y2 - roi_y1)
+            
+            # Use the single diamond's properties
+            representative_diamond = diamond
+            combined_white_blob_bbox = white_blob_bbox
+            combined_buoy_confidence = buoy["buoy_confidence"]
+            
+        else:
+            # Multiple diamonds - use collective center and properties
+            diamonds = [b["diamond"] for b in group]
+            
+            # Compute collective center of all diamonds
+            centers_x = [d["bbox"][0] + d["bbox"][2] // 2 for d in diamonds]
+            centers_y = [d["bbox"][1] + d["bbox"][3] // 2 for d in diamonds]
+            collective_center_x = sum(centers_x) // len(centers_x)
+            collective_center_y = sum(centers_y) // len(centers_y)
+            
+            # Compute collective bounding box of all diamonds
+            x1s = [d["bbox"][0] for d in diamonds]
+            y1s = [d["bbox"][1] for d in diamonds]
+            x2s = [d["bbox"][0] + d["bbox"][2] for d in diamonds]
+            y2s = [d["bbox"][1] + d["bbox"][3] for d in diamonds]
+            
+            collective_x1 = min(x1s)
+            collective_y1 = min(y1s)
+            collective_x2 = max(x2s)
+            collective_y2 = max(y2s)
+            collective_w = collective_x2 - collective_x1
+            collective_h = collective_y2 - collective_y1
+            
+            # Use the highest confidence diamond as representative
+            best_buoy = max(group, key=lambda b: b["buoy_confidence"])
+            representative_diamond = best_buoy["diamond"]
+            
+            # Combine white blob bboxes
+            white_blobs = [b["white_blob_bbox"] for b in group]
+            wb_x1s = [wb[0] for wb in white_blobs]
+            wb_y1s = [wb[1] for wb in white_blobs]
+            wb_x2s = [wb[0] + wb[2] for wb in white_blobs]
+            wb_y2s = [wb[1] + wb[3] for wb in white_blobs]
+            
+            combined_wb_x1 = min(wb_x1s)
+            combined_wb_y1 = min(wb_y1s)
+            combined_wb_x2 = max(wb_x2s)
+            combined_wb_y2 = max(wb_y2s)
+            combined_white_blob_bbox = (combined_wb_x1, combined_wb_y1, 
+                                     combined_wb_x2 - combined_wb_x1, 
+                                     combined_wb_y2 - combined_wb_y1)
+            
+            # Average confidence
+            combined_buoy_confidence = sum(b["buoy_confidence"] for b in group) / len(group)
+            
+            # Compute indicator ROI: above the collective center
+            avg_diamond_size = sum(d["bbox"][2] + d["bbox"][3] for d in diamonds) / (2 * len(diamonds))
+            roi_w = int(avg_diamond_size * 3.0)  # 3x average diamond size
+            roi_h = int(avg_diamond_size * 2.0)  # 2x average diamond size above
+            
+            roi_x1 = max(0, collective_center_x - roi_w // 2)
+            roi_x2 = min(img_bgr.shape[1], collective_center_x + roi_w // 2)
+            roi_y2 = max(0, collective_y1)  # Bottom of ROI at top of collective diamonds
+            roi_y1 = max(0, roi_y2 - roi_h)
+            
+            indicator_roi = (roi_x1, roi_y1, roi_x2 - roi_x1, roi_y2 - roi_y1)
+        
+        # Extract ROI and run indicator detector
+        rx, ry, rw, rh = indicator_roi
+        if rw > 0 and rh > 0:
+            roi_img = img_bgr[ry:ry + rh, rx:rx + rw]
+            state, state_conf, ind_bbox = detect_indicator(roi_img)
+            # Never show "none": pick red or green based on which is more present in ROI
+            if state == "none":
+                state, state_conf = _indicator_red_or_green(roi_img)
+        else:
+            state, state_conf, ind_bbox = "red", 0.5, None  # fallback to red with low conf
+        
+        # Project indicator bbox to full image coordinates
+        indicator_bbox_global = None
+        if ind_bbox is not None:
+            bx, by, bw, bh = ind_bbox
+            indicator_bbox_global = (rx + bx, ry + by, bw, bh)
+        
+        # Compute full bounding box: union of combined white blob, diamonds, and indicator
+        components = [combined_white_blob_bbox]
+        if indicator_bbox_global:
+            ix, iy, iw, ih = indicator_bbox_global
+            components.append((ix, iy, iw, ih))
+        
+        # Union of all components
+        x1s = [x for (x, y, w, h) in components]
+        y1s = [y for (x, y, w, h) in components]
+        x2s = [x + w for (x, y, w, h) in components]
+        y2s = [y + h for (x, y, w, h) in components]
+        
+        full_x1 = max(0, min(x1s))
+        full_y1 = max(0, min(y1s))
+        full_x2 = min(img_bgr.shape[1], max(x2s))
+        full_y2 = min(img_bgr.shape[0], max(y2s))
+        full_bbox = (full_x1, full_y1, full_x2 - full_x1, full_y2 - full_y1)
+        
+        all_final_buoys.append({
+            "diamond": representative_diamond,
+            "white_blob_score": combined_buoy_confidence,  # Use combined confidence as proxy
+            "white_blob_bbox": combined_white_blob_bbox,
+            "buoy_confidence": combined_buoy_confidence,
+            "indicator_state": state,
+            "indicator_conf": float(state_conf),
+            "indicator_bbox": indicator_bbox_global,
+            "indicator_roi": indicator_roi,
+            "full_bbox": full_bbox,
+        })
+    
+    # 6) Resolve overlapping full (pink) bboxes and duplicate diamonds: keep higher diamond confidence
+    sorted_by_diamond_conf = sorted(
+        all_final_buoys,
+        key=lambda b: -(b["diamond"].get("confidence", 0.0)),
     )
-
-    return annotated, info
+    final_buoys = []
+    for buoy in sorted_by_diamond_conf:
+        full_bbox = buoy["full_bbox"]
+        diamond_bbox = buoy["diamond"]["bbox"]
+        # Suppress if full bbox overlaps (IoU or IoMin) OR diamond bbox overlaps with any kept
+        if all(
+            not _full_bboxes_overlap(full_bbox, kept["full_bbox"])
+            and _bbox_iou(diamond_bbox, kept["diamond"]["bbox"]) < DIAMOND_BBOX_OVERLAP_IOU_THRESHOLD
+            for kept in final_buoys
+        ):
+            final_buoys.append(buoy)
+    
+    # 7) Draw only the kept buoys
+    annotated = img_bgr.copy()
+    for buoy in final_buoys:
+        diamond = buoy["diamond"]
+        dx, dy, dw, dh = diamond["bbox"]
+        white_blob_bbox = buoy["white_blob_bbox"]
+        full_bbox = buoy["full_bbox"]
+        indicator_roi = buoy["indicator_roi"]
+        indicator_bbox_global = buoy["indicator_bbox"]
+        state = buoy["indicator_state"]
+        
+        rx, ry, rw, rh = indicator_roi
+        
+        # 1) White blob region (cyan)
+        wx, wy, ww, wh = white_blob_bbox
+        cv2.rectangle(annotated, (wx, wy), (wx + ww, wy + wh), (255, 255, 0), 2)
+        
+        # 2) Diamond (green)
+        cv2.rectangle(annotated, (dx, dy), (dx + dw, dy + dh), (0, 255, 0), 2)
+        diamond_conf = diamond.get("confidence", 0.0)
+        cv2.putText(
+            annotated,
+            f"D:{diamond_conf:.2f}",
+            (dx, max(10, dy - 5)),
+            cv2.FONT_HERSHEY_SIMPLEX,
+            0.4,
+            (0, 255, 0),
+            1,
+            cv2.LINE_AA,
+        )
+        
+        # 3) Indicator ROI (orange)
+        cv2.rectangle(annotated, (rx, ry), (rx + rw, ry + rh), (0, 165, 255), 2)
+        
+        # 4) Indicator detection (blue)
+        if indicator_bbox_global:
+            ix, iy, iw, ih = indicator_bbox_global
+            cv2.rectangle(annotated, (ix, iy), (ix + iw, iy + ih), (255, 0, 0), 2)
+        
+        # 5) Full buoy bounding box (magenta, thick)
+        fx, fy, fw, fh = full_bbox
+        cv2.rectangle(annotated, (fx, fy), (fx + fw, fy + fh), (255, 0, 255), 3)
+        
+        # 6) Label with state and confidence
+        label = f"{state.upper()} conf:{buoy['buoy_confidence']:.2f}"
+        color = (0, 0, 255) if state == "red" else (0, 255, 0) if state == "green" else (255, 255, 255)
+        cv2.putText(
+            annotated,
+            label,
+            (fx, max(20, fy - 10)),
+            cv2.FONT_HERSHEY_SIMPLEX,
+            0.6,
+            color,
+            2,
+            cv2.LINE_AA,
+        )
+    
+    return annotated, {"buoys": final_buoys}
 
 
 def main():
@@ -604,17 +1032,23 @@ def main():
         roi_conf_threshold=args.roi_conf_threshold,
     )
 
-    print(f"Diamonds detected: {len(info['diamonds'])}")
-    for i, d in enumerate(info["diamonds"]):
+    buoys = info.get("buoys", [])
+    print(f"Buoys detected: {len(buoys)}")
+    for i, buoy in enumerate(buoys):
+        diamond = buoy["diamond"]
         print(
-            f"  [{i+1}] center={d['center']} bbox={d['bbox']} "
-            f"area={d['area']:.0f} conf={d.get('confidence', 0.0):.3f}"
+            f"  [{i+1}] Buoy confidence: {buoy['buoy_confidence']:.3f} "
+            f"(diamond: {diamond.get('confidence', 0.0):.3f}, white_blob: {buoy['white_blob_score']:.3f})"
         )
-    print(
-        f"Indicator: state={info['indicator_state']} "
-        f"conf={info['indicator_conf']:.3f} "
-        f"bbox={info['indicator_bbox']}"
-    )
+        print(
+            f"      Diamond: center={diamond['center']} bbox={diamond['bbox']}"
+        )
+        print(
+            f"      Indicator: state={buoy['indicator_state']} conf={buoy['indicator_conf']:.3f}"
+        )
+        print(
+            f"      Full bbox: {buoy['full_bbox']}"
+        )
 
     if args.out:
         out_path = Path(args.out)

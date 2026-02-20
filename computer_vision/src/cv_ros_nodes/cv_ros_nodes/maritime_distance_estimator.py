@@ -61,7 +61,8 @@ K_NATIVE = np.array([
 ], dtype=np.float64)
 
 # Reference dimensions (meters) - RoboBoat 2026 specifications / calibration test buoys
-# Based on height above waterline for consistent distance measurement
+# Most objects: height above waterline for consistent distance measurement
+# Indicator buoys: actual measured width (20 inches) for width-based estimation
 REFERENCE_DIMENSIONS = {
     # Small buoys (10 in used for calibration; RoboBoat spec is 1 ft)
     'black_buoy': 0.254,        # 10 in (calibration reference)
@@ -79,8 +80,8 @@ REFERENCE_DIMENSIONS = {
     
     # Infrastructure and targets
     'dock': 0.406,              # 16 in height
-    'red_indicator_buoy': 0.432,    # 17 in total height
-    'green_indicator_buoy': 0.432,  # 17 in total height
+    'red_indicator_buoy': 0.508,     # 20 in total width (actual measured)
+    'green_indicator_buoy': 0.508,   # 20 in total width (actual measured)
     'yellow_supply_drop': 0.406,    # 16.0 in width (height not specified)
     'black_supply_drop': 0.406,     # 16.0 in width (height not specified)
     
@@ -169,13 +170,14 @@ class MaritimeDistanceEstimatorNode(Node):
         """
         Estimate distance for a single detection using pinhole model.
         
-        Formula: distance = (fy_eff * reference_height_m) / height_px
+        For indicator buoys: Uses width-based estimation with 20-inch reference
+        For other objects: Uses height-based estimation
         
         Args:
             detection: Detection dict with bbox, class_name, camera_id
             
         Returns:
-            Distance in meters, or None if calculation fails
+            Distance in meters, or None if calculation fails or object size is unknown
         """
         # Extract bbox and validate
         bbox = detection.get('bbox')
@@ -183,17 +185,34 @@ class MaritimeDistanceEstimatorNode(Node):
             return None
             
         class_name = detection.get('class_name', '')
+        
+        # Skip distance estimation for objects with unknown/variable sizes
+        if class_name == 'dock':
+            return None  # Dock sizes vary enormously and are unknown
+            
         x1, y1, x2, y2 = float(bbox[0]), float(bbox[1]), float(bbox[2]), float(bbox[3])
+        width_px = max(1.0, x2 - x1)
         height_px = max(1.0, y2 - y1)
         
         # Get reference dimension for this object class
-        reference_height_m = REFERENCE_DIMENSIONS.get(class_name, DEFAULT_REFERENCE_M)
+        reference_dimension_m = REFERENCE_DIMENSIONS.get(class_name, DEFAULT_REFERENCE_M)
         
         # Compute effective focal length for current frame size
         fy_eff = self._get_effective_fy(self._frame_width, self._frame_height)
+        fx_eff = fy_eff  # Square pixels, so fx = fy
         
-        # Distance calculation: pinhole camera model
-        distance_m = (fy_eff * reference_height_m) / height_px
+        # Special handling for indicator buoys: use width-based estimation
+        if class_name in ['red_indicator_buoy', 'green_indicator_buoy']:
+            # For indicator buoys, use bounding box width with 20-inch reference
+            distance_m = (fx_eff * reference_dimension_m) / width_px
+            self.get_logger().debug(
+                f'Indicator buoy distance: bbox_width={width_px:.1f}px, '
+                f'reference={reference_dimension_m:.3f}m (20 inches), distance={distance_m:.2f}m'
+            )
+        else:
+            # Standard height-based estimation for all other objects
+            distance_m = (fy_eff * reference_dimension_m) / height_px
+        
         # Apply one-point calibration scale (measured_distance / distance_specs)
         distance_m = distance_m * self._distance_scale_factor
         distance_m = max(0.01, distance_m)  # avoid non-positive

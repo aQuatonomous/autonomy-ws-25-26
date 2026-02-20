@@ -421,7 +421,20 @@ ros2 launch cv_ros_nodes launch_cv.py enable_indicator_buoy:=false enable_task4:
 
 ### Color Indicator Detection
 
-**Overview**: Color indicators are 3D-printed cylinders that change between red and green, mounted on custom buoys. They are used across multiple tasks (Tasks 2, 3, 5) to provide dynamic state information.
+**Overview**: Color indicators are 3D-printed cylinders (red or green) mounted on custom white buoys with black diamond markers. Used in Tasks 2, 3, and 5 for dynamic state information.
+
+**Detection Method**: CV-only pipeline (not YOLO-based)
+- **Stage 1**: Detect black diamond markers using edge detection and strict shape validation
+- **Stage 2**: Validate white blob around diamonds (buoy body)
+- **Stage 3**: **Multi-diamond grouping** - Group nearby diamonds (handles angled views)
+- **Stage 4**: Detect and classify red/green indicator above diamonds
+- **Stage 5**: Width-based distance estimation (20-inch reference)
+
+**Key Features**:
+- **Multi-diamond grouping**: Groups diamonds within 2× average size for angled buoy views
+- **Collective centering**: Uses average position of grouped diamonds for accurate indicator ROI
+- **Glare handling**: Adjusted thresholds (max_black_brightness: 230) for outdoor lighting
+- **Robust classification**: Strict diamond validation + color masks for red/green
 
 **Technical Specifications:**
 - **Appearance**: Single-colored cylinder (red OR green), visible 360° horizontally
@@ -437,20 +450,27 @@ ros2 launch cv_ros_nodes launch_cv.py enable_indicator_buoy:=false enable_task4:
    - Primary vision pipeline detects custom buoy (class_id: 7 or specialized class)
    - Identifies bounding box of buoy structure
 
-2. **Color Indicator Extraction**:
-   - Extract region of interest (ROI) containing color indicator cylinder
-   - Apply color space analysis (HSV recommended for robustness)
-   - Handle varying lighting conditions (sunlight, water reflection)
+2. **Diamond Detection & Grouping**:
+   - Detect all black diamonds using edge detection and shape validation
+   - Group nearby diamonds (within 2× average size) that belong to same buoy
+   - Calculate collective center for accurate indicator positioning
+   - Validate white blob around diamonds (buoy body)
 
-3. **Color Classification**:
-   - Classify indicator as red or green
-   - Use temporal smoothing to handle transient detection errors
-   - Maintain state history for robust classification
+3. **Indicator ROI Computation**:
+   - Position ROI directly above collective diamond center
+   - ROI size: 3× diamond width, 2× diamond height
+   - Handles both single and multi-diamond cases
 
-4. **State Reporting**:
-   - Publish indicator state (red/green) to task-specific topics
-   - Include confidence score for state classification
-   - Report position of indicator for task execution
+4. **Color Classification**:
+   - Apply BGR color masks (stricter for red, lenient for green)
+   - Red mask: R > 120, R > G+25, R > B+25, G < 150, B < 150
+   - Green mask: G > 80, G > R+5, G > B+5, R < 200, B < 200
+   - Fallback: Channel dominance if primary masks fail
+
+5. **State Reporting**:
+   - Publish indicator state (red/green) with confidence scores
+   - Include full bounding box for distance estimation
+   - Report buoy confidence (diamond + white blob combined)
 
 **Challenges and Solutions:**
 
@@ -473,11 +493,20 @@ ros2 launch cv_ros_nodes launch_cv.py enable_indicator_buoy:=false enable_task4:
 - Robust to lighting: Works in direct sunlight, overcast, water reflection
 
 **Integration:**
-- Color indicator detection runs as `indicator_buoy_processor` node
-- Subscribes to `/camera{N}/image_preprocessed` for buoy detections
-- Publishes to `/camera{N}/indicator_detections` with `class_name` (`red_indicator_buoy` or `green_indicator_buoy`)
-- Combiner merges into `/combined/detection_info`
-- Task execution nodes subscribe to combined detections for decision-making
+- **Node**: `indicator_buoy_processor` (self-contained, no external dependencies)
+- **Subscribes**: `/camera{N}/image_preprocessed` (sensor_msgs/Image)
+- **Publishes**: `/camera{N}/indicator_detections` (std_msgs/String JSON)
+- **Output format**: `class_id` (9=red, 10=green), `score`, `shape_bbox`, `indicator_color`, `indicator_confidence`
+- **Distance**: Handled by `maritime_distance_estimator` using bbox width (20-inch reference)
+- **Documentation**: `task_specific/task_2_3/COLOUR_INDICATOR_BUOY.md`
+
+**Parameters** (tuned for competition):
+- `conf_threshold`: 0.6 (diamond confidence)
+- `max_black_brightness`: 230 (handles glare)
+- `buoy_conf_threshold`: 0.3 (combined diamond + white blob)
+- `white_blob_expansion`: 2.0 (tight bounding boxes)
+- `min_white_brightness`: 100 (outdoor scenes)
+- `min_white_blob_score`: 0.15 (minimum white blob)
 
 ---
 

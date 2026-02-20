@@ -25,13 +25,11 @@ def detect_indicator(img: np.ndarray):
     # STEP 1 — COLOR MASKING (less strict thresholds to include more shades)
     B, G, R = cv2.split(img)
     
-    # Red indicator: more lenient thresholds to catch more shades of red
-    # Red should be dominant but allow for more variation
-    red_mask = (R > 120) & (R > G + 20) & (R > B + 20) & (G < 140) & (B < 140)
+    # Red indicator: more strict thresholds (since most should be green)
+    red_mask = (R > 120) & (R > G + 25) & (R > B + 25) & (G < 150) & (B < 150)
     
-    # Green indicator: more lenient thresholds to catch more shades of green
-    # Green should be dominant but allow for more variation
-    green_mask = (G > 120) & (G > R + 20) & (G > B + 20) & (R < 140) & (B < 140)
+    # Green indicator: more lenient for bright outdoor conditions
+    green_mask = (G > 80) & (G > R + 5) & (G > B + 5) & (R < 200) & (B < 200)
     
     # Combined mask for any indicator
     combined_mask = red_mask | green_mask
@@ -40,15 +38,14 @@ def detect_indicator(img: np.ndarray):
     ys, xs = np.where(combined_mask)
     
     if len(xs) == 0:
-        # No indicator found - try even more lenient thresholds
-        # Fallback: look for any red or green dominance (ratio-based)
-        red_mask_fallback = (R > 100) & (R > G * 1.3) & (R > B * 1.3)
-        green_mask_fallback = (G > 100) & (G > R * 1.3) & (G > B * 1.3)
+        # Fallback: ratio-based (more lenient for green detection)
+        red_mask_fallback = (R > 100) & (R > G * 1.4) & (R > B * 1.4)
+        green_mask_fallback = (G > 70) & (G > R * 1.1) & (G > B * 1.1)
         combined_mask = red_mask_fallback | green_mask_fallback
         ys, xs = np.where(combined_mask)
         
         if len(xs) == 0:
-            # Still nothing - return none
+            # Last resort: use full ROI mean-based (caller will use _indicator_red_or_green)
             state_history.append("none")
             return "none", 0.0, None
     
@@ -62,14 +59,14 @@ def detect_indicator(img: np.ndarray):
     roi = img[y1:y2+1, x1:x2+1]
     B_roi, G_roi, R_roi = cv2.split(roi)
     
-    # Use same relaxed thresholds for classification
-    red_mask_roi = (R_roi > 120) & (R_roi > G_roi + 20) & (R_roi > B_roi + 20) & (G_roi < 140) & (B_roi < 140)
-    green_mask_roi = (G_roi > 120) & (G_roi > R_roi + 20) & (G_roi > B_roi + 20) & (R_roi < 140) & (B_roi < 140)
+    # Use same adjusted thresholds for classification
+    red_mask_roi = (R_roi > 120) & (R_roi > G_roi + 25) & (R_roi > B_roi + 25) & (G_roi < 150) & (B_roi < 150)
+    green_mask_roi = (G_roi > 80) & (G_roi > R_roi + 5) & (G_roi > B_roi + 5) & (R_roi < 200) & (B_roi < 200)
     
-    # Fallback masks if primary didn't catch enough
+    # Fallback masks (favor green detection)
     if red_mask_roi.sum() == 0 and green_mask_roi.sum() == 0:
-        red_mask_roi = (R_roi > 100) & (R_roi > G_roi * 1.3) & (R_roi > B_roi * 1.3)
-        green_mask_roi = (G_roi > 100) & (G_roi > R_roi * 1.3) & (G_roi > B_roi * 1.3)
+        red_mask_roi = (R_roi > 100) & (R_roi > G_roi * 1.4) & (R_roi > B_roi * 1.4)
+        green_mask_roi = (G_roi > 70) & (G_roi > R_roi * 1.1) & (G_roi > B_roi * 1.1)
     
     r_votes = red_mask_roi.sum()
     g_votes = green_mask_roi.sum()
