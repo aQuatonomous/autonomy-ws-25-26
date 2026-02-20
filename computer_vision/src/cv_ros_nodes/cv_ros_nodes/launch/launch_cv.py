@@ -264,12 +264,22 @@ def generate_launch_description():
         default_value='1.0',
         description='One-point calibration: scale factor = measured_distance_m / distance_specs (1.0 = no correction)'
     )
+    
+    task_arg = DeclareLaunchArgument(
+        'task',
+        default_value='3',
+        description='Task number (2 or 3) - determines buoy reference dimensions. Task 2: all small buoys 0.5ft. Task 3: green/red/yellow 1ft, black 0.5ft.'
+    )
+    
     # Final CV output: /combined/detection_info_with_distance (bearing, elevation, distance per detection)
     maritime_distance_estimator = Node(
         package='cv_ros_nodes',
         executable='maritime_distance_estimator',
         name='maritime_distance_estimator',
-        parameters=[{'distance_scale_factor': LaunchConfiguration('distance_scale_factor')}]
+        parameters=[{
+            'distance_scale_factor': LaunchConfiguration('distance_scale_factor'),
+            'task': LaunchConfiguration('task')
+        }]
     )
 
     return LaunchDescription([
@@ -288,6 +298,7 @@ def generate_launch_description():
         inference_interval_sides_arg,
         preprocess_fps_arg,
         distance_scale_factor_arg,
+        task_arg,
         LogInfo(msg='Starting computer vision pipeline...'),
         GroupAction(
             condition=UnlessCondition(LaunchConfiguration('use_sim')),
