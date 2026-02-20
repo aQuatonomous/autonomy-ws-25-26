@@ -3,12 +3,15 @@
 Global planner ROS2 node.
 
 Subscribes to:
-  - /fused_buoys (FusedBuoyArray) from cv_lidar_fusion
-  - /odom (nav_msgs/Odometry)
+  - /global_detections (global_frame/GlobalDetectionArray) from detection_to_global
+  - /mavros/global_position/global (sensor_msgs/NavSatFix) for position (lat/lon -> local x,y)
+  - /mavros/global_position/compass_hdg (std_msgs/Float64) for heading (deg -> rad)
+  - /mavros/global_position/gp_vel (geometry_msgs/Twist) for velocity
+  - /sound_signal_interupt (std_msgs/Int32): 1 = stop boat, 2 = ignore
 
-Maintains a persistent EntityList, runs TaskMaster (Task1/2/3) at 10 Hz,
-publishes /planned_path (nav_msgs/Path) and /mavros/setpoint_velocity/cmd_vel_unstamped
-(geometry_msgs/Twist) for MAVROS.
+Maintains a persistent EntityList, runs TaskMaster (Task1/2/3/4) at 10 Hz,
+publishes /planned_path (nav_msgs/Path), /curr_task (std_msgs/Int32), and
+/mavros/setpoint_velocity/cmd_vel_unstamped (geometry_msgs/Twist) for MAVROS.
 
 All planning library code (entities, Task1/2/3, TaskMaster, potential_fields_planner)
 remains ROS-free; this node is the only place with rclpy.
@@ -28,9 +31,11 @@ def _add_planning_path():
         try:
             from ament_index_python.packages import get_package_share_directory
             share = get_package_share_directory("global_planner")
-            # share = .../install/global_planner/share/global_planner -> src = .../src
-            ws_src = os.path.abspath(os.path.join(share, "..", "..", "..", "src"))
-            planning_path = os.path.join(ws_src, "planning")
+            # Try standard layout: workspace/src/planning
+            planning_path = os.path.abspath(os.path.join(share, "..", "..", "..", "src", "planning"))
+            if not os.path.isdir(planning_path):
+                # Fallback: planning at workspace root (e.g. autonomy-ws-25-26/planning)
+                planning_path = os.path.abspath(os.path.join(share, "..", "..", "..", "..", "planning"))
         except Exception:
             planning_path = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", "..", "planning"))
     if os.path.isdir(planning_path) and planning_path not in sys.path:
@@ -41,11 +46,11 @@ _add_planning_path()
 
 import rclpy
 from rclpy.node import Node
-from nav_msgs.msg import Path, Odometry
-from geometry_msgs.msg import Twist, PoseStamped
+from nav_msgs.msg import Path
+from geometry_msgs.msg import Twist, TwistStamped, PoseStamped
 from sensor_msgs.msg import NavSatFix
-from std_msgs.msg import String as StringMsg
-from pointcloud_filters.msg import FusedBuoyArray
+from std_msgs.msg import String as StringMsg, Int32, Float64
+from global_frame.msg import GlobalDetectionArray
 import math
 
 try:
@@ -56,8 +61,8 @@ except ImportError:
     MavrosState = None
 
 # Planning library (no ROS)
-from Global.entities import EntityList, apply_tracked_buoys, entity_list_to_detections
-from TaskMaster import TaskMaster, DetectedEntity
+from Global.entities import EntityList, apply_tracked_buoys
+from TaskMaster import TaskMaster
 
 from .watchdogs import tick as watchdog_tick, initial_state as watchdog_initial_state
 
@@ -77,18 +82,37 @@ class GlobalPlannerNode(Node):
         self.declare_parameter("task_id", 1)
         self.declare_parameter("planning_hz", 10.0)
         self.declare_parameter("cmd_vel_topic", "/mavros/setpoint_velocity/cmd_vel_unstamped")
-        self.declare_parameter("use_odom_frame_for_path", True)
+        self.declare_parameter("heading_topic", "/mavros/global_position/compass_hdg")
+        self.declare_parameter("gp_vel_topic", "/mavros/global_position/gp_vel")
+        self.declare_parameter("sound_signal_topic", "/sound_signal_interupt")
+        self.declare_parameter("pump_gpio_pin", 7)
 
         task_id = int(self.get_parameter("task_id").value)
+        self._task_id = task_id
         self._planning_hz = float(self.get_parameter("planning_hz").value)
         self._cmd_vel_topic = self.get_parameter("cmd_vel_topic").value
+        self._heading_topic = self.get_parameter("heading_topic").value
+        self._gp_vel_topic = self.get_parameter("gp_vel_topic").value
+        self._sound_signal_topic = self.get_parameter("sound_signal_topic").value
+        self._pump_gpio_pin = int(self.get_parameter("pump_gpio_pin").value)
+        self._gpio_available = False
+        try:
+            import Jetson.GPIO as GPIO
+            GPIO.setmode(GPIO.BOARD)
+            GPIO.setup(self._pump_gpio_pin, GPIO.OUT, initial=GPIO.LOW)
+            self._GPIO = GPIO
+            self._gpio_available = True
+        except (ImportError, RuntimeError):
+            self.get_logger().warn("Jetson.GPIO not available; pump control disabled")
 
         self._entity_list = EntityList(start_position=(0.0, 0.0))
-        self._latest_pose = (0.0, 0.0, 0.0)  # x, y, heading (m, m, rad)
-        self._latest_velocity_m_s = (0.0, 0.0)  # world frame (odom), from Pixhawk twist, m/s
-        self._odom_header = None
+        self._latest_pose = (0.0, 0.0, 0.0)  # x, y, heading (m, m, rad) in map frame
+        self._latest_velocity_m_s = (0.0, 0.0)  # world frame (ENU), m/s
+        self._latest_heading_rad: Optional[float] = None  # from compass
+        self._origin_lat_lon: Optional[tuple] = None  # (lat0, lon0) for lat/lon -> x,y
         self._buoy_count = 0
         self._start_set = False
+        self._sound_stop = False  # True when /sound_signal_interupt == 1
 
         # Guided-mode gate: only run planning when Pixhawk is in GUIDED
         self._guided_mode_active = not _MAVROS_STATE_AVAILABLE  # allow planning if no mavros_msgs
@@ -102,7 +126,7 @@ class GlobalPlannerNode(Node):
         else:
             self.get_logger().warn("mavros_msgs not available; guided-mode gate disabled, planning allowed")
 
-        # Global reference for lat/long (Task 2 debris report). Set from first NavSatFix + odom.
+        # Global reference for lat/long (Task 2 debris report). Set when origin is set.
         self._global_ref = None  # (lat_ref, lon_ref, x_ref_m, y_ref_m)
         # Task 2 debris report throttle (avoid publishing every tick)
         self._last_debris_report_time: Optional[float] = None
@@ -110,6 +134,8 @@ class GlobalPlannerNode(Node):
         # Task 3 indicator color report throttle (same topic /gs_message_send)
         self._last_indicator_report_time: Optional[float] = None
         self._indicator_report_interval_sec = 2.0
+        self._last_supply_report_time: Optional[float] = None
+        self._supply_report_interval_sec = 2.0
 
         self._task_master = TaskMaster(
             entities=self._entity_list,
@@ -118,29 +144,41 @@ class GlobalPlannerNode(Node):
             map_bounds=None,
         )
 
-        self._fused_sub = self.create_subscription(
-            FusedBuoyArray,
-            "/fused_buoys",
-            self._fused_callback,
+        self._global_detections_sub = self.create_subscription(
+            GlobalDetectionArray,
+            "/global_detections",
+            self._global_detections_callback,
             10,
         )
-        self._odom_sub = self.create_subscription(
-            Odometry,
-            "/odom",
-            self._odom_callback,
-            10,
-        )
-
-        self._path_pub = self.create_publisher(Path, "/planned_path", 10)
-        self._cmd_vel_pub = self.create_publisher(Twist, self._cmd_vel_topic, 10)
-        self._gs_message_pub = self.create_publisher(StringMsg, "/gs_message_send", 10)
-
         self._global_position_sub = self.create_subscription(
             NavSatFix,
             "/mavros/global_position/global",
             self._global_position_callback,
             10,
         )
+        self._heading_sub = self.create_subscription(
+            Float64,
+            self._heading_topic,
+            self._heading_callback,
+            10,
+        )
+        self._gp_vel_sub = self.create_subscription(
+            TwistStamped,
+            self._gp_vel_topic,
+            self._gp_vel_callback,
+            10,
+        )
+        self._sound_sub = self.create_subscription(
+            Int32,
+            self._sound_signal_topic,
+            self._sound_signal_callback,
+            10,
+        )
+
+        self._path_pub = self.create_publisher(Path, "/planned_path", 10)
+        self._cmd_vel_pub = self.create_publisher(Twist, self._cmd_vel_topic, 10)
+        self._curr_task_pub = self.create_publisher(Int32, "/curr_task", 10)
+        self._gs_message_pub = self.create_publisher(StringMsg, "/gs_message_send", 10)
 
         self._watchdog_state = watchdog_initial_state()
         self._timer = self.create_timer(1.0 / self._planning_hz, self._planning_tick)
@@ -154,86 +192,84 @@ class GlobalPlannerNode(Node):
         self._guided_mode_active = (getattr(msg, "mode", "") == "GUIDED")
 
     def _global_position_callback(self, msg: NavSatFix) -> None:
-        if self._global_ref is not None:
+        if not math.isfinite(msg.latitude) or not math.isfinite(msg.longitude):
             return
-        if not self._start_set:
-            return
-        if not (math.isfinite(msg.latitude) and math.isfinite(msg.longitude)):
-            return
-        x_m = float(self._latest_pose[0])
-        y_m = float(self._latest_pose[1])
-        self._global_ref = (float(msg.latitude), float(msg.longitude), x_m, y_m)
-        self.get_logger().info(
-            f"Global reference set: lat={self._global_ref[0]:.6f} lon={self._global_ref[1]:.6f} "
-            f"(odom x={x_m:.2f} y={y_m:.2f} m)"
-        )
-
-    def _odom_callback(self, msg: Odometry) -> None:
-        x = float(msg.pose.pose.position.x)
-        y = float(msg.pose.pose.position.y)
-        q = msg.pose.pose.orientation
-        heading = math.atan2(
-            2.0 * (q.w * q.z + q.x * q.y),
-            1.0 - 2.0 * (q.y * q.y + q.z * q.z),
-        )
-        self._latest_pose = (x, y, heading)
-        self._odom_header = msg.header
-        # Twist is in child (body) frame; rotate to world (odom) for watchdog.
-        vx_b = float(msg.twist.twist.linear.x)
-        vy_b = float(msg.twist.twist.linear.y)
-        c, s = math.cos(heading), math.sin(heading)
-        vx_w = vx_b * c - vy_b * s
-        vy_w = vx_b * s + vy_b * c
-        self._latest_velocity_m_s = (float(vx_w), float(vy_w))
-        if not self._start_set:
-            self._entity_list.set_start_position((x, y))
+        lat = float(msg.latitude)
+        lon = float(msg.longitude)
+        # First fix sets origin; then convert lat/lon -> local x,y (east, north) in metres
+        if self._origin_lat_lon is None:
+            self._origin_lat_lon = (lat, lon)
+            self._global_ref = (lat, lon, 0.0, 0.0)
+            self._latest_pose = (0.0, 0.0, self._latest_heading_rad or 0.0)
+            self._entity_list.set_start_position((0.0, 0.0))
             self._start_set = True
-            self.get_logger().info(f"Start position set from odom: ({x:.1f}, {y:.1f}) m")
+            self.get_logger().info(
+                f"Position origin set from GPS: lat={lat:.6f} lon={lon:.6f} (x=0, y=0 m)"
+            )
+            return
+        lat0, lon0 = self._origin_lat_lon
+        m_per_deg_lat = 111320.0
+        m_per_deg_lon = 111320.0 * math.cos(math.radians(lat0))
+        x_m = (lon - lon0) * m_per_deg_lon   # East
+        y_m = (lat - lat0) * m_per_deg_lat   # North
+        hdg = self._latest_heading_rad if self._latest_heading_rad is not None else 0.0
+        self._latest_pose = (x_m, y_m, hdg)
 
-    def _fused_callback(self, msg: FusedBuoyArray) -> None:
-        n = len(msg.buoys)
+    def _heading_callback(self, msg: Float64) -> None:
+        # compass_hdg: 0 = North, 90 = East (degrees). Convert to ENU heading (0 = East, CCW positive)
+        hdg_deg = float(msg.data)
+        self._latest_heading_rad = math.radians(90.0 - hdg_deg)
+        x, y = self._latest_pose[0], self._latest_pose[1]
+        self._latest_pose = (x, y, self._latest_heading_rad)
+
+    def _gp_vel_callback(self, msg: TwistStamped) -> None:
+        # MAVROS gp_vel is TwistStamped, typically NED (North, East, Down). ENU: East = linear.y, North = linear.x
+        t = msg.twist
+        v_north = float(t.linear.x)
+        v_east = float(t.linear.y)
+        self._latest_velocity_m_s = (v_east, v_north)
+
+    def _sound_signal_callback(self, msg: Int32) -> None:
+        if msg.data == 1:
+            self._sound_stop = True
+        # 2 = ignore for now
+
+    def _global_detections_callback(self, msg: GlobalDetectionArray) -> None:
+        n = len(msg.detections)
         pose = self._latest_pose
         prefix = _log_prefix(self.get_clock(), pose)
-        # Positions in m; pass class_id when message has it (fusion), else color (legacy)
         buoys_m = []
-        for b in msg.buoys:
-            item = {"id": b.id, "x": float(b.x), "y": float(b.y)}
-            if getattr(b, "class_id", None) is not None:
-                item["class_id"] = b.class_id
+        for d in msg.detections:
+            item = {"id": d.id, "x": float(d.east), "y": float(d.north)}
+            if getattr(d, "class_id", 255) != 255:
+                item["class_id"] = d.class_id
             else:
-                item["color"] = getattr(b, "color", "unknown")
+                item["color"] = getattr(d, "class_name", "") or "unknown"
             buoys_m.append(item)
         apply_tracked_buoys(self._entity_list, buoys_m, tolerance=1.0)
         self._buoy_count = n
         gates = self._entity_list.get_gates()
         obstacles = self._entity_list.get_obstacles()
         types_seen = set()
-        for b in msg.buoys:
-            if getattr(b, "class_id", None) is not None:
-                types_seen.add(f"class_{b.class_id}")
+        for d in msg.detections:
+            if getattr(d, "class_id", 255) != 255:
+                types_seen.add(f"class_{d.class_id}")
             else:
-                types_seen.add(getattr(b, "color", "unknown"))
+                types_seen.add(getattr(d, "class_name", "unknown"))
         self.get_logger().info(
-            f"{prefix}Buoy update: received {n} buoys, types={types_seen}, "
+            f"{prefix}Detection update: received {n} detections, types={types_seen}, "
             f"gates={len(gates)}, obstacles={len(obstacles)}"
         )
         self.get_logger().info(
             f"{prefix}Seen red-green buoy pairs: {len(gates)} pair(s) "
             f"{[(f'red@({r[0]:.1f},{r[1]:.1f}) green@({g[0]:.1f},{g[1]:.1f})') for r, g in gates]}"
         )
-        if getattr(self._entity_list, "_last_pruned_ids", None):
-            dropped = self._entity_list._last_pruned_ids
-            if dropped:
-                self.get_logger().info(f"{prefix}Dropped entities (cohort prune): ids={sorted(dropped)}")
 
     def _get_pose(self):
         return self._latest_pose
 
     def _get_detections(self):
-        out = []
-        for bid, etype, pos in entity_list_to_detections(self._entity_list):
-            out.append(DetectedEntity(entity_id=bid, entity_type=etype, position=pos))
-        return out
+        return self._entity_list.to_detections()
 
     def _odom_to_latlon(self, x_m: float, y_m: float):
         """Convert odom position (m) to (lat, lon) using stored global reference. Returns (lat, lon) or None."""
@@ -248,8 +284,23 @@ class GlobalPlannerNode(Node):
         return (lat, lon)
 
     def _planning_tick(self) -> None:
+        # Publish current task (int32)
+        self._curr_task_pub.publish(Int32(data=self._task_id))
+
         pose = self._get_pose()
         prefix = _log_prefix(self.get_clock(), pose)
+
+        # Sound interrupt: 1 = stop boat
+        if self._sound_stop:
+            twist = Twist()
+            twist.linear.x = 0.0
+            twist.linear.y = 0.0
+            twist.linear.z = 0.0
+            twist.angular.x = 0.0
+            twist.angular.y = 0.0
+            twist.angular.z = 0.0
+            self._cmd_vel_pub.publish(twist)
+            return
 
         if not self._guided_mode_active:
             twist = Twist()
@@ -262,7 +313,7 @@ class GlobalPlannerNode(Node):
             self._cmd_vel_pub.publish(twist)
             return
 
-        # (4) Skip planning until we have received at least one odom (real pose/start).
+        # (4) Skip planning until we have received at least one position (GPS origin set).
         if not self._start_set:
             twist = Twist()
             twist.linear.x = 0.0
@@ -294,6 +345,10 @@ class GlobalPlannerNode(Node):
             # Current task
             task_id = self._task_master.task_id
             self.get_logger().info(f"{prefix}Current task: task_id={task_id}")
+            if task_id == 4:
+                phase = result.get("phase", "?")
+                pump_on = getattr(self._task_master.manager, "pump_on", False)
+                self.get_logger().info(f"{prefix}Task4 phase={phase} pump_on={pump_on}")
 
             # Seen red-green buoy pairs
             self.get_logger().info(
@@ -336,11 +391,6 @@ class GlobalPlannerNode(Node):
                 eid = e.entity_id if e.entity_id is not None else "?"
                 by_type[key].append(f"id={eid}@({e.position[0]:.1f},{e.position[1]:.1f})")
             self.get_logger().info(f"{prefix}Current entity list: {by_type}")
-
-            # Dropped entities (from last cohort prune)
-            dropped = getattr(self._entity_list, "_last_pruned_ids", set()) or set()
-            if dropped:
-                self.get_logger().info(f"{prefix}Dropped entities: ids={sorted(dropped)}")
 
             # Task 2: report lat/long of black buoys (debris) and green/red indicators to /gs_message_send (throttled)
             if task_id == 2 and self._global_ref is not None:
@@ -386,6 +436,26 @@ class GlobalPlannerNode(Node):
                         msg_str = f"INDICATOR_COLOR|{indicator_color}"
                         self._gs_message_pub.publish(StringMsg(data=msg_str))
                         self._last_indicator_report_time = time_now_sec
+
+            # Task 4: pump GPIO and serviced vessel reporting
+            if self._gpio_available:
+                pump_on = getattr(self._task_master.manager, "pump_on", False) if task_id == 4 else False
+                self._GPIO.output(self._pump_gpio_pin, self._GPIO.HIGH if pump_on else self._GPIO.LOW)
+            if task_id == 4:
+                serviced = getattr(self._task_master.manager, "serviced_for_report", [])
+                if serviced and self._global_ref is not None:
+                    time_now_sec = self.get_clock().now().nanoseconds * 1e-9
+                    if self._last_supply_report_time is None or (time_now_sec - self._last_supply_report_time) >= self._supply_report_interval_sec:
+                        parts = []
+                        for eid, pos in serviced:
+                            ll = self._odom_to_latlon(float(pos[0]), float(pos[1]))
+                            if ll is not None:
+                                lat, lon = ll
+                                parts.append(f"yellow,{eid},{lat:.6f},{lon:.6f}")
+                        if parts:
+                            self._gs_message_pub.publish(StringMsg(data="SUPPLY_WATER|" + "|".join(parts)))
+                        self._task_master.manager.serviced_for_report.clear()
+                        self._last_supply_report_time = time_now_sec
 
             # Next path given and velocity given
             if goals:
@@ -437,7 +507,7 @@ class GlobalPlannerNode(Node):
             if goals:
                 path_msg = Path()
                 path_msg.header.stamp = self.get_clock().now().to_msg()
-                path_msg.header.frame_id = self._odom_header.frame_id if self._odom_header else "odom"
+                path_msg.header.frame_id = "map"
                 next_wp = goals[0]
                 ps = PoseStamped()
                 ps.header = path_msg.header
@@ -474,6 +544,7 @@ class GlobalPlannerNode(Node):
 
             if result.get("status") == "SUCCESS":
                 self.get_logger().info(f"{prefix}Task completed successfully")
+                self._timer.cancel()
 
         except Exception as e:
             self.get_logger().error(f"Planning tick error: {e}")

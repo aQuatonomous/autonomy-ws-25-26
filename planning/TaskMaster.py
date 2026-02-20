@@ -20,6 +20,7 @@ from Global.types import DetectedEntity
 from Global.Task1 import Task1Manager
 from Global.Task2 import Task2Manager
 from Global.Task3 import Task3Manager
+from Global.Task4 import Task4Manager
 from Local.potential_fields_planner import PotentialFieldsPlanner
 
 Vec2 = Tuple[float, float]
@@ -39,13 +40,16 @@ class TaskMaster:
         else:
             self.entities.start_position = start
 
-        start_pose = (float(start[0]), float(start[1]), 0.0)
+        h = float(start[2]) if len(start) >= 3 else 0.0
+        start_pose = (float(start[0]), float(start[1]), h)
         if task_id == 1:
             self.manager = Task1Manager(entities, map_bounds, start_pose)
         elif task_id == 2:
             self.manager = Task2Manager(entities, map_bounds, start_pose)
         elif task_id == 3:
             self.manager = Task3Manager(entities, map_bounds, start_pose)
+        elif task_id == 4:
+            self.manager = Task4Manager(entities, map_bounds=None, start_pose=start_pose)
         else:
             raise ValueError(f"Unknown task_id: {task_id}")
 

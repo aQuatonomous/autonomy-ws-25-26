@@ -2,7 +2,7 @@
 <package format="3">
   <name>global_planner</name>
   <version>0.1.0</version>
-  <description>ROS2 global planner node: consumes /fused_buoys and /odom, runs Task1/2/3, publishes path and cmd_vel to MAVROS.</description>
+  <description>ROS2 global planner node: consumes /global_detections, GPS/heading/gp_vel, runs Task1/2/3, publishes /planned_path, /curr_task, cmd_vel to MAVROS.</description>
   <maintainer email="user@example.com">Aqua Autonomy</maintainer>
   <license>MIT</license>
 
@@ -11,7 +11,7 @@
   <depend>nav_msgs</depend>
   <depend>geometry_msgs</depend>
   <depend>sensor_msgs</depend>
-  <depend>pointcloud_filters</depend>
+  <depend>global_frame</depend>
 
   <export>
     <build_type>ament_python</build_type>

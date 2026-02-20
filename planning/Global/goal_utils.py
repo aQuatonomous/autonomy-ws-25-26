@@ -6,7 +6,7 @@ from typing import List, Tuple
 
 import numpy as np
 
-Vec2 = Tuple[float, float]
+from Global.types import Vec2, Vec3, _to_vec3
 
 # Default clearance from obstacles (m) so goals are not placed on/near black buoys
 DEFAULT_GOAL_CLEARANCE = 5.0
@@ -40,44 +40,73 @@ def segments_intersect(p1: Vec2, p2: Vec2, q1: Vec2, q2: Vec2) -> bool:
 
 
 def nudge_goal_away_from_obstacles(
-    desired: Vec2,
-    obstacles: List[Vec2],
-    from_point: Vec2,
+    desired: Tuple[float, ...],
+    obstacles: List[Tuple[float, ...]],
+    from_point: Tuple[float, ...],
     min_clearance: float = DEFAULT_GOAL_CLEARANCE,
     step: float = 1.0,
-) -> Vec2:
+    max_lateral_m: float = 10.0,
+) -> Vec3:
     """Return a goal at least min_clearance from all obstacles, keeping the same direction from from_point.
 
-    If the desired position is too close to any obstacle, we slide the goal back toward from_point
-    until it is clear. This preserves "correct direction" (from_point -> goal) while avoiding
-    placing a waypoint on or near a black buoy.
+    First tries shifting the goal left or right (perpendicular to from_point -> desired) so the goal
+    sits slightly beside buoys while staying ahead. If no lateral offset is clear, slides the goal
+    back toward from_point until clear.
 
     Args:
         desired: Preferred goal position (e.g. gate center, 50 m ahead).
         obstacles: Obstacle positions in meters (e.g. from entities.get_obstacles() + get_no_go_obstacle_points()).
         from_point: Reference point in meters (e.g. current boat position); direction from_point -> desired is preserved.
         min_clearance: Minimum distance (m) from any obstacle.
-        step: Step size (m) when sliding back.
+        step: Step size (m) for lateral offset and for sliding back.
+        max_lateral_m: Maximum lateral offset (m) to try left/right before falling back to slide-back.
 
     Returns:
         A position at least min_clearance from all obstacles, or desired if no obstacles / already clear.
     """
     if not obstacles:
-        return desired
+        return _to_vec3(desired)
 
-    desired_arr = np.array(desired, dtype=float)
-    from_arr = np.array(from_point, dtype=float)
-    obs_arrs = [np.array(o, dtype=float) for o in obstacles]
-    dir_back = from_arr - desired_arr
-    dist_back = float(np.linalg.norm(dir_back))
-    if dist_back < 1e-6:
-        return desired
-    dir_back = dir_back / dist_back
+    desired_arr = np.array(desired[:2], dtype=float)
+    from_arr = np.array(from_point[:2], dtype=float)
+    obs_arrs = [np.array(o[:2], dtype=float) for o in obstacles]
+    default_h = desired[2] if len(desired) >= 3 else 0.0
 
+    def clear(c: np.ndarray) -> bool:
+        return all(float(np.linalg.norm(c - o)) >= min_clearance for o in obs_arrs)
+
+    def still_ahead(c: np.ndarray) -> bool:
+        d = c - from_arr
+        return float(np.dot(d, dir_ahead)) >= -1e-6
+
+    # Direction ahead (from_point -> desired)
+    dir_ahead = desired_arr - from_arr
+    dist_ahead = float(np.linalg.norm(dir_ahead))
+    if dist_ahead < 1e-6:
+        return _to_vec3(desired)
+    dir_ahead = dir_ahead / dist_ahead
+    # Perpendicular: left = 90° counter-clockwise, right = 90° clockwise
+    left = np.array([-dir_ahead[1], dir_ahead[0]], dtype=float)
+    right = np.array([dir_ahead[1], -dir_ahead[0]], dtype=float)
+
+    if clear(desired_arr):
+        return (float(desired_arr[0]), float(desired_arr[1]), float(default_h))
+
+    # Try lateral nudge: desired + k*left and desired + k*right for k = step, 2*step, ... up to max_lateral_m
+    k = step
+    while k <= max_lateral_m + 1e-9:
+        for offset in (k * left, k * right):
+            candidate = desired_arr + offset
+            if clear(candidate) and still_ahead(candidate):
+                return (float(candidate[0]), float(candidate[1]), float(default_h))
+        k += step
+
+    # Fall back: slide back toward from_point
+    dir_back = -dir_ahead
     candidate = desired_arr.copy()
     while True:
-        if all(float(np.linalg.norm(candidate - o)) >= min_clearance for o in obs_arrs):
-            return (float(candidate[0]), float(candidate[1]))
+        if clear(candidate):
+            return (float(candidate[0]), float(candidate[1]), float(default_h))
         candidate = candidate + dir_back * step
         if float(np.linalg.norm(candidate - from_arr)) <= step:
-            return (float(candidate[0]), float(candidate[1]))
+            return (float(candidate[0]), float(candidate[1]), float(default_h))

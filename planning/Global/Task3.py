@@ -78,11 +78,11 @@ Pose = Tuple[float, float, float]
 class GoalPlan:
     """Individual goal with completion tracking"""
     goal_id: str
-    position: Vec2
+    position: Vec3  # (x, y, heading_rad); Task3 uses heading=0
     completed: bool = False
 
 
-from Global.types import DetectedEntity
+from Global.types import DetectedEntity, Vec3
 
 
 class TaskStatus(Enum):
@@ -110,7 +110,7 @@ class Task3Manager:
 
         # Gate tracking
         self.entrance_gate: Optional[Tuple[Vec2, Vec2]] = None
-        self.gate_center: Optional[Vec2] = None
+        self.gate_center: Optional[Vec3] = None
 
         # Crossing tracking
         self.entry_crossed = False
@@ -118,20 +118,20 @@ class Task3Manager:
 
         # Task entities
         self.indicator_color: Optional[str] = None  # "red" or "green"
-        self.yellow_pos: Optional[Vec2] = None
+        self.yellow_pos: Optional[Vec3] = None
 
         # NEW: lock a loop waypoint so it doesn't move every tick
-        self.loop_goal: Optional[Vec2] = None
+        self.loop_goal: Optional[Vec3] = None
 
         # Timing
         self.start_time: Optional[float] = None
         self.finish_time: Optional[float] = None
 
         # Goal output
-        self.goal_queue: List[Vec2] = []
+        self.goal_queue: List[Vec3] = []
 
         # Planning output
-        self.current_path: List[Vec2] = []
+        self.current_path: List[Vec3] = []
         self.current_velocities = np.zeros((0, 2), dtype=float)
         self.current_speeds = np.zeros((0,), dtype=float)
 
@@ -161,17 +161,17 @@ class Task3Manager:
         if det.entity_type == "yellow_buoy":
             self.yellow_pos = det.position
 
-    def _obstacles(self) -> List[Vec2]:
+    def _obstacles(self) -> List[Tuple[float, ...]]:
         """Obstacles = buoys + no-go (gate walls + map bounds when map_bounds set)."""
         return list(self.entities.get_obstacles()) + list(
             self.entities.get_no_go_obstacle_points(map_bounds=self.map_bounds)
         )
 
-    def _write_goals(self, goals: List[Vec2]) -> None:
+    def _write_goals(self, goals: List[Tuple[float, ...]]) -> None:
         """Write goals to entity list; nudge each away from obstacles (black buoys, etc.)."""
         self.entities.clear_goals()
         obstacles = self._obstacles()
-        from_pt = (self.pose[0], self.pose[1])
+        from_pt = (self.pose[0], self.pose[1], self.pose[2])
         nudged = []
         for i, g in enumerate(goals, start=1):
             pos = nudge_goal_away_from_obstacles(g, obstacles, from_pt)
@@ -187,7 +187,7 @@ class Task3Manager:
             return
         self.entrance_gate = gates[0]
         red, green = self.entrance_gate
-        self.gate_center = ((red[0] + green[0]) / 2.0, (red[1] + green[1]) / 2.0)
+        self.gate_center = ((red[0] + green[0]) / 2.0, (red[1] + green[1]) / 2.0, 0.0)
 
     def _check_gate_cross(self) -> None:
         if self.prev_pos is None or self.entrance_gate is None:
@@ -201,9 +201,9 @@ class Task3Manager:
                 self.exit_crossed = True
                 self.finish_time = time.time()
 
-    def _compute_locked_loop_goal(self) -> Vec2:
+    def _compute_locked_loop_goal(self) -> Vec3:
         """Compute a single tangential point around the yellow buoy (LOCKED)."""
-        yb = np.array(self.yellow_pos, dtype=float)
+        yb = np.array(self.yellow_pos[:2], dtype=float) if self.yellow_pos else np.array([0, 0])
         boat = np.array(self.pose[:2], dtype=float)
 
         r = boat - yb
@@ -222,7 +222,7 @@ class Task3Manager:
         if self.map_bounds is not None:
             beyond[0] = float(np.clip(beyond[0], 0, self.map_bounds[0]))
             beyond[1] = float(np.clip(beyond[1], 0, self.map_bounds[1]))
-        return (float(beyond[0]), float(beyond[1]))
+        return (float(beyond[0]), float(beyond[1]), 0.0)
 
     def tick(self) -> None:
         self._ensure_gate()
@@ -232,9 +232,9 @@ class Task3Manager:
         if self.entrance_gate is None or self.gate_center is None:
             x, y, hdg = self.pose
             step = 40.0
-            g = (float(x + step * np.cos(hdg)), float(y + step * np.sin(hdg)))
+            g = (float(x + step * np.cos(hdg)), float(y + step * np.sin(hdg)), 0.0)
             if self.map_bounds is not None:
-                g = (float(np.clip(g[0], 0, self.map_bounds[0])), float(np.clip(g[1], 0, self.map_bounds[1])))
+                g = (float(np.clip(g[0], 0, self.map_bounds[0])), float(np.clip(g[1], 0, self.map_bounds[1])), 0.0)
             self._write_goals([g])
             return
 
@@ -257,7 +257,7 @@ class Task3Manager:
             if self.map_bounds is not None:
                 target[0] = float(np.clip(target[0], 0, self.map_bounds[0]))
                 target[1] = float(np.clip(target[1], 0, self.map_bounds[1]))
-            self._write_goals([tuple(target)])
+            self._write_goals([(float(target[0]), float(target[1]), 0.0)])
 
             if self.yellow_pos is not None and self.indicator_color is not None:
                 self.phase = Phase.LOOP_AROUND
@@ -272,7 +272,8 @@ class Task3Manager:
 
             boat = np.array(self.pose[:2], dtype=float)
             target = self.goal_queue[0] if self.goal_queue else self.loop_goal
-            if float(np.linalg.norm(boat - np.array(target))) < 4.0:
+            tarr = np.array(target[:2], dtype=float) if target else np.array([0, 0])
+            if float(np.linalg.norm(boat - tarr)) < 4.0:
                 self.phase = Phase.EXIT
 
         elif self.phase == Phase.EXIT:
@@ -290,15 +291,16 @@ class Task3Manager:
         start = (self.pose[0], self.pose[1])
         obstacles = self._obstacles()
         gates = self.entities.get_gates()
+        goals_xy = [(g[0], g[1]) for g in self.goal_queue[:2]]
 
         result = planner.plan_multi_goal_path(
             start,
-            self.goal_queue[:2],
+            goals_xy,
             obstacles,
             gates=gates,
             map_bounds=self.map_bounds
         )
-        self.current_path = list(map(tuple, result["path"]))
+        self.current_path = [(float(p[0]), float(p[1]), 0.0) for p in result["path"]]
         self.current_velocities = result["velocities"]
         self.current_speeds = result["speeds"]
 

@@ -6,7 +6,7 @@ ROS2 node that runs the planning stack (Task1/2/3 + potential fields) on live pe
 
 ## Setup so the node works
 
-- **Workspace:** Build `pointcloud_filters` and `global_planner` in the same colcon workspace. The planning **library** (folder with `TaskMaster.py`, `Global/`, `Local/`) must be reachable: the launch file sets `PLANNING_PATH` to `.../src/planning` or `.../planning` (sibling of `install/`). If your layout differs, set `export PLANNING_PATH=/path/to/planning` before launch.
+- **Workspace:** Build `global_frame` and `global_planner` in the same colcon workspace (or have `global_frame` in underlay). The planning **library** (folder with `TaskMaster.py`, `Global/`, `Local/`) must be reachable: the launch file sets `PLANNING_PATH` to `.../src/planning` or `.../planning` (sibling of `install/`). If your layout differs, set `export PLANNING_PATH=/path/to/planning` before launch.
 - **Files:** Ensure the planning library contains `TaskMaster.py`, `Global/` (entities, types, goal_utils, Task1/2/3), and `Local/potential_fields_planner.py`. No extra config files required.
 - **Run:** `source install/setup.bash` then `ros2 launch global_planner global_planner.launch.py` (optionally `task_id:=2` or `task_id:=3`).
 
@@ -17,10 +17,12 @@ Full setup, layout options, and component-level logic/run/debug: **[planning REA
 ## How It Works
 
 1. **Subscriptions**
-   - `/fused_buoys` (FusedBuoyArray): fused buoy detections; the node updates an internal `EntityList` by **id** (add/update per message; cohort-based pruning drops oldest gate pair + obstacles when a new pair is seen).
-   - `/odom` (Odometry): boat pose (x, y, heading); used for planning and for converting buoy positions to lat/long when a global reference is available.
-   - `/mavros/state` (mavros_msgs/State, optional): used to read `mode`; planning and command publishing run **only when `mode == "GUIDED"`**.
-   - `/mavros/global_position/global` (NavSatFix): first message sets the global reference (lat, lon + odom x,y) so we can convert odom positions to lat/long for Task 2 debris reports.
+   - `/global_detections` (global_frame/GlobalDetectionArray): detections in map frame (east, north, id, class_id/class_name); the node updates an internal `EntityList` by **id** (cohort-based pruning as before).
+   - `/mavros/global_position/global` (NavSatFix): first fix sets origin; each message converts lat/lon to local (east, north) in metres for pose.
+   - `/mavros/global_position/compass_hdg` (std_msgs/Float64): compass heading (degrees, 0=North, 90=East); converted to ENU heading (rad) for pose.
+   - `/mavros/global_position/gp_vel` (geometry_msgs/TwistStamped): velocity in NED; used for watchdogs (world-frame velocity).
+   - `/sound_signal_interupt` (std_msgs/Int32): 1 = stop boat (publish zero cmd_vel), 2 = ignore.
+   - `/mavros/state` (mavros_msgs/State, optional): planning runs **only when `mode == "GUIDED"`**.
 
 2. **Each planning tick (e.g. 10 Hz)**
    - If **not** GUIDED: publish zero twist and return (no planning).
@@ -38,11 +40,14 @@ Full setup, layout options, and component-level logic/run/debug: **[planning REA
 
 | Topic | Type | Direction | Description |
 |-------|------|-----------|-------------|
-| `/fused_buoys` | pointcloud_filters/FusedBuoyArray | in | Fused buoy detections (id, x, y, class_id/class_name in m). |
-| `/odom` | nav_msgs/Odometry | in | Boat pose (position in m, orientation → heading). |
+| `/global_detections` | global_frame/GlobalDetectionArray | in | Detections in map frame (east, north, id, class_id/class_name). |
+| `/mavros/global_position/global` | sensor_msgs/NavSatFix | in | GPS; first fix sets origin, then lat/lon → local x,y (m). |
+| `/mavros/global_position/compass_hdg` | std_msgs/Float64 | in | Compass heading (deg). |
+| `/mavros/global_position/gp_vel` | geometry_msgs/TwistStamped | in | Velocity (NED) for watchdogs. |
+| `/sound_signal_interupt` | std_msgs/Int32 | in | 1 = stop boat, 2 = ignore. |
 | `/mavros/state` | mavros_msgs/State | in | Pixhawk state; `mode == "GUIDED"` required to run planning. |
-| `/mavros/global_position/global` | sensor_msgs/NavSatFix | in | Global position; first message sets reference for lat/long conversion. |
-| `/planned_path` | nav_msgs/Path | out | Current goal waypoint (one pose, in m). |
+| `/planned_path` | nav_msgs/Path | out | Current goal waypoint (one pose, frame_id=map). |
+| `/curr_task` | std_msgs/Int32 | out | Current task_id (1, 2, or 3). |
 | `/mavros/setpoint_velocity/cmd_vel_unstamped` | geometry_msgs/Twist | out | Velocity command (body frame, m/s and rad/s). |
 | `/gs_message_send` | std_msgs/String | out | Task 2 only: debris report string `DEBRIS_LATLON|id,lat,lon|...`. |
 
@@ -55,7 +60,9 @@ Full setup, layout options, and component-level logic/run/debug: **[planning REA
 | `task_id` | int | 1 | Task to run: 1 (two gates), 2 (debris clearance), 3 (speed challenge). |
 | `planning_hz` | double | 10.0 | Rate (Hz) of the planning timer. |
 | `cmd_vel_topic` | string | `/mavros/setpoint_velocity/cmd_vel_unstamped` | Topic to publish Twist commands. |
-| `use_odom_frame_for_path` | bool | true | Frame for published path (currently path uses odom). |
+| `heading_topic` | string | `/mavros/global_position/compass_hdg` | Compass heading (Float64, degrees). |
+| `gp_vel_topic` | string | `/mavros/global_position/gp_vel` | Velocity (TwistStamped, NED). |
+| `sound_signal_topic` | string | `/sound_signal_interupt` | Int32: 1 = stop boat, 2 = ignore. |
 
 ---
 

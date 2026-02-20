@@ -144,7 +144,8 @@ class PotentialFieldsPlanner:
             grad_rep_x = 0
             grad_rep_y = 0
             
-            for obs_x, obs_y in obstacles:
+            for o in obstacles:
+                obs_x, obs_y = float(o[0]), float(o[1])
                 dist = np.sqrt((x - obs_x)**2 + (y - obs_y)**2)
                 if dist <= self.d_influence and dist > 0.01:
                     # Exponential repulsion gradient

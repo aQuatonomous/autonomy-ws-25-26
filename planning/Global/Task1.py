@@ -38,7 +38,6 @@ from __future__ import annotations
 from dataclasses import dataclass
 from enum import Enum
 from typing import Callable, Dict, List, Optional, Tuple
-import time
 import numpy as np
 
 from Local.potential_fields_planner import PotentialFieldsPlanner
@@ -53,11 +52,11 @@ Pose = Tuple[float, float, float]  # x, y, heading (rad)
 class GoalPlan:
     """Individual goal with completion tracking"""
     goal_id: str
-    position: Vec2
+    position: Vec3  # (x, y, heading_rad); Task1 uses heading=0
     completed: bool = False
 
 
-from Global.types import DetectedEntity
+from Global.types import DetectedEntity, Vec3
 
 
 class TaskStatus(Enum):
@@ -89,8 +88,8 @@ class Task1Manager:
         self.last_gate_normal: Optional[np.ndarray] = None
 
         # outputs
-        self.goal_queue: List[Vec2] = []
-        self.current_path: List[Vec2] = []
+        self.goal_queue: List[Vec3] = []
+        self.current_path: List[Vec3] = []
         self.current_velocities = np.zeros((0, 2), dtype=float)
         self.current_speeds = np.zeros((0,), dtype=float)
 
@@ -108,44 +107,46 @@ class Task1Manager:
                                         name=f"{det.entity_type}_{det.entity_id}")
 
     def _lock_gates_once(self) -> None:
-        """Lock the 2 gates once discovered to prevent flicker/order changes"""
-        if self.gates_locked:
+        """
+        Lock gates as we see them: first gate when we see >= 1 (go through it), then add second gate
+        when we see it (go forward until we see it, then through it). Done when through both.
+        Gates are filtered perpendicular to boat (left/right of boat).
+        """
+        gates = self.entities.get_gates(boat_heading_rad=self.pose[2])
+        if not gates:
             return
-            
-        gates = self.entities.get_gates()
-        if len(gates) >= 2:  # Task1 expects exactly 2 gates
-            self.locked_gates = gates[:2]  # Take first 2 gates
+
+        centers = [((r[0] + g[0]) / 2.0, (r[1] + g[1]) / 2.0, 0.0) for (r, g) in gates]
+        fwd = self._forward_dir(centers)
+        s_arr = np.array(getattr(self.entities, "get_start", lambda: self.start_pos)(), dtype=float)[:2]
+        scored = [(float(np.array(c[:2], dtype=float).dot(fwd) - s_arr.dot(fwd)), i, c) for i, c in enumerate(centers)]
+        scored.sort(key=lambda t: t[0])  # order by distance along forward from start
+
+        if not self.gates_locked:
+            # Lock first gate as soon as we see at least one
+            self.locked_gates = [gates[scored[0][1]]]
             self.gates_locked = True
-            
-            # Create persistent goal plan for the 2 gate centers
-            self.goal_plan = []
-            centers = [((r[0] + g[0]) / 2.0, (r[1] + g[1]) / 2.0) for (r, g) in self.locked_gates]
-            
-            # Order by forward direction (same order for goals and gate segments)
-            fwd = self._forward_dir(centers)
-            s = np.array(getattr(self.entities, "get_start", lambda: self.start_pos)(), dtype=float)
-            scored = []
-            for i, c in enumerate(centers):
-                v = np.array(c, dtype=float) - s
-                proj = float(v.dot(fwd))
-                scored.append((proj, i, c))
-            scored.sort(key=lambda t: t[0])
-            # Reorder locked_gates so goal_plan[i] corresponds to locked_gates[i] for completion check
-            self.locked_gates = [self.locked_gates[t[1]] for t in scored]
-            
-            for i, (_, _, center) in enumerate(scored):
-                goal = GoalPlan(
-                    goal_id=f"gate_{i+1}",
-                    position=center,
-                    completed=False
+            self.goal_plan = [
+                GoalPlan(goal_id="gate_1", position=scored[0][2], completed=False)
+            ]
+            return
+
+        if len(self.locked_gates) == 1 and len(gates) >= 2:
+            # Add second gate when we see it (ahead in forward order)
+            second_idx = scored[1][1]
+            second_gate = gates[second_idx]
+            # Avoid duplicating the same gate
+            if second_gate != self.locked_gates[0]:
+                self.locked_gates.append(second_gate)
+                self.goal_plan.append(
+                    GoalPlan(goal_id="gate_2", position=scored[1][2], completed=False)
                 )
-                self.goal_plan.append(goal)
 
     def publish_goals(self) -> None:
         """Publish only current active goals to EntityList as goal_wp*; nudge away from obstacles."""
         self.entities.clear_goals()
         obstacles = self._obstacles()
-        from_pt = (self.pose[0], self.pose[1])
+        from_pt = (self.pose[0], self.pose[1], self.pose[2])
 
         active_goals = []
         for goal in self.goal_plan:
@@ -169,8 +170,8 @@ class Task1Manager:
 
         # else start -> nearest center (use mission start if available)
         if centers:
-            s = np.array(getattr(self.entities, "get_start", lambda: self.start_pos)(), dtype=float)
-            c = np.array(centers, dtype=float)
+            s = np.array(getattr(self.entities, "get_start", lambda: self.start_pos)(), dtype=float)[:2]
+            c = np.array([[p[0], p[1]] for p in centers], dtype=float)
             idx = int(np.argmin(np.linalg.norm(c - s[None, :], axis=1)))
             u = c[idx] - s
             n = np.linalg.norm(u)
@@ -180,10 +181,13 @@ class Task1Manager:
         # else default north
         return np.array([0.0, 1.0], dtype=float)
 
-    def _obstacles(self) -> List[Vec2]:
-        """Obstacles = buoys + no-go (gate walls + map bounds when map_bounds set)."""
+    def _obstacles(self) -> List[Tuple[float, ...]]:
+        """Obstacles = buoys + no-go (gate walls + map bounds when map_bounds set). No-go uses boat heading so it matches locked gates."""
         return list(self.entities.get_obstacles()) + list(
-            self.entities.get_no_go_obstacle_points(map_bounds=self.map_bounds)
+            self.entities.get_no_go_obstacle_points(
+                map_bounds=self.map_bounds,
+                boat_heading_rad=self.pose[2],
+            )
         )
 
     def _fallback_goal(self) -> Vec2:
@@ -201,8 +205,8 @@ class Task1Manager:
         if self.map_bounds is not None:
             p[0] = float(np.clip(p[0], 0, self.map_bounds[0]))
             p[1] = float(np.clip(p[1], 0, self.map_bounds[1]))
-        desired = (float(p[0]), float(p[1]))
-        return nudge_goal_away_from_obstacles(desired, self._obstacles(), (x, y))
+        desired = (float(p[0]), float(p[1]), 0.0)
+        return nudge_goal_away_from_obstacles(desired, self._obstacles(), (x, y, hdg))
 
     def _check_goal_completion(self) -> None:
         """Check if current goal was reached and mark it complete"""
@@ -237,7 +241,7 @@ class Task1Manager:
         self._check_goal_completion()
         
         # Update last_gate_normal from any detected gate (for fallback direction)
-        gates = self.entities.get_gates()
+        gates = self.entities.get_gates(boat_heading_rad=self.pose[2])
         if gates:
             red, green = gates[0]
             along = np.array([green[0] - red[0], green[1] - red[1]], dtype=float)
@@ -246,22 +250,27 @@ class Task1Manager:
             if nnorm > 1e-6:
                 self.last_gate_normal = n / nnorm
 
-        # If no locked gates yet, use fallback
+        # If no locked gates yet, use fallback (go forward to find first gate)
         if not self.gates_locked:
             fallback_goal = self._fallback_goal()
             self.entities.clear_goals()
             self.entities.add("goal", fallback_goal, name="goal_wp1")
             self.goal_queue = [fallback_goal]
         else:
-            # Publish current active goals
             self.publish_goals()
+            # After gate 1, go forward until we see gate 2 (fallback keeps us moving)
+            if not self.goal_queue and len(self.locked_gates) == 1:
+                fallback_goal = self._fallback_goal()
+                self.entities.clear_goals()
+                self.entities.add("goal", fallback_goal, name="goal_wp1")
+                self.goal_queue = [fallback_goal]
 
         # So next tick _check_goal_completion uses segment (this tick, next tick)
         self.prev_pos = (self.pose[0], self.pose[1])
 
     def done(self) -> bool:
-        """Return True if all goals completed (SUCCESS)"""
-        return all(goal.completed for goal in self.goal_plan) and len(self.goal_plan) > 0
+        """Return True when we have gone through both gates (SUCCESS)."""
+        return len(self.goal_plan) >= 2 and all(goal.completed for goal in self.goal_plan)
 
     def plan(self, planner: PotentialFieldsPlanner, max_goals: int = 1) -> None:
         if not self.goal_queue:
@@ -275,8 +284,9 @@ class Task1Manager:
         gates = self.locked_gates if self.gates_locked else self.entities.get_gates()
         goals = self.goal_queue[:max_goals]
 
-        out = planner.plan_multi_goal_path(start, goals, obstacles, gates=gates, map_bounds=self.map_bounds)
-        self.current_path = list(map(tuple, out["path"]))
+        goals_xy = [(g[0], g[1]) for g in goals]
+        out = planner.plan_multi_goal_path(start, goals_xy, obstacles, gates=gates, map_bounds=self.map_bounds)
+        self.current_path = [(float(p[0]), float(p[1]), 0.0) for p in out["path"]]
         self.current_velocities = out["velocities"]
         self.current_speeds = out["speeds"]
 
@@ -285,63 +295,35 @@ def run_task1(
     entities,
     map_bounds: Optional[Vec2],
     *,
-    one_shot: bool = True,
     get_pose: Optional[Callable[[], Pose]] = None,
     get_detections: Optional[Callable[[], List[DetectedEntity]]] = None,
     plan: bool = True,
-    sleep_dt: float = 0.1,
-    max_iters: int = 3000,
 ) -> Dict:
     """
-    one_shot=True:
-      - run one tick and return RUNNING/SUCCESS
-    loop mode (one_shot=False):
-      - requires get_pose, runs until SUCCESS or max_iters
+    Run one shot: one tick (update pose/detections, tick, optionally plan), then return RUNNING/SUCCESS.
+    Caller repeats run_task1 until done (e.g. from a ROS timer).
     """
     start = entities.get_start()
     mgr = Task1Manager(entities, map_bounds, (float(start[0]), float(start[1]), 0.0))  # map_bounds can be None
     planner = PotentialFieldsPlanner(resolution=0.5)
 
-    def step_once():
-        if get_pose is not None:
-            x, y, hdg = get_pose()
-            mgr.update_pose(x, y, hdg)
-        if get_detections is not None:
-            for det in get_detections():
-                mgr.add_detected(det)
-        mgr.tick()
-        if plan:
-            mgr.plan(planner, max_goals=1)
+    if get_pose is not None:
+        x, y, hdg = get_pose()
+        mgr.update_pose(x, y, hdg)
+    if get_detections is not None:
+        for det in get_detections():
+            mgr.add_detected(det)
+    mgr.tick()
+    if plan:
+        mgr.plan(planner, max_goals=1)
 
-    # one-shot
-    if one_shot:
-        step_once()
-        return {
-            "status": TaskStatus.SUCCESS.value if mgr.done() else TaskStatus.RUNNING.value,
-            "goals": list(mgr.goal_queue),
-            "next_gate_index": mgr.next_gate_index,
-            "path": np.array(mgr.current_path, dtype=float) if mgr.current_path else np.zeros((0, 2)),
-            "velocities": mgr.current_velocities,
-            "speeds": mgr.current_speeds,
-            "entities": mgr.entities,
-        }
+    return {
+        "status": TaskStatus.SUCCESS.value if mgr.done() else TaskStatus.RUNNING.value,
+        "goals": list(mgr.goal_queue),
+        "next_gate_index": mgr.next_gate_index,
+        "path": np.array(mgr.current_path, dtype=float) if mgr.current_path else np.zeros((0, 2)),
+        "velocities": mgr.current_velocities,
+        "speeds": mgr.current_speeds,
+        "entities": mgr.entities,
+    }
 
-    # loop mode
-    if get_pose is None:
-        return {"status": TaskStatus.FAILURE.value, "reason": "loop mode requires get_pose"}
-
-    for _ in range(max_iters):
-        step_once()
-        if mgr.done():
-            return {
-                "status": TaskStatus.SUCCESS.value,
-                "goals": list(mgr.goal_queue),
-                "next_gate_index": mgr.next_gate_index,
-                "path": np.array(mgr.current_path, dtype=float) if mgr.current_path else np.zeros((0, 2)),
-                "velocities": mgr.current_velocities,
-                "speeds": mgr.current_speeds,
-                "entities": mgr.entities,
-            }
-        time.sleep(sleep_dt)
-
-    return {"status": TaskStatus.FAILURE.value, "reason": "max_iters reached"}

@@ -60,11 +60,11 @@ Pose = Tuple[float, float, float]
 class GoalPlan:
     """Individual goal with completion tracking"""
     goal_id: str
-    position: Vec2
+    position: Vec3  # (x, y, heading_rad); Task2 uses heading=0
     completed: bool = False
 
 
-from Global.types import DetectedEntity
+from Global.types import DetectedEntity, Vec3
 
 
 class TaskStatus(Enum):
@@ -82,9 +82,9 @@ class Phase(Enum):
 class Report:
     """In-memory report for Phase B. Each detection reported separately; key by entity_id when present (from /fused_buoys), else by position so distinct detections stay distinct."""
     def __init__(self):
-        self.green_indicators: Dict[str, Vec2] = {}
-        self.red_indicators: Dict[str, Vec2] = {}
-        self.black_buoys: Dict[str, Vec2] = {}
+        self.green_indicators: Dict[str, Vec3] = {}
+        self.red_indicators: Dict[str, Vec3] = {}
+        self.black_buoys: Dict[str, Vec3] = {}
 
     def _key(self, prefix: str, det: DetectedEntity) -> str:
         """Stable key: use entity_id when fusion provides it; else position so each distinct detection is separate."""
@@ -130,10 +130,11 @@ class Task2Manager:
         # Persistent goal plan with completion tracking
         self.goal_plan: List[GoalPlan] = []
         
-        # Phase A: channel centers (stored for Phase C return)
-        self.channel_centers_out: List[Vec2] = []
+        # Phase A: 4 gate centers (for logic) + full waypoint list (gate centers + interpolated) for outbound and return
+        self.channel_centers_out: List[Vec3] = []
+        self.channel_waypoints_out: List[Vec3] = []  # full list: gate centers + points between, for return
         self.channel_locked: bool = False
-        self.task2_start_position: Optional[Vec2] = None  # first gate center when task begun (return here)
+        self.task2_start_position: Optional[Vec3] = None  # first gate center when task begun (return here)
         self.last_gate_normal: Optional[np.ndarray] = None
 
         # Phase B: survivor handling with persistent tracking
@@ -141,25 +142,26 @@ class Task2Manager:
         self.current_survivor_plan: List[GoalPlan] = []  # 4-point circle plan for current survivor
 
         # Phase C: return waypoints (reverse channel + start)
-        self.return_waypoints: List[Vec2] = []
+        self.return_waypoints: List[Vec3] = []
 
         # goal output
-        self.goal_queue: List[Vec2] = []
+        self.goal_queue: List[Vec3] = []
 
         # completion / tunables
         self.goal_reached_dist = 2.0
         self.mission_complete = False
 
         # optional path
-        self.current_path: List[Vec2] = []
+        self.current_path: List[Vec3] = []
         self.current_velocities = np.zeros((0, 2), dtype=float)
         self.current_speeds = np.zeros((0,), dtype=float)
 
     def _obstacles(self) -> List[Vec2]:
-        """Obstacles = buoys + no-go (gate walls + map bounds when map_bounds set)."""
-        return list(self.entities.get_obstacles()) + list(
-            self.entities.get_no_go_obstacle_points(map_bounds=self.map_bounds)
-        )
+        """Obstacles = buoys; in TRANSIT_OUT and RETURN also add no-go (gate walls + map bounds). In DEBRIS_FIELD no-go is not used so we can reach indicators."""
+        obs = list(self.entities.get_obstacles())
+        if self.phase != Phase.DEBRIS_FIELD:
+            obs.extend(self.entities.get_no_go_obstacle_points(map_bounds=self.map_bounds))
+        return obs
 
     def update_pose(self, x: float, y: float, heading: float):
         self.pose = (float(x), float(y), float(heading))
@@ -177,7 +179,7 @@ class Task2Manager:
         """Publish only the next waypoint (one at a time); nudge away from obstacles."""
         self.entities.clear_goals()
         obstacles = self._obstacles()
-        from_pt = (self.pose[0], self.pose[1])
+        from_pt = (self.pose[0], self.pose[1], self.pose[2])
 
         active_goals = []
         for goal in self.goal_plan:
@@ -191,29 +193,62 @@ class Task2Manager:
 
         self.goal_queue = active_goals
 
+    def _publish_single_goal(self, goal: Vec3) -> None:
+        """Publish one goal as goal_wp1 and set goal_queue (used for fallback and forward-in-debris)."""
+        self.entities.clear_goals()
+        self.entities.add("goal", goal, name="goal_wp1")
+        self.goal_queue = [goal]
+
+    def _get_unhandled_survivors(self) -> List[Tuple[str, Vec3]]:
+        """Return list of (survivor_id, position) for green indicators not yet in handled_survivors."""
+        green_ents = self.entities.get_by_type("green_indicator")
+        def _sid(e):
+            return f"green_{e.entity_id}" if e.entity_id is not None else f"green_{id(e)}"
+        return [(_sid(e), e.position) for e in green_ents if _sid(e) not in self.handled_survivors]
+
+    def _is_circle_complete(self) -> bool:
+        """True if we have a circle plan and all its goals are completed."""
+        return (
+            len(self.current_survivor_plan) > 0
+            and all(goal.completed for goal in self.current_survivor_plan)
+        )
+
     def _lock_channel_centers(self) -> None:
-        """Lock channel centers for Phase A and later return in Phase C. Record first gate as task2 start (where we go back)."""
+        """Lock 4 gate centers and build full waypoint list (centers + interpolated between). Store in channel_waypoints_out for outbound and return. Publish one at a time; goal_utils nudge at publish."""
         if self.channel_locked:
             return
-            
-        centers = self._gate_centers_sorted()
-        if len(centers) >= 2:  # Need at least 2 gates for meaningful channel
-            self.channel_centers_out = centers
-            self.channel_locked = True
-            self.task2_start_position = centers[0]  # first set of green/red buoys when task begun
 
-            # Create goal plan for Phase A (outbound transit); nudge gate centers away from obstacles
-            obstacles = self._obstacles()
-            from_pt = (self.pose[0], self.pose[1])
-            self.goal_plan = []
-            for i, center in enumerate(self.channel_centers_out):
-                pos = nudge_goal_away_from_obstacles(center, obstacles, from_pt)
-                goal = GoalPlan(
-                    goal_id=f"channel_out_{i+1}",
-                    position=pos,
-                    completed=False
-                )
-                self.goal_plan.append(goal)
+        centers = self._gate_centers_sorted()
+        if len(centers) < 4:
+            return
+        self.channel_centers_out = centers[:4]
+        self.channel_locked = True
+        self.task2_start_position = centers[0]
+
+        # Build full waypoint list: gate 1, points between 1-2, gate 2, ..., gate 4 (interpolated "just ahead" along channel)
+        num_between = 2  # points between each consecutive gate pair
+        waypoints: List[Vec3] = []
+        for i in range(len(self.channel_centers_out)):
+            a = self.channel_centers_out[i]
+            waypoints.append((float(a[0]), float(a[1]), 0.0))
+            if i < len(self.channel_centers_out) - 1:
+                b = self.channel_centers_out[i + 1]
+                for k in range(1, num_between + 1):
+                    t = k / (num_between + 1.0)
+                    x = a[0] + t * (b[0] - a[0])
+                    y = a[1] + t * (b[1] - a[1])
+                    waypoints.append((float(x), float(y), 0.0))
+        self.channel_waypoints_out = waypoints
+
+        # Goal plan for Phase A: one GoalPlan per nominal waypoint (nudge applied at publish_goals)
+        self.goal_plan = []
+        for i, pt in enumerate(self.channel_waypoints_out):
+            goal = GoalPlan(
+                goal_id=f"channel_out_{i+1}",
+                position=pt,
+                completed=False
+            )
+            self.goal_plan.append(goal)
 
     def _check_goal_completion(self) -> None:
         """Check if current goal was reached and mark it complete"""
@@ -231,18 +266,17 @@ class Task2Manager:
             
         # Check if we're close enough to the goal
         pos = (self.pose[0], self.pose[1])
-        dist = self._distance(pos, current_goal.position)
+        dist = self._distance(pos, current_goal.position[:2])
         if dist <= self.goal_reached_dist:
             current_goal.completed = True
 
-    def _create_survivor_circle_plan(self, survivor_pos: Vec2, survivor_id: str) -> None:
-        """Create 4-point circle goals around a survivor; nudge each point away from obstacles."""
+    def _create_survivor_circle_plan(self, survivor_pos: Tuple[float, ...], survivor_id: str) -> None:
+        """Create 4-point circle goals around a survivor (nominal positions). Nudge applied in publish_goals() with boat as from_pt."""
         if survivor_id in self.handled_survivors:
             return
 
-        obstacles = self._obstacles()
         circle_goals = []
-        cx, cy = survivor_pos
+        cx, cy = survivor_pos[0], survivor_pos[1]
         radius = 6.0
 
         for i in range(4):
@@ -252,11 +286,10 @@ class Task2Manager:
             if self.map_bounds is not None:
                 x = float(np.clip(x, 0, self.map_bounds[0]))
                 y = float(np.clip(y, 0, self.map_bounds[1]))
-            desired = (x, y)
-            pos = nudge_goal_away_from_obstacles(desired, obstacles, survivor_pos)
+            desired = (float(x), float(y), 0.0)
             goal = GoalPlan(
                 goal_id=f"circle_{survivor_id}_{i+1}",
-                position=pos,
+                position=desired,
                 completed=False
             )
             circle_goals.append(goal)
@@ -279,17 +312,9 @@ class Task2Manager:
         """Transition from Phase B to Phase C"""
         if self.phase != Phase.DEBRIS_FIELD:
             return
-        # Only treat circle complete when we actually have a circle (avoid immediate RETURN when no survivor seen yet)
-        circle_complete = (
-            len(self.current_survivor_plan) > 0
-            and all(goal.completed for goal in self.current_survivor_plan)
-        )
-        # Unhandled survivors by entity_id (stable across list order)
-        green_ents = self.entities.get_by_type("green_indicator")
-        def _sid(e):
-            return f"green_{e.entity_id}" if e.entity_id is not None else f"green_{id(e)}"
-        unhandled = [(_sid(e), e.position) for e in green_ents if _sid(e) not in self.handled_survivors]
+        unhandled = self._get_unhandled_survivors()
         more_survivors = len(unhandled) > 0
+        circle_complete = self._is_circle_complete()
 
         if circle_complete and not more_survivors:
             self.phase = Phase.RETURN
@@ -300,17 +325,14 @@ class Task2Manager:
             self.goal_plan = self.current_survivor_plan
 
     def _create_return_plan(self) -> None:
-        """Return through channel in reverse; end at task2 start (first gate center when task begun). Nudge waypoints away from obstacles."""
-        self.return_waypoints = list(reversed(self.channel_centers_out))
-        obstacles = self._obstacles()
-        from_pt = (self.pose[0], self.pose[1])
-
+        """Return through channel in reverse (full waypoint list); goal_utils nudge at publish so we avoid black buoys etc."""
+        self.return_waypoints = list(reversed(self.channel_waypoints_out))
+        # Nominal position per waypoint; nudge_goal_away_from_obstacles applied in publish_goals()
         self.goal_plan = []
         for i, waypoint in enumerate(self.return_waypoints):
-            pos = nudge_goal_away_from_obstacles(waypoint, obstacles, from_pt)
             goal = GoalPlan(
                 goal_id=f"return_{i+1}",
-                position=pos,
+                position=waypoint,
                 completed=False
             )
             self.goal_plan.append(goal)
@@ -330,10 +352,7 @@ class Task2Manager:
             
             # If no locked channel yet, use fallback
             if not self.channel_locked:
-                fallback_goal = self._fallback_goal_A()
-                self.entities.clear_goals()
-                self.entities.add("goal", fallback_goal, name="goal_wp1")
-                self.goal_queue = [fallback_goal]
+                self._publish_single_goal(self._fallback_goal_A())
             else:
                 self.publish_goals()
                 
@@ -342,35 +361,22 @@ class Task2Manager:
             self._transition_to_return()
 
             # Survivor at end of debris field: go forward one waypoint at a time until green indicator seen, then circle
-            green_ents = self.entities.get_by_type("green_indicator")
-            def _surv_id(e):
-                return f"green_{e.entity_id}" if e.entity_id is not None else f"green_{id(e)}"
-            unhandled = [(_surv_id(e), e.position) for e in green_ents if _surv_id(e) not in self.handled_survivors]
+            unhandled = self._get_unhandled_survivors()
             if unhandled or self.current_survivor_plan:
-                if self.current_survivor_plan and not all(g.completed for g in self.current_survivor_plan):
+                if self.current_survivor_plan and not self._is_circle_complete():
                     self.goal_plan = self.current_survivor_plan
-                    self.publish_goals()
-                elif self.current_survivor_plan and all(g.completed for g in self.current_survivor_plan):
-                    # Circle complete; _transition_to_return may have set next survivor or RETURN
+                elif self.current_survivor_plan and self._is_circle_complete():
                     if self.phase == Phase.DEBRIS_FIELD and unhandled:
                         surv_id, surv_pos = unhandled[0]
                         self._create_survivor_circle_plan(surv_pos, surv_id)
                         self.goal_plan = self.current_survivor_plan
-                        self.publish_goals()
-                    else:
-                        self.publish_goals()
                 else:
-                    # Start first survivor circle
                     surv_id, surv_pos = unhandled[0]
                     self._create_survivor_circle_plan(surv_pos, surv_id)
                     self.goal_plan = self.current_survivor_plan
-                    self.publish_goals()
+                self.publish_goals()
             else:
-                # No green indicator yet: one forward waypoint at a time through debris
-                forward_goal = self._forward_goal_debris()
-                self.entities.clear_goals()
-                self.entities.add("goal", forward_goal, name="goal_wp1")
-                self.goal_queue = [forward_goal]
+                self._publish_single_goal(self._forward_goal_debris())
             
         elif self.phase == Phase.RETURN:
             # Check goal completion
@@ -398,13 +404,14 @@ class Task2Manager:
         obstacles = self._obstacles()
         gates = self.entities.get_gates()
         goals = self.goal_queue[:max_goals]
+        goals_xy = [(g[0], g[1]) for g in goals]
 
-        out = planner.plan_multi_goal_path(start, goals, obstacles, gates=gates, map_bounds=self.map_bounds)
-        self.current_path = list(map(tuple, out["path"]))
+        out = planner.plan_multi_goal_path(start, goals_xy, obstacles, gates=gates, map_bounds=self.map_bounds)
+        self.current_path = [(float(p[0]), float(p[1]), 0.0) for p in out["path"]]
         self.current_velocities = out["velocities"]
         self.current_speeds = out["speeds"]
 
-    def _fallback_goal_A(self) -> Vec2:
+    def _fallback_goal_A(self) -> Vec3:
         # Part A fallback: perpendicular to last gate line, forward 50 m; nudge away from obstacles
         x, y, hdg = self.pose
         if self.last_gate_normal is None:
@@ -418,17 +425,17 @@ class Task2Manager:
         if self.map_bounds is not None:
             p[0] = float(np.clip(p[0], 0, self.map_bounds[0]))
             p[1] = float(np.clip(p[1], 0, self.map_bounds[1]))
-        desired = (float(p[0]), float(p[1]))
-        return nudge_goal_away_from_obstacles(desired, self._obstacles(), (x, y))
+        desired = (float(p[0]), float(p[1]), 0.0)
+        return nudge_goal_away_from_obstacles(desired, self._obstacles(), (x, y, hdg))
 
-    def _forward_goal_debris(self) -> Vec2:
+    def _forward_goal_debris(self) -> Vec3:
         """One waypoint forward through debris field (along last gate normal or heading) until green indicator seen."""
         return self._fallback_goal_A()
 
-    def _distance(self, a: Vec2, b: Vec2) -> float:
+    def _distance(self, a: Tuple[float, ...], b: Tuple[float, ...]) -> float:
         return float(np.hypot(a[0] - b[0], a[1] - b[1]))
 
-    def _gate_centers_sorted(self) -> List[Vec2]:
+    def _gate_centers_sorted(self) -> List[Vec3]:
         gates = self.entities.get_gates()
         if not gates:
             return []
@@ -440,6 +447,6 @@ class Task2Manager:
             n = np.array([-gv[1], gv[0]], dtype=float)
             self.last_gate_normal = n / (np.linalg.norm(n) + 1e-9)
 
-        centers = [((r[0] + g[0]) / 2.0, (r[1] + g[1]) / 2.0) for (r, g) in gates]
+        centers = [((r[0] + g[0]) / 2.0, (r[1] + g[1]) / 2.0, 0.0) for (r, g) in gates]
         centers.sort(key=lambda p: p[1])  # northbound by y
         return centers
