@@ -6,6 +6,8 @@
 set -e
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 MAPPING_WS="${SCRIPT_DIR}/mapping"
+CV_WS="${SCRIPT_DIR}/computer_vision"
+PLANNING_WS="${SCRIPT_DIR}/planning"
 
 # Find bag to play
 if [ -n "$1" ]; then
@@ -26,8 +28,11 @@ echo "=== Map Replay ==="
 echo "📦 Bag: $BAG"
 echo ""
 
+# Source same workspaces as comp/record (message types for bag topics)
 source /opt/ros/humble/setup.bash
 source "${MAPPING_WS}/install/setup.bash"
+source "${CV_WS}/install/setup.bash"
+source "${PLANNING_WS}/install/setup.bash"
 
 # Check bag has required topics with messages (errors shown to terminal)
 INFO=$(ros2 bag info "$BAG") || { echo "❌ Failed to read bag info (see above)"; exit 1; }

@@ -4,6 +4,9 @@
 
 set -e
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+MAPPING_WS="${SCRIPT_DIR}/mapping"
+CV_WS="${SCRIPT_DIR}/computer_vision"
+PLANNING_WS="${SCRIPT_DIR}/planning"
 
 # Generate timestamped bag name
 BAG_NAME="map_data_$(date +%Y%m%d_%H%M%S)"
@@ -13,11 +16,12 @@ echo "📦 Bag name: ${BAG_NAME}"
 echo "🎯 Topics: /boat_pose, /global_detections, /combined/detection_info_with_distance, /tracked_buoys, /mavros/setpoint_velocity/cmd_vel_unstamped, /planned_path, /curr_task"
 echo ""
 
-# Source required workspaces for message types
-echo "Sourcing workspaces for message types..."
+# Source same workspaces as comp scripts (message types for all recorded topics)
+echo "Sourcing ROS2 and workspaces..."
 source /opt/ros/humble/setup.bash
-source "${SCRIPT_DIR}/mapping/install/setup.bash"  # for global_frame messages
-
+source "${MAPPING_WS}/install/setup.bash"
+source "${CV_WS}/install/setup.bash"
+source "${PLANNING_WS}/install/setup.bash"
 echo "✓ Workspaces sourced"
 echo ""
 
