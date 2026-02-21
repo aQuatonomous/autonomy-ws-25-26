@@ -13,7 +13,12 @@ BAG_NAME="map_data_$(date +%Y%m%d_%H%M%S)"
 
 echo "=== Recording Map Data ==="
 echo "📦 Bag name: ${BAG_NAME}"
-echo "🎯 Topics: /boat_pose, /global_detections, /combined/detection_info_with_distance, /tracked_buoys, /mavros/setpoint_velocity/cmd_vel_unstamped, /planned_path, /curr_task"
+echo "🎯 Topics:"
+echo "   Mapping/planning: /boat_pose, /global_detections, /combined/detection_info_with_distance, /tracked_buoys, /mavros/setpoint_velocity/cmd_vel_unstamped, /planned_path, /curr_task"
+echo "   Camera raw: /camera0/image_raw, /camera1/image_raw, /camera2/image_raw"
+echo "   LiDAR raw: /unilidar/cloud"
+echo "   Per-camera detections: /camera0/detection_info, /camera1/detection_info, /camera2/detection_info"
+echo "   (Recording images and point clouds increases bag size.)"
 echo ""
 
 # Source same workspaces as comp scripts (message types for all recorded topics)
@@ -48,7 +53,7 @@ echo "🔴 Recording... Press Ctrl+C to stop"
 echo "💡 Make sure your pipeline is running (comp_single_camera.sh or comp.sh)"
 echo ""
 
-# Record the key topics for mapping, web visualization, and planning output
+# Record: mapping/planning, camera raw, LiDAR raw, and per-camera + combined detections
 ros2 bag record \
   -o "${BAG_NAME}" \
   --compression-mode file \
@@ -59,7 +64,14 @@ ros2 bag record \
   /tracked_buoys \
   /mavros/setpoint_velocity/cmd_vel_unstamped \
   /planned_path \
-  /curr_task
+  /curr_task \
+  /camera0/image_raw \
+  /camera1/image_raw \
+  /camera2/image_raw \
+  /unilidar/cloud \
+  /camera0/detection_info \
+  /camera1/detection_info \
+  /camera2/detection_info
 
 echo ""
 echo "✅ Recording stopped. Bag saved as: ${BAG_NAME}"

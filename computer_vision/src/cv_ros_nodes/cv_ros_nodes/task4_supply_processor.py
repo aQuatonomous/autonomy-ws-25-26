@@ -39,15 +39,23 @@ import json
 from cv_ros_nodes.task4_simplified_detector import SimplifiedTask4Detector
 
 
+def _parse_camera_ids(camera_ids_str: str) -> list:
+    """Parse comma-separated camera IDs (e.g. '1' -> [1], '0,1,2' -> [0,1,2])."""
+    if not camera_ids_str or not camera_ids_str.strip():
+        return [0, 1, 2]
+    return [int(x.strip()) for x in camera_ids_str.split(',') if x.strip().isdigit()]
+
+
 class Task4SupplyProcessor(Node):
-    def __init__(self):
+    def __init__(self, camera_ids: str = '0,1,2'):
         super().__init__('task4_supply_processor')
         self.bridge = CvBridge()
         self._detector = SimplifiedTask4Detector()
+        self.camera_ids = _parse_camera_ids(camera_ids) or [0, 1, 2]
 
-        # One subscription + publisher per camera
+        # One subscription + publisher per active camera
         self._task4_pubs = {}
-        for cam_id in [0, 1, 2]:
+        for cam_id in self.camera_ids:
             self.create_subscription(
                 Image,
                 f'/camera{cam_id}/image_preprocessed',
@@ -91,8 +99,12 @@ class Task4SupplyProcessor(Node):
 
 
 def main(args=None):
+    import argparse
     rclpy.init(args=args)
-    node = Task4SupplyProcessor()
+    p = argparse.ArgumentParser(description='Task 4 supply drop processor')
+    p.add_argument('--camera_ids', type=str, default='0,1,2', help='Comma-separated camera IDs (e.g. 1 or 0,1,2)')
+    parsed, _ = p.parse_known_args(args=args)
+    node = Task4SupplyProcessor(camera_ids=parsed.camera_ids)
     try:
         rclpy.spin(node)
     except (KeyboardInterrupt, ExternalShutdownException):

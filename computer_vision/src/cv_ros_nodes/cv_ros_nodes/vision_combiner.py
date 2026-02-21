@@ -73,15 +73,22 @@ OVERLAP_BBOX_AREA_MAX_RATIO = 2.5
 ADJACENT_CAMERA_PAIRS: List[Tuple[int, int]] = [(0, 1), (1, 2)]
 
 
-
+def _parse_camera_ids(camera_ids_str: str) -> List[int]:
+    """Parse comma-separated camera IDs string to list of ints (e.g. '1' -> [1], '0,1,2' -> [0,1,2])."""
+    if not camera_ids_str or not camera_ids_str.strip():
+        return [0, 1, 2]
+    return [int(x.strip()) for x in camera_ids_str.split(',') if x.strip().isdigit()]
 
 
 class DetectionCombiner(Node):
     
     def __init__(self, sync_window: float = 0.05, use_timestamp_sync: bool = False,
-                 staleness_threshold: float = 1.0):
+                 staleness_threshold: float = 1.0, camera_ids: str = '0,1,2'):
         super().__init__('detection_combiner')
         
+        self.camera_ids = _parse_camera_ids(camera_ids)
+        if not self.camera_ids:
+            self.camera_ids = [0, 1, 2]
         self.use_timestamp_sync = use_timestamp_sync
         self.sync_window = sync_window  # Time window for timestamp matching (seconds)
         self.staleness_threshold = staleness_threshold  # Max age for detections (seconds)
@@ -95,22 +102,12 @@ class DetectionCombiner(Node):
         self._compute_camera_intrinsics()
 
         # Store latest detections from each camera (inference)
-        self.detections = {
-            0: None,  # camera0
-            1: None,  # camera1
-            2: None   # camera2
-        }
-        
-        self.last_update_times = {
-            0: 0.0,
-            1: 0.0,
-            2: 0.0
-        }
-
+        self.detections = {cid: None for cid in self.camera_ids}
+        self.last_update_times = {cid: 0.0 for cid in self.camera_ids}
         # Task 4 supply-drop detections per camera (from /cameraN/task4_detections)
-        self.task4_detections = {0: None, 1: None, 2: None}
+        self.task4_detections = {cid: None for cid in self.camera_ids}
         # Indicator buoy detections per camera (from /cameraN/indicator_detections)
-        self.indicator_detections = {0: None, 1: None, 2: None}
+        self.indicator_detections = {cid: None for cid in self.camera_ids}
 
         # Load class_mapping for class_name resolution
         self._class_id_to_name = self._load_class_mapping()
@@ -120,9 +117,9 @@ class DetectionCombiner(Node):
         self.detection_history = []
         self.max_history_size = 100  # Keep last 100 detections per camera
         
-        # Subscriptions for each camera's detection info
+        # Subscriptions for each camera's detection info (only for active camera_ids)
         self._detection_subs = []
-        for camera_id in [0, 1, 2]:
+        for camera_id in self.camera_ids:
             sub = self.create_subscription(
                 String,
                 f'/camera{camera_id}/detection_info',
@@ -132,7 +129,7 @@ class DetectionCombiner(Node):
             self._detection_subs.append(sub)
             self.get_logger().info(f'Subscribed to: /camera{camera_id}/detection_info')
 
-        for camera_id in [0, 1, 2]:
+        for camera_id in self.camera_ids:
             sub = self.create_subscription(
                 String,
                 f'/camera{camera_id}/task4_detections',
@@ -141,7 +138,7 @@ class DetectionCombiner(Node):
             )
             self.get_logger().info(f'Subscribed to: /camera{camera_id}/task4_detections')
 
-        for camera_id in [0, 1, 2]:
+        for camera_id in self.camera_ids:
             sub = self.create_subscription(
                 String,
                 f'/camera{camera_id}/indicator_detections',
@@ -564,7 +561,7 @@ class DetectionCombiner(Node):
         
         current_time = time.time()
         
-        for camera_id in [0, 1, 2]:
+        for camera_id in self.camera_ids:
             if camera_id == source_camera_id:
                 continue
             
@@ -642,7 +639,7 @@ class DetectionCombiner(Node):
         all_detections = [self._trim_detection_for_output(d) for d in all_detections]
 
         # Add stats for unmatched cameras
-        for camera_id in [0, 1, 2]:
+        for camera_id in self.camera_ids:
             if camera_id not in matched_detections:
                 time_since_update = current_time - self.last_update_times[camera_id]
                 if self.detections[camera_id] is None:
@@ -667,7 +664,7 @@ class DetectionCombiner(Node):
         # Create combined detection info
         combined_info = {
             'timestamp': avg_timestamp,
-            'num_cameras': 3,
+            'num_cameras': len(self.camera_ids),
             'num_synchronized_cameras': len(matched_detections),
             'total_detections': len(all_detections),
             'camera_stats': camera_stats,
@@ -711,7 +708,7 @@ class DetectionCombiner(Node):
         no_data_cameras = 0
         
         # Collect detections from all 3 cameras (side-by-side configuration)
-        for camera_id in [0, 1, 2]:
+        for camera_id in self.camera_ids:
             detection_data = self.detections[camera_id]
             
             # Check if camera has no data at all
@@ -770,13 +767,13 @@ class DetectionCombiner(Node):
             }
         
         # Merge Task4 supply-drop detections when present
-        for camera_id in [0, 1, 2]:
+        for camera_id in self.camera_ids:
             task4_data = self.task4_detections[camera_id]
             if task4_data is not None:
                 for det in self._task4_detections_to_combined(camera_id, task4_data):
                     all_detections.append(det)
         # Merge indicator buoy detections when present
-        for camera_id in [0, 1, 2]:
+        for camera_id in self.camera_ids:
             indicator_data = self.indicator_detections[camera_id]
             if indicator_data is not None:
                 for det in self._indicator_detections_to_combined(camera_id, indicator_data):
@@ -799,7 +796,7 @@ class DetectionCombiner(Node):
         # Create combined detection info
         combined_info = {
             'timestamp': current_time,
-            'num_cameras': 3,
+            'num_cameras': len(self.camera_ids),
             'num_active_cameras': active_cameras,
             'num_stale_cameras': stale_cameras,
             'num_no_data_cameras': no_data_cameras,
@@ -839,16 +836,11 @@ class DetectionCombiner(Node):
                     f'{no_data_cameras} no data | Total detections: {len(all_detections)}'
                 )
             else:
-                # Ensure all cameras have stats before logging
-                cam0_detections = camera_stats.get(0, {}).get('num_detections', 0)
-                cam1_detections = camera_stats.get(1, {}).get('num_detections', 0)
-                cam2_detections = camera_stats.get(2, {}).get('num_detections', 0)
+                parts = [f'Camera{cid}: {camera_stats.get(cid, {}).get("num_detections", 0)}' for cid in self.camera_ids]
                 self.get_logger().info(
                     f'Combined detections: {len(all_detections)} total | '
-                    f'Active cameras: {active_cameras}/3 | '
-                    f'Camera0: {cam0_detections}, '
-                    f'Camera1: {cam1_detections}, '
-                    f'Camera2: {cam2_detections}'
+                    f'Active cameras: {active_cameras}/{len(self.camera_ids)} | '
+                    + ', '.join(parts)
                 )
 
 
@@ -863,12 +855,15 @@ def main(args=None):
                        help='Time window (seconds) for timestamp-based synchronization (default: 0.05 = 50ms)')
     parser.add_argument('--use_timestamp_sync', action='store_true',
                        help='Enable timestamp-based synchronization (default: latest value approach)')
+    parser.add_argument('--camera_ids', type=str, default='0,1,2',
+                       help='Comma-separated camera IDs to combine (e.g. 1 for single-camera, 0,1,2 for three)')
     args_parsed, _ = parser.parse_known_args(args=args)
     
     node = DetectionCombiner(
         sync_window=args_parsed.sync_window,
         use_timestamp_sync=args_parsed.use_timestamp_sync,
-        staleness_threshold=args_parsed.staleness_threshold
+        staleness_threshold=args_parsed.staleness_threshold,
+        camera_ids=args_parsed.camera_ids
     )
     
     try:

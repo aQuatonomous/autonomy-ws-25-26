@@ -39,6 +39,8 @@ def generate_launch_description():
                               description='Task number (2 or 3) - determines buoy reference dimensions. Task 2: all small buoys 0.5ft. Task 3: green/red/yellow 1ft, black 0.5ft.'),
         DeclareLaunchArgument('single_camera', default_value='false',
                               description='If true, run only camera1/center (preprocess + inference). Use on Jetson to avoid GPU OOM when sim + CV run together.'),
+        DeclareLaunchArgument('camera_ids', default_value='0,1,2',
+                              description='Comma-separated camera IDs for combiner/indicator/task4. Pass camera_ids:=1 when single_camera:=true.'),
         DeclareLaunchArgument('inference_interval', default_value='1',
                               description='Run inference every N frames (1=every frame). Use 2 or 3 for smoother display FPS on Jetson.'),
         DeclareLaunchArgument('sim_image_rgb', default_value='true',
@@ -91,10 +93,13 @@ def generate_launch_description():
             condition=UnlessCondition(LaunchConfiguration('single_camera'))
         ),
         Node(package='cv_ros_nodes', executable='vision_combiner', name='detection_combiner',
-             arguments=['--staleness_threshold', LaunchConfiguration('staleness_threshold')]),
+             arguments=['--staleness_threshold', LaunchConfiguration('staleness_threshold'),
+                        '--camera_ids', LaunchConfiguration('camera_ids')]),
         Node(package='cv_ros_nodes', executable='task4_supply_processor', name='task4_supply_processor',
+             arguments=['--camera_ids', LaunchConfiguration('camera_ids')],
              condition=IfCondition(LaunchConfiguration('enable_task4'))),
         Node(package='cv_ros_nodes', executable='indicator_buoy_processor', name='indicator_buoy_processor',
+             arguments=['--camera_ids', LaunchConfiguration('camera_ids')],
              condition=IfCondition(LaunchConfiguration('enable_indicator_buoy'))),
         Node(package='cv_ros_nodes', executable='maritime_distance_estimator', name='maritime_distance_estimator',
              parameters=[{

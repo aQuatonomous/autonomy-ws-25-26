@@ -582,6 +582,13 @@ def classify_colour_indicator_buoy(
 # ROS NODE
 # ============================================================
 
+def _parse_camera_ids(camera_ids_str: str) -> list:
+    """Parse comma-separated camera IDs (e.g. '1' -> [1], '0,1,2' -> [0,1,2])."""
+    if not camera_ids_str or not camera_ids_str.strip():
+        return [0, 1, 2]
+    return [int(x.strip()) for x in camera_ids_str.split(',') if x.strip().isdigit()]
+
+
 class IndicatorBuoyProcessor(Node):
     def __init__(
         self, 
@@ -591,9 +598,11 @@ class IndicatorBuoyProcessor(Node):
         white_blob_expansion: float = 2.0,
         min_white_brightness: float = 100.0,
         min_white_blob_score: float = 0.15,
+        camera_ids: str = "0,1,2",
     ):
         super().__init__("indicator_buoy_processor")
         self.bridge = CvBridge()
+        self.camera_ids = _parse_camera_ids(camera_ids) or [0, 1, 2]
         
         self.conf_threshold = conf_threshold
         self.max_black_brightness = max_black_brightness
@@ -602,7 +611,7 @@ class IndicatorBuoyProcessor(Node):
         self.min_white_brightness = min_white_brightness
         self.min_white_blob_score = min_white_blob_score
 
-        for cam_id in [0, 1, 2]:
+        for cam_id in self.camera_ids:
             self.create_subscription(
                 Image,
                 f"/camera{cam_id}/image_preprocessed",
@@ -611,7 +620,7 @@ class IndicatorBuoyProcessor(Node):
             )
         
         self._pubs = {}
-        for cam_id in [0, 1, 2]:
+        for cam_id in self.camera_ids:
             self._pubs[cam_id] = self.create_publisher(
                 String, f"/camera{cam_id}/indicator_detections", 10
             )
@@ -693,6 +702,7 @@ def main(args=None):
     p.add_argument("--white_blob_expansion", type=float, default=2.0, help="White blob search expansion factor")
     p.add_argument("--min_white_brightness", type=float, default=100.0, help="Minimum white brightness")
     p.add_argument("--min_white_blob_score", type=float, default=0.15, help="Minimum white blob score")
+    p.add_argument("--camera_ids", type=str, default="0,1,2", help="Comma-separated camera IDs (e.g. 1 or 0,1,2)")
     parsed, _ = p.parse_known_args(args=args)
     node = IndicatorBuoyProcessor(
         conf_threshold=parsed.conf_threshold,
@@ -701,6 +711,7 @@ def main(args=None):
         white_blob_expansion=parsed.white_blob_expansion,
         min_white_brightness=parsed.min_white_brightness,
         min_white_blob_score=parsed.min_white_blob_score,
+        camera_ids=parsed.camera_ids,
     )
     try:
         rclpy.spin(node)
