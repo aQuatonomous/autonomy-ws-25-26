@@ -35,7 +35,7 @@ public:
   this->declare_parameter<int>("frequency", 800);
   this->declare_parameter<int>("rate", 16000);
   this->declare_parameter<int>("chunk", 500); // this is not standard, you have to adjust the paraeter in audio_capturer to match
-  this->declare_parameter<int>("sensitivity", 10);
+  this->declare_parameter<int>("sensitivity", 8);
 
   // get paramter values
 //  this->format_ = this->get_parameter("format").as_int(); not implemented
@@ -127,7 +127,7 @@ private:
 	  }
         	  RCLCPP_INFO_STREAM(this->get_logger(), "output: " << output);
 	  // check for a match
-	  RCLCPP_INFO_STREAM(this->get_logger(), hamming(output, 0b11011));
+	  RCLCPP_INFO_STREAM(this->get_logger(), hamming(output, 0b110011));
 	  if (hamming(output, 0b110011) <= 1 && delay_flag_ != 1) {
 		RCLCPP_INFO(this->get_logger(), "Heard %d blasts", 2);
 		auto message = std_msgs::msg::Int32();
