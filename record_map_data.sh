@@ -11,7 +11,6 @@ BAG_NAME="map_data_$(date +%Y%m%d_%H%M%S)"
 echo "=== Recording Map Data ==="
 echo "📦 Bag name: ${BAG_NAME}"
 echo "🎯 Topics: /boat_pose, /global_detections, /combined/detection_info_with_distance, /tracked_buoys, /mavros/setpoint_velocity/cmd_vel_unstamped, /planned_path, /curr_task"
-echo "🎯 Topics: /boat_pose, /global_detections, /combined/detection_info_with_distance, /tracked_buoys, /mavros/setpoint_velocity/cmd_vel_unstamped, /planned_path, /curr_task"
 echo ""
 
 # Source required workspaces for message types
