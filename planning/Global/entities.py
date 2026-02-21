@@ -17,9 +17,9 @@ from typing import List, Tuple, Optional, Any
 
 from Global.types import Vec2, Vec3, _to_vec3, DetectedEntity
 
-# No-go zone from gate edges: extent (m) along gate normal and along gate toward next pair
-GATE_NO_GO_EXTENT_NORMAL = 15.0
-GATE_NO_GO_EXTENT_ALONG = 15.0
+# No-go zone: walls connecting consecutive gates (red-to-red, green-to-green)
+GATE_NO_GO_DEFAULT_EXTEND_M = 30.0  # Forward/backward extension when no next/prev gate (m)
+GATE_NO_GO_GAP_M = 0.5              # Stop walls this far from the next gate (m)
 GATE_NO_GO_SAMPLE_SPACING = 1.0
 
 # When filtering gates by boat heading: max |dot(gate_vec, forward)| / gate_length (0 = strict perpendicular)
@@ -127,8 +127,8 @@ class EntityList:
         self.entities: List[Entity] = []
         self.start_position: Vec3 = _to_vec3(start_position)
         self._last_no_go_points: List[Vec2] = []
-        # Stateful no-go: 1 or 2 gates along channel; updated when get_gates() set changes
         self._no_go_gates: List[Tuple[Tuple[float, float, float], Tuple[float, float, float]]] = []
+        self._boat_heading_for_no_go: Optional[float] = None
 
     # -------------------------
     # core CRUD
@@ -265,31 +265,86 @@ class EntityList:
         )
         return [(r.position, g.position) for r, g in pairs]  # Vec3, Vec3
 
+    def _channel_direction(self, gate, boat_heading_rad: Optional[float]) -> Tuple[float, float]:
+        """Compute channel direction (forward) for a gate. Uses gate perpendicular aligned with boat heading."""
+        red, green = gate
+        dx = float(green[0]) - float(red[0])
+        dy = float(green[1]) - float(red[1])
+        L = math.hypot(dx, dy)
+        if L < 1e-6:
+            if boat_heading_rad is not None:
+                return (math.cos(boat_heading_rad), math.sin(boat_heading_rad))
+            return (0.0, 1.0)
+        ux, uy = dx / L, dy / L
+        perp_a = (-uy, ux)
+        perp_b = (uy, -ux)
+        if boat_heading_rad is not None:
+            fwd_x = math.cos(boat_heading_rad)
+            fwd_y = math.sin(boat_heading_rad)
+            dot_a = perp_a[0] * fwd_x + perp_a[1] * fwd_y
+            return perp_a if dot_a >= 0 else perp_b
+        start = self.get_start()
+        cx = (float(red[0]) + float(green[0])) * 0.5
+        cy = (float(red[1]) + float(green[1])) * 0.5
+        to_gate_x = cx - float(start[0])
+        to_gate_y = cy - float(start[1])
+        dot_a = perp_a[0] * to_gate_x + perp_a[1] * to_gate_y
+        return perp_a if dot_a >= 0 else perp_b
+
+    def _shorten_toward(self, ax: float, ay: float, bx: float, by: float, gap_m: float) -> Tuple[float, float]:
+        """Return point gap_m before (bx, by) along segment a→b."""
+        dx, dy = bx - ax, by - ay
+        L = math.hypot(dx, dy)
+        if L <= gap_m:
+            return (ax, ay)
+        ratio = (L - gap_m) / L
+        return (ax + dx * ratio, ay + dy * ratio)
+
     def _gate_no_go_segments(
         self,
         gates: List[Tuple[Tuple[float, float, float], Tuple[float, float, float]]],
-        extent_normal_m: float,
-        extent_along_m: float,
+        boat_heading_rad: Optional[float] = None,
+        default_extend_m: float = GATE_NO_GO_DEFAULT_EXTEND_M,
+        gap_m: float = GATE_NO_GO_GAP_M,
     ) -> List[Tuple[Tuple[float, float], Tuple[float, float]]]:
-        """For each gate, return left and right wall segments (no-go boundaries). Uses (x,y) only."""
+        """Build no-go wall segments connecting consecutive gates (red-to-red, green-to-green).
+
+        Rules:
+        - Inter-gate walls connect actual buoy positions (angle follows geometry).
+        - Walls stop gap_m short of the next gate so they don't block entrance.
+        - First gate: walls extend backward by default_extend_m.
+        - Last gate: walls extend forward by default_extend_m (replaced when new gate appears).
+        """
         segments: List[Tuple[Vec2, Vec2]] = []
-        for red, green in gates:
-            rx, ry = float(red[0]), float(red[1])  # Vec3, use x,y
-            gx, gy = float(green[0]), float(green[1])
-            dx = gx - rx
-            dy = gy - ry
-            L = math.hypot(dx, dy)
-            if L < 1e-6:
-                continue
-            ux, uy = dx / L, dy / L
-            lnx, lny = -uy, ux
-            rnx, rny = uy, -ux
-            left_a = (rx - extent_along_m * ux + extent_normal_m * lnx, ry - extent_along_m * uy + extent_normal_m * lny)
-            left_b = (gx + extent_along_m * ux + extent_normal_m * lnx, gy + extent_along_m * uy + extent_normal_m * lny)
-            segments.append((left_a, left_b))
-            right_a = (rx - extent_along_m * ux + extent_normal_m * rnx, ry - extent_along_m * uy + extent_normal_m * rny)
-            right_b = (gx + extent_along_m * ux + extent_normal_m * rnx, gy + extent_along_m * uy + extent_normal_m * rny)
-            segments.append((right_a, right_b))
+        if not gates:
+            return segments
+
+        for i, (red, green) in enumerate(gates):
+            r = (float(red[0]), float(red[1]))
+            g = (float(green[0]), float(green[1]))
+            fwd = self._channel_direction((red, green), boat_heading_rad)
+
+            # Backward extension from first gate
+            if i == 0:
+                back = (-fwd[0], -fwd[1])
+                segments.append((r, (r[0] + back[0] * default_extend_m, r[1] + back[1] * default_extend_m)))
+                segments.append((g, (g[0] + back[0] * default_extend_m, g[1] + back[1] * default_extend_m)))
+
+            # Inter-gate wall: connect this gate to the next gate (red-to-red, green-to-green)
+            if i < len(gates) - 1:
+                next_red, next_green = gates[i + 1]
+                nr = (float(next_red[0]), float(next_red[1]))
+                ng = (float(next_green[0]), float(next_green[1]))
+                red_end = self._shorten_toward(r[0], r[1], nr[0], nr[1], gap_m)
+                green_end = self._shorten_toward(g[0], g[1], ng[0], ng[1], gap_m)
+                segments.append((r, red_end))
+                segments.append((g, green_end))
+
+            # Forward extension from last gate (replaced when new gate appears)
+            if i == len(gates) - 1:
+                segments.append((r, (r[0] + fwd[0] * default_extend_m, r[1] + fwd[1] * default_extend_m)))
+                segments.append((g, (g[0] + fwd[0] * default_extend_m, g[1] + fwd[1] * default_extend_m)))
+
         return segments
 
     def _sample_segment(self, a: Vec2, b: Vec2, spacing_m: float) -> List[Vec2]:
@@ -314,7 +369,7 @@ class EntityList:
         b: List[Tuple[Tuple[float, float, float], Tuple[float, float, float]]],
         tol: float = 0.5,
     ) -> bool:
-        """True if the two gate lists represent the same set (by center distance)."""
+        """True if the two ordered gate lists represent the same sequence (by center distance)."""
         if len(a) != len(b):
             return False
         for ga, gb in zip(a, b):
@@ -325,25 +380,19 @@ class EntityList:
 
     def get_no_go_obstacle_points(
         self,
-        extent_normal_m: float = GATE_NO_GO_EXTENT_NORMAL,
-        extent_along_m: float = GATE_NO_GO_EXTENT_ALONG,
         sample_spacing_m: float = GATE_NO_GO_SAMPLE_SPACING,
         map_bounds: Optional[Tuple[float, float]] = None,
         boat_heading_rad: Optional[float] = None,
     ) -> List[Vec2]:
+        """Build no-go wall points from detected gates.
+
+        Walls connect consecutive gates red-to-red and green-to-green, forming a
+        dynamic corridor that adapts to actual gate geometry. Gates are ordered by
+        forward projection along channel. As new gates appear, the corridor extends.
         """
-        No-go zone from 1 or 2 red-green gate pairs along the channel, plus optional map bounds.
-        When new gates are brought in, no-go is updated by comparing gate centers (current vs
-        stored _no_go_gates); when they differ, the stored set is updated and segments are
-        rebuilt, so the no-go zone orientation/angle reflects the current gate set (each gate's
-        segment uses that gate's red-to-green direction for the wall angle).
-        If boat_heading_rad is set: use get_gates(boat_heading_rad=...) and order gates by
-        projection along forward from start (same as Task1). Otherwise: get_gates() and order by
-        gate center Y. Same sample_spacing_m for segments and map boundary. All units in meters.
-        """
+        self._boat_heading_for_no_go = boat_heading_rad
         if boat_heading_rad is not None:
             gates_now = self.get_gates(boat_heading_rad=boat_heading_rad)
-            # Order along channel by projection onto forward from start (match Task1)
             start = self.get_start()
             s_x, s_y = float(start[0]), float(start[1])
             fwd_x = math.cos(boat_heading_rad)
@@ -356,18 +405,21 @@ class EntityList:
         else:
             gates_now = self.get_gates()
             ordered = sorted(gates_now, key=lambda g: (g[0][1] + g[1][1]) * 0.5)
-        current_set = ordered[:2] if ordered else []
-        if not current_set:
+
+        if not ordered:
             self._no_go_gates = []
             points = list(self._last_no_go_points)
         else:
-            if not self._no_go_gates_equal(current_set, self._no_go_gates):
-                self._no_go_gates = list(current_set)
+            if not self._no_go_gates_equal(ordered, self._no_go_gates):
+                self._no_go_gates = list(ordered)
             points = []
-            segments = self._gate_no_go_segments(self._no_go_gates, extent_normal_m, extent_along_m)
+            segments = self._gate_no_go_segments(
+                self._no_go_gates, boat_heading_rad=boat_heading_rad,
+            )
             for seg_a, seg_b in segments:
                 points.extend(self._sample_segment(seg_a, seg_b, sample_spacing_m))
             self._last_no_go_points = points
+
         if map_bounds is not None:
             w, h = float(map_bounds[0]), float(map_bounds[1])
             if w > 0 and h > 0:
