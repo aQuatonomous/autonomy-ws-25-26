@@ -2,6 +2,7 @@
 # This file maps class IDs to human-readable object names for combined detection output.
 # Used by vision_combiner to set detections[].class_name in /combined/detection_info.
 # YOLO main model: 0-8. Indicator buoy (task 2/3): 9-10. Supply drop (task 4): 11-12. Docking numbers (task 5): 20-22.
+# Convention: 255 = unknown (unmatched LiDAR tracks, invalid IDs); used by fusion and detection_to_global.
 
 # Class ID Mapping
 # Format: class_id: class_name
@@ -48,7 +49,7 @@ class_name_to_id:
 # Metadata
 metadata:
   total_classes: 23
-  description: "Maritime object detection class mapping for autonomous navigation; includes YOLO (0-8), indicator buoy (9-10), supply drop (11-12), docking numbers (20-22)"
+  description: "Maritime object detection class mapping for autonomous navigation; includes YOLO (0-8), indicator buoy (9-10), supply drop (11-12), docking numbers (20-22). class_id 255 = unknown."
   dataset_counts:
     black_buoy: 4931
     cross: 3311

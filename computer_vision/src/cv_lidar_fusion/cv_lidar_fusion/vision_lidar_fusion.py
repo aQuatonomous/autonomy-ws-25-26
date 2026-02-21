@@ -135,6 +135,10 @@ class VisionLidarFusionNode(Node):
                 class_name = f'class_{cid}'
             bearing_deg = d.get('bearing_deg')
             if bearing_deg is None:
+                self.get_logger().warn(
+                    f'CV detection skipped: missing bearing_deg (class_id={cid}, class_name={class_name})',
+                    throttle_duration_sec=5.0
+                )
                 continue
             cv_bearing = -math.radians(float(bearing_deg))
             score = float(d.get('score', 0.0))

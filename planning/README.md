@@ -1,6 +1,6 @@
 # Planning
 
-High-level task planning and goal generation for autonomous navigation. Consumes perception (`/fused_buoys`) and odometry (`/odom`), produces ordered goals and velocity commands for MAVROS.
+High-level task planning and goal generation for autonomous navigation. Consumes perception (`/global_detections` from detection_to_global) and GPS/heading from MAVROS, produces ordered goals and velocity commands.
 
 ---
 
@@ -21,14 +21,14 @@ The planning node needs **two things** in your workspace:
 Ensure the planning library contains:
 
 - `TaskMaster.py`
-- `Global/` (`entities.py`, `types.py`, `goal_utils.py`, `Task1.py`, `Task2.py`, `Task3.py`)
+- `Global/` (`entities.py`, `types.py`, `goal_utils.py`, `Task1.py`, `Task2.py`, `Task3.py`, `Task4.py`)
 - `Local/potential_fields_planner.py`
 
 **Check that everything is there:** run this from the **planning** directory (the folder that contains `TaskMaster.py`). All lines should report "exists"; if any say "missing", add or fix that path.
 
 ```bash
 cd /path/to/planning
-for f in TaskMaster.py Global/entities.py Global/types.py Global/goal_utils.py Global/Task1.py Global/Task2.py Global/Task3.py Local/potential_fields_planner.py Global_Planner/package.xml Global_Planner/setup.py Global_Planner/launch/global_planner.launch.py Global_Planner/global_planner/global_planner_node.py Global_Planner/resource/global_planner; do
+for f in TaskMaster.py Global/entities.py Global/types.py Global/goal_utils.py Global/Task1.py Global/Task2.py Global/Task3.py Global/Task4.py Local/potential_fields_planner.py Global_Planner/package.xml Global_Planner/setup.py Global_Planner/launch/global_planner.launch.py Global_Planner/global_planner/global_planner_node.py Global_Planner/resource/global_planner; do
   [ -e "$f" ] && echo "exists: $f" || echo "missing: $f"
 done
 ```
@@ -37,7 +37,7 @@ If you use a separate colcon workspace, the **planning library** is the director
 
 ### 2. Dependencies
 
-- **pointcloud_filters** (from mapping): provides `FusedBuoyArray` / `FusedBuoy`. Must be in the same workspace and built before `global_planner`.
+- **global_frame** (from mapping): provides `GlobalDetectionArray`. Must be built before `global_planner`.
 - **nav_msgs**, **geometry_msgs**, **std_msgs**, **sensor_msgs**: standard ROS 2.
 - **mavros_msgs** (optional): if present, planning runs only when `mode == "GUIDED"`; otherwise the node runs without the gate and logs a warning.
 
@@ -80,7 +80,7 @@ ros2 launch global_planner global_planner.launch.py cmd_vel_topic:=/cmd_vel
 ### 6. Verify it’s working
 
 - **Node up:** `ros2 node list | grep global_planner`
-- **Subscriptions:** Node subscribes to `/fused_buoys`, `/odom`, `/mavros/state`, `/mavros/global_position/global`. Ensure at least `/fused_buoys` and `/odom` are published.
+- **Subscriptions:** Node subscribes to `/global_detections`, `/mavros/state`, `/mavros/global_position/global`, `/mavros/global_position/compass_hdg`, `/mavros/global_position/gp_vel`. Ensure at least `/global_detections` and GPS/heading are published.
 - **Planning only in GUIDED:** If using MAVROS, put the vehicle in GUIDED mode; otherwise the node publishes zero twist.
 - **Logs:** Look for `[t=...] x=... y=... (m) |` and "Buoy update", "Seen red-green buoy pairs", "Velocity given".
 
@@ -90,7 +90,7 @@ ros2 launch global_planner global_planner.launch.py cmd_vel_topic:=/cmd_vel
 
 ### Global planner (node)
 
-- **Logic:** Subscribes to `/fused_buoys` (FusedBuoyArray) and `/odom`. Each tick: if not GUIDED → publish zero twist; else update EntityList from buoys, call TaskMaster `run_one_shot(pose, detections)`, run watchdogs; if watchdog override → publish it; else publish first goal to `/planned_path` and planner velocity to cmd_vel. Task 2: throttle-reported debris/indicator lat/lon to `/gs_message_send`. Task 3: throttle-reported indicator color to `/gs_message_send`.
+- **Logic:** Subscribes to `/global_detections` (GlobalDetectionArray from detection_to_global), MAVROS GPS/heading/velocity. Each tick: if not GUIDED → publish zero twist; else update EntityList from detections, call TaskMaster `run_one_shot(pose, detections)`, run watchdogs; if watchdog override → publish it; else publish first goal to `/planned_path` and planner velocity to cmd_vel. Task 2: throttle-reported debris/indicator lat/lon to `/gs_message_send`. Task 3: throttle-reported indicator color to `/gs_message_send`.
 - **Run:** See "Running the planning node" above. No separate "run" for the library; it’s used only via the node (or a custom script that imports TaskMaster).
 - **Debug:** See [Global_Planner/README.md](Global_Planner/README.md). Quick checks: `ros2 topic echo /mavros/state --field mode`, `ros2 topic echo /planned_path`, `ros2 topic echo /mavros/setpoint_velocity/cmd_vel_unstamped`. Logs: "No goal seen", "Velocity given: zero", "This is the watchdog protocol happening".
 
@@ -108,7 +108,7 @@ ros2 launch global_planner global_planner.launch.py cmd_vel_topic:=/cmd_vel
 
 - **Logic:** Gate centers from red_buoy + green_buoy pairs; order gates by projection onto forward direction (boat heading or start→nearest gate). Gate is “completed” when the segment (prev_pos → current_pos) intersects the gate segment (red→green). Writes goals as goal_wp1, goal_wp2, …; SUCCESS when both gates crossed in order. Fallback: if no gate detected, waypoint straight ahead along last gate normal (max 100 m) until next gate appears.
 - **Run:** `ros2 launch global_planner global_planner.launch.py` (task_id defaults to 1).
-- **Debug:** Check entity list has red_buoy and green_buoy; gates = `entities.get_gates()`. Logs: "Seen red-green buoy pairs", "No goal seen", "next goal". If no gates, perception or class_id mapping may be wrong (see `Global/entities.py` CLASS_ID_TO_ENTITY_TYPE).
+- **Debug:** Check entity list has red_buoy and green_buoy; gates = `entities.get_gates()`. Logs: "Seen red-green buoy pairs", "No goal seen", "next goal". If no gates, perception or class_id mapping may be wrong (see `Global/entities.py` CLASS_ID_TO_ENTITY_TYPE; class_id 255 = unknown).
 
 ---
 
@@ -138,9 +138,9 @@ ros2 launch global_planner global_planner.launch.py cmd_vel_topic:=/cmd_vel
 
 ### Entities (Global)
 
-- **Logic:** `EntityList`: list of `Entity` (type, position, name, entity_id). `apply_tracked_buoys()`: add/update by id from FusedBuoyArray; when a new red-green pair is seen, push current ids to cohort; when cohorts > 2, prune oldest (drop entities not in current pair). `get_gates()`: pair red_buoy with nearest green_buoy within max width → (red_pos, green_pos). `get_obstacles()`: all non-goal, non-start types (red/green/black/yellow/indicators). `get_no_go_obstacle_points()`: sampled points along gate “walls” and optional map boundary. `get_goals()`: positions of type "goal". `get_black_buoys()`: (id, pos) for Task 2 reporting. Class mapping: `CLASS_ID_TO_ENTITY_TYPE` (e.g. 0 black, 1 green, 3 red, 9 red_indicator, 10 green_indicator).
-- **Run:** No standalone; populated by node from `/fused_buoys`, read by Task1/2/3 and planner.
-- **Debug:** Wrong gate pairing or missing buoys → check class_id in FusedBuoyArray and CLASS_ID_TO_ENTITY_TYPE. "Dropped entities" in logs = cohort prune (normal after passing a gate). Ensure frame matches odom (usually base_link or odom from fusion).
+- **Logic:** `EntityList`: list of `Entity` (type, position, name, entity_id). `apply_tracked_buoys()`: add/update by id from `GlobalDetectionArray` (`/global_detections`); when a new red-green pair is seen, push current ids to cohort; when cohorts > 2, prune oldest (drop entities not in current pair). `get_gates()`: pair red_buoy with nearest green_buoy within max width → (red_pos, green_pos). `get_obstacles()`: all non-goal, non-start types (red/green/black/yellow/indicators). `get_no_go_obstacle_points()`: sampled points along gate “walls” and optional map boundary. `get_goals()`: positions of type "goal". `get_black_buoys()`: (id, pos) for Task 2 reporting. Class mapping: `CLASS_ID_TO_ENTITY_TYPE` in `Global/entities.py` (0–22 per `cv_scripts/class_mapping.yaml`; 255 = unknown).
+- **Run:** No standalone; populated by node from `/global_detections`, read by Task1/2/3 and planner.
+- **Debug:** Wrong gate pairing or missing buoys → check class_id in `/global_detections` (source: detection_to_global) and `CLASS_ID_TO_ENTITY_TYPE` in `Global/entities.py`. class_id 0–22 map to entity types; 255 = unknown (unmatched LiDAR or invalid). "Dropped entities" in logs = cohort prune (normal after passing a gate). Ensure frame matches (detection_to_global publishes map frame).
 
 ---
 

@@ -133,24 +133,23 @@ Heading can alternatively come from a `geometry_msgs/PoseStamped` topic (paramet
 ### 5.2 detection_to_global_node
 
 **Executable**: `detection_to_global_node`  
-**Role**: Turn boat-relative detections (range, bearing) from LiDAR (and optionally CV) into **global (east, north)** in the map frame.
-
-#### Subscriptions
-
-| Topic | Type | Description |
-|-------|------|-------------|
-| `/boat_pose` | `global_frame/BoatPose` | Current boat position and heading in map frame. |
-| `/tracked_buoys_json` | `std_msgs/String` | JSON list of tracked LiDAR buoys: `range`, `bearing`, `id`, etc. |
-| `/combined/detection_info_with_distance` | `std_msgs/String` | Optional; CV detections with distance for fusion. |
+**Role**: Turn boat-relative detections (range, bearing) from LiDAR (and optionally CV fusion) into **global (east, north)** in the map frame.
 
 #### Parameters
 
+- `use_fused_detections` (default `true`): If true, subscribe to `/fused_buoys` (LiDAR+CV fusion, with `class_id`/`class_name`); if false, subscribe to `/tracked_buoys_json` (LiDAR only, no class). Planning consumes `/global_detections` either way.
 - `boat_pose_topic`: `/boat_pose`
-- `tracked_buoys_topic`: `/tracked_buoys_json`
-- `detection_info_topic`: `/combined/detection_info_with_distance`
 - `global_detections_topic`: `/global_detections`
 - `map_frame`: `map`
 - `merge_by_proximity_m`: 0 = no merging; >0 merges detections within that distance in the global frame.
+
+#### Subscriptions (one of two, based on `use_fused_detections`)
+
+| Topic | When | Description |
+|-------|------|-------------|
+| `/boat_pose` | always | Current boat position and heading in map frame. |
+| `/fused_buoys` | `use_fused_detections=true` | Fused LiDAR+CV buoys with `class_id`, `class_name`. Source in output = `"fused"`. |
+| `/tracked_buoys_json` | `use_fused_detections=false` | LiDAR-only buoys (no class). Source in output = `"lidar"`. |
 
 #### Logic
 
@@ -159,9 +158,8 @@ Heading can alternatively come from a `geometry_msgs/PoseStamped` topic (paramet
    - `alpha = heading_rad + bearing_rad` (absolute bearing in map frame).
    - `east_global = boat_east + range_m * cos(alpha)`
    - `north_global = boat_north + range_m * sin(alpha)`
-3. **LiDAR callback**: Parses `tracked_buoys_json`: for each detection, reads `range`, `bearing`, `id`, builds a `GlobalDetection` (east, north, range_m, bearing_global_rad, source=`lidar`), appends to list, then publishes combined array.
-4. **CV callback**: If CV detections are present, converts them similarly (bearing convention: CV 0 = forward, + = right → `bearing_rad = -rad(bearing_deg)` for base_link), source=`vision`.
-5. **Publish**: Merges LiDAR + CV lists (optionally merges by proximity), then publishes one `GlobalDetectionArray`.
+3. **Detection callback**: Reads either `/fused_buoys` or `/tracked_buoys_json`; converts each buoy to `GlobalDetection` with `east`, `north`, `range_m`, `bearing_global_rad`, `source` (`"fused"` or `"lidar"`), `class_id` (0–22 from class_mapping; 255 = unknown).
+4. **Publish**: Optionally merges by proximity, then publishes one `GlobalDetectionArray` to `/global_detections`.
 
 #### Publications
 
@@ -169,7 +167,7 @@ Heading can alternatively come from a `geometry_msgs/PoseStamped` topic (paramet
 |-------|------|-------------|
 | `/global_detections` | `global_frame/GlobalDetectionArray` | All detections in map frame: east, north, range_m, bearing_global_rad, source, id, etc. |
 
-**GlobalDetection** (simplified): `header`, `east`, `north`, `range_m`, `bearing_global_rad`, `source`, `class_name`, `class_id`, `id`.
+**GlobalDetection** (simplified): `header`, `east`, `north`, `range_m`, `bearing_global_rad`, `source` (`"fused"` or `"lidar"`), `class_name`, `class_id` (0–22 or 255 = unknown), `id`.
 
 ---
 
@@ -448,4 +446,4 @@ source /home/lorenzo/autonomy-ws-25-26/mapping/install/setup.bash
 
 ---
 
-This README reflects the pipeline as used in **comp_single_camera.sh** and the **buoy_pipeline** and **global_frame** launch files. All nodes and topics described here are part of the current mapping and boat-position system.
+This README reflects the pipeline as used in **comp_single_camera.sh**, **comp.sh**, and the **buoy_pipeline** and **global_frame** launch files. All nodes and topics described here are part of the current mapping and boat-position system.

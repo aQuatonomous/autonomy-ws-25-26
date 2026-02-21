@@ -13,9 +13,9 @@ Boat state (GPS + heading) and global-frame detections for planning.
 
 ### detection_to_global_node
 
-- **Subscribes**: `/boat_pose`, `/tracked_buoys_json`, `/combined/detection_info_with_distance`.
-- **Publishes**: `/global_detections` (GlobalDetectionArray) in map frame (east, north) for each LiDAR and CV detection.
-- **Parameters**: `merge_by_proximity_m` (optional): merge detections within this distance (meters) into one; 0 = disabled.
+- **Subscribes**: `/boat_pose` (always); either `/fused_buoys` (when `use_fused_detections=true`) or `/tracked_buoys_json` (when false).
+- **Publishes**: `/global_detections` (GlobalDetectionArray) in map frame (east, north) for planning.
+- **Parameters**: `use_fused_detections` (default `true`) — use fused LiDAR+CV buoys with class_id; otherwise LiDAR-only. `merge_by_proximity_m` (optional): merge detections within this distance (meters); 0 = disabled.
 
 ## Launch
 

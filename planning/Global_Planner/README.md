@@ -17,7 +17,7 @@ Full setup, layout options, and component-level logic/run/debug: **[planning REA
 ## How It Works
 
 1. **Subscriptions**
-   - `/global_detections` (global_frame/GlobalDetectionArray): detections in map frame (east, north, id, class_id/class_name); the node updates an internal `EntityList` by **id** (cohort-based pruning as before).
+   - `/global_detections` (global_frame/GlobalDetectionArray): detections in map frame (east, north, id, class_id/class_name). class_id 0–22 map to entity types; 255 = unknown. The node updates an internal `EntityList` by **id** (cohort-based pruning as before).
    - `/mavros/global_position/global` (NavSatFix): first fix sets origin; each message converts lat/lon to local (east, north) in metres for pose.
    - `/mavros/global_position/compass_hdg` (std_msgs/Float64): compass heading (degrees, 0=North, 90=East); converted to ENU heading (rad) for pose.
    - `/mavros/global_position/gp_vel` (geometry_msgs/TwistStamped): velocity in NED; used for watchdogs (world-frame velocity).

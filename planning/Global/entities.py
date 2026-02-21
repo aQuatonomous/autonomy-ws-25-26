@@ -26,7 +26,7 @@ GATE_NO_GO_SAMPLE_SPACING = 1.0
 # ~0.25 allows ~15 deg tilt from perpendicular (gate left/right of boat)
 GATE_PERPENDICULAR_THRESHOLD = 0.25
 
-# Matches computer_vision README Maritime Object Detection Class IDs
+# Matches computer_vision cv_scripts/class_mapping.yaml (0-22). class_id 255 = unknown (unmapped).
 CLASS_ID_TO_ENTITY_TYPE = {
     0: "black_buoy",
     1: "green_buoy",
@@ -333,11 +333,13 @@ class EntityList:
     ) -> List[Vec2]:
         """
         No-go zone from 1 or 2 red-green gate pairs along the channel, plus optional map bounds.
+        When new gates are brought in, no-go is updated by comparing gate centers (current vs
+        stored _no_go_gates); when they differ, the stored set is updated and segments are
+        rebuilt, so the no-go zone orientation/angle reflects the current gate set (each gate's
+        segment uses that gate's red-to-green direction for the wall angle).
         If boat_heading_rad is set: use get_gates(boat_heading_rad=...) and order gates by
-        projection along forward from start (same as Task1), so no-go matches the channel
-        Task1 is navigating. Otherwise: get_gates() and order by gate center Y.
-        State is updated whenever the current gate set differs from the stored set.
-        Same sample_spacing_m for segments and map boundary. All units in meters.
+        projection along forward from start (same as Task1). Otherwise: get_gates() and order by
+        gate center Y. Same sample_spacing_m for segments and map boundary. All units in meters.
         """
         if boat_heading_rad is not None:
             gates_now = self.get_gates(boat_heading_rad=boat_heading_rad)

@@ -190,7 +190,7 @@ Mapped from class IDs (from CV-LiDAR fusion):
 ### Key Methods
 
 #### `apply_tracked_buoys(entity_list, buoys, tolerance)`
-Called by ROS node when `/fused_buoys` arrives.
+Called by ROS node when `/global_detections` arrives (from detection_to_global, which feeds from `/fused_buoys` or `/tracked_buoys_json`).
 
 **Process**:
 1. For each buoy in message:

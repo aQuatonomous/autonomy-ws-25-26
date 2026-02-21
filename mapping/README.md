@@ -86,7 +86,7 @@ LiDAR does **not** set class; the fusion node assigns **class_id** and **class_n
 |-------|------|-------------|
 | **`/tracked_buoys`** | `pointcloud_filters/TrackedBuoyArray` | **Final LiDAR output**: persistent buoy tracks with `id`, `range` (m), `bearing` (rad), `x`, `y` (base_link), `z_mean`, `confidence`, `observation_count`, `first_seen`, `last_seen`. No class field. Published by `buoy_tracker` at detection rate (~10–30 Hz). |
 | **`/tracked_buoys_json`** | `std_msgs/String` (JSON) | Same content as `/tracked_buoys` in JSON form (similar format to CV final output), published by **buoy_tracker**. `timestamp`, `frame_id`, `num_detections`, `detections[]` with `id`, `range`, `bearing`, `x`, `y`, `z_mean`, etc. |
-| **`/fused_buoys`** | `pointcloud_filters/FusedBuoyArray` | **Output of CV–LiDAR fusion**: same geometry as `/tracked_buoys` with **`class_id`** and **`class_name`** from vision (e.g. `red_buoy`, `red_pole_buoy`, `green_buoy`, `yellow_buoy`, `unknown`). Run the fusion node (`cv_lidar_fusion`) subscribing to `/combined/detection_info_with_distance` and `/tracked_buoys`. Planning and the tracked-buoy visualizer use **`/fused_buoys`**. |
+| **`/fused_buoys`** | `pointcloud_filters/FusedBuoyArray` | **Output of CV–LiDAR fusion**: same geometry as `/tracked_buoys` with **`class_id`** and **`class_name`** from vision (e.g. `red_buoy`, `red_pole_buoy`, `green_buoy`, `yellow_buoy`, `unknown`). Run the fusion node (`cv_lidar_fusion`) subscribing to `/combined/detection_info_with_distance` and `/tracked_buoys`. **`detection_to_global_node`** subscribes to `/fused_buoys` when `use_fused_detections:=true` (default) and publishes `/global_detections` for planning. |
 
 **Sample — `/tracked_buoys`** (no class):
 
@@ -105,7 +105,7 @@ buoys:
     last_seen: {...}
 ```
 
-**`/fused_buoys`** has the same fields per buoy plus **`class_id`** (0–22 per CV class_mapping; 255 = unknown) and **`class_name`** (e.g. `"red_buoy"`, `"red_pole_buoy"`, `"unknown"`).
+**`/fused_buoys`** has the same fields per buoy plus **`class_id`** (0–22 per `cv_scripts/class_mapping.yaml`; **255 = unknown** for unmatched LiDAR tracks) and **`class_name`** (e.g. `"red_buoy"`, `"red_pole_buoy"`, `"unknown"`). Planning receives `/global_detections` from `detection_to_global_node`, which feeds from `/fused_buoys` or `/tracked_buoys_json` based on `use_fused_detections`.
 
 ## Custom Messages
 

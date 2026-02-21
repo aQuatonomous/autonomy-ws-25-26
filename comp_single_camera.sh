@@ -1,50 +1,50 @@
 #!/bin/bash
-# Competition launch (single camera): set camera FPS, then start LiDAR and CV pipelines.
-# Runs only camera1 (middle camera) in the CV pipeline.
-# Run from autonomy-ws-25-26 (or use absolute paths below).
-# Ctrl+C kills everything (cameras, inference, lidar, etc.) reliably.
+# Competition launch (single camera): all tasks enabled (Task 2/3/4/5).
+# Same structure as comp_single_camera_task3.sh but with task4, indicator buoy, number detection enabled.
+# Run from autonomy-ws-25-26. Ctrl+C kills all.
 
 set -e
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 MAPPING_WS="${SCRIPT_DIR}/mapping"
 CV_WS="${SCRIPT_DIR}/computer_vision"
+PLANNING_WS="${SCRIPT_DIR}/planning"
 
-# Run only the middle camera as camera1 (so /camera1/* topics in RViz).
-# Uses dedicated single-camera launch file that only starts camera1 pipeline.
-# Override the middle camera path if needed: CAMERA1_DEVICE="/path/to/middle" ./comp_single_camera.sh
-# LiDAR is always /dev/ttyUSB0. Pixhawk is /dev/ttyACM0 (override with FCU_URL for serial, e.g. /dev/ttyACM0:57600).
 FCU_URL="${FCU_URL:-/dev/ttyACM0:57600}"
-# CAMERA1_DEVICE="${CAMERA1_DEVICE:-/dev/v4l/by-path/platform-3610000.usb-usb-0:1.2:1.0-video-index0}"  # by-path sometimes fails
-CAMERA1_DEVICE="${CAMERA1_DEVICE:-/dev/video0}"  # Direct device path - more reliable
-# For set_camera_fps: only configure the one physical camera
+# CAMERA1_DEVICE: use /dev/videoN (e.g. /dev/video0, /dev/video1) or full by-path
+#   CAMERA1_DEVICE=/dev/video0 ./comp_single_camera.sh
+#   CAMERA1_DEVICE=/dev/v4l/by-path/platform-3610000.usb-usb-0:1.2:1.0-video-index0 ./comp_single_camera.sh
+CAMERA1_DEVICE="${CAMERA1_DEVICE:-/dev/video0}"
 CAMERA_DEVICES="${CAMERA1_DEVICE}"
+# TASK_ID for planner (1-5). Override: TASK_ID=2 ./comp_single_camera.sh
+TASK_ID="${TASK_ID:-3}"
 
-echo "=== Setting camera format (YUYV @ 960x600 @ 15fps) ==="
-CAMERA_FPS="${CAMERA_FPS:-15}" CAMERA_DEVICES="${CAMERA_DEVICES}" bash "${CV_WS}/set_camera_fps.sh" || { echo "Warning: set_camera_fps failed (check camera paths or CAMERA_DEVICES)"; }
+echo "=== Single camera (all CV tasks): Setting format YUYV @ 960x600 @ 15fps ==="
+CAMERA_FPS="${CAMERA_FPS:-15}" CAMERA_DEVICES="${CAMERA_DEVICES}" bash "${CV_WS}/set_camera_fps.sh" || { echo "Warning: set_camera_fps failed (check CAMERA1_DEVICE or CAMERA_DEVICES)"; }
 
 echo "=== Sourcing ROS2 and workspaces ==="
 source /opt/ros/humble/setup.bash
 source "${MAPPING_WS}/install/setup.bash"
 source "${CV_WS}/install/setup.bash"
+source "${PLANNING_WS}/install/setup.bash"
 
-# So background jobs get their own process groups; Ctrl+C then kills full trees.
 set -m
 MAVROS_PID=""
 GLOBAL_FRAME_PID=""
 LIDAR_PID=""
 CV_PID=""
 FUSION_PID=""
+PLANNER_PID=""
 cleanup() {
     echo ""
-    echo "=== Stopping MAVROS, global_frame, LiDAR, CV, and fusion pipelines ==="
+    echo "=== Stopping MAVROS, global_frame, LiDAR, CV, fusion, and planning ==="
     [ -n "$MAVROS_PID" ] && kill -TERM -"$MAVROS_PID" 2>/dev/null || true
     [ -n "$GLOBAL_FRAME_PID" ] && kill -TERM -"$GLOBAL_FRAME_PID" 2>/dev/null || true
     [ -n "$LIDAR_PID" ] && kill -TERM -"$LIDAR_PID" 2>/dev/null || true
     [ -n "$CV_PID" ]   && kill -TERM -"$CV_PID" 2>/dev/null || true
     [ -n "$FUSION_PID" ] && kill -TERM -"$FUSION_PID" 2>/dev/null || true
+    [ -n "$PLANNER_PID" ] && kill -TERM -"$PLANNER_PID" 2>/dev/null || true
     sleep 1
-    # Kill by name so every pipeline process is gone (ros2 launch spawns nodes separately)
-    _KILL="ros2 launch|mavros|global_frame|boat_state_node|detection_to_global|v4l2_camera|v4l2_camera_node|camera0_node|camera1_node|camera2_node|cv_ros_nodes|vision_preprocessing|vision_inference|vision_combiner|maritime_distance|vision_lidar_fusion|task4_supply_processor|indicator_buoy_processor|maritime_distance_estimator|pointcloud_filters|unitree_lidar|lidar_range_filter|buoy_detector|buoy_tracker"
+    _KILL="ros2 launch|mavros|global_frame|boat_state_node|detection_to_global|v4l2_camera|v4l2_camera_node|camera0_node|camera1_node|camera2_node|cv_ros_nodes|vision_preprocessing|vision_inference|vision_combiner|maritime_distance|vision_lidar_fusion|task4_supply_processor|indicator_buoy_processor|maritime_distance_estimator|pointcloud_filters|unitree_lidar|lidar_range_filter|buoy_detector|buoy_tracker|global_planner_node"
     pkill -f "$_KILL" 2>/dev/null || true
     sleep 1
     pkill -9 -f "$_KILL" 2>/dev/null || true
@@ -53,7 +53,6 @@ cleanup() {
 }
 trap cleanup INT TERM
 
-# Launch MAVROS if Pixhawk serial exists (or FCU_URL is e.g. tcp for sim)
 if [[ "$FCU_URL" != /dev/* ]] || [ -e "${FCU_URL%%:*}" ]; then
   echo "=== Launching MAVROS (Pixhawk at ${FCU_URL}) ==="
   ros2 launch mavros apm.launch fcu_url:="${FCU_URL}" &
@@ -63,18 +62,28 @@ else
   echo "=== Skipping MAVROS (no device at ${FCU_URL%%:*}) ==="
 fi
 
-echo "=== Launching global_frame (boat_state_node + detection_to_global_node) ==="
-ros2 launch global_frame global_frame.launch.py &
+echo "=== Launching global_frame (use_fused_detections:=true) ==="
+ros2 launch global_frame global_frame.launch.py use_fused_detections:=true &
 GLOBAL_FRAME_PID=$!
 sleep 1
 
-echo "=== Launching LiDAR buoy pipeline (no RViz, /dev/ttyUSB0) ==="
+echo "=== Launching LiDAR buoy pipeline (no RViz) ==="
 ros2 launch pointcloud_filters buoy_pipeline.launch.py launch_rviz:=false &
 LIDAR_PID=$!
 
 sleep 2
-echo "=== Launching CV pipeline (camera1 only) ==="
-ros2 launch cv_ros_nodes launch_cv_single_camera1.py resolution:=960,600 conf_threshold:=0.1 preprocess_fps:=5 inference_interval_front:=4 camera1_device:="${CAMERA1_DEVICE}" &
+echo "=== Launching CV pipeline (camera1, all tasks: task4, indicator buoy, number detection) ==="
+ros2 launch cv_ros_nodes launch_cv_single_camera1.py \
+  resolution:=960,600 \
+  conf_threshold:=0.1 \
+  preprocess_fps:=5 \
+  inference_interval_front:=4 \
+  task:=3 \
+  enable_task4:=true \
+  enable_indicator_buoy:=true \
+  enable_number_detection:=true \
+  camera1_device:="${CAMERA1_DEVICE}" \
+  &
 CV_PID=$!
 
 sleep 4
@@ -82,7 +91,12 @@ echo "=== Starting CV-LiDAR fusion ==="
 ros2 run cv_lidar_fusion vision_lidar_fusion &
 FUSION_PID=$!
 
-echo "=== All pipelines started. MAVROS PID: $MAVROS_PID  GLOBAL_FRAME PID: $GLOBAL_FRAME_PID  LiDAR PID: $LIDAR_PID  CV PID: $CV_PID  FUSION PID: $FUSION_PID ==="
+sleep 2
+echo "=== Starting global planner (task_id:=${TASK_ID}) ==="
+ros2 launch global_planner global_planner.launch.py task_id:="${TASK_ID}" &
+PLANNER_PID=$!
+
+echo "=== Pipelines started. MAVROS: $MAVROS_PID  GLOBAL_FRAME: $GLOBAL_FRAME_PID  LiDAR: $LIDAR_PID  CV: $CV_PID  FUSION: $FUSION_PID  PLANNER: $PLANNER_PID ==="
 echo "Press Ctrl+C to stop all."
 wait -n
 cleanup

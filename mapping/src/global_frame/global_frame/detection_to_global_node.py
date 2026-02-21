@@ -140,7 +140,8 @@ class DetectionToGlobalNode(Node):
             g.bearing_global_rad = alpha
             g.source = "fused"
             g.class_name = b.class_name or "unknown"
-            g.class_id = int(b.class_id) if b.class_id <= 22 else 255
+            cid = int(b.class_id)
+            g.class_id = cid if 0 <= cid <= 22 else 255
             g.id = b.id
             detections.append(g)
         if detections:
