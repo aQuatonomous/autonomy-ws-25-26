@@ -75,7 +75,7 @@ Multi-camera object detection with TensorRT-optimized YOLO on ROS2 Humble: 3 cam
 ### Data Flow Pipeline
 
 **Stage 1: Image Acquisition**
-- Raw images captured at 1920x1200 resolution, 15 FPS (FPS set via v4l2-ctl; see `set_camera_fps.sh`)
+- Raw images captured at 1920x1200 resolution, 15 FPS (FPS set via v4l2-ctl; see `set_camera_fps.sh` in repo root)
 - Published as ROS2 `sensor_msgs/Image` messages
 
 **Stage 2: Preprocessing**
@@ -102,7 +102,7 @@ Multi-camera object detection with TensorRT-optimized YOLO on ROS2 Humble: 3 cam
 
 ## Hardware Requirements
 
-**Development platform**: Think (x86). Camera USB paths in `set_camera_fps.sh` and launch defaults are for this machine; on Jetson or other hardware, use `v4l2-ctl --list-devices` and override `camera_devices` or edit the script.
+**Development platform**: Think (x86). Camera USB paths are in `set_camera_fps.sh` (repo root); on Jetson or other hardware, run `./monitor_camera_move.sh` and edit that script or override `CAMERA_DEVICES`.
 
 **Deployment target (e.g. boat)**: NVIDIA Jetson Orin
 - GPU: NVIDIA Orin (2048 CUDA cores)
@@ -160,12 +160,9 @@ Multi-camera object detection with TensorRT-optimized YOLO on ROS2 Humble: 3 cam
 ## Quick start
 
 ```bash
-cd ~/autonomy-ws-25-26/computer_vision
-source /opt/ros/humble/setup.bash
-colcon build --packages-select cv_ros_nodes
-source install/setup.bash
-./set_camera_fps.sh
-ros2 launch cv_ros_nodes launch_cv.py
+cd ~/autonomy-ws-25-26 && ./set_camera_fps.sh single
+cd computer_vision && source /opt/ros/humble/setup.bash && source install/setup.bash
+ros2 launch cv_ros_nodes launch_cv_single_camera1.py camera1_device:="$(cat ../.camera_devices)"
 ```
 
 Task-specific launch and competition settings: [COMPETITION.md](COMPETITION.md). Pipeline and nodes: [NODES.md](NODES.md).
@@ -183,7 +180,7 @@ computer_vision/
 │   └── cv_lidar_fusion/    # vision_lidar_fusion → /fused_buoys
 ├── cv_scripts/             # model.engine, class_mapping.yaml
 ├── task_specific/          # Task 2/3, Docking number detection
-├── set_camera_fps.sh
+│   # set_camera_fps.sh lives in repo root
 ├── README.md
 ├── COMPETITION.md
 ├── NODES.md

@@ -1,6 +1,6 @@
 #!/bin/bash
 # Loop: show camera by-path, video device, port, and which is Cam0/1/2. Ctrl+C to exit.
-# Mapping (set_camera_fps.sh): Cam0=1.2, Cam1=1.1, Cam2=1.4.2
+# set_camera_fps.sh (root): single=1.4.2; three: Cam0=1.2, Cam1=1.1, Cam2=1.4.2
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 # Port -> logical camera name
@@ -33,6 +33,6 @@ while true; do
         done
     fi
 
-    echo "  Ctrl+C to exit. Override: CAMERA_DEVICES=\"/path1,/path2,/path3\" ./comp.sh"
+    echo "  Ctrl+C to exit. Edit set_camera_fps.sh (root) or override: CAMERA_DEVICES=\"/path1,/path2,/path3\" ./set_camera_fps.sh three"
     sleep "$REFRESH"
 done

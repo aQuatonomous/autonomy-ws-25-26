@@ -1,5 +1,9 @@
 #!/bin/bash
 # Keep checking whether planning topics are published (global_planner must be running)
+# Run from autonomy-ws-25-26 root. Logging goes to this terminal.
+
+set -e
+source /opt/ros/humble/setup.bash
 
 TOPICS=(
   "/mavros/setpoint_velocity/cmd_vel_unstamped"
@@ -7,7 +11,7 @@ TOPICS=(
   "/curr_task"
 )
 
-echo "Checking planning topics every 2s (Ctrl+C to stop). Source ROS first if needed."
+echo "Checking planning topics every 2s (Ctrl+C to stop)."
 echo ""
 
 while true; do

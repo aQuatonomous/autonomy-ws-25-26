@@ -44,7 +44,6 @@ echo "🔴 Recording... Press Ctrl+C to stop"
 echo "💡 Make sure your pipeline is running (comp_single_camera.sh or comp.sh)"
 echo ""
 
-# Record the key topics for mapping, web visualization, and planning
 # Record the key topics for mapping, web visualization, and planning output
 ros2 bag record \
   -o "${BAG_NAME}" \
@@ -57,17 +56,13 @@ ros2 bag record \
   /mavros/setpoint_velocity/cmd_vel_unstamped \
   /planned_path \
   /curr_task
-  /tracked_buoys \
-  /mavros/setpoint_velocity/cmd_vel_unstamped \
-  /planned_path \
-  /curr_task
 
 echo ""
 echo "✅ Recording stopped. Bag saved as: ${BAG_NAME}"
 echo ""
 echo "📋 Topics actually recorded:"
 if [ -d "${BAG_NAME}" ]; then
-  ros2 bag info "${BAG_NAME}" 2>/dev/null || echo "   (could not read bag info)"
+  ros2 bag info "${BAG_NAME}" || echo "   (could not read bag info)"
 else
   echo "   (bag directory not found)"
 fi

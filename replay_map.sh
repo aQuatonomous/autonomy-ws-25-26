@@ -29,8 +29,8 @@ echo ""
 source /opt/ros/humble/setup.bash
 source "${MAPPING_WS}/install/setup.bash"
 
-# Check bag has required topics with messages
-INFO=$(ros2 bag info "$BAG" 2>/dev/null) || { echo "❌ Failed to read bag info"; exit 1; }
+# Check bag has required topics with messages (errors shown to terminal)
+INFO=$(ros2 bag info "$BAG") || { echo "❌ Failed to read bag info (see above)"; exit 1; }
 BOAT_COUNT=$(echo "$INFO" | grep "/boat_pose" | grep -oE "Count: [0-9]+" | grep -oE "[0-9]+" || echo "0")
 GLOBAL_COUNT=$(echo "$INFO" | grep "/global_detections" | grep -oE "Count: [0-9]+" | grep -oE "[0-9]+" || echo "0")
 

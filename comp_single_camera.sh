@@ -10,16 +10,12 @@ CV_WS="${SCRIPT_DIR}/computer_vision"
 PLANNING_WS="${SCRIPT_DIR}/planning"
 
 FCU_URL="${FCU_URL:-/dev/ttyACM0:57600}"
-# CAMERA1_DEVICE: use /dev/videoN (e.g. /dev/video0, /dev/video1) or full by-path
-#   CAMERA1_DEVICE=/dev/video0 ./comp_single_camera.sh
-#   CAMERA1_DEVICE=/dev/v4l/by-path/platform-3610000.usb-usb-0:1.2:1.0-video-index0 ./comp_single_camera.sh
-CAMERA1_DEVICE="${CAMERA1_DEVICE:-/dev/v4l/by-path/platform-3610000.usb-usb-0:1.4.2:1.0-video-index0}"
-CAMERA_DEVICES="${CAMERA1_DEVICE}"
 # TASK_ID for planner (1-5). Override: TASK_ID=2 ./comp_single_camera.sh
 TASK_ID="${TASK_ID:-3}"
 
 echo "=== Single camera (all CV tasks): Setting format YUYV @ 960x600 @ 15fps ==="
-CAMERA_FPS="${CAMERA_FPS:-15}" CAMERA_DEVICES="${CAMERA_DEVICES}" bash "${CV_WS}/set_camera_fps.sh" || { echo "Warning: set_camera_fps failed (check CAMERA1_DEVICE or CAMERA_DEVICES)"; }
+"${SCRIPT_DIR}/set_camera_fps.sh" single || { echo "Warning: set_camera_fps failed (edit set_camera_fps.sh or run ./monitor_camera_move.sh)"; exit 1; }
+CAMERA1_DEVICE="$(cat "${SCRIPT_DIR}/.camera_devices")"
 
 echo "=== Sourcing ROS2 and workspaces ==="
 source /opt/ros/humble/setup.bash
@@ -97,6 +93,7 @@ ros2 launch global_planner global_planner.launch.py task_id:="${TASK_ID}" &
 PLANNER_PID=$!
 
 echo "=== Pipelines started. MAVROS: $MAVROS_PID  GLOBAL_FRAME: $GLOBAL_FRAME_PID  LiDAR: $LIDAR_PID  CV: $CV_PID  FUSION: $FUSION_PID  PLANNER: $PLANNER_PID ==="
-echo "Press Ctrl+C to stop all."
+echo "Press Ctrl+C to stop all. All node logs appear below (interleaved)."
+echo ""
 wait -n
 cleanup

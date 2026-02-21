@@ -19,7 +19,7 @@ Optional: `cv_lidar_fusion` for CV–LiDAR fusion (`/fused_buoys`). Build with `
 
 ## Launch
 
-- **Real cameras:** `ros2 launch cv_ros_nodes launch_cv.py` (set 15 fps first: `./set_camera_fps.sh`).
+- **Real cameras:** `ros2 launch cv_ros_nodes launch_cv.py` (set 15 fps first from repo root: `./set_camera_fps.sh single` or `./set_camera_fps.sh three`).
 - **Simulation:** `ros2 launch cv_ros_nodes launch_cv_sim.py` or `ros2 launch cv_ros_nodes launch_cv.py use_sim:=true`.
 
 Overrides: `resolution:=1920,1200`, `camera_devices:=/path1,/path2,/path3`, `engine_path:=/path/to/model.engine`, `conf_threshold:=0.25`, `inference_interval:=2`, `enable_task4:=true`, `enable_indicator_buoy:=true`, `enable_number_detection:=true`, `number_detection_engine:=/path/to/number_detection.engine`, `number_conf_threshold:=0.25`, `staleness_threshold:=1.0`, `distance_scale_factor:=1.0`.
@@ -834,9 +834,9 @@ ros2 bag play <bag_file_name>
   - **Single camera test:** Run one camera + preprocessing + inference in the same shell (with the same env), then `ros2 topic hz /camera0/detection_info` to confirm data flow before running the full launch.
 - **USB ports / cameras or LiDAR not found after moving cables:**
   - Launch defaults: **Cameras** = by-path `1.4.2`, `1.4.3`, `1.4.4` (Jetson, three Arducams e.g. on a hub). **LiDAR** = by-path `2.1` (Unitree LiDAR plugged directly into Jetson). If you moved the LiDAR from hub to Jetson, the LiDAR port is now `2.1` (default updated in buoy_pipeline).
-  - From repo root run: `./list_usb_ports.sh` to see current `/dev/v4l/by-path/` and `/dev/serial/by-path/` devices. Override: `CAMERA_DEVICES="/path1,/path2,/path3" ./comp.sh` (3 cameras) or `CAMERA1_DEVICE=/dev/video0` for single camera. Update `set_camera_fps.sh` with the same camera paths (or set env `CAMERA_DEVICES`) so FPS is set on the correct devices.
+  - From repo root run: `./monitor_camera_move.sh` to see current by-path devices. Edit device paths in `set_camera_fps.sh` (root), or override: `CAMERA_DEVICES="/path1,/path2,/path3" ./set_camera_fps.sh three` then run the comp script.
 - **No messages on topic:** Check if nodes are running (`ros2 node list`), check topic exists (`ros2 topic list`), verify camera devices are correct
-- **Low frequency:** Check camera FPS (`./set_camera_fps.sh`), check inference engine path, verify preprocessing is completing
+- **Low frequency:** Check camera FPS (from repo root: `./set_camera_fps.sh single` or `three`), check inference engine path, verify preprocessing is completing
 - **Truncated output:** Use `--no-arr` flag with `ros2 topic echo` to see full messages
 - **JSON parsing:** Use `jq .` to pretty-print JSON messages from String topics
 

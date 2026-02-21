@@ -11,11 +11,11 @@ cd ~/autonomy-ws-25-26/computer_vision
 source /opt/ros/humble/setup.bash
 colcon build --packages-select cv_ros_nodes
 source install/setup.bash
-./set_camera_fps.sh
+./set_camera_fps.sh single
 ros2 launch cv_ros_nodes launch_cv.py
 ```
 
-Set 15 fps on cameras before launch (`./set_camera_fps.sh`; uses Think USB paths; on other hardware use `v4l2-ctl --list-devices` and override `camera_devices`).
+Set 15 fps on cameras before launch (from repo root: `./set_camera_fps.sh single` or `./set_camera_fps.sh three`; device paths are in that script).
 
 ---
 

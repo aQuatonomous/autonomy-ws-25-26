@@ -1,6 +1,6 @@
 #!/bin/bash
-# Comprehensive ROS process killer
-# Usage: ./kill_all_ros.sh
+# Comprehensive ROS process killer. Run from autonomy-ws-25-26 root.
+# Usage: ./kill_all_ros.sh  (all output to this terminal)
 
 echo "=== Killing all ROS/autonomy processes ==="
 
@@ -20,9 +20,11 @@ PATTERNS=(
     "vision_inference"
     "vision_combiner"
     "cv_ros_nodes"
+    "vision_lidar_fusion"
     "detection_to_global"
     "boat_state_node"
     "global_frame"
+    "global_planner_node"
     "rqt"
 )
 
