@@ -11,6 +11,7 @@ BAG_NAME="map_data_$(date +%Y%m%d_%H%M%S)"
 echo "=== Recording Map Data ==="
 echo "📦 Bag name: ${BAG_NAME}"
 echo "🎯 Topics: /boat_pose, /global_detections, /combined/detection_info_with_distance, /tracked_buoys, /mavros/setpoint_velocity/cmd_vel_unstamped, /planned_path, /curr_task"
+echo "🎯 Topics: /boat_pose, /global_detections, /combined/detection_info_with_distance, /tracked_buoys, /mavros/setpoint_velocity/cmd_vel_unstamped, /planned_path, /curr_task"
 echo ""
 
 # Source required workspaces for message types
@@ -45,6 +46,7 @@ echo "💡 Make sure your pipeline is running (comp_single_camera.sh or comp.sh)
 echo ""
 
 # Record the key topics for mapping, web visualization, and planning
+# Record the key topics for mapping, web visualization, and planning output
 ros2 bag record \
   -o "${BAG_NAME}" \
   --compression-mode file \
@@ -52,6 +54,10 @@ ros2 bag record \
   /boat_pose \
   /global_detections \
   /combined/detection_info_with_distance \
+  /tracked_buoys \
+  /mavros/setpoint_velocity/cmd_vel_unstamped \
+  /planned_path \
+  /curr_task
   /tracked_buoys \
   /mavros/setpoint_velocity/cmd_vel_unstamped \
   /planned_path \

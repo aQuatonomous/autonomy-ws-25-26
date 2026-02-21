@@ -27,11 +27,19 @@ def generate_launch_description():
         default_value="true",
         description="If true, feed planning from /fused_buoys (LiDAR+CV fusion); if false, from /tracked_buoys_json (LiDAR only).",
     )
+    publish_unknown_arg = launch.actions.DeclareLaunchArgument(
+        "publish_unknown_detections",
+        default_value="false",
+        description="If true, include unknown (class_id 255) detections in /global_detections; if false, exclude them (default).",
+    )
     detection_to_global = launch_ros.actions.Node(
         package="global_frame",
         executable="detection_to_global_node",
         name="detection_to_global_node",
         output="screen",
-        parameters=[{"use_fused_detections": LaunchConfiguration("use_fused_detections", default="true")}],
+        parameters=[
+            {"use_fused_detections": LaunchConfiguration("use_fused_detections", default="true")},
+            {"publish_unknown_detections": LaunchConfiguration("publish_unknown_detections", default="false")},
+        ],
     )
-    return launch.LaunchDescription([use_fused_arg, boat_state, detection_to_global])
+    return launch.LaunchDescription([use_fused_arg, publish_unknown_arg, boat_state, detection_to_global])
