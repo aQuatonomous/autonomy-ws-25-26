@@ -70,5 +70,7 @@ ros2 launch global_planner global_planner.launch.py task_id:=4 &
 PLANNER_PID=$!
 
 echo "=== Task 4 started. Ctrl+C to stop. ==="
-wait -n
+echo "(If any launch exits early, the rest keep running until Ctrl+C.)"
+echo ""
+wait
 cleanup

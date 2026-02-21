@@ -95,6 +95,7 @@ PLANNER_PID=$!
 
 echo "=== Pipelines started. MAVROS: $MAVROS_PID  GLOBAL_FRAME: $GLOBAL_FRAME_PID  LiDAR: $LIDAR_PID  CV: $CV_PID  FUSION: $FUSION_PID  PLANNER: $PLANNER_PID ==="
 echo "Press Ctrl+C to stop all. All node logs appear below (interleaved)."
+echo "(If LiDAR is not connected, that launch may exit; other nodes keep running.)"
 echo ""
-wait -n
+wait
 cleanup

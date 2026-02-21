@@ -23,6 +23,12 @@ source "${MAPPING_WS}/install/setup.bash"
 source "${CV_WS}/install/setup.bash"
 source "${PLANNING_WS}/install/setup.bash"
 
+# Single-camera only: fail if 3-camera pipeline is already running
+if ros2 topic list 2>/dev/null | grep -qE '/camera0/|/camera2/'; then
+  echo "ERROR: camera0/camera2 topics present (3-camera pipeline running). Run: ./kill_all_ros.sh  then start this script again."
+  exit 1
+fi
+
 set -m
 MAVROS_PID=""
 GLOBAL_FRAME_PID=""
@@ -94,6 +100,7 @@ PLANNER_PID=$!
 
 echo "=== Pipelines started. MAVROS: $MAVROS_PID  GLOBAL_FRAME: $GLOBAL_FRAME_PID  LiDAR: $LIDAR_PID  CV: $CV_PID  FUSION: $FUSION_PID  PLANNER: $PLANNER_PID ==="
 echo "Press Ctrl+C to stop all. All node logs appear below (interleaved)."
+echo "(If LiDAR is not connected, that launch may exit; other nodes keep running.)"
 echo ""
-wait -n
+wait
 cleanup

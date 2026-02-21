@@ -71,8 +71,8 @@ echo "=== Launching CV pipeline (Task 3: camera1, task:=3, indicator buoy enable
 ros2 launch cv_ros_nodes launch_cv_single_camera1.py \
   resolution:=960,600 \
   conf_threshold:=0.1 \
-  preprocess_fps:=5 \
-  inference_interval_front:=4 \
+  preprocess_fps:=10 \
+  inference_interval_front:=2 \
   task:=3 \
   enable_indicator_buoy:=true \
   enable_task4:=false \
@@ -93,6 +93,7 @@ PLANNER_PID=$!
 
 echo "=== Task 3 pipelines started. MAVROS: $MAVROS_PID  GLOBAL_FRAME: $GLOBAL_FRAME_PID  LiDAR: $LIDAR_PID  CV: $CV_PID  FUSION: $FUSION_PID  PLANNER: $PLANNER_PID ==="
 echo "Press Ctrl+C to stop all. All node logs appear below (interleaved)."
+echo "(If LiDAR is not connected, that launch may exit; other nodes keep running.)"
 echo ""
-wait -n
+wait
 cleanup
