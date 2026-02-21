@@ -2,7 +2,9 @@
 """Launch boat_state_node and detection_to_global_node."""
 
 import launch
+import launch.actions
 import launch_ros.actions
+from launch.substitutions import LaunchConfiguration
 
 
 def generate_launch_description():
@@ -20,10 +22,16 @@ def generate_launch_description():
             {"publish_tf": True},
         ],
     )
+    use_fused_arg = launch.actions.DeclareLaunchArgument(
+        "use_fused_detections",
+        default_value="true",
+        description="If true, feed planning from /fused_buoys (LiDAR+CV fusion); if false, from /tracked_buoys_json (LiDAR only).",
+    )
     detection_to_global = launch_ros.actions.Node(
         package="global_frame",
         executable="detection_to_global_node",
         name="detection_to_global_node",
         output="screen",
+        parameters=[{"use_fused_detections": LaunchConfiguration("use_fused_detections", default="true")}],
     )
-    return launch.LaunchDescription([boat_state, detection_to_global])
+    return launch.LaunchDescription([use_fused_arg, boat_state, detection_to_global])

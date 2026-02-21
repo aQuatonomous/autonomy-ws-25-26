@@ -60,7 +60,7 @@ if [[ "$FCU_URL" != /dev/* ]] || [ -e "${FCU_URL%%:*}" ]; then
   echo "=== Launching MAVROS (Pixhawk at ${FCU_URL}) ==="
   ros2 launch mavros apm.launch fcu_url:="${FCU_URL}" &
   MAVROS_PID=$!
-  sleep 3
+  sleep 1
 else
   echo "=== Skipping MAVROS (no device at ${FCU_URL%%:*}) ==="
 fi
@@ -68,18 +68,18 @@ fi
 echo "=== Launching global_frame (boat_state_node + detection_to_global_node) ==="
 ros2 launch global_frame global_frame.launch.py &
 GLOBAL_FRAME_PID=$!
-sleep 2
+sleep 1
 
 echo "=== Launching LiDAR buoy pipeline (no RViz, /dev/ttyUSB0) ==="
 ros2 launch pointcloud_filters buoy_pipeline.launch.py launch_rviz:=false &
 LIDAR_PID=$!
 
-sleep 5
+sleep 2
 echo "=== Launching CV pipeline ==="
 ros2 launch cv_ros_nodes launch_cv.py use_sim:=false resolution:=960,600 conf_threshold:=0.1 preprocess_fps:=5 inference_interval_front:=4 inference_interval_sides:=6 camera_devices:="${CAMERA_DEVICES}" &
 CV_PID=$!
 
-sleep 8
+sleep 4
 echo "=== Starting CV-LiDAR fusion ==="
 ros2 run cv_lidar_fusion vision_lidar_fusion &
 FUSION_PID=$!

@@ -14,7 +14,8 @@ CV_WS="${SCRIPT_DIR}/computer_vision"
 # Override the middle camera path if needed: CAMERA1_DEVICE="/path/to/middle" ./comp_single_camera.sh
 # LiDAR is always /dev/ttyUSB0. Pixhawk is /dev/ttyACM0 (override with FCU_URL for serial, e.g. /dev/ttyACM0:57600).
 FCU_URL="${FCU_URL:-/dev/ttyACM0:57600}"
-CAMERA1_DEVICE="${CAMERA1_DEVICE:-/dev/v4l/by-path/platform-3610000.usb-usb-0:1.3:1.0-video-index0}"
+# CAMERA1_DEVICE="${CAMERA1_DEVICE:-/dev/v4l/by-path/platform-3610000.usb-usb-0:1.2:1.0-video-index0}"  # by-path sometimes fails
+CAMERA1_DEVICE="${CAMERA1_DEVICE:-/dev/video0}"  # Direct device path - more reliable
 # For set_camera_fps: only configure the one physical camera
 CAMERA_DEVICES="${CAMERA1_DEVICE}"
 
@@ -57,7 +58,7 @@ if [[ "$FCU_URL" != /dev/* ]] || [ -e "${FCU_URL%%:*}" ]; then
   echo "=== Launching MAVROS (Pixhawk at ${FCU_URL}) ==="
   ros2 launch mavros apm.launch fcu_url:="${FCU_URL}" &
   MAVROS_PID=$!
-  sleep 3
+  sleep 1
 else
   echo "=== Skipping MAVROS (no device at ${FCU_URL%%:*}) ==="
 fi
@@ -65,18 +66,18 @@ fi
 echo "=== Launching global_frame (boat_state_node + detection_to_global_node) ==="
 ros2 launch global_frame global_frame.launch.py &
 GLOBAL_FRAME_PID=$!
-sleep 2
+sleep 1
 
 echo "=== Launching LiDAR buoy pipeline (no RViz, /dev/ttyUSB0) ==="
 ros2 launch pointcloud_filters buoy_pipeline.launch.py launch_rviz:=false &
 LIDAR_PID=$!
 
-sleep 5
+sleep 2
 echo "=== Launching CV pipeline (camera1 only) ==="
 ros2 launch cv_ros_nodes launch_cv_single_camera1.py resolution:=960,600 conf_threshold:=0.1 preprocess_fps:=5 inference_interval_front:=4 camera1_device:="${CAMERA1_DEVICE}" &
 CV_PID=$!
 
-sleep 8
+sleep 4
 echo "=== Starting CV-LiDAR fusion ==="
 ros2 run cv_lidar_fusion vision_lidar_fusion &
 FUSION_PID=$!
