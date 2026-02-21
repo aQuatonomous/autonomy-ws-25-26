@@ -57,6 +57,13 @@ ros2 bag record \
 echo ""
 echo "✅ Recording stopped. Bag saved as: ${BAG_NAME}"
 echo ""
+echo "📋 Topics actually recorded:"
+if [ -d "${BAG_NAME}" ]; then
+  ros2 bag info "${BAG_NAME}" 2>/dev/null || echo "   (could not read bag info)"
+else
+  echo "   (bag directory not found)"
+fi
+echo ""
 echo "To replay with web visualizer:"
 echo "  1. In one terminal: ./run_visualizer.sh"
 echo "  2. In another terminal: ./replay_map.sh ${BAG_NAME}"
