@@ -21,7 +21,7 @@ CV_WS="${SCRIPT_DIR}/computer_vision"
 PLANNING_WS="${SCRIPT_DIR}/planning"
 
 FCU_URL="${FCU_URL:-/dev/ttyACM0:57600}"
-CAMERA1_DEVICE="${CAMERA1_DEVICE:-/dev/video1}"
+CAMERA1_DEVICE="${CAMERA1_DEVICE:-/dev/v4l/by-path/platform-3610000.usb-usb-0:1.4.2:1.0-video-index0}"
 CAMERA_DEVICES="${CAMERA1_DEVICE}"
 
 echo "=== Task 3: Setting camera format (YUYV @ 960x600 @ 15fps) ==="

@@ -52,6 +52,7 @@ class DetectionToGlobalNode(Node):
         self.declare_parameter("global_detections_topic", "/global_detections")
         self.declare_parameter("map_frame", "map")
         self.declare_parameter("use_fused_detections", True)  # default: fused (LiDAR+CV) feeds planning
+        self.declare_parameter("publish_unknown_detections", False)  # if False, do not include class_id 255 / unknown in /global_detections
 
         self._boat_pose_topic = self.get_parameter("boat_pose_topic").value
         self._fused_buoys_topic = self.get_parameter("fused_buoys_topic").value
@@ -60,6 +61,8 @@ class DetectionToGlobalNode(Node):
         self._map_frame = self.get_parameter("map_frame").value
         _use_fused = self.get_parameter("use_fused_detections").value
         self._use_fused_detections = bool(_use_fused) if isinstance(_use_fused, bool) else (str(_use_fused).lower() == "true")
+        _pub_unknown = self.get_parameter("publish_unknown_detections").value
+        self._publish_unknown_detections = bool(_pub_unknown) if isinstance(_pub_unknown, bool) else (str(_pub_unknown).lower() == "true")
 
         self._boat_east: Optional[float] = None
         self._boat_north: Optional[float] = None
@@ -143,6 +146,8 @@ class DetectionToGlobalNode(Node):
             cid = int(b.class_id)
             g.class_id = cid if 0 <= cid <= 22 else 255
             g.id = b.id
+            if not self._publish_unknown_detections and (g.class_id == 255 or (g.class_name or "").strip().lower() == "unknown"):
+                continue
             detections.append(g)
         if detections:
             out = GlobalDetectionArray()
@@ -178,6 +183,8 @@ class DetectionToGlobalNode(Node):
             g.class_name = "unknown"
             g.class_id = 255
             g.id = int(d.get("id", 0))
+            if not self._publish_unknown_detections:
+                continue  # lidar-only detections are all unknown; skip when param is off
             detections.append(g)
         if detections:
             out = GlobalDetectionArray()
