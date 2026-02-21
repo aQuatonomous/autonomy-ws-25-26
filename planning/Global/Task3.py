@@ -161,8 +161,10 @@ class Task3Manager:
             self.yellow_pos = det.position
 
     def _obstacles(self) -> List[Tuple[float, ...]]:
-        """Obstacles = buoys + no-go (gate walls + map bounds when map_bounds set)."""
-        return list(self.entities.get_obstacles()) + list(
+        """Obstacles = buoys + no-go (gate walls + map bounds when map_bounds set).
+        Gate buoys are excluded (no-go walls handle boundaries)."""
+        gate_pairs = [self.entrance_gate] if self.entrance_gate else None
+        return list(self.entities.get_obstacles(exclude_gate_pairs=gate_pairs)) + list(
             self.entities.get_no_go_obstacle_points(map_bounds=self.map_bounds)
         )
 

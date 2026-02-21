@@ -21,7 +21,7 @@ import numpy as np
 # ============================================================================
 
 # Potential Field Gains
-K_ATT = 1.8          # Attractive gain - higher = stronger pull toward goals
+K_ATT = 2.5          # Attractive gain - higher = stronger pull toward goals
 K_REP = 140.0        # Repulsive gain - higher = stronger push from obstacles
 D_INFLUENCE = 10.0   # Influence distance for obstacles (m)
 

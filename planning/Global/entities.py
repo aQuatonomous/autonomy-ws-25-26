@@ -411,11 +411,16 @@ class EntityList:
         min_y, max_y = min(ys), max(ys)
         return (max_x + padding_m, max_y + padding_m)
 
-    def get_obstacles(self) -> List[Vec3]:
+    def get_obstacles(
+        self,
+        exclude_gate_pairs: Optional[List[Tuple[Vec2, Vec2]]] = None,
+    ) -> List[Vec3]:
         """
         Return obstacle positions for potential fields.
         Includes *everything* that should repel the boat.
-        Excludes: goals and start.
+        Excludes: goals, start, and red/green buoys that belong to a locked gate pair
+        (those are handled by no-go walls; including them creates a repulsive barrier
+        at the gate the boat is trying to pass through).
         """
         obstacle_types = {
             "red_buoy", "green_buoy", "green_pole_buoy", "red_pole_buoy",
@@ -423,12 +428,22 @@ class EntityList:
             "yellow_buoy",
             "red_indicator", "green_indicator",
             "yellow_supply_drop", "black_supply_drop",
-            "unknown",
         }
+        gate_positions: set = set()
+        if exclude_gate_pairs:
+            for red, green in exclude_gate_pairs:
+                gate_positions.add((round(float(red[0]), 2), round(float(red[1]), 2)))
+                gate_positions.add((round(float(green[0]), 2), round(float(green[1]), 2)))
+
         out: List[Vec3] = []
         for e in self.entities:
-            if e.type in obstacle_types:
-                out.append(e.position)  # Vec3 (x, y, 0.0)
+            if e.type not in obstacle_types:
+                continue
+            if gate_positions and e.type in ("red_buoy", "green_buoy", "red_pole_buoy", "green_pole_buoy"):
+                rounded = (round(float(e.position[0]), 2), round(float(e.position[1]), 2))
+                if rounded in gate_positions:
+                    continue
+            out.append(e.position)
         return out
 
     def get_black_buoys(self) -> List[Tuple[int, Vec3]]:

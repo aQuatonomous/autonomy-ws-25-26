@@ -182,8 +182,10 @@ class Task1Manager:
         return np.array([0.0, 1.0], dtype=float)
 
     def _obstacles(self) -> List[Tuple[float, ...]]:
-        """Obstacles = buoys + no-go (gate walls + map bounds when map_bounds set). No-go uses boat heading so it matches locked gates."""
-        return list(self.entities.get_obstacles()) + list(
+        """Obstacles = buoys + no-go (gate walls + map bounds when map_bounds set).
+        Gate buoys are excluded from obstacles (no-go walls handle boundaries;
+        including them creates a repulsive barrier at the gate)."""
+        return list(self.entities.get_obstacles(exclude_gate_pairs=self.locked_gates)) + list(
             self.entities.get_no_go_obstacle_points(
                 map_bounds=self.map_bounds,
                 boat_heading_rad=self.pose[2],

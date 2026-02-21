@@ -157,9 +157,13 @@ class Task2Manager:
         self.current_speeds = np.zeros((0,), dtype=float)
 
     def _obstacles(self) -> List[Vec2]:
-        """Obstacles = buoys; in TRANSIT_OUT and RETURN also add no-go (gate walls + map bounds). In DEBRIS_FIELD no-go is not used so we can reach indicators."""
-        obs = list(self.entities.get_obstacles())
-        if self.phase != Phase.DEBRIS_FIELD:
+        """Obstacles = buoys; in TRANSIT_OUT and RETURN also add no-go (gate walls + map bounds).
+        In DEBRIS_FIELD no-go is not used so we can reach indicators.
+        Gate buoys are excluded from obstacles when in the channel (no-go walls handle boundaries)."""
+        in_channel = self.phase != Phase.DEBRIS_FIELD
+        gate_pairs = self.entities.get_gates() if in_channel else None
+        obs = list(self.entities.get_obstacles(exclude_gate_pairs=gate_pairs))
+        if in_channel:
             obs.extend(self.entities.get_no_go_obstacle_points(map_bounds=self.map_bounds))
         return obs
 
