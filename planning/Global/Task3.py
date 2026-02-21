@@ -101,8 +101,7 @@ class Phase(Enum):
 class Task3Manager:
     def __init__(self, entities, map_bounds: Optional[Vec2], start_pose: Pose):
         self.entities = entities
-        # map_bounds = (width, height) for arena walls / clipping; align with entities no-go extent when available
-        self.map_bounds = (float(map_bounds[0]), float(map_bounds[1])) if map_bounds else None
+        self.map_bounds = None  # Task 3 does not use map bounds
         self.pose: Pose = start_pose
         self.prev_pos: Optional[Vec2] = None
 

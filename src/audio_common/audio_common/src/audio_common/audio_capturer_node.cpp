@@ -35,7 +35,7 @@ AudioCapturerNode::AudioCapturerNode() : Node("audio_capturer_node") {
   this->declare_parameter<int>("format", paInt16);
   this->declare_parameter<int>("channels", 1);
   this->declare_parameter<int>("rate", 16000);
-  this->declare_parameter<int>("chunk", 512);
+  this->declare_parameter<int>("chunk", 500);
   this->declare_parameter<int>("device", -1);
   this->declare_parameter<std::string>("frame_id", "");
 

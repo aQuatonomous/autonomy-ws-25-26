@@ -345,6 +345,9 @@ class GlobalPlannerNode(Node):
             # Current task
             task_id = self._task_master.task_id
             self.get_logger().info(f"{prefix}Current task: task_id={task_id}")
+            if task_id == 3:
+                phase = result.get("phase", "?")
+                self.get_logger().info(f"{prefix}Task3 phase={phase}")
             if task_id == 4:
                 phase = result.get("phase", "?")
                 pump_on = getattr(self._task_master.manager, "pump_on", False)

@@ -214,19 +214,23 @@ class Task2Manager:
         )
 
     def _lock_channel_centers(self) -> None:
-        """Lock 4 gate centers and build full waypoint list (centers + interpolated between). Store in channel_waypoints_out for outbound and return. Publish one at a time; goal_utils nudge at publish."""
-        if self.channel_locked:
-            return
-
+        """Lock on first pair of gates (2+), then extend as new gates appear (up to 4). Build waypoint list from current channel_centers_out; when more gates appear, extend waypoints and goal_plan (keep existing completed). Publish one at a time; goal_utils nudge at publish."""
         centers = self._gate_centers_sorted()
-        if len(centers) < 4:
+        if len(centers) < 2:
             return
-        self.channel_centers_out = centers[:4]
-        self.channel_locked = True
-        self.task2_start_position = centers[0]
 
-        # Build full waypoint list: gate 1, points between 1-2, gate 2, ..., gate 4 (interpolated "just ahead" along channel)
-        num_between = 2  # points between each consecutive gate pair
+        # Initial lock: first time we have at least 2 gates
+        if not self.channel_locked:
+            self.channel_centers_out = list(centers[: min(4, len(centers))])
+            self.channel_locked = True
+            self.task2_start_position = self.channel_centers_out[0]
+        else:
+            # Already locked: extend if we see more gates (up to 4)
+            if len(centers) > len(self.channel_centers_out) and len(centers) <= 4:
+                self.channel_centers_out = list(centers[:4])
+
+        # Build full waypoint list from current channel_centers_out (gate centers + interpolated between each pair)
+        num_between = 2
         waypoints: List[Vec3] = []
         for i in range(len(self.channel_centers_out)):
             a = self.channel_centers_out[i]
@@ -238,17 +242,25 @@ class Task2Manager:
                     x = a[0] + t * (b[0] - a[0])
                     y = a[1] + t * (b[1] - a[1])
                     waypoints.append((float(x), float(y), 0.0))
+        old_len = len(self.channel_waypoints_out)
         self.channel_waypoints_out = waypoints
 
-        # Goal plan for Phase A: one GoalPlan per nominal waypoint (nudge applied at publish_goals)
-        self.goal_plan = []
-        for i, pt in enumerate(self.channel_waypoints_out):
-            goal = GoalPlan(
-                goal_id=f"channel_out_{i+1}",
-                position=pt,
-                completed=False
-            )
-            self.goal_plan.append(goal)
+        # Goal plan: initial fill or extend (do not reset completed on existing goals)
+        if old_len == 0:
+            self.goal_plan = []
+            for i, pt in enumerate(self.channel_waypoints_out):
+                self.goal_plan.append(GoalPlan(
+                    goal_id=f"channel_out_{i+1}",
+                    position=pt,
+                    completed=False
+                ))
+        else:
+            for i, pt in enumerate(self.channel_waypoints_out[old_len:], start=old_len + 1):
+                self.goal_plan.append(GoalPlan(
+                    goal_id=f"channel_out_{i}",
+                    position=pt,
+                    completed=False
+                ))
 
     def _check_goal_completion(self) -> None:
         """Check if current goal was reached and mark it complete"""
@@ -298,12 +310,14 @@ class Task2Manager:
         self.handled_survivors.add(survivor_id)
 
     def _transition_to_debris_field(self) -> None:
-        """Transition from Phase A to Phase B only when channel is complete. Survivor is at end of debris field."""
+        """Transition from Phase A to Phase B only when we have 4 gates and all channel waypoints are complete."""
         if self.phase != Phase.TRANSIT_OUT:
             return
-        # Only when we've passed all channel gates (no Y threshold)
         all_channel_complete = all(goal.completed for goal in self.goal_plan)
         if not all_channel_complete:
+            return
+        # Require full channel (4 gates) before moving to debris field
+        if len(self.channel_centers_out) != 4:
             return
         self.phase = Phase.DEBRIS_FIELD
         self.goal_plan = []  # Will use forward waypoints until green indicator seen

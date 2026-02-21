@@ -17,7 +17,7 @@ COLLISION_DISTANCE_M = 2.0
 REVERSE_DISTANCE_M = 1.0
 REVERSE_SPEED_M_S = 0.5
 # Prediction timeout: no goal for this long (s) then spin to look
-PREDICTION_TIMEOUT_SEC = 25.0
+PREDICTION_TIMEOUT_SEC = 30.0
 # Spin for this long (s) when we can't find goals
 SPIN_DURATION_SEC = 20.0
 # Angular rate when spinning (rad/s)

@@ -5,14 +5,6 @@ Manages high-level docking mission state machine and dock selection.
 Uses DockingLocalPlanner for low-level motion control.
 """
 
-##########################
-##########################
-#    EAST/WEST SWITCH    #
-##########################
-##########################
-# controls whether we drive eastward though the marina or westard
-east_west_switch = 'east'
-
 # Coordinate Frame Assumptions: Assume East is +x, North is +y, and North is 0rad heading and heading is between 0 and 2pi rad.
 
 #TODONE Fix bugs coming from using dist_north and dist_south to stay centred in the lane. This will fail if the dock on one side is occupyed. Also our boat can't go sideways
@@ -68,10 +60,10 @@ class DockData:
         """Check if dock meets selection criteria"""
         return (
             self.indicator_color == 'green' and
-            self.vacant and
-            self.number > 0 and
-            self.confidence > 0.2 and # TODONE I don't care much about confidence
-            self.detections >= 1 # TODONE might want to just make this one
+            self.vacant #and       I DONT CARE - IF I SAW A DOCK IM GOING IN
+            #self.number > 0 and
+            #self.confidence > 0.2 and # TODONE I don't care much about confidence
+            #self.detections >= 1 # TODONE might want to just make this one
         )
     
     def center_point(self) -> Vec2:
@@ -136,7 +128,7 @@ class Task5Manager:
         current_velocities: Vec3 = (0.0, 0.0, 0.0)
    
         # Phase management
-        self.phase = Phase.INITIAL_CENTERING
+        self.phase = Phase.INITIAL_TURN
         
         # Dock tracking
         self.detected_docks: Dict[int, DockData] = {}
@@ -165,7 +157,7 @@ class Task5Manager:
         self.target_dock_depth = 2.032   # meters, depth of dock #TODONE tune also never used 
         
         # Edge detection
-        self.edge_threshold = 1.75  # meters (dock is 80 inchs deep)
+        self.edge_threshold = 1.7  # meters (dock is 80 inchs deep)
         self.vacancy_threshold = 0.4 # meters (1 foot) arbityray choice needs tuned
         
         # Local planner for motion control
@@ -198,8 +190,8 @@ class Task5Manager:
         """Update distances to North/South dock walls"""
         self.prev_dist_north = self.dist_north
         self.prev_dist_south = self.dist_south
-        self.dist_north = distances[0] if (east_west_switch == 'east') else distances[-1] # TODONE East West
-        self.dist_south = distances[-1] if (east_west_switch == 'east') else distances[0]
+        self.dist_north = distances[0] 
+        self.dist_south = distances[-1] 
         self.dist_forward = distances[len(distances)//2]
 
         self.laser_scan = distances 
@@ -242,16 +234,16 @@ class Task5Manager:
         # Check North side
         north_change = abs(self.dist_north - self.prev_dist_north)
         if north_change > self.edge_threshold:
-            edge_type = 'end' if self.dist_north > self.prev_dist_north else 'start'
-            self._process_edge('north', edge_type, (self.pose[0], self.pose[1] + 1)) # TODONE This was making the dock position in the center of the marina? And that will mess up assigning number/colour so I add 1 to the y coordinate so north docks are to the north TODONE meters
+            edge_type = 'end' if self.dist_north < self.prev_dist_north else 'start'
+            self._process_edge('north', edge_type, (self.pose[0], self.pose[1] + self.dist_north)) # TODONE This was making the dock position in the center of the marina? And that will mess up assigning number/colour so I add 1 to the y coordinate so north docks are to the north TODONE meters
         elif north_change > self.vacancy_threshold:
             self._update_dock_vacancy('north')
         
         # Check South side
         south_change = abs(self.dist_south - self.prev_dist_south)
         if south_change > self.edge_threshold:
-            edge_type = 'end' if self.dist_south > self.prev_dist_south else 'start'
-            self._process_edge('south', edge_type, (self.pose[0], self.pose[1] - 1))
+            edge_type = 'end' if self.dist_south < self.prev_dist_south else 'start'
+            self._process_edge('south', edge_type, (self.pose[0], self.pose[1] - self.dist_south))
         elif south_change > self.vacancy_threshold:
             self._update_dock_vacancy('south')
     
@@ -304,6 +296,7 @@ class Task5Manager:
             if dock.side == side and dock.end_pos == (0.0, 0.0):
                 dock.vacant = False
     
+    # Used to associate detections to docks so it uses the docks start instead of center becuase it may not have an end
     def _find_nearest_dock(self, position: Vec2) -> Optional[int]:
         """Find dock closest to detection position"""
         if not self.detected_docks:
@@ -313,8 +306,7 @@ class Task5Manager:
         nearest_id = None
         
         for dock_id, dock in self.detected_docks.items():
-            center = dock.center_point()
-            dist = self._distance(position, center)
+            dist = self._distance(position, dock.start_pos)
             if dist < min_dist:
                 min_dist = dist
                 nearest_id = dock_id
@@ -364,14 +356,14 @@ class Task5Manager:
     # ========== STATE METHODS ==========
     
     def _state_initial_turn(self) -> None:
-        target_head = np.pi / 2 if (east_west_switch == 'east') else 3 * np.pi / 2 # Go east or west to find the dock
+        target_head = np.pi / 2 
         state = DockingState(
             dist_north=self.dist_north,
             dist_south=self.dist_south,
             x=self.pose[0],
             y=self.pose[1],
             heading=self.pose[2],
-            target_heading= target_head,   #TODONE East West
+            target_heading= target_head,   
             target_speed=1,  # Move at a moderate pace
             mode=ControlMode.FORWARD
         )
@@ -385,8 +377,11 @@ class Task5Manager:
         
         # Transition when scan complete
         if self.local_planner.is_heading_aligned(state, tolerance_deg=2.0):
-            self._enter_phase(Phase.APPROACH) 
+            self._enter_phase(Phase.INITIAL_CENTERING) 
+            self.start_pos = (self.pose[0], self.pose[1])
 
+    # On the 20th I updated things to skip this and go right to initial_centering becuase we won't be that far from the dock
+    # And becuase the dock is really wide and there is the beach so this might not work
     def _state_initial_approach(self) -> None:
         # NO PID HERE NO LOCAL PLANNER JUST RAW DOGGING THE BOAT INTO THE RIGHT POSITION RAHHHHHHH
         fov90 = self.laser_scan[len(self.laser_scan)//4 : len(self.laser_scan)//4 * 3]
@@ -407,8 +402,8 @@ class Task5Manager:
                 cur_cluster_size += 1
             prev_x = x
         
-        best_cluster_center = best_cluster_start + best_cluster_size // 2
-        best_cluster_heading = self._normalize_angle(self.heading + (2 * best_cluster_center/180*np.pi - np.pi/2))
+        best_cluster_center = (best_cluster_start + best_cluster_size) // 2
+        best_cluster_heading = self._normalize_angle(self.heading + (2 * best_cluster_center/180*np.pi - np.pi/4))
 
         _publish_velocity(math.cos(best_cluster_heading), math.sin(best_cluster_heading), 0)
 
@@ -419,9 +414,9 @@ class Task5Manager:
         """Initial centering between docks"""
         # NO PID HERE NO LOCAL PLANNER JUST RAW DOGGING THE BOAT INTO THE RIGHT POSITION RAHHHHHHH
         # The strat is to find the corners of the enterance and drive to whichever one is further (and if you're within like a metre you've commited to your course so try to hit the centre)
-        fov90 = self.laser_scan[len(self.laser_scan)//4 : len(self.laser_scan)//4 * 3]
+        fov90 = self.laser_scan[len(self.laser_scan)//4 : len(self.laser_scan)//4 * 3] # THIS MAY BE TOO THIN FOR WHEN WE GET CLOSE
         left_edge = 0
-        right_edge = 0
+        right_edge = -1
         prev_left = float('inf')
         prev_right = float('inf')
         for i in range(1,45): # sweep across until there's a big change
@@ -429,30 +424,30 @@ class Task5Manager:
             right = fov90[-i]
             if left_edge == 0 and prev_left != float('inf') and abs(left - prev_left) > 0.8: # Tune sensitivity here
                 left_edge = i
-            if right_edge == 0 and prev_right != float('inf') and abs(right - prev_right) > 0.8: # Tune sensitivity here
+            if right_edge == -1 and prev_right != float('inf') and abs(right - prev_right) > 0.8: # Tune sensitivity here
                 right_edge = -i
             prev_left = left
             prev_right = right
         
         # When you're close try to shoot the centre and slow down
-        if fov90[left_edge] < 1.5 or fov[right_edge] < 1.5:
+        if fov90[left_edge] < 5 or fov[right_edge] < 5: #TODO Tune this
             centre = (left_edge - right_edge)/2
-            desired_heading = self._normalize_angle(self.heading + (2 * centre/180*np.pi - np.pi/2))
+            desired_heading = self._normalize_angle(self.heading + (2 * centre/180*np.pi - np.pi/4))
             _publish_velocity(0.5*math.cos(desired_heading), 0.5*math.sin(desired_heading), 0)
         # When you're far go towards the farther edge to get centered
         else:
             if fov90[left_edge] > fov90[right_edge]:
-                desired_heading = self._normalize_angle(self.heading + (2 * left_edge/180*np.pi - np.pi/2))
+                desired_heading = self._normalize_angle(self.heading + (2 * left_edge/180*np.pi - np.pi/4))
             else:
-                desired_heading = self._normalize_angle(self.heading + (2 * right_edge/180*np.pi + np.pi/2))
+                desired_heading = self._normalize_angle(self.heading + (2 * right_edge/180*np.pi + np.pi/4))
             _publish_velocity(math.cos(desired_heading), math.sin(desired_heading), 0)
 
-        if self.distances[0] != float('inf') and abs(self.distances[0] - self.distances[-1]) < 1:
+        if self.distances[0] != float('inf') and abs(self.distances[0] - self.distances[-1]) < 10: # TODO DOCKS are 10 m appart?
             self._enter_phase(Phase.SCANNING)
     
     def _state_scanning(self) -> None:
         """Scan marina while driving East"""
-        target_head = np.pi / 2 if (east_west_switch == 'east') else 3 * np.pi / 2
+        target_head = np.pi / 2 
         state = DockingState(
             dist_north=self.dist_north,
             dist_south=self.dist_south,
@@ -488,7 +483,7 @@ class Task5Manager:
                   f"{self.target_dock.side} side, number {self.target_dock.number}")
             self._enter_phase(Phase.TURNING)
         else:
-            print("[SELECT] No valid dock found! Returning to start position to rescan.")
+            print("[SELECT] No valid dock found! Giving up")
             self._enter_phase(Phase.RETURNING)
     
     def _state_turning(self) -> None:
@@ -602,7 +597,7 @@ class Task5Manager:
         )
         
         # Transition when aligned
-        if self.local_planner.is_heading_aligned(state, tolerance_deg=5.0):
+        if self.local_planner.is_heading_aligned(state, tolerance_deg=2.0):
             self._enter_phase(Phase.DOCKING)
     
     def _state_returning(self) -> None:
@@ -632,7 +627,7 @@ class Task5Manager:
             y=self.pose[1],
             heading=self.pose[2],
             target_heading=target_heading,
-            target_speed=0.2,  # Slow return speed
+            target_speed=1,  # Moderate return speed
             mode=ControlMode.FORWARD
         )
         
@@ -705,10 +700,10 @@ class Task5Manager:
     def _state_undocking(self) -> None:
         # Calculate waypoint at dock's vertical position
         dock_center = self.target_dock.center_point()
-        waypoint_y = dock_center[1] - 1 if (self.target_dock.side == 'north') else dock_center[1] + 1 # This is the hardcoded value we added when we recorded the dock position do differntiante north and south
+        waypoint_y = dock_center[1] - 4 if (self.target_dock.side == 'north') else dock_center[1] + 4 # It's wide so pull 4 metres out of the dock
         
         # Check if reached lateral position
-        x_error = abs(self.pose[1] - waypoint_y)
+        y_error = abs(self.pose[1] - waypoint_y)
         
         if y_error < 0.15:  # Within 1/2 ft TODONE meters
             self._enter_phase(Phase.RETURNING)

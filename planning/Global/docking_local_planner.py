@@ -57,16 +57,16 @@ SPEED_KD = 0.1
 SPEED_I_LIMIT = 0.2
 
 # Velocity Limits
-MAX_FORWARD_SPEED = 0.5     # m/s - normal navigation
+MAX_FORWARD_SPEED = 1     # m/s - normal navigation
 MAX_LATERAL_SPEED = 0.3     # m/s - centering
-MAX_ROTATION_RATE = 0.5     # rad/s - turning
-DOCKING_SPEED = 0.1         # m/s - final approach
-APPROACH_SPEED = 0.2        # m/s - approaching dock
+MAX_ROTATION_RATE = 1     # rad/s - turning
+DOCKING_SPEED = 0.3         # m/s - final approach
+APPROACH_SPEED = 0.3        # m/s - approaching dock
 
-# Safety Thresholds
-MIN_LATERAL_CLEARANCE = 0.15   # meters - emergency stop threshold
+# Safety Thresholds NEVER BACK DOWN NEVER WHAT?
+MIN_LATERAL_CLEARANCE = 0.0   # meters - emergency stop threshold
 WARNING_CLEARANCE = 0.25       # meters - slow down threshold
-MIN_FORWARD_CLEARANCE = 0.3    # meters - stop distance
+MIN_FORWARD_CLEARANCE = 0.0    # meters - stop distance
 DOCKING_TARGET_DISTANCE = 0.5  # meters - final stop position
 
 # Centering Tolerances
@@ -77,7 +77,7 @@ CENTERING_DEADBAND = 0.02      # meters - ignore tiny errors
 CONTROL_DT = 0.05              # seconds - 20 Hz control loop
 
 # Smoothing
-VELOCITY_ALPHA = 0.3           # Exponential smoothing factor (0=no change, 1=instant)
+VELOCITY_ALPHA = 0.7           # Exponential smoothing factor (0=no change, 1=instant)
 
 # ============================================================================
 

@@ -75,6 +75,15 @@ private:
 	return sqrt(z[0]*z[0] + z[1]*z[1]);
   } 
 
+  int hamming(int a, int b){
+	int diff = a ^ b;
+	if (diff == 0)
+		return 0;
+	if ((diff & (diff - 1)) == 0)
+		return 1;
+	return 2;
+  }
+
   void topic_callback(const audio_common_msgs::msg::AudioStamped::SharedPtr msg) {
   	  // buffer the lastest message
 	  for (int i = count_; i < count_ + chunk_; i++){
@@ -118,7 +127,9 @@ private:
 	  }
         	  RCLCPP_INFO_STREAM(this->get_logger(), "output: " << output);
 	  // check for a match
-	  if (output == 0b110011 && delay_flag_ != 1) {
+	  RCLCPP_INFO_STREAM(this->get_logger(), hamming(output, 0b11011));
+	  if (hamming(output, 0b110011) <= 1 && delay_flag_ != 1) {
+		RCLCPP_INFO(this->get_logger(), "Heard %d blasts", 2);
 		auto message = std_msgs::msg::Int32();
 		message.data = 2;
 		interupt_publisher_->publish(message);
@@ -128,7 +139,8 @@ private:
 		interupt_publisher_freq_->publish(message_freq);
 		delay_flag_ = 1;
 		delay_timer_->reset();
-	  } else if (output == 0b001111 && delay_flag_ != 1) {
+	  } else if (hamming(output, 0b001111) <=1 && delay_flag_ != 1) {
+		RCLCPP_INFO(this->get_logger(), "Heard %d blast", 1);
 		auto message = std_msgs::msg::Int32();
 		message.data = 1;
 		interupt_publisher_->publish(message);

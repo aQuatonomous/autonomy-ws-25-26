@@ -10,6 +10,7 @@ from sound_signal_msgs.msg import SoundSignalWithFreq
 
 from datetime import datetime, timezone
 from google.protobuf.timestamp_pb2 import Timestamp
+from google.protobuf import json_format
 from .report_pb2 import *
 import socket, struct
 
@@ -25,6 +26,7 @@ class MinimalSubscriber(Node):
         self.position = LatLng(latitude=0,longitude=0)
         self.speed = 0.0
         self.heading = 0.0 
+        self.message_pub = self.create_publisher(String, 'gs_message_send', 10)
         self.task_sub = self.create_subscription(
             Int32,
             'cur_task',
@@ -130,13 +132,19 @@ class MinimalSubscriber(Node):
         ts = Timestamp() 
         ts.FromDatetime(datetime.now(timezone.utc))
         report.sent_at.CopyFrom(ts)
-        
-        # Header($R) + 1-byte length + payload + footer(!!)
         payload = report.SerializeToString()
+        
+        #payload = json_format.MessageToJson(report)
+        #print(payload)
+
+        #msg = String()
+        #msg.data = payload
+        #self.message_pub.publish(msg)
+        # Header($R) + 1-byte length + payload + footer(!!)
         frame = b'$R' + struct.pack("!B", len(payload)) + payload + b'!!'
         
         try:
-            with socket.create_connection(("10.10.10.1", 50000)) as s:
+            with socket.create_connection(("localhost", 50000)) as s:
                 s.sendall(frame)
         except:
                 self.get_logger().warning('Failed to connect to heartbeat message server')
