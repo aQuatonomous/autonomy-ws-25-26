@@ -18,14 +18,30 @@ class MapVisualizer {
         this.viewBounds = { minEast: -10, maxEast: 10, minNorth: -10, maxNorth: 10 };
         this.padding = 0.15; // 15% padding around data
         
-        // Colors
+        // Colors - matches class_mapping.yaml and tracked_buoy_visualizer.py
         this.colors = {
+            // Buoys
             'red_buoy': '#FF0000',
             'green_buoy': '#00FF00',
             'yellow_buoy': '#FFFF00',
             'black_buoy': '#000000',
             'red_pole_buoy': '#CC0000',
             'green_pole_buoy': '#00CC00',
+            // Indicator buoys (Task 2/3)
+            'red_indicator': '#FF3333',
+            'green_indicator': '#33FF33',
+            'red_indicator_buoy': '#FF3333',
+            'green_indicator_buoy': '#33FF33',
+            // Infrastructure
+            'dock': '#666699',
+            // Supply drops (Task 4)
+            'yellow_supply_drop': '#FFD700',
+            'black_supply_drop': '#333333',
+            // Docking numbers (Task 5)
+            'digit_1': '#CCCCCC',
+            'digit_2': '#CCCCCC',
+            'digit_3': '#CCCCCC',
+            // Fallback
             'unknown': '#808080',
             'boat': '#0066FF',
             'grid': '#CCCCCC',
@@ -129,9 +145,10 @@ class MapVisualizer {
             document.getElementById('boat-heading').textContent = headingDeg;
         }
         
-        // Update detection count
+        // Update detection count (excluding cross and triangle)
+        const visibleCount = this.detections.filter(d => d.class_name !== 'cross' && d.class_name !== 'triangle').length;
         document.getElementById('detection-count').textContent = 
-            `Detections: ${this.detections.length}`;
+            `Detections: ${visibleCount}`;
     }
     
     calculateViewBounds() {
@@ -145,7 +162,8 @@ class MapVisualizer {
             hasData = true;
         }
         
-        for (const det of this.detections) {
+        const visibleDetections = this.detections.filter(d => d.class_name !== 'cross' && d.class_name !== 'triangle');
+        for (const det of visibleDetections) {
             if (!hasData) {
                 minEast = maxEast = det.east;
                 minNorth = maxNorth = det.north;
@@ -297,7 +315,8 @@ class MapVisualizer {
     }
     
     drawDetections(detections) {
-        for (const det of detections) {
+        const filtered = detections.filter(d => d.class_name !== 'cross' && d.class_name !== 'triangle');
+        for (const det of filtered) {
             const pos = this.mapToCanvas(det.east, det.north);
             
             // Get color based on class name

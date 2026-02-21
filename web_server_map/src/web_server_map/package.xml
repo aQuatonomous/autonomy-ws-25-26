@@ -10,7 +10,6 @@
   <buildtool_depend>ament_cmake_python</buildtool_depend>
 
   <depend>rclpy</depend>
-  <depend>global_frame</depend>
   <depend>std_msgs</depend>
   <depend>builtin_interfaces</depend>
 

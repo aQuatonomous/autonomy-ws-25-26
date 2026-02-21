@@ -2,6 +2,8 @@
 
 Lightweight web-based 2D map for boat position and global detections. Real-time updates in a browser, no GUI on the Jetson; use SSH port forwarding for remote access.
 
+**Independent workspace** – builds and runs separately from mapping, planning, and computer vision. Only listens to ROS2 topics at runtime.
+
 ## Features
 
 - Real-time boat position with heading arrow
@@ -16,9 +18,10 @@ Lightweight web-based 2D map for boat position and global detections. Real-time 
 
 ```bash
 pip3 install aiohttp
-cd ~/autonomy-ws-25-26
+cd ~/autonomy-ws-25-26/web_server_map
 source /opt/ros/humble/setup.bash
-colcon build --packages-select web_server_map
+source ../mapping/install/setup.bash  # for global_frame message types
+colcon build --symlink-install
 source install/setup.bash
 
 ros2 run web_server_map map_visualizer_node
@@ -37,10 +40,17 @@ Open **http://localhost:8080**. For remote access: `ssh -L 8080:localhost:8080 u
 2. **Build**
 
    ```bash
-   cd ~/autonomy-ws-25-26
+   cd ~/autonomy-ws-25-26/web_server_map
    source /opt/ros/humble/setup.bash
-   colcon build --packages-select web_server_map
+   source ../mapping/install/setup.bash  # for global_frame message types
+   colcon build --symlink-install
    source install/setup.bash
+   ```
+
+   Or use the main build script from root:
+   ```bash
+   cd ~/autonomy-ws-25-26
+   ./build.sh  # builds all workspaces including web_server_map
    ```
 
 ## Usage
@@ -48,12 +58,16 @@ Open **http://localhost:8080**. For remote access: `ssh -L 8080:localhost:8080 u
 **Run node**
 
 ```bash
+cd ~/autonomy-ws-25-26/web_server_map
+source install/setup.bash
 ros2 run web_server_map map_visualizer_node
 ```
 
 **Launch file**
 
 ```bash
+cd ~/autonomy-ws-25-26/web_server_map
+source install/setup.bash
 ros2 launch web_server_map map_visualizer.launch.py
 ros2 launch web_server_map map_visualizer.launch.py port:=8888 update_rate_hz:=5.0
 ```
@@ -118,6 +132,8 @@ You should see boat arrow at (5, 3) and red buoy at (10, 8). Mouse over canvas t
 **4. Launch file**
 
 ```bash
+cd ~/autonomy-ws-25-26/web_server_map
+source install/setup.bash
 ros2 launch web_server_map map_visualizer.launch.py
 ros2 launch web_server_map map_visualizer.launch.py port:=8888
 ```
@@ -138,34 +154,40 @@ On Jetson: run `boat_state_node` and `detection_to_global_node` (or full mapping
 
 | Issue | Fix |
 |------|-----|
-| Node won’t start | `pip3 show aiohttp`; build/source `global_frame` |
+| Node won’t start | `pip3 show aiohttp`; ensure mapping workspace is built and sourced |
 | Port in use | `ros2 run web_server_map map_visualizer_node --ros-args -p port:=8888` |
 | "Waiting for data..." | Check `ros2 topic list` and `ros2 topic echo /boat_pose` |
 | WebSocket drops | Reduce `update_rate_hz`, check network/firewall |
 | Can’t reach via SSH | Verify tunnel: `ssh -L 8080:localhost:8080 user@jetson-ip`; try different local port |
-| global_frame not found | In `mapping/`: `colcon build --packages-select global_frame` and source |
+| global_frame not found | Run `./build.sh` from root, or build mapping workspace first |
 
 ## File Structure
 
 ```
-web_server_map/
-├── src/web_server_map/
-│   ├── __init__.py
-│   ├── map_visualizer_node.py
-│   └── web_server.py
-├── web/
-│   ├── index.html
-│   ├── map.js
-│   └── style.css
-├── launch/
-│   └── map_visualizer.launch.py
-├── resource/
-│   └── web_server_map
-├── package.xml
-├── setup.py
-├── CMakeLists.txt
-├── build.sh
-└── README.md
+autonomy-ws-25-26/
+├── web_server_map/              # Independent workspace
+│   ├── src/web_server_map/      # ROS2 package
+│   │   ├── src/web_server_map/
+│   │   │   ├── __init__.py
+│   │   │   ├── map_visualizer_node.py
+│   │   │   └── web_server.py
+│   │   ├── web/
+│   │   │   ├── index.html
+│   │   │   ├── map.js
+│   │   │   └── style.css
+│   │   ├── launch/
+│   │   │   └── map_visualizer.launch.py
+│   │   ├── resource/
+│   │   │   └── web_server_map
+│   │   ├── package.xml
+│   │   ├── setup.py
+│   │   ├── CMakeLists.txt
+│   │   └── README.md
+│   ├── build/                   # Build artifacts
+│   └── install/                 # Install space
+├── mapping/                     # Mapping workspace (global_frame)
+├── planning/                    # Planning workspace  
+└── computer_vision/             # Computer vision workspace
 ```
 
 ## License
