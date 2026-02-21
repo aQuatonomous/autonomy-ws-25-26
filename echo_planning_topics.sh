@@ -18,7 +18,7 @@ source "${CV_WS}/install/setup.bash"
 source "${PLANNING_WS}/install/setup.bash"
 
 INTERVAL="${INTERVAL:-1.5}"
-TIMEOUT_ECHO=1.2
+TIMEOUT_ECHO=2.5
 
 # --- Filters: take ros2 topic echo stdout, print only key fields ---
 filter_boat_pose() {
@@ -56,19 +56,23 @@ while true; do
   echo "========== $(date '+%H:%M:%S') =========="
 
   echo "[boat_pose]"
-  timeout "$TIMEOUT_ECHO" ros2 topic echo --once /boat_pose 2>/dev/null | filter_boat_pose || echo "  (no message)"
+  out=$(timeout "$TIMEOUT_ECHO" ros2 topic echo --once /boat_pose 2>/dev/null | filter_boat_pose)
+  [[ -n "$out" ]] && echo "$out" || echo "  (no message)"
   echo ""
 
   echo "[cmd_vel (planner → MAVROS)]"
-  timeout "$TIMEOUT_ECHO" ros2 topic echo --once /mavros/setpoint_velocity/cmd_vel_unstamped 2>/dev/null | filter_cmd_vel || echo "  (no message)"
+  out=$(timeout "$TIMEOUT_ECHO" ros2 topic echo --once /mavros/setpoint_velocity/cmd_vel_unstamped 2>/dev/null | filter_cmd_vel)
+  [[ -n "$out" ]] && echo "$out" || echo "  (no message)"
   echo ""
 
   echo "[global_detections]"
-  timeout "$TIMEOUT_ECHO" ros2 topic echo --once /global_detections 2>/dev/null | filter_global_detections || echo "  (no message)"
+  out=$(timeout "$TIMEOUT_ECHO" ros2 topic echo --once /global_detections 2>/dev/null | filter_global_detections)
+  [[ -n "$out" ]] && echo "$out" || echo "  (no message)"
   echo ""
 
   echo "[combined/detection_info_with_distance]"
-  timeout "$TIMEOUT_ECHO" ros2 topic echo --once /combined/detection_info_with_distance 2>/dev/null | filter_combined_detection || echo "  (no message)"
+  out=$(timeout "$TIMEOUT_ECHO" ros2 topic echo --once /combined/detection_info_with_distance 2>/dev/null | filter_combined_detection)
+  [[ -n "$out" ]] && echo "$out" || echo "  (no message)"
   echo ""
 
   sleep "$INTERVAL"
