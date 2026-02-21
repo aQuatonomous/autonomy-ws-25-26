@@ -102,7 +102,7 @@ class GlobalPlannerNode(Node):
             GPIO.setup(self._pump_gpio_pin, GPIO.OUT, initial=GPIO.LOW)
             self._GPIO = GPIO
             self._gpio_available = True
-        except (ImportError, RuntimeError):
+        except Exception:
             self.get_logger().warn("Jetson.GPIO not available; pump control disabled")
 
         self._entity_list = EntityList(start_position=(0.0, 0.0))

@@ -25,6 +25,9 @@ def generate_launch_description():
     planning_path = os.path.abspath(os.path.join(share, "..", "..", "..", "src", "planning"))
     if not os.path.isdir(planning_path):
         planning_path = os.path.abspath(os.path.join(share, "..", "..", "..", "..", "planning"))
+    if not os.path.isdir(planning_path):
+        # Colcon workspace IS the planning dir (planning/install/... -> planning/)
+        planning_path = os.path.abspath(os.path.join(share, "..", "..", "..", ".."))
 
     return LaunchDescription([
         DeclareLaunchArgument("task_id", default_value="1", description="Task ID: 1, 2, or 3"),

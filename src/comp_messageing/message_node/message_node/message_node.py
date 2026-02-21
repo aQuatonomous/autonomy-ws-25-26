@@ -144,7 +144,7 @@ class MinimalSubscriber(Node):
         frame = b'$R' + struct.pack("!B", len(payload)) + payload + b'!!'
         
         try:
-            with socket.create_connection(("localhost", 50000)) as s:
+            with socket.create_connection(("10.10.10.1", 50000)) as s:
                 s.sendall(frame)
         except:
                 self.get_logger().warning('Failed to connect to heartbeat message server')
