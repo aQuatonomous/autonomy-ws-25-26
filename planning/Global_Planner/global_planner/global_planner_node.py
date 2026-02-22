@@ -7,9 +7,11 @@ Subscribes to:
   - /mavros/global_position/global (sensor_msgs/NavSatFix) for position (lat/lon -> local x,y)
   - /mavros/global_position/compass_hdg (std_msgs/Float64) for heading (deg -> rad)
   - /mavros/global_position/gp_vel (geometry_msgs/Twist) for velocity
-  - /sound_signal_interupt (std_msgs/Int32): 1 = stop boat, 2 = ignore
+  - /sound_signal_interupt (std_msgs/Int32):
+      - Task 6: 1 = east-most yellow buoy, 2 = west-most yellow buoy
+      - Other tasks: 1 = stop boat, 2 = ignore
 
-Maintains a persistent EntityList, runs TaskMaster (Task1/2/3/4) at 10 Hz,
+Maintains a persistent EntityList, runs TaskMaster (Task1/2/3/4/6) at 10 Hz,
 publishes /planned_path (nav_msgs/Path), /curr_task (std_msgs/Int32), and
 /mavros/setpoint_velocity/cmd_vel_unstamped (geometry_msgs/Twist) for MAVROS.
 
@@ -112,7 +114,7 @@ class GlobalPlannerNode(Node):
         self._origin_lat_lon: Optional[tuple] = None  # (lat0, lon0) for lat/lon -> x,y
         self._buoy_count = 0
         self._start_set = False
-        self._sound_stop = False  # True when /sound_signal_interupt == 1
+        self._sound_stop = False  # non-Task6: True when /sound_signal_interupt == 1
 
         # Guided-mode gate: only run planning when Pixhawk is in GUIDED
         self._guided_mode_active = not _MAVROS_STATE_AVAILABLE  # allow planning if no mavros_msgs
@@ -230,9 +232,18 @@ class GlobalPlannerNode(Node):
         self._latest_velocity_m_s = (v_east, v_north)
 
     def _sound_signal_callback(self, msg: Int32) -> None:
-        if msg.data == 1:
+        val = int(msg.data)
+        if self._task_id == 6:
+            if hasattr(self._task_master, "on_sound_signal"):
+                self._task_master.on_sound_signal(val)
+            else:
+                mgr = getattr(self._task_master, "manager", None)
+                if mgr is not None and hasattr(mgr, "on_sound_signal"):
+                    mgr.on_sound_signal(val)
+            return
+        if val == 1:
             self._sound_stop = True
-        # 2 = ignore for now
+        # non-task6: 2 = ignore
 
     def _global_detections_callback(self, msg: GlobalDetectionArray) -> None:
         n = len(msg.detections)
@@ -284,14 +295,14 @@ class GlobalPlannerNode(Node):
         return (lat, lon)
 
     def _planning_tick(self) -> None:
-        # Publish current task (int32)
-        self._curr_task_pub.publish(Int32(data=self._task_id))
-
         pose = self._get_pose()
         prefix = _log_prefix(self.get_clock(), pose)
+        self._curr_task_pub.publish(
+            Int32(data=int(getattr(self._task_master, "active_task_id", self._task_id)))
+        )
 
-        # Sound interrupt: 1 = stop boat
-        if self._sound_stop:
+        # Non-task6 sound interrupt: 1 = stop boat
+        if self._sound_stop and self._task_id != 6:
             twist = Twist()
             twist.linear.x = 0.0
             twist.linear.y = 0.0
@@ -343,7 +354,8 @@ class GlobalPlannerNode(Node):
             no_go_pts = self._entity_list.get_no_go_obstacle_points(map_bounds=map_bounds)
 
             # Current task
-            task_id = self._task_master.task_id
+            task_id = int(result.get("active_task_id", getattr(self._task_master, "active_task_id", self._task_master.task_id)))
+            self._curr_task_pub.publish(Int32(data=task_id))
             self.get_logger().info(f"{prefix}Current task: task_id={task_id}")
             if task_id == 3:
                 phase = result.get("phase", "?")
@@ -352,6 +364,9 @@ class GlobalPlannerNode(Node):
                 phase = result.get("phase", "?")
                 pump_on = getattr(self._task_master.manager, "pump_on", False)
                 self.get_logger().info(f"{prefix}Task4 phase={phase} pump_on={pump_on}")
+            if task_id == 6:
+                phase = result.get("phase", "?")
+                self.get_logger().info(f"{prefix}Task6 phase={phase}")
 
             # Seen red-green buoy pairs
             self.get_logger().info(
@@ -376,6 +391,17 @@ class GlobalPlannerNode(Node):
 
             # State: following goal vs going straight / prediction
             has_vel = velocities is not None and len(velocities) > 0 and speeds is not None and len(speeds) > 0
+            manager_twist_override = getattr(self._task_master.manager, "current_twist_override", None)
+            if manager_twist_override is not None:
+                twist = Twist()
+                twist.linear.x = float(manager_twist_override.get("linear.x", 0.0))
+                twist.linear.y = float(manager_twist_override.get("linear.y", 0.0))
+                twist.linear.z = 0.0
+                twist.angular.x = 0.0
+                twist.angular.y = 0.0
+                twist.angular.z = float(manager_twist_override.get("angular.z", 0.0))
+                self._cmd_vel_pub.publish(twist)
+                return
             if goals and has_vel:
                 self.get_logger().info(f"{prefix}State: following goal")
             elif not goals:

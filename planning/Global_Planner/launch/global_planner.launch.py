@@ -30,7 +30,7 @@ def generate_launch_description():
         planning_path = os.path.abspath(os.path.join(share, "..", "..", "..", ".."))
 
     return LaunchDescription([
-        DeclareLaunchArgument("task_id", default_value="1", description="Task ID: 1, 2, or 3"),
+        DeclareLaunchArgument("task_id", default_value="1", description="Task ID: 1, 2, 3, 4, or 6"),
         DeclareLaunchArgument("planning_hz", default_value="10.0", description="Planning loop frequency (Hz)"),
         DeclareLaunchArgument("cmd_vel_topic", default_value="/mavros/setpoint_velocity/cmd_vel_unstamped"),
         SetEnvironmentVariable(name="PLANNING_PATH", value=planning_path),
