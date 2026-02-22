@@ -1,12 +1,7 @@
 #!/bin/bash
-# Tasks 1 & 2 - Evacuation Route (Task 1) / Debris Clearance (Task 2) - Single camera.
-#
-# Task 1: Two gates only; navigate through in order. No indicator buoy.
-# Task 2: Channel + debris field; green/red indicators (survivors/hazards), black buoys (debris).
-#   Override: TASK_ID=1 ./comp_task1_2.sh  or  TASK_ID=2 ./comp_task1_2.sh
-#
-# CV: task:=2 (buoy reference dimensions for distance), single camera.
-#   Task 1: enable_indicator_buoy:=false.  Task 2: enable_indicator_buoy:=true.
+# Task 3 - Emergency Response Sprint (Speed Challenge) - Single camera.
+# Gate + yellow buoy + color indicator (red=circle right, green=circle left).
+# CV: task:=3, enable_indicator_buoy:=true, enable_task4:=false, enable_number_detection:=false.
 # Run from autonomy-ws-25-26. Ctrl+C kills all.
 
 set -e
@@ -16,9 +11,8 @@ CV_WS="${SCRIPT_DIR}/computer_vision"
 PLANNING_WS="${SCRIPT_DIR}/planning"
 
 FCU_URL="${FCU_URL:-/dev/ttyACM0:57600}"
-TASK_ID="${TASK_ID:-1}"
 
-echo "=== Task 1/2: Setting camera format (single camera: YUYV @ 960x600 @ 15fps) ==="
+echo "=== Task 3: Setting camera format (single camera: YUYV @ 960x600 @ 15fps) ==="
 "${SCRIPT_DIR}/set_camera_fps.sh" single || { echo "Warning: set_camera_fps failed (edit set_camera_fps.sh or run ./monitor_camera_move.sh)"; exit 1; }
 CAMERA1_DEVICE="$(cat "${SCRIPT_DIR}/.camera_devices")"
 
@@ -73,17 +67,14 @@ ros2 launch pointcloud_filters buoy_pipeline.launch.py launch_rviz:=false &
 LIDAR_PID=$!
 
 sleep 2
-# Task 2 needs indicator buoy (green/red); Task 1 does not
-INDICATOR="false"
-[ "$TASK_ID" = "2" ] && INDICATOR="true"
-echo "=== Launching CV pipeline (Task 1/2: camera1, task:=2, indicator_buoy:=${INDICATOR}) ==="
+echo "=== Launching CV pipeline (Task 3: camera1, task:=3, indicator buoy enabled) ==="
 ros2 launch cv_ros_nodes launch_cv_single_camera1.py \
   resolution:=960,600 \
-  conf_threshold:=0.1 \
-  preprocess_fps:=5 \
-  inference_interval_front:=4 \
-  task:=2 \
-  enable_indicator_buoy:="${INDICATOR}" \
+  conf_threshold:=0.3 \
+  preprocess_fps:=8 \
+  inference_interval_front:=2 \
+  task:=3 \
+  enable_indicator_buoy:=true \
   enable_task4:=false \
   enable_number_detection:=false \
   camera1_device:="${CAMERA1_DEVICE}" \
@@ -96,11 +87,11 @@ ros2 run cv_lidar_fusion vision_lidar_fusion &
 FUSION_PID=$!
 
 sleep 2
-echo "=== Starting global planner (task_id:=${TASK_ID}) ==="
-ros2 launch global_planner global_planner.launch.py task_id:="${TASK_ID}" &
+echo "=== Starting Task 3 global planner (task_id:=3) ==="
+ros2 launch global_planner global_planner.launch.py task_id:=3 &
 PLANNER_PID=$!
 
-echo "=== Task 1/2 pipelines started (TASK_ID=${TASK_ID}). MAVROS: $MAVROS_PID  GLOBAL_FRAME: $GLOBAL_FRAME_PID  LiDAR: $LIDAR_PID  CV: $CV_PID  FUSION: $FUSION_PID  PLANNER: $PLANNER_PID ==="
+echo "=== Task 3 pipelines started. MAVROS: $MAVROS_PID  GLOBAL_FRAME: $GLOBAL_FRAME_PID  LiDAR: $LIDAR_PID  CV: $CV_PID  FUSION: $FUSION_PID  PLANNER: $PLANNER_PID ==="
 echo "Press Ctrl+C to stop all. All node logs appear below (interleaved)."
 echo "(If LiDAR is not connected, that launch may exit; other nodes keep running.)"
 echo ""

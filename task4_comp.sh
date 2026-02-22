@@ -56,7 +56,17 @@ LIDAR_PID=$!
 
 sleep 2
 echo "=== Launching CV (Task 4: enable_task4:=true, vessels) ==="
-ros2 launch cv_ros_nodes launch_cv_single_camera1.py resolution:=960,600 conf_threshold:=0.1 preprocess_fps:=5 inference_interval_front:=4 task:=3 enable_task4:=true enable_indicator_buoy:=true enable_number_detection:=false camera1_device:="${CAMERA1_DEVICE}" &
+ros2 launch cv_ros_nodes launch_cv_single_camera1.py \
+  resolution:=960,600 \
+  conf_threshold:=0.3 \
+  preprocess_fps:=8 \
+  inference_interval_front:=2 \
+  task:=4 \
+  enable_task4:=true \
+  enable_indicator_buoy:=true \
+  enable_number_detection:=false \
+  camera1_device:="${CAMERA1_DEVICE}" \
+  &
 CV_PID=$!
 
 sleep 4
