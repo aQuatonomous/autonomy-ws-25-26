@@ -152,6 +152,13 @@ ros2 launch global_planner global_planner.launch.py cmd_vel_topic:=/cmd_vel
 
 ---
 
+### Left-right buoy integration (Task 1/2)
+
+- **Logic:** `TaskMaster` applies a `LeftRightBuoyNavigator` override when active task is `1` or `2`. The controller steers to the red/green gate midpoint and writes `manager.current_twist_override`.
+- **Run:** Uses normal `global_planner` launch; no separate launch file is needed.
+- **Debug:** Confirm red/green pairs are present in logs (`Seen red-green buoy pairs`). If no valid gate is available, override is `None` and normal planner output is used.
+
+---
 ### Goal utils (Global)
 
 - **Logic:** `segments_intersect(p1, p2, q1, q2)`: true if segment p1→p2 intersects q1→q2 (used for gate crossing). `nudge_goal_away_from_obstacles(desired, obstacles, from_point, min_clearance, step)`: slide goal back toward from_point until at least min_clearance from all obstacles; keeps direction from_point→goal.
@@ -185,5 +192,6 @@ ros2 launch global_planner global_planner.launch.py cmd_vel_topic:=/cmd_vel
 ## Links
 
 - **Global_Planner** ([Global_Planner/README.md](Global_Planner/README.md)) — Node topics, parameters, watchdogs, build/run.
+- **Left-right buoy integration** ([LEFT_RIGHT_BUOY_NAV_INTEGRATION.md](LEFT_RIGHT_BUOY_NAV_INTEGRATION.md)) - Integration architecture and dependency boundaries.
 - **Mapping** ([../mapping/README.md](../mapping/README.md)) — LiDAR, `/tracked_buoys`, fusion → `/fused_buoys`.
 - **Computer vision** ([../computer_vision/README.md](../computer_vision/README.md)) — CV pipeline, fusion input.

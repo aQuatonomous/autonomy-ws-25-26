@@ -23,6 +23,7 @@ from Global.Task2 import Task2Manager
 from Global.Task3 import Task3Manager
 from Global.Task4 import Task4Manager
 from Global.Task6 import Task6Manager
+from Global.left_right_buoy_nav import LeftRightBuoyNavigator
 from Local.potential_fields_planner import PotentialFieldsPlanner
 
 Vec2 = Tuple[float, float]
@@ -43,6 +44,7 @@ class TaskMaster:
         self.active_task_id = int(task_id)  # Task id currently driving cmd_vel.
 
         self.planner = PotentialFieldsPlanner(resolution=0.5)
+        self._left_right_nav = LeftRightBuoyNavigator()
         self._interrupt_active = False
         self._goal_yield_tolerance_m = PRIMARY_GOAL_YIELD_TOLERANCE_M
         self._interrupt_defer_ticks = 0
@@ -166,6 +168,30 @@ class TaskMaster:
             except Exception as e:
                 print(f"Planning warning: {e}")
 
+    def _apply_left_right_override_if_needed(self, manager, pose: Optional[Pose]) -> None:
+        """
+        For Task 1/2 only, compute buoy midpoint steering override from current gate detections.
+        This keeps Task1.py / Task2.py unchanged while integrating left-right-buoy-nav behavior.
+        """
+        # Clear stale override field for task managers that don't set it themselves.
+        if not hasattr(manager, "current_twist_override"):
+            setattr(manager, "current_twist_override", None)
+
+        if int(self.active_task_id) not in (1, 2):
+            return
+
+        pose_for_control = pose
+        if pose_for_control is None:
+            pose_for_control = getattr(manager, "pose", None)
+        if pose_for_control is None:
+            return
+
+        gates = self.entities.get_gates(boat_heading_rad=float(pose_for_control[2]))
+        manager.current_twist_override = self._left_right_nav.compute_twist_override(
+            pose_for_control,
+            gates,
+        )
+
     def run_one_shot(
         self,
         get_pose: Optional[Callable[[], Pose]] = None,
@@ -204,6 +230,7 @@ class TaskMaster:
 
         self.manager = current_manager
         self._run_manager_tick_and_plan(current_manager, use_planning)
+        self._apply_left_right_override_if_needed(current_manager, pose)
 
         # Switching decision for next tick.
         if self.interrupt_manager is not None:

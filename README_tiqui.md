@@ -49,6 +49,19 @@ This document summarizes the updates made today before pushing branch `tiqui`.
   - Resume patrol.
 - Includes obstacle-aware planning and optional heading twist override.
 
+### 6) Left-right buoy navigation integration for Task 1/2 (TaskMaster-level)
+- Added `planning/Global/left_right_buoy_nav.py`:
+  - New `LeftRightBuoyNavigator` midpoint steering helper (red-left / green-right gate logic).
+  - Outputs direct twist-style override (`linear.x`, `linear.y`, `angular.z`).
+- Updated `planning/TaskMaster.py`:
+  - Instantiates `LeftRightBuoyNavigator`.
+  - Applies override only when active task is Task 1 or Task 2.
+  - Leaves `planning/Global/Task1.py` and `planning/Global/Task2.py` unchanged.
+- Added documentation:
+  - `planning/LEFT_RIGHT_BUOY_NAV_INTEGRATION.md`
+  - `planning/README.md` section + link
+- Confirmed no dependency on external folder `left-right-buoy-nav/` at runtime.
+
 ## Notes
 - Branch created: `tiqui`
 - Remote expected: `origin`
