@@ -17,7 +17,7 @@ source "${MAPPING_WS}/install/setup.bash"
 source "${CV_WS}/install/setup.bash"
 source "${PLANNING_WS}/install/setup.bash"
 
-INTERVAL="${INTERVAL:-1.5}"
+INTERVAL="${INTERVAL:-0.3}"
 TIMEOUT_ECHO=2.5
 
 # --- Filters: take ros2 topic echo stdout, print only key fields ---

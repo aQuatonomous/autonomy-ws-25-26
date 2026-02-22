@@ -12,7 +12,7 @@ cd "$SCRIPT_DIR"
 
 # --- Default device lists (by-path; run ./monitor_camera_move.sh to see current ports) ---
 # Single camera: one device (port 1.4.2)
-SINGLE_DEFAULT="/dev/v4l/by-path/platform-3610000.usb-usb-0:2.3:1.0-video-index0"
+SINGLE_DEFAULT="/dev/v4l/by-path/platform-3610000.usb-usb-0:1.2.3:1.0-video-index0"
 # Three cameras: Cam0=port 1.2, Cam1=port 1.1, Cam2=port 1.4.2
 THREE_DEFAULTS="/dev/v4l/by-path/platform-3610000.usb-usb-0:1.2:1.0-video-index0,/dev/v4l/by-path/platform-3610000.usb-usb-0:1.1:1.0-video-index0,/dev/v4l/by-path/platform-3610000.usb-usb-0:1.4.2:1.0-video-index0"
 

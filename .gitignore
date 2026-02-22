@@ -1,3 +1,7 @@
+# ROS-Bags
+map_data*/
+last_bag/
+
 # ROS 2 Build Artifacts
 build/
 install/
