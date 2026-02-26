@@ -28,7 +28,7 @@ Phase C: RETURN
     - Define the forward direction as the unit vector perpendicular to the
       most recently detected gate line (red_buoy → green_buoy)
     - Generate a temporary forward waypoint by projecting straight ahead
-      along this direction, up to a maximum of 50 m
+      along this direction, up to 30 m
     - Continue advancing and re-checking perception each update
     - Exit fallback immediately once the next gate is detected and
       resume normal gate ordering logic
@@ -117,11 +117,12 @@ class Report:
 
 
 class Task2Manager:
-    def __init__(self, entities, map_bounds: Optional[Vec2], start_pose: Pose):
+    def __init__(self, entities, map_bounds, start_pose: Pose):
         self.entities = entities
-        self.map_bounds = (float(map_bounds[0]), float(map_bounds[1])) if map_bounds else None
+        self.map_bounds = tuple(float(v) for v in map_bounds) if map_bounds else None
         self.start_pos: Vec2 = (float(start_pose[0]), float(start_pose[1]))
         self.pose: Pose = start_pose
+        self.initial_heading: float = float(start_pose[2])
 
         # Persistent phase state
         self.phase = Phase.TRANSIT_OUT
@@ -140,6 +141,7 @@ class Task2Manager:
         # Phase B: survivor handling with persistent tracking
         self.handled_survivors: Set[str] = set()  # survivor IDs that were already circled
         self.current_survivor_plan: List[GoalPlan] = []  # 4-point circle plan for current survivor
+        self._circling_survivor_entity_id: Optional[int] = None  # exclude from obstacles when circling
 
         # Phase C: return waypoints (reverse channel + start)
         self.return_waypoints: List[Vec3] = []
@@ -157,14 +159,21 @@ class Task2Manager:
         self.current_speeds = np.zeros((0,), dtype=float)
 
     def _obstacles(self) -> List[Vec2]:
-        """Obstacles = buoys; in TRANSIT_OUT and RETURN also add no-go (gate walls + map bounds).
-        In DEBRIS_FIELD no-go is not used so we can reach indicators.
-        Gate buoys are excluded from obstacles when in the channel (no-go walls handle boundaries)."""
+        """Obstacles = buoys; in TRANSIT_OUT and RETURN also add no-go walls.
+        Gate entrance buoys excluded by entity ID (same as Task 1).
+        When circling a survivor (DEBRIS_FIELD), exclude that green_indicator from obstacles."""
         in_channel = self.phase != Phase.DEBRIS_FIELD
-        gate_pairs = self.entities.get_gates() if in_channel else None
-        obs = list(self.entities.get_obstacles(exclude_gate_pairs=gate_pairs))
+        exclude_ids = self.entities.get_gate_entity_ids(
+            boat_heading_rad=self.pose[2],
+            boat_pos=(self.pose[0], self.pose[1]),
+        )
+        if self.phase == Phase.DEBRIS_FIELD and self._circling_survivor_entity_id is not None:
+            exclude_ids = exclude_ids | {self._circling_survivor_entity_id}
+        obs = list(self.entities.get_obstacles(exclude_entity_ids=exclude_ids))
         if in_channel:
-            obs.extend(self.entities.get_no_go_obstacle_points(map_bounds=self.map_bounds))
+            obs.extend(self.entities.get_no_go_obstacle_points(
+                map_bounds=self.map_bounds, boat_heading_rad=self.pose[2],
+            ))
         return obs
 
     def update_pose(self, x: float, y: float, heading: float):
@@ -203,12 +212,12 @@ class Task2Manager:
         self.entities.add("goal", goal, name="goal_wp1")
         self.goal_queue = [goal]
 
-    def _get_unhandled_survivors(self) -> List[Tuple[str, Vec3]]:
-        """Return list of (survivor_id, position) for green indicators not yet in handled_survivors."""
+    def _get_unhandled_survivors(self) -> List[Tuple[str, Vec3, Optional[int]]]:
+        """Return list of (survivor_id, position, entity_id) for green indicators not yet in handled_survivors."""
         green_ents = self.entities.get_by_type("green_indicator")
         def _sid(e):
             return f"green_{e.entity_id}" if e.entity_id is not None else f"green_{id(e)}"
-        return [(_sid(e), e.position) for e in green_ents if _sid(e) not in self.handled_survivors]
+        return [(_sid(e), e.position, e.entity_id) for e in green_ents if _sid(e) not in self.handled_survivors]
 
     def _is_circle_complete(self) -> bool:
         """True if we have a circle plan and all its goals are completed."""
@@ -286,11 +295,15 @@ class Task2Manager:
         if dist <= self.goal_reached_dist:
             current_goal.completed = True
 
-    def _create_survivor_circle_plan(self, survivor_pos: Tuple[float, ...], survivor_id: str) -> None:
-        """Create 4-point circle goals around a survivor (nominal positions). Nudge applied in publish_goals() with boat as from_pt."""
+    def _create_survivor_circle_plan(
+        self, survivor_pos: Tuple[float, ...], survivor_id: str, entity_id: Optional[int] = None
+    ) -> None:
+        """Create 4-point circle goals around a survivor (nominal positions). Nudge applied in publish_goals() with boat as from_pt.
+        When circling, entity_id is excluded from obstacles (detected and confirmed)."""
         if survivor_id in self.handled_survivors:
             return
 
+        self._circling_survivor_entity_id = entity_id
         circle_goals = []
         cx, cy = survivor_pos[0], survivor_pos[1]
         radius = 6.0
@@ -299,9 +312,6 @@ class Task2Manager:
             angle = 2.0 * np.pi * (i / 4.0)
             x = cx + radius * np.cos(angle)
             y = cy + radius * np.sin(angle)
-            if self.map_bounds is not None:
-                x = float(np.clip(x, 0, self.map_bounds[0]))
-                y = float(np.clip(y, 0, self.map_bounds[1]))
             desired = (float(x), float(y), 0.0)
             goal = GoalPlan(
                 goal_id=f"circle_{survivor_id}_{i+1}",
@@ -336,10 +346,11 @@ class Task2Manager:
 
         if circle_complete and not more_survivors:
             self.phase = Phase.RETURN
+            self._circling_survivor_entity_id = None
             self._create_return_plan()
         elif circle_complete and more_survivors:
-            surv_id, surv_pos = unhandled[0]
-            self._create_survivor_circle_plan(surv_pos, surv_id)
+            surv_id, surv_pos, surv_eid = unhandled[0]
+            self._create_survivor_circle_plan(surv_pos, surv_id, entity_id=surv_eid)
             self.goal_plan = self.current_survivor_plan
 
     def _create_return_plan(self) -> None:
@@ -385,12 +396,12 @@ class Task2Manager:
                     self.goal_plan = self.current_survivor_plan
                 elif self.current_survivor_plan and self._is_circle_complete():
                     if self.phase == Phase.DEBRIS_FIELD and unhandled:
-                        surv_id, surv_pos = unhandled[0]
-                        self._create_survivor_circle_plan(surv_pos, surv_id)
+                        surv_id, surv_pos, surv_eid = unhandled[0]
+                        self._create_survivor_circle_plan(surv_pos, surv_id, entity_id=surv_eid)
                         self.goal_plan = self.current_survivor_plan
                 else:
-                    surv_id, surv_pos = unhandled[0]
-                    self._create_survivor_circle_plan(surv_pos, surv_id)
+                    surv_id, surv_pos, surv_eid = unhandled[0]
+                    self._create_survivor_circle_plan(surv_pos, surv_id, entity_id=surv_eid)
                     self.goal_plan = self.current_survivor_plan
                 self.publish_goals()
             else:
@@ -420,7 +431,7 @@ class Task2Manager:
 
         start = (self.pose[0], self.pose[1])
         obstacles = self._obstacles()
-        gates = self.entities.get_gates()
+        gates = self.entities.get_gates(boat_heading_rad=self.pose[2], boat_pos=start)
         goals = self.goal_queue[:max_goals]
         goals_xy = [(g[0], g[1]) for g in goals]
 
@@ -430,19 +441,16 @@ class Task2Manager:
         self.current_speeds = out["speeds"]
 
     def _fallback_goal_A(self) -> Vec3:
-        # Part A fallback: perpendicular to last gate line, forward 50 m; nudge away from obstacles
+        """Forward along initial heading (or last gate normal) by 30m. No grid clipping."""
         x, y, hdg = self.pose
-        if self.last_gate_normal is None:
-            d = np.array([np.cos(hdg), np.sin(hdg)], dtype=float)
-            d = d / (np.linalg.norm(d) + 1e-9)
-        else:
+        if self.last_gate_normal is not None:
             d = self.last_gate_normal
+        else:
+            d = np.array([np.cos(self.initial_heading), np.sin(self.initial_heading)], dtype=float)
+            d = d / (np.linalg.norm(d) + 1e-9)
 
-        step = 50.0
+        step = 30.0
         p = np.array([x, y], dtype=float) + d * step
-        if self.map_bounds is not None:
-            p[0] = float(np.clip(p[0], 0, self.map_bounds[0]))
-            p[1] = float(np.clip(p[1], 0, self.map_bounds[1]))
         desired = (float(p[0]), float(p[1]), 0.0)
         return nudge_goal_away_from_obstacles(desired, self._obstacles(), (x, y, hdg))
 
@@ -454,17 +462,20 @@ class Task2Manager:
         return float(np.hypot(a[0] - b[0], a[1] - b[1]))
 
     def _gate_centers_sorted(self) -> List[Vec3]:
-        gates = self.entities.get_gates()
+        boat_xy = (self.pose[0], self.pose[1])
+        gates = self.entities.get_gates(boat_heading_rad=self.pose[2], boat_pos=boat_xy)
         if not gates:
             return []
 
-        # update last_gate_normal from any gate
         red, green = gates[-1]
         gv = np.array([green[0] - red[0], green[1] - red[1]], dtype=float)
         if np.linalg.norm(gv) > 1e-6:
             n = np.array([-gv[1], gv[0]], dtype=float)
             self.last_gate_normal = n / (np.linalg.norm(n) + 1e-9)
 
+        hdg = self.pose[2]
+        fwd = np.array([np.cos(hdg), np.sin(hdg)], dtype=float)
+        bx, by = self.pose[0], self.pose[1]
         centers = [((r[0] + g[0]) / 2.0, (r[1] + g[1]) / 2.0, 0.0) for (r, g) in gates]
-        centers.sort(key=lambda p: p[1])  # northbound by y
+        centers.sort(key=lambda p: (p[0] - bx) * fwd[0] + (p[1] - by) * fwd[1])
         return centers

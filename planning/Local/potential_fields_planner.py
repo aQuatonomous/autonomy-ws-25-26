@@ -21,12 +21,12 @@ import numpy as np
 # ============================================================================
 
 # Potential Field Gains
-K_ATT = 2.5          # Attractive gain - higher = stronger pull toward goals
-K_REP = 140.0        # Repulsive gain - higher = stronger push from obstacles
-D_INFLUENCE = 10.0   # Influence distance for obstacles (m)
+K_ATT = 2000         # Attractive gain - VERY strong pull toward goals (was 600)
+K_REP = 0.15         # Repulsive gain - VERY weak push from obstacles (was 0.8)
+D_INFLUENCE = 2.5    # Influence distance for obstacles (m) - small radius (was 5.0)
 
 # Movement Control
-MAX_VELOCITY = 2.0   # Maximum velocity (m/s) - reduce for smoother motion
+MAX_VELOCITY = 1.5   # Maximum velocity (m/s) - reduce for smoother motion
 STEP_SIZE = 0.25     # Base step size for gradient descent
 MAX_STEP = 0.5       # Hard cap on max motion per iteration
 GRADIENT_DAMPING = 0.3  # Damping factor for gradient (higher = smoother, slower)
@@ -93,13 +93,20 @@ class PotentialFieldsPlanner:
         self.dt = DT
         self.velocity_smooth_window = VELOCITY_SMOOTH_WINDOW
     
-    def initialize_grid(self, map_width, map_height):
-        """Initialize the planning grid based on map dimensions"""
-        self.map_width = map_width
-        self.map_height = map_height
-        self.x = np.arange(0, map_width, self.resolution)
-        self.y = np.arange(0, map_height, self.resolution)
-        self.X, self.Y = np.meshgrid(self.x, self.y)
+    def initialize_grid(self, map_bounds):
+        """Initialize the planning grid. map_bounds can be (w, h) or (min_x, min_y, max_x, max_y)."""
+        if map_bounds is not None and len(map_bounds) == 4:
+            self.map_min_x, self.map_min_y = float(map_bounds[0]), float(map_bounds[1])
+            self.map_max_x, self.map_max_y = float(map_bounds[2]), float(map_bounds[3])
+        elif map_bounds is not None and len(map_bounds) == 2:
+            self.map_min_x, self.map_min_y = 0.0, 0.0
+            self.map_max_x, self.map_max_y = float(map_bounds[0]), float(map_bounds[1])
+        else:
+            self.map_min_x = self.map_min_y = None
+            self.map_max_x = self.map_max_y = None
+            return
+        self.map_width = self.map_max_x - self.map_min_x
+        self.map_height = self.map_max_y - self.map_min_y
 
     def gradient_descent_path(self, start_x, start_y, goal_x, goal_y, obstacles, 
                               red_pos=None, green_pos=None, max_steps=4000):
@@ -204,12 +211,6 @@ class PotentialFieldsPlanner:
                 x -= step * grad_x
                 y -= step * grad_y
 
-            
-            # Keep within bounds
-            if self.map_width is not None and self.map_height is not None:
-                x = np.clip(x, 0, self.map_width)
-                y = np.clip(y, 0, self.map_height)
-            
             # Only add point if it moved enough (reduce redundant points)
             if len(path) == 0 or np.sqrt((x - path[-1][0])**2 + (y - path[-1][1])**2) > self.min_point_spacing:
                 path.append((x, y))
@@ -290,9 +291,8 @@ class PotentialFieldsPlanner:
                 'speeds': numpy array of speed magnitudes
                 'segment_indices': list of indices where each segment ends
         """
-        # Initialize grid if bounds provided
         if map_bounds is not None:
-            self.initialize_grid(map_bounds[0], map_bounds[1])
+            self.initialize_grid(map_bounds)
         
         full_path = []
         segment_indices = []

@@ -34,14 +34,6 @@ else
 fi
 echo
 
-# Build web server workspace
-echo "=== Building web server workspace ==="
-cd "${WEB_SERVER_WS}"
-# Source mapping install for global_frame message types
-source "${MAPPING_WS}/install/setup.bash"
-colcon build --symlink-install
-echo "✓ Web server workspace built successfully"
-echo
 
 # Build computer vision workspace  
 echo "=== Building computer vision workspace ==="
@@ -54,7 +46,6 @@ echo "=== Build Summary ==="
 echo "✓ Mapping workspace:        ${MAPPING_WS}"
 echo "✓ Computer vision workspace: ${CV_WS}"
 echo "✓ Planning workspace:        ${PLANNING_WS}"
-echo "✓ Web server workspace:     ${WEB_SERVER_WS}"
 echo
 echo "All workspaces built successfully!"
 echo "You can now run: ./comp.sh"

@@ -125,7 +125,7 @@ class Task5Manager:
         self.prev_pos: Optional[Vec2] = None
         
         #Velocities for Global Planner to Read (x,y,theta)
-        current_velocities: Vec3 = (0.0, 0.0, 0.0)
+        self.current_velocities: Vec3 = (0.0, 0.0, 0.0)
    
         # Phase management
         self.phase = Phase.INITIAL_TURN
@@ -405,7 +405,7 @@ class Task5Manager:
         best_cluster_center = (best_cluster_start + best_cluster_size) // 2
         best_cluster_heading = self._normalize_angle(self.heading + (2 * best_cluster_center/180*np.pi - np.pi/4))
 
-        _publish_velocity(math.cos(best_cluster_heading), math.sin(best_cluster_heading), 0)
+        self._publish_velocity(math.cos(best_cluster_heading), math.sin(best_cluster_heading), 0)
 
         if (mean(fov90[len(fov90)//4, len(fov90)//4 * 3]) < 10):
             self._enter_phase(Phase.INITIAL_CENTERING)
@@ -430,7 +430,7 @@ class Task5Manager:
             prev_right = right
         
         # When you're close try to shoot the centre and slow down
-        if fov90[left_edge] < 5 or fov[right_edge] < 5: #TODO Tune this
+        if fov90[left_edge] < 5 or fov90[right_edge] < 5: #TODO Tune this
             centre = (left_edge - right_edge)/2
             desired_heading = self._normalize_angle(self.heading + (2 * centre/180*np.pi - np.pi/4))
             _publish_velocity(0.5*math.cos(desired_heading), 0.5*math.sin(desired_heading), 0)
@@ -442,7 +442,7 @@ class Task5Manager:
                 desired_heading = self._normalize_angle(self.heading + (2 * right_edge/180*np.pi + np.pi/4))
             _publish_velocity(math.cos(desired_heading), math.sin(desired_heading), 0)
 
-        if self.distances[0] != float('inf') and abs(self.distances[0] - self.distances[-1]) < 10: # TODO DOCKS are 10 m appart?
+        if self.laser_scan[0] != float('inf') and abs(self.laser_scan[0] - self.laser_scan[-1]) < 10: # TODO DOCKS are 10 m appart?
             self._enter_phase(Phase.SCANNING)
     
     def _state_scanning(self) -> None:
@@ -672,7 +672,7 @@ class Task5Manager:
             print(f"[SUCCESS] Docked in {time.time() - self.mission_start_time:.1f}s")
 
     def _state_docked(self) -> None:
-        self._enter_phase(ROTATING_IN_DOCK)
+        self._enter_phase(Phase.ROTATING_IN_DOCK)
 
     def _state_rotating_in_dock(self) -> None:
         """Execute 180° turn""" # Identical copy of what we did in turning
@@ -801,13 +801,13 @@ class Task5Manager:
     
     # No longer used, forward distance comes in with the rest of lidar data
     def _get_forward_distance(self) -> Optional[float]:
-    """
-    Get forward distance from LiDAR
+        """
+        Get forward distance from LiDAR
     
-    TODO: 
-        Use the pointcloud to laser scan that Ethan made to get forward distance
-    """
-    return None  # Placeholder
+        TODO: 
+            Use the pointcloud to laser scan that Ethan made to get forward distance
+        """
+        return None  # Placeholder
 
     def _publish_velocity(self, forward, lateral, angular):
         """

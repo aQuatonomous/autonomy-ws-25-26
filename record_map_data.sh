@@ -61,7 +61,7 @@ ros2 bag record \
   /boat_pose \
   /global_detections \
   /combined/detection_info_with_distance \
-  /tracked_buoys \
+  /fused_buoys \
   /mavros/setpoint_velocity/cmd_vel_unstamped \
   /planned_path \
   /curr_task \

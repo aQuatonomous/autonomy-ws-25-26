@@ -35,7 +35,7 @@ public:
   this->declare_parameter<int>("frequency", 800);
   this->declare_parameter<int>("rate", 16000);
   this->declare_parameter<int>("chunk", 500); // this is not standard, you have to adjust the paraeter in audio_capturer to match
-  this->declare_parameter<int>("sensitivity", 8);
+  this->declare_parameter<int>("sensitivity", 10);
 
   // get paramter values
 //  this->format_ = this->get_parameter("format").as_int(); not implemented
@@ -79,8 +79,8 @@ private:
 	int diff = a ^ b;
 	if (diff == 0)
 		return 0;
-	if ((diff & (diff - 1)) == 0)
-		return 1;
+	//if ((diff & (diff - 1)) == 0)
+	//	return 1;
 	return 2;
   }
 
@@ -125,29 +125,15 @@ private:
 			  output += (1 << i);
 		  }
 	  }
-        	  RCLCPP_INFO_STREAM(this->get_logger(), "output: " << output);
+        	  //RCLCPP_INFO_STREAM(this->get_logger(), "output: " << output);
 	  // check for a match
-	  RCLCPP_INFO_STREAM(this->get_logger(), hamming(output, 0b110011));
+	  //RCLCPP_INFO_STREAM(this->get_logger(), hamming(output, 0b110011));
 	  if (hamming(output, 0b110011) <= 1 && delay_flag_ != 1) {
-		RCLCPP_INFO(this->get_logger(), "Heard %d blasts", 2);
-		auto message = std_msgs::msg::Int32();
-		message.data = 2;
-		interupt_publisher_->publish(message);
-		auto message_freq = sound_signal_msgs::msg::SoundSignalWithFreq();
-		message_freq.signal = 2;
-		message_freq.freq = frequency_;
-		interupt_publisher_freq_->publish(message_freq);
+		// Detector disabled for single-blast pattern: do not publish any messages
 		delay_flag_ = 1;
 		delay_timer_->reset();
 	  } else if (hamming(output, 0b001111) <=1 && delay_flag_ != 1) {
-		RCLCPP_INFO(this->get_logger(), "Heard %d blast", 1);
-		auto message = std_msgs::msg::Int32();
-		message.data = 1;
-		interupt_publisher_->publish(message);
-		auto message_freq = sound_signal_msgs::msg::SoundSignalWithFreq();
-		message_freq.signal = 1;
-		message_freq.freq = frequency_;
-		interupt_publisher_freq_->publish(message_freq);
+		// Detector disabled for double-blast pattern: do not publish any messages
 		delay_flag_ = 1;
 		delay_timer_->reset();
 	  }

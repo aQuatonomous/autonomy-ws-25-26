@@ -3,9 +3,14 @@
 # Gate + yellow buoy + color indicator (red=circle right, green=circle left).
 # CV: task:=3, enable_indicator_buoy:=true, enable_task4:=false, enable_number_detection:=false.
 # Run from autonomy-ws-25-26. Ctrl+C kills all.
+#
+# Env vars: NOLOG=1 disable logging | SOUND=1 also launch sound pipeline
 
 set -e
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+TASK_ID=3
+source "${SCRIPT_DIR}/loggers comp ran/logging_lib.sh"
+
 MAPPING_WS="${SCRIPT_DIR}/mapping"
 CV_WS="${SCRIPT_DIR}/computer_vision"
 PLANNING_WS="${SCRIPT_DIR}/planning"
@@ -31,7 +36,8 @@ FUSION_PID=""
 PLANNER_PID=""
 cleanup() {
     echo ""
-    echo "=== Stopping MAVROS, global_frame, LiDAR, CV, fusion, and planning ==="
+    echo "=== Stopping MAVROS, global_frame, LiDAR, CV, fusion, planning, sound ==="
+    stop_sound_pipeline
     [ -n "$MAVROS_PID" ] && kill -TERM -"$MAVROS_PID" 2>/dev/null || true
     [ -n "$GLOBAL_FRAME_PID" ] && kill -TERM -"$GLOBAL_FRAME_PID" 2>/dev/null || true
     [ -n "$LIDAR_PID" ] && kill -TERM -"$LIDAR_PID" 2>/dev/null || true
@@ -39,10 +45,15 @@ cleanup() {
     [ -n "$FUSION_PID" ] && kill -TERM -"$FUSION_PID" 2>/dev/null || true
     [ -n "$PLANNER_PID" ] && kill -TERM -"$PLANNER_PID" 2>/dev/null || true
     sleep 1
-    _KILL="ros2 launch|mavros|global_frame|boat_state_node|detection_to_global|v4l2_camera|v4l2_camera_node|camera0_node|camera1_node|camera2_node|cv_ros_nodes|vision_preprocessing|vision_inference|vision_combiner|maritime_distance|vision_lidar_fusion|task4_supply_processor|indicator_buoy_processor|maritime_distance_estimator|pointcloud_filters|unitree_lidar|lidar_range_filter|buoy_detector|buoy_tracker|global_planner_node"
+    _KILL="ros2 launch|mavros|global_frame|boat_state_node|detection_to_global|v4l2_camera|v4l2_camera_node|camera0_node|camera1_node|camera2_node|cv_ros_nodes|vision_preprocessing|vision_inference|vision_combiner|maritime_distance|vision_lidar_fusion|task4_supply_processor|indicator_buoy_processor|maritime_distance_estimator|pointcloud_filters|unitree_lidar|lidar_range_filter|buoy_detector|buoy_tracker|global_planner_node|audio_capturer|sound_signal|message_node"
     pkill -f "$_KILL" 2>/dev/null || true
     sleep 1
     pkill -9 -f "$_KILL" 2>/dev/null || true
+    echo "=== Restarting ROS2 daemon (clears stale topic list) ==="
+    ros2 daemon stop 2>/dev/null || true
+    sleep 0.5
+    ros2 daemon start 2>/dev/null || true
+    parse_and_summarize
     echo "Done."
     exit 130
 }
@@ -88,8 +99,10 @@ FUSION_PID=$!
 
 sleep 2
 echo "=== Starting Task 3 global planner (task_id:=3) ==="
-ros2 launch global_planner global_planner.launch.py task_id:=3 &
+ros2 launch global_planner global_planner.launch.py task_id:=3 cmd_vel_topic:=/uas1/mavros/setpoint_velocity/cmd_vel_unstamped &
 PLANNER_PID=$!
+
+start_sound_pipeline
 
 echo "=== Task 3 pipelines started. MAVROS: $MAVROS_PID  GLOBAL_FRAME: $GLOBAL_FRAME_PID  LiDAR: $LIDAR_PID  CV: $CV_PID  FUSION: $FUSION_PID  PLANNER: $PLANNER_PID ==="
 echo "Press Ctrl+C to stop all. All node logs appear below (interleaved)."

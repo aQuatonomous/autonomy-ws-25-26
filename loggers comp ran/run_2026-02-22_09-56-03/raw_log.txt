@@ -1,0 +1,6 @@
+=== Logging enabled: /home/lorenzo/autonomy-ws-25-26/loggers comp ran/run_2026-02-22_09-56-03 ===
+=== Task 3: Setting camera format (single camera: YUYV @ 960x600 @ 15fps) ===
+Setting cameras (single) to 960x600 YUYV @ 15 FPS...
+Camera 0: /dev/v4l/by-path/platform-3610000.usb-usb-0:1.2.3:1.0-video-index0
+VIDIOC_S_FMT: failed: Device or resource busy
+Warning: set_camera_fps failed (edit set_camera_fps.sh or run ./monitor_camera_move.sh)

@@ -1,16 +1,19 @@
 #!/bin/bash
 # Competition launch (3 cameras): all tasks enabled. Same as comp_single_camera but for all 3 cameras.
 # Run from autonomy-ws-25-26. Ctrl+C kills all.
+#
+# Env vars: NOLOG=1 disable logging | SOUND=1 also launch sound pipeline | TASK_ID=N override task
 
 set -e
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+TASK_ID="${TASK_ID:-3}"
+source "${SCRIPT_DIR}/loggers comp ran/logging_lib.sh"
+
 MAPPING_WS="${SCRIPT_DIR}/mapping"
 CV_WS="${SCRIPT_DIR}/computer_vision"
 PLANNING_WS="${SCRIPT_DIR}/planning"
 
 FCU_URL="${FCU_URL:-/dev/ttyACM0:57600}"
-# TASK_ID for planner (1-5)
-TASK_ID="${TASK_ID:-3}"
 
 echo "=== Setting camera format (3 cameras: YUYV @ 960x600 @ 15fps) ==="
 "${SCRIPT_DIR}/set_camera_fps.sh" three || { echo "Warning: set_camera_fps failed (edit set_camera_fps.sh or run ./monitor_camera_move.sh)"; exit 1; }
@@ -31,7 +34,8 @@ FUSION_PID=""
 PLANNER_PID=""
 cleanup() {
     echo ""
-    echo "=== Stopping MAVROS, global_frame, LiDAR, CV, fusion, and planning ==="
+    echo "=== Stopping MAVROS, global_frame, LiDAR, CV, fusion, planning, sound ==="
+    stop_sound_pipeline
     [ -n "$MAVROS_PID" ] && kill -TERM -"$MAVROS_PID" 2>/dev/null || true
     [ -n "$GLOBAL_FRAME_PID" ] && kill -TERM -"$GLOBAL_FRAME_PID" 2>/dev/null || true
     [ -n "$LIDAR_PID" ] && kill -TERM -"$LIDAR_PID" 2>/dev/null || true
@@ -39,10 +43,11 @@ cleanup() {
     [ -n "$FUSION_PID" ] && kill -TERM -"$FUSION_PID" 2>/dev/null || true
     [ -n "$PLANNER_PID" ] && kill -TERM -"$PLANNER_PID" 2>/dev/null || true
     sleep 1
-    _KILL="ros2 launch|mavros|global_frame|boat_state_node|detection_to_global|v4l2_camera|v4l2_camera_node|camera0_node|camera1_node|camera2_node|cv_ros_nodes|vision_preprocessing|vision_inference|vision_combiner|maritime_distance|vision_lidar_fusion|task4_supply_processor|indicator_buoy_processor|maritime_distance_estimator|pointcloud_filters|unitree_lidar|lidar_range_filter|buoy_detector|buoy_tracker|global_planner_node"
+    _KILL="ros2 launch|mavros|global_frame|boat_state_node|detection_to_global|v4l2_camera|v4l2_camera_node|camera0_node|camera1_node|camera2_node|cv_ros_nodes|vision_preprocessing|vision_inference|vision_combiner|maritime_distance|vision_lidar_fusion|task4_supply_processor|indicator_buoy_processor|maritime_distance_estimator|pointcloud_filters|unitree_lidar|lidar_range_filter|buoy_detector|buoy_tracker|global_planner_node|audio_capturer|sound_signal|message_node"
     pkill -f "$_KILL" 2>/dev/null || true
     sleep 1
     pkill -9 -f "$_KILL" 2>/dev/null || true
+    parse_and_summarize
     echo "Done."
     exit 130
 }
@@ -90,8 +95,10 @@ FUSION_PID=$!
 
 sleep 2
 echo "=== Starting global planner (task_id:=${TASK_ID}) ==="
-ros2 launch global_planner global_planner.launch.py task_id:="${TASK_ID}" &
+ros2 launch global_planner global_planner.launch.py task_id:="${TASK_ID}" cmd_vel_topic:=/uas1/mavros/setpoint_velocity/cmd_vel_unstamped &
 PLANNER_PID=$!
+
+start_sound_pipeline
 
 echo "=== Pipelines started. MAVROS: $MAVROS_PID  GLOBAL_FRAME: $GLOBAL_FRAME_PID  LiDAR: $LIDAR_PID  CV: $CV_PID  FUSION: $FUSION_PID  PLANNER: $PLANNER_PID ==="
 echo "Press Ctrl+C to stop all. All node logs appear below (interleaved)."

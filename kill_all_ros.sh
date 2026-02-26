@@ -15,6 +15,8 @@ PATTERNS=(
     "map_visualizer"
     "web_server_map"
     "mavros"
+    "apm.launch"
+    "mavros_node"
     "unitree_lidar"
     "lidar_range_filter"
     "pointcloud_filters"
@@ -33,6 +35,7 @@ PATTERNS=(
     "boat_state_node"
     "global_frame"
     "global_planner_node"
+    "cheese_mission"
     "rqt"
     "rviz2"
     "rviz"
@@ -49,12 +52,38 @@ echo "=== Waiting for processes to terminate ==="
 sleep 2
 
 echo "=== Force killing any remaining ROS processes ==="
-pkill -9 -f "ros2|ros2bag|rosbag2|bag play|mavros|unitree|lidar|buoy|camera|vision|cv_|detection|rqt|map_visualizer|web_server_map|rviz|pointcloud_filters" 2>/dev/null || true
+pkill -9 -f "ros2|ros2bag|rosbag2|bag play|mavros|apm.launch|mavros_node|cheese_mission|unitree|lidar|buoy|camera|vision|cv_|detection|rqt|map_visualizer|web_server_map|rviz|pointcloud_filters" 2>/dev/null || true
+sleep 1
+# MAVROS: kill by executable name and by PID (pkill -f can miss if cmdline is truncated)
+killall -9 mavros_node 2>/dev/null || true
+killall -9 mavros_router 2>/dev/null || true
+killall -9 mavros 2>/dev/null || true
+pkill -9 -f "mavros" 2>/dev/null || true
+pkill -9 -f "apm.launch" 2>/dev/null || true
+# Explicit PID kill: pgrep outputs one PID per line
+for pid in $(pgrep -f "mavros" 2>/dev/null); do
+    kill -9 "$pid" 2>/dev/null || true
+done
+for pid in $(pgrep -f "apm.launch" 2>/dev/null); do
+    kill -9 "$pid" 2>/dev/null || true
+done
+sleep 1
+pkill -9 -f "mavros" 2>/dev/null || true
 
 echo "=== Stopping ROS2 daemon ==="
 source /opt/ros/humble/setup.bash 2>/dev/null
 ros2 daemon stop 2>/dev/null || true
+ros2 daemon start 2>/dev/null || true
+sleep 1
+ros2 daemon stop 2>/dev/null || true
 
 echo "=== Cleanup complete ==="
 echo "Remaining topics:"
+sleep 2
 ros2 topic list 2>/dev/null || echo "No ROS2 daemon running"
+if ros2 topic list 2>/dev/null | grep -q mavros; then
+    echo ""
+    echo "  MAVROS topics still listed (discovery may be stale). Processes still running?"
+    pgrep -af "mavros|apm.launch" 2>/dev/null || true
+    echo "  If you see PIDs above, run:  kill -9 <PID>  for each, or:  sudo pkill -9 -f mavros"
+fi

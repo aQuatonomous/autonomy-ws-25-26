@@ -104,6 +104,7 @@ class Task3Manager:
         self.map_bounds = None  # Task 3 does not use map bounds
         self.pose: Pose = start_pose
         self.prev_pos: Optional[Vec2] = None
+        self.initial_heading: float = float(start_pose[2])
 
         self.phase = Phase.ENTRY
 
@@ -118,6 +119,7 @@ class Task3Manager:
         # Task entities
         self.indicator_color: Optional[str] = None  # "red" or "green"
         self.yellow_pos: Optional[Vec3] = None
+        self.yellow_buoy_entity_id: Optional[int] = None  # exclude from obstacles when looping
 
         # NEW: lock a loop waypoint so it doesn't move every tick
         self.loop_goal: Optional[Vec3] = None
@@ -159,13 +161,21 @@ class Task3Manager:
 
         if det.entity_type == "yellow_buoy":
             self.yellow_pos = det.position
+            self.yellow_buoy_entity_id = det.entity_id
 
     def _obstacles(self) -> List[Tuple[float, ...]]:
-        """Obstacles = buoys + no-go (gate walls + map bounds when map_bounds set).
-        Gate buoys are excluded (no-go walls handle boundaries)."""
-        gate_pairs = [self.entrance_gate] if self.entrance_gate else None
-        return list(self.entities.get_obstacles(exclude_gate_pairs=gate_pairs)) + list(
-            self.entities.get_no_go_obstacle_points(map_bounds=self.map_bounds)
+        """Obstacles = buoys + no-go walls. Gate entrance buoys excluded by entity ID (same as Task 1).
+        When looping around yellow buoy (LOOP_AROUND), exclude it from obstacles (detected and confirmed)."""
+        exclude_ids = self.entities.get_gate_entity_ids(
+            boat_heading_rad=self.pose[2],
+            boat_pos=(self.pose[0], self.pose[1]),
+        )
+        if self.phase == Phase.LOOP_AROUND and self.yellow_buoy_entity_id is not None:
+            exclude_ids = exclude_ids | {self.yellow_buoy_entity_id}
+        return list(self.entities.get_obstacles(exclude_entity_ids=exclude_ids)) + list(
+            self.entities.get_no_go_obstacle_points(
+                map_bounds=self.map_bounds, boat_heading_rad=self.pose[2],
+            )
         )
 
     def _write_goals(self, goals: List[Tuple[float, ...]]) -> None:
@@ -183,7 +193,8 @@ class Task3Manager:
     def _ensure_gate(self) -> None:
         if self.entrance_gate is not None:
             return
-        gates = self.entities.get_gates()
+        boat_xy = (self.pose[0], self.pose[1])
+        gates = self.entities.get_gates(boat_heading_rad=self.pose[2], boat_pos=boat_xy)
         if not gates:
             return
         self.entrance_gate = gates[0]
@@ -193,8 +204,11 @@ class Task3Manager:
     def _check_gate_cross(self) -> None:
         if self.prev_pos is None or self.entrance_gate is None:
             return
+        cur = (self.pose[0], self.pose[1])
+        if abs(cur[0] - self.prev_pos[0]) < 1e-9 and abs(cur[1] - self.prev_pos[1]) < 1e-9:
+            return
         red, green = self.entrance_gate
-        if segments_intersect(self.prev_pos, (self.pose[0], self.pose[1]), red, green):
+        if segments_intersect(self.prev_pos, cur, red, green):
             if not self.entry_crossed:
                 self.entry_crossed = True
                 self.start_time = time.time()
@@ -220,22 +234,17 @@ class Task3Manager:
             t = np.array([r[1], -r[0]], dtype=float)
 
         beyond = yb + t * 20.0
-        if self.map_bounds is not None:
-            beyond[0] = float(np.clip(beyond[0], 0, self.map_bounds[0]))
-            beyond[1] = float(np.clip(beyond[1], 0, self.map_bounds[1]))
         return (float(beyond[0]), float(beyond[1]), 0.0)
 
     def tick(self) -> None:
         self._ensure_gate()
         self._check_gate_cross()
 
-        # No gate yet: boat is in line with gate (gate ahead). Move forward along heading; if gate not detected assume buoys ahead and go straight.
         if self.entrance_gate is None or self.gate_center is None:
-            x, y, hdg = self.pose
+            x, y, _ = self.pose
+            hdg = self.initial_heading
             step = 40.0
             g = (float(x + step * np.cos(hdg)), float(y + step * np.sin(hdg)), 0.0)
-            if self.map_bounds is not None:
-                g = (float(np.clip(g[0], 0, self.map_bounds[0])), float(np.clip(g[1], 0, self.map_bounds[1])), 0.0)
             self._write_goals([g])
             return
 
@@ -246,7 +255,8 @@ class Task3Manager:
                 self.loop_goal = None  # reset just in case
 
         elif self.phase == Phase.SEARCH_YELLOW:
-            x, y, hdg = self.pose
+            x, y, _ = self.pose
+            hdg = self.initial_heading
             left = np.array([-np.sin(hdg), np.cos(hdg)], dtype=float)
             right = -left
             bias = right if self.indicator_color == "red" else left  # your mapping
@@ -255,9 +265,6 @@ class Task3Manager:
                 + bias * 25.0
                 + np.array([np.cos(hdg), np.sin(hdg)], dtype=float) * 25.0
             )
-            if self.map_bounds is not None:
-                target[0] = float(np.clip(target[0], 0, self.map_bounds[0]))
-                target[1] = float(np.clip(target[1], 0, self.map_bounds[1]))
             self._write_goals([(float(target[0]), float(target[1]), 0.0)])
 
             if self.yellow_pos is not None and self.indicator_color is not None:
@@ -291,7 +298,7 @@ class Task3Manager:
 
         start = (self.pose[0], self.pose[1])
         obstacles = self._obstacles()
-        gates = self.entities.get_gates()
+        gates = self.entities.get_gates(boat_heading_rad=self.pose[2], boat_pos=start)
         goals_xy = [(g[0], g[1]) for g in self.goal_queue[:2]]
 
         result = planner.plan_multi_goal_path(

@@ -66,6 +66,16 @@ Full setup, layout options, and component-level logic/run/debug: **[planning REA
 
 ---
 
+## Troubleshooting: no velocity commands
+
+- **Echo shows nothing or wrong topic:** The node publishes to `cmd_vel_topic` (default `/mavros/setpoint_velocity/cmd_vel_unstamped`). If MAVROS runs with a UAS prefix (e.g. `/uas1`), it subscribes under that prefix. Either echo the topic the node uses, or launch the planner so it publishes where MAVROS listens:
+  ```bash
+  ros2 launch global_planner global_planner.launch.py cmd_vel_topic:=/uas1/mavros/setpoint_velocity/cmd_vel_unstamped
+  ```
+- **Velocity is always zero:** Planning only sends non-zero velocity when: (1) Pixhawk is in **GUIDED** mode (`/mavros/state`), (2) at least one **GPS fix** has been received, (3) for Task 1, **gate (red–green) detections** exist so the planner has goals. Check logs for "Task1 phase=...", "Seen goal / next goal", and "Velocity given: ...".
+
+---
+
 ## Watchdogs
 
 The node calls `watchdogs.tick()` every planning tick. If the returned twist override is not `None`, that command is published instead of the planner output and a log line is emitted (`"This is the watchdog protocol happening. ..."`).

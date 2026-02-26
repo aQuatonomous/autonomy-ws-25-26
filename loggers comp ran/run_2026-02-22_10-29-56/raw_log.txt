@@ -1,0 +1,366 @@
+=== Logging enabled: /home/lorenzo/autonomy-ws-25-26/loggers comp ran/run_2026-02-22_10-29-56 ===
+=== Task 1 cheese: Setting camera format (single camera: YUYV @ 960x600 @ 15fps) ===
+Setting cameras (single) to 960x600 YUYV @ 15 FPS...
+Camera 0: /dev/v4l/by-path/platform-3610000.usb-usb-0:1.2.3:1.0-video-index0
+Frame rate set to 15.000 fps
+  ✓ 960x600 @ 15 fps
+
+Verifying...
+=== Camera 0 ===
+	Width/Height      : 960/600
+	Pixel Format      : 'YUYV' (YUYV 4:2:2)
+Streaming Parameters Video Capture:
+	Capabilities     : timeperframe
+	Frames per second: 15.000 (15/1)
+	Read buffers     : 0
+
+Done! Configured 1 camera(s). Device list written to .camera_devices
+=== Sourcing ROS2 and workspaces ===
+=== Launching MAVROS (Pixhawk at /dev/ttyACM0:57600) ===
+[INFO] [launch]: All log files can be found below /home/lorenzo/.ros/log/2026-02-22-10-29-58-964289-aqua-desktop-13847
+[INFO] [launch]: Default logging verbosity is set to INFO
+[INFO] [mavros_node-1]: process started with pid [13886]
+[mavros_node-1] [INFO] [1771774199.245757500] [mavros.mavros_node]: Starting mavros_node container
+[mavros_node-1] [INFO] [1771774199.245940778] [mavros.mavros_node]: FCU URL: /dev/ttyACM0:57600
+[mavros_node-1] [INFO] [1771774199.245965159] [mavros.mavros_node]: GCS URL: 
+[mavros_node-1] [INFO] [1771774199.245978822] [mavros.mavros_node]: UAS Prefix: /uas1
+[mavros_node-1] [INFO] [1771774199.245989509] [mavros.mavros_node]: Starting mavros router node
+[mavros_node-1] [INFO] [1771774199.255833853] [mavros.mavros_router]: Built-in SIMD instructions: ARM NEON
+[mavros_node-1] [INFO] [1771774199.255908949] [mavros.mavros_router]: Built-in MAVLink package version: 2025.12.12
+[mavros_node-1] [INFO] [1771774199.255931155] [mavros.mavros_router]: Known MAVLink dialects: common ardupilotmega ASLUAV AVSSUAS all csAirLink cubepilot development icarous loweheiser marsh matrixpilot paparazzi standard stemstudios storm32 uAvionix ualberta
+[mavros_node-1] [INFO] [1771774199.255946258] [mavros.mavros_router]: MAVROS Router started
+[mavros_node-1] [INFO] [1771774199.256125696] [mavros.mavros_node]: Starting mavros uas node
+[mavros_node-1] [INFO] [1771774199.302097175] [mavros.mavros_router]: Requested to add endpoint: type: 0, url: /dev/ttyACM0:57600
+[mavros_node-1] [INFO] [1771774199.302222571] [mavros.mavros_router]: Endpoint link[1000] created
+[mavros_node-1] [INFO] [1771774199.304074805] [mavros.mavros_router]: link[1000] opened successfully
+[mavros_node-1] [INFO] [1771774199.304158220] [mavros.mavros_router]: Requested to add endpoint: type: 2, url: /uas1
+[mavros_node-1] [INFO] [1771774199.304208007] [mavros.mavros_router]: link[1000] detected remote address 1.1
+[mavros_node-1] [INFO] [1771774199.304241572] [mavros.mavros_router]: Endpoint link[1001] created
+[mavros_node-1] [INFO] [1771774199.305333401] [mavros.mavros_router]: link[1001] opened successfully
+[mavros_node-1] [INFO] [1771774199.305997175] [mavros.mavros_router]: link[1000] detected remote address 255.190
+[mavros_node-1] [INFO] [1771774199.312421600] [mavros.mavros]: UAS Executor started, threads: 6
+[mavros_node-1] [INFO] [1771774199.312563666] [mavros.mavros]: Plugin actuator_control ignored
+[mavros_node-1] [INFO] [1771774199.355661091] [mavros.mavros]: Plugin adsb created
+[mavros_node-1] [INFO] [1771774199.355809045] [mavros.mavros]: Plugin adsb initialized
+[mavros_node-1] [INFO] [1771774199.355846833] [mavros.mavros]: Plugin altitude ignored
+[mavros_node-1] [INFO] [1771774199.363455621] [mavros.mavros]: Plugin cam_imu_sync created
+[mavros_node-1] [INFO] [1771774199.363581400] [mavros.mavros]: Plugin cam_imu_sync initialized
+[mavros_node-1] [INFO] [1771774199.371777074] [mavros.mavros]: Plugin camera created
+[mavros_node-1] [INFO] [1771774199.371899366] [mavros.mavros]: Plugin camera initialized
+[mavros_node-1] [INFO] [1771774199.379827835] [mavros.mavros]: Plugin cellular_status created
+[mavros_node-1] [INFO] [1771774199.379968749] [mavros.mavros]: Plugin cellular_status initialized
+[mavros_node-1] [INFO] [1771774199.410448279] [mavros.mavros]: Plugin command created
+[mavros_node-1] [INFO] [1771774199.410579626] [mavros.mavros]: Plugin command initialized
+[mavros_node-1] [INFO] [1771774199.417753737] [mavros.mavros]: Plugin companion_process_status created
+[mavros_node-1] [INFO] [1771774199.417875741] [mavros.mavros]: Plugin companion_process_status initialized
+[mavros_node-1] [INFO] [1771774199.417911321] [mavros.mavros]: Plugin debug_value ignored
+=== Launching global_frame (use_fused_detections:=true) ===
+[mavros_node-1] [INFO] [1771774199.425397049] [mavros.distance_sensor]: DS: rangefinder_pub: Loading config: id: 0
+[mavros_node-1] frame_id: lidar
+[mavros_node-1] field_of_view: 0.0
+[mavros_node-1] send_tf: false
+[mavros_node-1] sensor_position: {x: 0.0, y: 0.0, z: -0.1}
+[mavros_node-1] [INFO] [1771774199.426789904] [mavros.distance_sensor]: DS: rangefinder_sub: Loading config: subscriber: true
+[mavros_node-1] id: 1
+[mavros_node-1] orientation: PITCH_270
+[mavros_node-1] [INFO] [1771774199.427426897] [mavros.mavros]: Plugin distance_sensor created
+[mavros_node-1] [INFO] [1771774199.427515785] [mavros.mavros]: Plugin distance_sensor initialized
+[mavros_node-1] [INFO] [1771774199.435895409] [mavros.mavros]: Plugin esc_status created
+[mavros_node-1] [INFO] [1771774199.436035747] [mavros.mavros]: Plugin esc_status initialized
+[mavros_node-1] [INFO] [1771774199.442809993] [mavros.mavros]: Plugin esc_telemetry created
+[mavros_node-1] [INFO] [1771774199.442932413] [mavros.mavros]: Plugin esc_telemetry initialized
+[mavros_node-1] [INFO] [1771774199.450744348] [mavros.mavros]: Plugin fake_gps created
+[mavros_node-1] [INFO] [1771774199.450864273] [mavros.mavros]: Plugin fake_gps initialized
+[mavros_node-1] [INFO] [1771774199.450896781] [mavros.mavros]: Plugin ftp ignored
+[mavros_node-1] [INFO] [1771774199.460695978] [mavros.mavros]: Plugin geofence created
+[mavros_node-1] [INFO] [1771774199.460837340] [mavros.mavros]: Plugin geofence initialized
+[mavros_node-1] [INFO] [1771774199.474685354] [mavros.mavros]: Plugin gimbal_control created
+[mavros_node-1] [INFO] [1771774199.474934833] [mavros.mavros]: Plugin gimbal_control initialized
+[mavros_node-1] [INFO] [1771774199.490102014] [mavros.mavros]: Plugin global_position created
+[mavros_node-1] [INFO] [1771774199.491216880] [mavros.mavros]: Plugin global_position initialized
+[mavros_node-1] [INFO] [1771774199.500713930] [mavros.mavros]: Plugin gps_input created
+[mavros_node-1] [INFO] [1771774199.501811934] [mavros.mavros]: Plugin gps_input initialized
+[mavros_node-1] [INFO] [1771774199.511094765] [mavros.mavros]: Plugin gps_rtk created
+[mavros_node-1] [INFO] [1771774199.512238749] [mavros.mavros]: Plugin gps_rtk initialized
+[mavros_node-1] [INFO] [1771774199.521245319] [mavros.mavros]: Plugin gps_status created
+[mavros_node-1] [INFO] [1771774199.522378711] [mavros.mavros]: Plugin gps_status initialized
+[mavros_node-1] [INFO] [1771774199.530344936] [mavros.mavros]: Plugin guided_target created
+[mavros_node-1] [INFO] [1771774199.531344678] [mavros.mavros]: Plugin guided_target initialized
+[mavros_node-1] [INFO] [1771774199.531827734] [mavros.mavros]: Plugin hil ignored
+[mavros_node-1] [INFO] [1771774199.540905913] [mavros.mavros]: Plugin home_position created
+[mavros_node-1] [INFO] [1771774199.542006861] [mavros.mavros]: Plugin home_position initialized
+[mavros_node-1] [INFO] [1771774199.552812966] [mavros.mavros]: Plugin imu created
+[mavros_node-1] [INFO] [1771774199.554006545] [mavros.mavros]: Plugin imu initialized
+[mavros_node-1] [INFO] [1771774199.563492268] [mavros.mavros]: Plugin landing_target created
+[mavros_node-1] [INFO] [1771774199.564716884] [mavros.mavros]: Plugin landing_target initialized
+[mavros_node-1] [INFO] [1771774199.575229770] [mavros.mavros]: Plugin local_position created
+[mavros_node-1] [INFO] [1771774199.576667996] [mavros.mavros]: Plugin local_position initialized
+[mavros_node-1] [INFO] [1771774199.587150709] [mavros.mavros]: Plugin log_transfer created
+[mavros_node-1] [INFO] [1771774199.588355359] [mavros.mavros]: Plugin log_transfer initialized
+[mavros_node-1] [INFO] [1771774199.596903670] [mavros.mavros]: Plugin mag_calibration_status created
+[mavros_node-1] [INFO] [1771774199.598075491] [mavros.mavros]: Plugin mag_calibration_status initialized
+[mavros_node-1] [INFO] [1771774199.608812259] [mavros.mavros]: Plugin manual_control created
+[mavros_node-1] [INFO] [1771774199.610061672] [mavros.mavros]: Plugin manual_control initialized
+[mavros_node-1] [INFO] [1771774199.618961629] [mavros.mavros]: Plugin mocap_pose_estimate created
+[mavros_node-1] [INFO] [1771774199.620137033] [mavros.mavros]: Plugin mocap_pose_estimate initialized
+[mavros_node-1] [INFO] [1771774199.630353693] [mavros.mavros]: Plugin mount_control created
+[mavros_node-1] [INFO] [1771774199.634244990] [mavros.mavros]: Plugin mount_control initialized
+[mavros_node-1] [INFO] [1771774199.643624451] [mavros.mavros]: Plugin nav_controller_output created
+[mavros_node-1] [INFO] [1771774199.644793361] [mavros.mavros]: Plugin nav_controller_output initialized
+[mavros_node-1] [INFO] [1771774199.661913917] [mavros.mavros]: Plugin obstacle_distance created
+[mavros_node-1] [INFO] [1771774199.663047693] [mavros.mavros]: Plugin obstacle_distance initialized
+[mavros_node-1] [INFO] [1771774199.682103131] [mavros.mavros]: Plugin obstacle_distance_3d created
+[mavros_node-1] [INFO] [1771774199.683233292] [mavros.mavros]: Plugin obstacle_distance_3d initialized
+[mavros_node-1] [INFO] [1771774199.704985905] [mavros.mavros]: Plugin odometry created
+[mavros_node-1] [INFO] [1771774199.706159070] [mavros.mavros]: Plugin odometry initialized
+[mavros_node-1] [INFO] [1771774199.718236346] [mavros.mavros]: Plugin onboard_computer_status created
+[mavros_node-1] [INFO] [1771774199.719474400] [mavros.mavros]: Plugin onboard_computer_status initialized
+[mavros_node-1] [INFO] [1771774199.736150104] [mavros.mavros]: Plugin open_drone_id created
+[mavros_node-1] [INFO] [1771774199.736315112] [mavros.mavros]: Plugin open_drone_id initialized
+[mavros_node-1] [INFO] [1771774199.751814548] [mavros.mavros]: Plugin optical_flow created
+[mavros_node-1] [INFO] [1771774199.752004609] [mavros.mavros]: Plugin optical_flow initialized
+[mavros_node-1] [INFO] [1771774199.772178913] [mavros.mavros]: Plugin param created
+[mavros_node-1] [INFO] [1771774199.772326034] [mavros.mavros]: Plugin param initialized
+[mavros_node-1] [INFO] [1771774199.792753817] [mavros.mavros]: Plugin play_tune created
+[mavros_node-1] [INFO] [1771774199.793205805] [mavros.mavros]: Plugin play_tune initialized
+[mavros_node-1] [INFO] [1771774199.793247369] [mavros.mavros]: Plugin px4flow ignored
+[mavros_node-1] [INFO] [1771774199.813084170] [mavros.mavros]: Plugin rallypoint created
+[mavros_node-1] [INFO] [1771774199.813317715] [mavros.mavros]: Plugin rallypoint initialized
+[mavros_node-1] [INFO] [1771774199.832461752] [mavros.mavros]: Plugin rangefinder created
+[mavros_node-1] [INFO] [1771774199.832956200] [mavros.mavros]: Plugin rangefinder initialized
+[mavros_node-1] [INFO] [1771774199.850236836] [mavros.mavros]: Plugin rc_io created
+[mavros_node-1] [INFO] [1771774199.851655961] [mavros.mavros]: Plugin rc_io initialized
+[mavros_node-1] [INFO] [1771774199.866072975] [mavros.mavros]: Plugin setpoint_accel created
+[mavros_node-1] [INFO] [1771774199.866288090] [mavros.mavros]: Plugin setpoint_accel initialized
+[mavros_node-1] [INFO] [1771774199.884158076] [mavros.mavros]: Plugin setpoint_attitude created
+[mavros_node-1] [INFO] [1771774199.885927022] [mavros.mavros]: Plugin setpoint_attitude initialized
+[mavros_node-1] [INFO] [1771774199.905216293] [mavros.mavros]: Plugin setpoint_position created
+[mavros_node-1] [INFO] [1771774199.905357591] [mavros.mavros]: Plugin setpoint_position initialized
+[mavros_node-1] [INFO] [1771774199.930455219] [mavros.mavros]: Plugin setpoint_raw created
+[mavros_node-1] [INFO] [1771774199.930620771] [mavros.mavros]: Plugin setpoint_raw initialized
+[mavros_node-1] [INFO] [1771774199.945983868] [mavros.mavros]: Plugin setpoint_trajectory created
+[mavros_node-1] [INFO] [1771774199.946113231] [mavros.mavros]: Plugin setpoint_trajectory initialized
+[mavros_node-1] [INFO] [1771774199.965866169] [mavros.mavros]: Plugin setpoint_velocity created
+[mavros_node-1] [INFO] [1771774199.966333739] [mavros.mavros]: Plugin setpoint_velocity initialized
+[mavros_node-1] [INFO] [1771774199.986260067] [mavros.mavros]: Plugin sim_state created
+[mavros_node-1] [INFO] [1771774199.986416596] [mavros.mavros]: Plugin sim_state initialized
+[mavros_node-1] [INFO] [1771774200.008844428] [mavros.mavros]: Plugin sys_status created
+[mavros_node-1] [INFO] [1771774200.009060759] [mavros.mavros]: Plugin sys_status initialized
+[mavros_node-1] [INFO] [1771774200.037539271] [mavros.time]: TM: Timesync mode: MAVLINK
+[mavros_node-1] [INFO] [1771774200.047493409] [mavros.mavros]: Plugin sys_time created
+[mavros_node-1] [INFO] [1771774200.048505154] [mavros.mavros]: Plugin sys_time initialized
+[mavros_node-1] [INFO] [1771774200.065991513] [mavros.mavros]: Plugin tdr_radio created
+[mavros_node-1] [INFO] [1771774200.066142667] [mavros.mavros]: Plugin tdr_radio initialized
+[mavros_node-1] [INFO] [1771774200.079626458] [mavros.mavros]: Plugin terrain created
+[mavros_node-1] [INFO] [1771774200.079764269] [mavros.mavros]: Plugin terrain initialized
+[mavros_node-1] [INFO] [1771774200.094273147] [mavros.mavros]: Plugin trajectory created
+[mavros_node-1] [INFO] [1771774200.094411246] [mavros.mavros]: Plugin trajectory initialized
+[mavros_node-1] [INFO] [1771774200.108114217] [mavros.mavros]: Plugin tunnel created
+[mavros_node-1] [INFO] [1771774200.108258651] [mavros.mavros]: Plugin tunnel initialized
+[mavros_node-1] [INFO] [1771774200.121492289] [mavros.mavros]: Plugin vfr_hud created
+[mavros_node-1] [INFO] [1771774200.121812867] [mavros.mavros]: Plugin vfr_hud initialized
+[mavros_node-1] [INFO] [1771774200.121851968] [mavros.mavros]: Plugin vibration ignored
+[mavros_node-1] [INFO] [1771774200.136561915] [mavros.mavros]: Plugin vision_pose created
+[mavros_node-1] [INFO] [1771774200.136694031] [mavros.mavros]: Plugin vision_pose initialized
+[INFO] [launch]: All log files can be found below /home/lorenzo/.ros/log/2026-02-22-10-30-00-148749-aqua-desktop-13906
+[INFO] [launch]: Default logging verbosity is set to INFO
+[mavros_node-1] [INFO] [1771774200.151899292] [mavros.mavros]: Plugin vision_speed created
+[mavros_node-1] [INFO] [1771774200.152643542] [mavros.mavros]: Plugin vision_speed initialized
+[mavros_node-1] [INFO] [1771774200.170129709] [mavros.mavros]: Plugin waypoint created
+[mavros_node-1] [INFO] [1771774200.170459119] [mavros.mavros]: Plugin waypoint initialized
+[mavros_node-1] [INFO] [1771774200.170506794] [mavros.mavros]: Plugin wheel_odometry ignored
+[mavros_node-1] [INFO] [1771774200.186373817] [mavros.mavros]: Plugin wind_estimation created
+[mavros_node-1] [INFO] [1771774200.186594501] [mavros.mavros]: Plugin wind_estimation initialized
+[mavros_node-1] [INFO] [1771774200.188466325] [mavros.mavros]: Built-in SIMD instructions: ARM NEON
+[mavros_node-1] [INFO] [1771774200.188784055] [mavros.mavros]: Built-in MAVLink package version: 2025.12.12
+[mavros_node-1] [INFO] [1771774200.188819572] [mavros.mavros]: Known MAVLink dialects: common ardupilotmega ASLUAV AVSSUAS all csAirLink cubepilot development icarous loweheiser marsh matrixpilot paparazzi standard stemstudios storm32 uAvionix ualberta
+[mavros_node-1] [INFO] [1771774200.188837234] [mavros.mavros]: MAVROS UAS via /uas1 started. MY ID 1.191, TARGET ID 1.1
+[mavros_node-1] [INFO] [1771774200.238477024] [mavros.mavros_router]: link[1001] detected remote address 1.191
+[mavros_node-1] [INFO] [1771774200.240833283] [mavros.rc]: RC_CHANNELS message detected!
+[mavros_node-1] [INFO] [1771774200.241076620] [mavros.imu]: IMU: Raw IMU message used.
+[mavros_node-1] [WARN] [1771774200.241193025] [mavros.imu]: IMU: linear acceleration on RAW_IMU known on APM only.
+[mavros_node-1] [WARN] [1771774200.241220255] [mavros.imu]: IMU: ~imu/data_raw stores unscaled raw acceleration report.
+[INFO] [boat_state_node-1]: process started with pid [13935]
+[INFO] [detection_to_global_node-2]: process started with pid [13937]
+[mavros_node-1] [INFO] [1771774200.336492115] [mavros.mavros]: CON: Got HEARTBEAT, connected. FCU: ArduPilot
+[mavros_node-1] [INFO] [1771774200.338320071] [mavros.mission]: WP: detected enable_partial_push: 1
+=== Launching LiDAR buoy pipeline (no RViz) ===
+[mavros_node-1] [INFO] [1771774200.523520677] [mavros.rc]: RC_CHANNELS message detected!
+[mavros_node-1] [INFO] [1771774200.525426547] [mavros.imu]: IMU: Raw IMU message used.
+[detection_to_global_node-2] [INFO] [1771774200.786109766] [detection_to_global_node]: detection_to_global: pose=/boat_pose, source=fused (/fused_buoys) -> /global_detections
+[mavros_node-1] [ERROR] [1771774200.877536579] [mavros.sys]: FCU: PreArm: Radio failsafe on
+[mavros_node-1] [WARN] [1771774201.038160378] [mavros.guided_target]: PositionTargetGlobal failed because no origin
+[INFO] [launch]: All log files can be found below /home/lorenzo/.ros/log/2026-02-22-10-30-01-060002-aqua-desktop-13944
+[INFO] [launch]: Default logging verbosity is set to INFO
+[boat_state_node-1] [INFO] [1771774201.235956360] [boat_state_node]: Boat state node: GPS=mavros/global_position/global, heading=mavros/global_position/compass_hdg (compass_hdg), origin=first fix
+[mavros_node-1] [WARN] [1771774201.258085390] [mavros.time]: TM: RTT too high for timesync: 19.25 ms.
+[boat_state_node-1] [INFO] [1771774201.263590370] [boat_state_node]: Origin set from first fix: (27.374465, -82.452074)
+[mavros_node-1] [WARN] [1771774201.281770825] [mavros.guided_target]: PositionTargetGlobal failed because no origin
+[INFO] [unitree_lidar_ros2_node-1]: process started with pid [13997]
+[INFO] [lidar_range_filter-2]: process started with pid [13999]
+[INFO] [buoy_detector-3]: process started with pid [14001]
+[INFO] [buoy_tracker-4]: process started with pid [14012]
+[INFO] [buoy_visualizer-5]: process started with pid [14014]
+[INFO] [tracked_buoy_visualizer-6]: process started with pid [14016]
+[unitree_lidar_ros2_node-1] [INFO] [1771774201.294964462] [unitree_lidar_ros2_node]: LiDAR driver started: port=/dev/ttyUSB0, topic=unilidar/cloud
+[mavros_node-1] [WARN] [1771774201.357655305] [mavros.cmd]: CMD: Unexpected command 520, result 0
+[mavros_node-1] [INFO] [1771774201.358280370] [mavros.geofence]: GF: Using MISSION_ITEM_INT
+[mavros_node-1] [INFO] [1771774201.360174952] [mavros.rallypoint]: RP: Using MISSION_ITEM_INT
+[mavros_node-1] [INFO] [1771774201.360262848] [mavros.mission]: WP: Using MISSION_ITEM_INT
+[mavros_node-1] [INFO] [1771774201.360299005] [mavros.sys]: VER: 1.1: Capabilities         0x000000000000f1ef
+[mavros_node-1] [INFO] [1771774201.360329402] [mavros.sys]: VER: 1.1: Flight software:     040603ff (3fc7011a)
+[mavros_node-1] [INFO] [1771774201.360342457] [mavros.sys]: VER: 1.1: Middleware software: 00000000 (        )
+[mavros_node-1] [INFO] [1771774201.360352600] [mavros.sys]: VER: 1.1: OS software:         00000000 (88b84600	@W)
+[mavros_node-1] [INFO] [1771774201.360363671] [mavros.sys]: VER: 1.1: Board hardware:      00320000
+[mavros_node-1] [INFO] [1771774201.360377750] [mavros.sys]: VER: 1.1: VID/PID:             1209:5740
+[mavros_node-1] [INFO] [1771774201.360387669] [mavros.sys]: VER: 1.1: UID:                 0000000000000000
+[mavros_node-1] [WARN] [1771774201.538368335] [mavros.guided_target]: PositionTargetGlobal failed because no origin
+[mavros_node-1] [WARN] [1771774201.781098060] [mavros.guided_target]: PositionTargetGlobal failed because no origin
+[buoy_tracker-4] [INFO] [1771774202.403380306] [buoy_tracker]: Buoy tracker started (publishes /tracked_buoys and /tracked_buoys_json)
+[buoy_tracker-4] [INFO] [1771774202.411091778] [buoy_tracker]: Association threshold: 0.90m, Max misses: 50, Min observations to add track: 2, Candidate max misses: 8
+=== Launching CV pipeline (task:=2, indicator_buoy:=false) ===
+[buoy_detector-3] /usr/lib/python3/dist-packages/scipy/__init__.py:146: UserWarning: A NumPy version >=1.17.3 and <1.25.0 is required for this version of SciPy (detected version 1.26.4
+[buoy_detector-3]   warnings.warn(f"A NumPy version >={np_minversion} and <{np_maxversion}"
+[buoy_visualizer-5] [INFO] [1771774203.028091647] [buoy_visualizer]: Buoy visualizer node started
+[buoy_visualizer-5] [INFO] [1771774203.028901406] [buoy_visualizer]: Marker parameters: height=0.3m, radius=0.1m, lifetime=0.5s
+[lidar_range_filter-2] [INFO] [1771774203.171335253] [lidar_range_filter]: lidar_range_filter started: input=/unilidar/cloud, output=/points_filtered, z=[-0.37,5.0] m, range_max=15.0 m, base_frame=base_link, use_tf_transform=False, rotate_cw_deg=202.5, rotate_cw_x_deg=-30.0, rotate_ccw_z2_deg=90.0, rotate_ccw_y_deg=0.0, fov_max_angle_from_x=0.0°, z_max_cutoff=1.5 m, max_buffer_duration_sec=5.0, accumulation: enabled (0.6s)
+[tracked_buoy_visualizer-6] [INFO] [1771774203.181813863] [tracked_buoy_visualizer]: Tracked buoy visualizer started (class_id/class_name from fusion)
+[tracked_buoy_visualizer-6] [INFO] [1771774203.182625573] [tracked_buoy_visualizer]: Marker: height=0.3m, radius=0.1m, lifetime=2.0s, text_labels=True
+[INFO] [launch]: All log files can be found below /home/lorenzo/.ros/log/2026-02-22-10-30-03-443606-aqua-desktop-14088
+[INFO] [launch]: Default logging verbosity is set to INFO
+[INFO] [launch.user]: Starting single camera (camera1) CV pipeline...
+Single camera mode: Camera1 found: /dev/v4l/by-path/platform-3610000.usb-usb-0:1.2.3:1.0-video-index0
+[INFO] [launch.user]: Single camera CV pipeline launch sequence initiated!
+[INFO] [v4l2_camera_node-1]: process started with pid [14191]
+[buoy_detector-3] [INFO] [1771774203.932890036] [buoy_detector]: Buoy detector started: input=/points_filtered, output=/buoy_detections, eps=0.85m, min_samples=1
+[v4l2_camera_node-1] [INFO] [1771774204.053086366] [v4l2_camera]: Driver: uvcvideo
+[v4l2_camera_node-1] [INFO] [1771774204.053251153] [v4l2_camera]: Version: 331668
+[v4l2_camera_node-1] [INFO] [1771774204.053263408] [v4l2_camera]: Device: Arducam B0495 (USB3 2.3MP)
+[v4l2_camera_node-1] [INFO] [1771774204.053269936] [v4l2_camera]: Location: usb-3610000.usb-1.2.3
+[v4l2_camera_node-1] [INFO] [1771774204.053275408] [v4l2_camera]: Capabilities:
+[v4l2_camera_node-1] [INFO] [1771774204.053280751] [v4l2_camera]:   Read/write: NO
+[v4l2_camera_node-1] [INFO] [1771774204.053286639] [v4l2_camera]:   Streaming: YES
+[v4l2_camera_node-1] [INFO] [1771774204.053299150] [v4l2_camera]: Current pixel format: YUYV @ 960x600
+[v4l2_camera_node-1] [INFO] [1771774204.053464673] [v4l2_camera]: Available pixel formats: 
+[v4l2_camera_node-1] [INFO] [1771774204.053475072] [v4l2_camera]:   YUYV - YUYV 4:2:2
+[v4l2_camera_node-1] [INFO] [1771774204.053480992] [v4l2_camera]: Available controls: 
+[v4l2_camera_node-1] [INFO] [1771774204.053493631] [v4l2_camera]:   Brightness (1) = 0
+[v4l2_camera_node-1] [INFO] [1771774204.053501374] [v4l2_camera]:   Contrast (1) = 10
+[v4l2_camera_node-1] [INFO] [1771774204.053507870] [v4l2_camera]:   Saturation (1) = 10
+[v4l2_camera_node-1] [INFO] [1771774204.053513821] [v4l2_camera]:   White Balance, Automatic (2) = 1
+[v4l2_camera_node-1] [INFO] [1771774204.053519901] [v4l2_camera]:   Gain (1) = 168
+[v4l2_camera_node-1] [INFO] [1771774204.053881025] [v4l2_camera]:   White Balance Temperature (1) = 4500 [inactive]
+[v4l2_camera_node-1] [ERROR] [1771774204.053922302] [v4l2_camera]: Failed getting value for control 10092545: Permission denied (13); returning 0!
+[v4l2_camera_node-1] [INFO] [1771774204.053932925] [v4l2_camera]:   Camera Controls (6) = 0
+[v4l2_camera_node-1] [INFO] [1771774204.053941821] [v4l2_camera]:   Auto Exposure (3) = 0
+[v4l2_camera_node-1] [INFO] [1771774204.054714657] [v4l2_camera]:   Exposure Time, Absolute (1) = 5 [inactive]
+[v4l2_camera_node-1] [WARN] [1771774204.056291401] [camera1.camera1_node]: Control type not currently supported: 6, for control: Camera Controls
+[v4l2_camera_node-1] [INFO] [1771774204.057439761] [v4l2_camera]: Starting camera
+[v4l2_camera_node-1] [INFO] [1771774204.068380940] [camera1.camera1_node]: using default calibration URL
+[v4l2_camera_node-1] [INFO] [1771774204.068560894] [camera1.camera1_node]: camera calibration URL: file:///home/lorenzo/.ros/camera_info/arducam_b0495_(usb3_2.3mp).yaml
+[mavros_node-1] [WARN] [1771774205.156875637] [mavros.time]: TM: RTT too high for timesync: 19.08 ms.
+[mavros_node-1] [WARN] [1771774206.256626938] [mavros.time]: TM: RTT too high for timesync: 18.91 ms.
+=== Starting CV-LiDAR fusion ===
+[INFO] [launch.user]: Starting preprocessing node...
+[INFO] [vision_preprocessing-2]: process started with pid [14383]
+[mavros_node-1] [WARN] [1771774207.356736972] [mavros.time]: TM: RTT too high for timesync: 12.23 ms.
+[vision_preprocessing-2] [INFO] [1771774207.845571844] [preprocess_camera1]: Preprocessing node for camera1 initialized (encoding=bgr8, max_fps=8.0)
+[vision_preprocessing-2] [INFO] [1771774207.846342066] [preprocess_camera1]: Subscribed to: /camera1/image_raw
+[vision_preprocessing-2] [INFO] [1771774207.848485033] [preprocess_camera1]: Publishing to: /camera1/image_preprocessed
+[vision_preprocessing-2] [INFO] [1771774208.024369251] [preprocess_camera1]: Preprocessing input encoding: yuv422_yuy2 -> output encoding: bgr8
+=== Starting Task 1 cheese (no planner: straight 5s, then return to start) ===
+=== Task 1 cheese pipelines started. MAVROS: 13847  GLOBAL_FRAME: 13906  LiDAR: 13944  CV: 14088  FUSION: 14373  CHEESE: 14507 ===
+Press Ctrl+C to stop all.
+
+[mavros_node-1] [WARN] [1771774208.456930158] [mavros.time]: TM: RTT too high for timesync: 19.35 ms.
+[INFO] [launch.user]: Starting inference node...
+[INFO] [vision_inference-3]: process started with pid [14524]
+[mavros_node-1] [WARN] [1771774209.555583401] [mavros.time]: TM: RTT too high for timesync: 17.56 ms.
+[vision_inference-3] [INFO] [1771774209.846180423] [inference_camera1]: Loading TensorRT engine from /home/lorenzo/autonomy-ws-25-26/computer_vision/cv_scripts/model.engine...
+[vision_inference-3] [INFO] [1771774210.072971573] [inference_camera1]: TensorRT engine loaded successfully!
+[vision_inference-3] [INFO] [1771774210.084999550] [inference_camera1]: Inference node for camera1 ready! (inference_interval=2, sim_image_rgb=False)
+[vision_inference-3] [INFO] [1771774210.087635828] [inference_camera1]: Subscribed to: /camera1/image_preprocessed
+[vision_inference-3] [INFO] [1771774210.088790328] [inference_camera1]: Publishing to: /camera1/detections, /camera1/detection_info
+[vision_inference-3] [WARN] [1771774210.340761950] [inference_camera1]: Zero detections (conf>=0.3). Max raw score this frame: 0.0042. Try sim_image_rgb:=true (default for sim) or conf_threshold:=0.05.
+[mavros_node-1] [INFO] [1771774210.357426740] [mavros.sys]: FCU: ArduRover V4.6.3 (3fc7011a)
+[mavros_node-1] [INFO] [1771774210.357599467] [mavros.sys]: FCU: ChibiOS: 88b84600
+[mavros_node-1] [INFO] [1771774210.357664328] [mavros.sys]: FCU: Pixhawk4 00200037 3033510A 36323635
+[mavros_node-1] [INFO] [1771774210.357717285] [mavros.sys]: FCU: IOMCU: 0 0 411FC231
+[mavros_node-1] [INFO] [1771774210.357769474] [mavros.sys]: FCU: RCOut: PWM:1-3 PWM:6-16
+[mavros_node-1] [INFO] [1771774210.357822560] [mavros.sys]: FCU: IMU0: fast sampling enabled 8.0kHz/2.0kHz
+[INFO] [launch.user]: Starting combiner and distance estimator...
+[INFO] [vision_combiner-4]: process started with pid [14695]
+[INFO] [maritime_distance_estimator-5]: process started with pid [14697]
+[mavros_node-1] [WARN] [1771774210.656500469] [mavros.time]: TM: RTT too high for timesync: 10.55 ms.
+[vision_combiner-4] [INFO] [1771774211.216818910] [detection_combiner]: Subscribed to: /camera1/detection_info
+[vision_combiner-4] [INFO] [1771774211.220027938] [detection_combiner]: Subscribed to: /camera1/task4_detections
+[vision_combiner-4] [INFO] [1771774211.222989362] [detection_combiner]: Subscribed to: /camera1/indicator_detections
+[vision_combiner-4] [INFO] [1771774211.226821975] [detection_combiner]: Detection combiner node initialized
+[vision_combiner-4] [INFO] [1771774211.228781336] [detection_combiner]: Publishing to: /combined/detection_info
+[vision_combiner-4] [INFO] [1771774211.230385674] [detection_combiner]: Camera intrinsics: fx=1047.7, fy=873.0, cx=960.0, cy=600.0
+[vision_combiner-4] [INFO] [1771774211.231648621] [detection_combiner]: Camera mounting angles: [-70.0, 0.0, 70.0]
+[vision_combiner-4] [WARN] [1771774211.333916927] [detection_combiner]: Camera health: 0 active, 0 stale, 1 no data | Total detections: 0
+[maritime_distance_estimator-5] [INFO] [1771774211.390710837] [maritime_distance_estimator]: Maritime Distance Estimator initialized
+[maritime_distance_estimator-5] [INFO] [1771774211.391501455] [maritime_distance_estimator]: Task 2 configuration loaded
+[maritime_distance_estimator-5] [INFO] [1771774211.392540604] [maritime_distance_estimator]: Camera specs: 1920×1200, 3.0μm pixels, 3.56mm focal length
+[maritime_distance_estimator-5] [INFO] [1771774211.394061618] [maritime_distance_estimator]: Native fy: 1186.7 px, loaded 15 object reference dimensions
+[maritime_distance_estimator-5] [INFO] [1771774211.394776143] [maritime_distance_estimator]: Small buoy dimensions (Task 2): {'black_buoy': 0.1524, 'green_buoy': 0.1524, 'red_buoy': 0.1524, 'yellow_buoy': 0.1524}
+[maritime_distance_estimator-5] [INFO] [1771774211.400822889] [maritime_distance_estimator]: Subscribed to: /combined/detection_info
+[maritime_distance_estimator-5] [INFO] [1771774211.401995024] [maritime_distance_estimator]: Publishing to: /combined/detection_info_with_distance
+[vision_preprocessing-2] [INFO] [1771774211.476927668] [preprocess_camera1]: Published 8 processed frames (preprocess fps=8.0, last size=(600, 960, 3))
+[vision_combiner-4] [INFO] [1771774211.481139687] [detection_combiner]: Updated frame size to 960×600, recomputed intrinsics: fx=523.8, fy=436.5
+[maritime_distance_estimator-5] [INFO] [1771774211.483211427] [maritime_distance_estimator]: Updated frame size to 960×600, fy_eff: 593.3 px
+[mavros_node-1] [WARN] [1771774211.858580788] [mavros.time]: TM: RTT too high for timesync: 20.40 ms.
+[mavros_node-1] [WARN] [1771774212.955434198] [mavros.time]: TM: RTT too high for timesync: 15.78 ms.
+[vision_combiner-4] [INFO] [1771774213.562018583] [detection_combiner]: Combined detections: 0 total | Active cameras: 1/1 | Camera1: 0
+[vision_preprocessing-2] [INFO] [1771774213.747181638] [preprocess_camera1]: Published 8 processed frames (preprocess fps=8.0, last size=(600, 960, 3))
+[mavros_node-1] [WARN] [1771774214.055392255] [mavros.time]: TM: RTT too high for timesync: 16.22 ms.
+[vision_preprocessing-2] [INFO] [1771774215.273291544] [preprocess_camera1]: Published 8 processed frames (preprocess fps=8.0, last size=(600, 960, 3))
+[mavros_node-1] [INFO] [1771774215.356570725] [mavros.mission]: WP: mission received
+[vision_combiner-4] [INFO] [1771774215.555612557] [detection_combiner]: Combined detections: 0 total | Active cameras: 1/1 | Camera1: 0
+[mavros_node-1] [WARN] [1771774215.858895928] [mavros.time]: TM: RTT too high for timesync: 20.11 ms.
+[vision_preprocessing-2] [INFO] [1771774216.811929581] [preprocess_camera1]: Published 8 processed frames (preprocess fps=8.0, last size=(600, 960, 3))
+[vision_inference-3] [INFO] [1771774217.438806947] [inference_camera1]: Processed 30 frames | Inference FPS: 2.11 | Det: 0
+[vision_combiner-4] [INFO] [1771774217.534189355] [detection_combiner]: Combined detections: 0 total | Active cameras: 1/1 | Camera1: 0
+[mavros_node-1] [WARN] [1771774217.857285372] [mavros.time]: TM: RTT too high for timesync: 15.59 ms.
+[vision_preprocessing-2] [INFO] [1771774219.081129068] [preprocess_camera1]: Published 8 processed frames (preprocess fps=8.0, last size=(600, 960, 3))
+[mavros_node-1] [WARN] [1771774219.455234353] [mavros.time]: TM: RTT too high for timesync: 18.18 ms.
+[mavros_node-1] [INFO] [1771774219.639177299] [mavros.param]: PR: parameters list received
+[vision_combiner-4] [INFO] [1771774219.791104000] [detection_combiner]: Combined detections: 0 total | Active cameras: 1/1 | Camera1: 0
+[mavros_node-1] [INFO] [1771774220.355740807] [mavros.rallypoint]: RP: mission received
+[vision_preprocessing-2] [INFO] [1771774220.476335870] [preprocess_camera1]: Published 8 processed frames (preprocess fps=8.0, last size=(600, 960, 3))
+[mavros_node-1] [WARN] [1771774220.555254749] [mavros.time]: TM: RTT too high for timesync: 17.79 ms.
+[mavros_node-1] [WARN] [1771774221.655184694] [mavros.time]: TM: RTT too high for timesync: 15.64 ms.
+[vision_combiner-4] [INFO] [1771774222.033896102] [detection_combiner]: Combined detections: 0 total | Active cameras: 1/1 | Camera1: 0
+[vision_preprocessing-2] [INFO] [1771774223.078352985] [preprocess_camera1]: Published 8 processed frames (preprocess fps=8.0, last size=(600, 960, 3))
+[vision_combiner-4] [INFO] [1771774224.233848441] [detection_combiner]: Combined detections: 0 total | Active cameras: 1/1 | Camera1: 0
+[mavros_node-1] [WARN] [1771774224.455194445] [mavros.time]: TM: RTT too high for timesync: 18.21 ms.
+[mavros_node-1] [INFO] [1771774225.355231560] [mavros.geofence]: GF: mission received
+[vision_preprocessing-2] [INFO] [1771774225.386338302] [preprocess_camera1]: Published 8 processed frames (preprocess fps=8.0, last size=(600, 960, 3))
+[mavros_node-1] [WARN] [1771774225.555314426] [mavros.time]: TM: RTT too high for timesync: 13.77 ms.
+[vision_inference-3] [INFO] [1771774225.571932036] [inference_camera1]: Processed 60 frames | Inference FPS: 1.97 | Det: 0
+[vision_combiner-4] [INFO] [1771774226.234061687] [detection_combiner]: Combined detections: 0 total | Active cameras: 1/1 | Camera1: 0
+[mavros_node-1] [WARN] [1771774226.655192236] [mavros.time]: TM: RTT too high for timesync: 18.17 ms.
+[vision_preprocessing-2] [INFO] [1771774227.693342312] [preprocess_camera1]: Published 8 processed frames (preprocess fps=8.0, last size=(600, 960, 3))
+[mavros_node-1] [WARN] [1771774227.755174340] [mavros.time]: TM: RTT too high for timesync: 13.95 ms.
+[vision_combiner-4] [INFO] [1771774228.435084506] [detection_combiner]: Combined detections: 0 total | Active cameras: 1/1 | Camera1: 0
+[vision_preprocessing-2] [INFO] [1771774228.818319827] [preprocess_camera1]: Published 8 processed frames (preprocess fps=8.0, last size=(600, 960, 3))
+[mavros_node-1] [WARN] [1771774228.856143534] [mavros.time]: TM: RTT too high for timesync: 19.06 ms.
+[mavros_node-1] [WARN] [1771774229.954086318] [mavros.time]: TM: RTT too high for timesync: 16.13 ms.
+[vision_combiner-4] [INFO] [1771774230.534425209] [detection_combiner]: Combined detections: 0 total | Active cameras: 1/1 | Camera1: 0
+[mavros_node-1] [ERROR] [1771774230.876195980] [mavros.sys]: FCU: PreArm: Radio failsafe on
+[mavros_node-1] [ERROR] [1771774230.876351918] [mavros.sys]: FCU: PreArm: Board (4.3v) out of range 4.3-5.8v
+[mavros_node-1] [WARN] [1771774231.055184750] [mavros.time]: TM: RTT too high for timesync: 16.26 ms.
+[vision_preprocessing-2] [INFO] [1771774231.321528385] [preprocess_camera1]: Published 8 processed frames (preprocess fps=8.0, last size=(600, 960, 3))
+[mavros_node-1] [WARN] [1771774232.154270638] [mavros.time]: TM: RTT too high for timesync: 15.33 ms.
+[vision_combiner-4] [INFO] [1771774232.835028394] [detection_combiner]: Combined detections: 0 total | Active cameras: 1/1 | Camera1: 0
+[vision_inference-3] [INFO] [1771774233.177599027] [inference_camera1]: Processed 90 frames | Inference FPS: 1.97 | Det: 0
+[mavros_node-1] [WARN] [1771774233.255514290] [mavros.time]: TM: RTT too high for timesync: 16.26 ms.
+[vision_preprocessing-2] [INFO] [1771774233.299563294] [preprocess_camera1]: Published 8 processed frames (preprocess fps=8.0, last size=(600, 960, 3))
+[mavros_node-1] [WARN] [1771774234.355564484] [mavros.time]: TM: RTT too high for timesync: 18.18 ms.
+[vision_combiner-4] [INFO] [1771774234.733919764] [detection_combiner]: Combined detections: 0 total | Active cameras: 1/1 | Camera1: 0
+[vision_preprocessing-2] [INFO] [1771774234.820473424] [preprocess_camera1]: Published 8 processed frames (preprocess fps=8.0, last size=(600, 960, 3))
+[mavros_node-1] [WARN] [1771774235.455724390] [mavros.time]: TM: RTT too high for timesync: 11.16 ms.
+[vision_preprocessing-2] [INFO] [1771774236.491991261] [preprocess_camera1]: Published 8 processed frames (preprocess fps=8.0, last size=(600, 960, 3))
+[mavros_node-1] [WARN] [1771774236.554345302] [mavros.time]: TM: RTT too high for timesync: 17.33 ms.
+[vision_combiner-4] [INFO] [1771774236.735028614] [detection_combiner]: Combined detections: 0 total | Active cameras: 1/1 | Camera1: 0

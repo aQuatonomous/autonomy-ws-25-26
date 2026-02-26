@@ -20,6 +20,7 @@ remains ROS-free; this node is the only place with rclpy.
 from __future__ import annotations
 
 import os
+import subprocess
 import sys
 from typing import Optional
 
@@ -46,19 +47,30 @@ _add_planning_path()
 
 import rclpy
 from rclpy.node import Node
+from rclpy.qos import QoSProfile, QoSReliabilityPolicy, QoSHistoryPolicy
 from nav_msgs.msg import Path
 from geometry_msgs.msg import Twist, TwistStamped, PoseStamped
 from sensor_msgs.msg import NavSatFix
 from std_msgs.msg import String as StringMsg, Int32, Float64
 from global_frame.msg import GlobalDetectionArray
 import math
+import traceback
+
+# MAVROS publishes sensor data with BEST_EFFORT QoS; subscribers must match
+_QOS_SENSOR = QoSProfile(
+    reliability=QoSReliabilityPolicy.BEST_EFFORT,
+    history=QoSHistoryPolicy.KEEP_LAST,
+    depth=10,
+)
 
 try:
     from mavros_msgs.msg import State as MavrosState
+    from mavros_msgs.srv import SetMavFrame
     _MAVROS_STATE_AVAILABLE = True
 except ImportError:
     _MAVROS_STATE_AVAILABLE = False
     MavrosState = None
+    SetMavFrame = None
 
 # Planning library (no ROS)
 from Global.entities import EntityList, apply_tracked_buoys
@@ -85,7 +97,9 @@ class GlobalPlannerNode(Node):
         self.declare_parameter("heading_topic", "/mavros/global_position/compass_hdg")
         self.declare_parameter("gp_vel_topic", "/mavros/global_position/gp_vel")
         self.declare_parameter("sound_signal_topic", "/sound_signal_interupt")
-        self.declare_parameter("pump_gpio_pin", 7)
+        self.declare_parameter("pump_hold_script", "")  # Full path to pump_hold.py for Task4; empty = disabled
+        # Map bounds: (min_x, min_y, max_x, max_y) in meters. Empty list = use dynamic from gates/entities
+        self.declare_parameter("map_bounds", [])
 
         task_id = int(self.get_parameter("task_id").value)
         self._task_id = task_id
@@ -94,16 +108,17 @@ class GlobalPlannerNode(Node):
         self._heading_topic = self.get_parameter("heading_topic").value
         self._gp_vel_topic = self.get_parameter("gp_vel_topic").value
         self._sound_signal_topic = self.get_parameter("sound_signal_topic").value
-        self._pump_gpio_pin = int(self.get_parameter("pump_gpio_pin").value)
-        self._gpio_available = False
-        try:
-            import Jetson.GPIO as GPIO
-            GPIO.setmode(GPIO.BOARD)
-            GPIO.setup(self._pump_gpio_pin, GPIO.OUT, initial=GPIO.LOW)
-            self._GPIO = GPIO
-            self._gpio_available = True
-        except Exception:
-            self.get_logger().warn("Jetson.GPIO not available; pump control disabled")
+        self._pump_hold_script = (self.get_parameter("pump_hold_script").value or "").strip()
+        self._pump_hold_proc: Optional[subprocess.Popen] = None
+        
+        # Parse static map bounds if provided
+        map_bounds_param = self.get_parameter("map_bounds").value
+        if map_bounds_param and len(map_bounds_param) == 4:
+            self._static_map_bounds = tuple(float(v) for v in map_bounds_param)
+            self.get_logger().info(f"Static map bounds: {self._static_map_bounds}")
+        else:
+            self._static_map_bounds = None
+            self.get_logger().info("Using dynamic map bounds from gates/entities")
 
         self._entity_list = EntityList(start_position=(0.0, 0.0))
         self._latest_pose = (0.0, 0.0, 0.0)  # x, y, heading (m, m, rad) in map frame
@@ -112,6 +127,7 @@ class GlobalPlannerNode(Node):
         self._origin_lat_lon: Optional[tuple] = None  # (lat0, lon0) for lat/lon -> x,y
         self._buoy_count = 0
         self._start_set = False
+        self._heading_set = False
         self._sound_stop = False  # True when /sound_signal_interupt == 1
 
         # Guided-mode gate: only run planning when Pixhawk is in GUIDED
@@ -121,7 +137,7 @@ class GlobalPlannerNode(Node):
                 MavrosState,
                 "/mavros/state",
                 self._mavros_state_callback,
-                10,
+                _QOS_SENSOR,
             )
         else:
             self.get_logger().warn("mavros_msgs not available; guided-mode gate disabled, planning allowed")
@@ -141,7 +157,7 @@ class GlobalPlannerNode(Node):
             entities=self._entity_list,
             start=(0.0, 0.0),
             task_id=task_id,
-            map_bounds=None,
+            map_bounds=self._static_map_bounds,  # Use static bounds if provided, else None (dynamic)
         )
 
         self._global_detections_sub = self.create_subscription(
@@ -154,19 +170,19 @@ class GlobalPlannerNode(Node):
             NavSatFix,
             "/mavros/global_position/global",
             self._global_position_callback,
-            10,
+            _QOS_SENSOR,
         )
         self._heading_sub = self.create_subscription(
             Float64,
             self._heading_topic,
             self._heading_callback,
-            10,
+            _QOS_SENSOR,
         )
         self._gp_vel_sub = self.create_subscription(
             TwistStamped,
             self._gp_vel_topic,
             self._gp_vel_callback,
-            10,
+            _QOS_SENSOR,
         )
         self._sound_sub = self.create_subscription(
             Int32,
@@ -179,6 +195,18 @@ class GlobalPlannerNode(Node):
         self._cmd_vel_pub = self.create_publisher(Twist, self._cmd_vel_topic, 10)
         self._curr_task_pub = self.create_publisher(Int32, "/curr_task", 10)
         self._gs_message_pub = self.create_publisher(StringMsg, "/gs_message_send", 10)
+        # Task 1: gate_pass for entry/exit reporting (message_node sends to competition server)
+        self._gate_pass_pub = self.create_publisher(StringMsg, "/messages/gate_pass", 10)
+        self._task1_entry_reported = False
+        self._task1_exit_reported = False
+
+        if SetMavFrame is not None:
+            self._set_mav_frame_client = self.create_client(
+                SetMavFrame, "/mavros/setpoint_velocity/mav_frame"
+            )
+            self._set_mav_frame_timer = self.create_timer(2.0, self._set_mav_frame_once)
+        else:
+            self.get_logger().warn("SetMavFrame service not available; cannot set LOCAL_NED")
 
         self._watchdog_state = watchdog_initial_state()
         self._timer = self.create_timer(1.0 / self._planning_hz, self._planning_tick)
@@ -188,6 +216,27 @@ class GlobalPlannerNode(Node):
             f"cmd_vel={self._cmd_vel_topic}"
         )
 
+    def _set_mav_frame_once(self) -> None:
+        """Set MAVROS setpoint_velocity frame to LOCAL_NED (frame=1) once the service is available."""
+        if not self._set_mav_frame_client.service_is_ready():
+            self.get_logger().info("Waiting for /mavros/setpoint_velocity/mav_frame service...")
+            return
+        req = SetMavFrame.Request()
+        req.mav_frame = 1  # MAV_FRAME_LOCAL_NED
+        future = self._set_mav_frame_client.call_async(req)
+        future.add_done_callback(self._set_mav_frame_done)
+        self._set_mav_frame_timer.cancel()
+
+    def _set_mav_frame_done(self, future) -> None:
+        try:
+            result = future.result()
+            if result.success:
+                self.get_logger().info("MAVROS setpoint_velocity frame set to LOCAL_NED (1)")
+            else:
+                self.get_logger().error("Failed to set MAVROS frame to LOCAL_NED")
+        except Exception as e:
+            self.get_logger().error(f"SetMavFrame service call failed: {e}")
+
     def _mavros_state_callback(self, msg) -> None:
         self._guided_mode_active = (getattr(msg, "mode", "") == "GUIDED")
 
@@ -196,15 +245,15 @@ class GlobalPlannerNode(Node):
             return
         lat = float(msg.latitude)
         lon = float(msg.longitude)
-        # First fix sets origin; then convert lat/lon -> local x,y (east, north) in metres
         if self._origin_lat_lon is None:
             self._origin_lat_lon = (lat, lon)
             self._global_ref = (lat, lon, 0.0, 0.0)
-            self._latest_pose = (0.0, 0.0, self._latest_heading_rad or 0.0)
+            hdg = self._latest_heading_rad if self._latest_heading_rad is not None else 0.0
+            self._latest_pose = (0.0, 0.0, hdg)
             self._entity_list.set_start_position((0.0, 0.0))
             self._start_set = True
             self.get_logger().info(
-                f"Position origin set from GPS: lat={lat:.6f} lon={lon:.6f} (x=0, y=0 m)"
+                f"Start set from GPS: lat={lat:.6f} lon={lon:.6f} (x=0, y=0 m)"
             )
             return
         lat0, lon0 = self._origin_lat_lon
@@ -216,18 +265,19 @@ class GlobalPlannerNode(Node):
         self._latest_pose = (x_m, y_m, hdg)
 
     def _heading_callback(self, msg: Float64) -> None:
-        # compass_hdg: 0 = North, 90 = East (degrees). Convert to ENU heading (0 = East, CCW positive)
         hdg_deg = float(msg.data)
+        # Match boat_state_node: 0 = East, π/2 = North (compass 0° North, 90° East → 90 - hdg_deg)
         self._latest_heading_rad = math.radians(90.0 - hdg_deg)
         x, y = self._latest_pose[0], self._latest_pose[1]
         self._latest_pose = (x, y, self._latest_heading_rad)
+        if not self._heading_set:
+            self._heading_set = True
+            self.get_logger().info(f"Heading received: {hdg_deg:.1f} deg -> {self._latest_heading_rad:.3f} rad")
 
     def _gp_vel_callback(self, msg: TwistStamped) -> None:
-        # MAVROS gp_vel is TwistStamped, typically NED (North, East, Down). ENU: East = linear.y, North = linear.x
+        # MAVROS gp_vel is ENU: linear.x = East, linear.y = North, linear.z = Up
         t = msg.twist
-        v_north = float(t.linear.x)
-        v_east = float(t.linear.y)
-        self._latest_velocity_m_s = (v_east, v_north)
+        self._latest_velocity_m_s = (float(t.linear.x), float(t.linear.y))
 
     def _sound_signal_callback(self, msg: Int32) -> None:
         if msg.data == 1:
@@ -284,6 +334,8 @@ class GlobalPlannerNode(Node):
         return (lat, lon)
 
     def _planning_tick(self) -> None:
+        self._entity_list.prune_stale(max_age_sec=20.0)
+
         # Publish current task (int32)
         self._curr_task_pub.publish(Int32(data=self._task_id))
 
@@ -313,7 +365,7 @@ class GlobalPlannerNode(Node):
             self._cmd_vel_pub.publish(twist)
             return
 
-        # (4) Skip planning until we have received at least one position (GPS origin set).
+        # (4) Skip planning until we have received at least one GPS fix.
         if not self._start_set:
             twist = Twist()
             twist.linear.x = 0.0
@@ -326,8 +378,12 @@ class GlobalPlannerNode(Node):
             return
 
         try:
-            # Map bounds from no-go zones (same everywhere)
-            map_bounds = getattr(self._entity_list, "get_map_bounds", lambda: None)()
+            # Map bounds: prefer static (from parameter) over dynamic (from gates/entities)
+            if self._static_map_bounds is not None:
+                map_bounds = self._static_map_bounds
+            else:
+                map_bounds = getattr(self._entity_list, "get_map_bounds", lambda: None)()
+            
             result = self._task_master.run_one_shot(
                 get_pose=self._get_pose,
                 get_detections=self._get_detections,
@@ -339,12 +395,32 @@ class GlobalPlannerNode(Node):
             velocities = getattr(self._task_master.manager, "current_velocities", None)
             speeds = getattr(self._task_master.manager, "current_speeds", None)
             goals = self._entity_list.get_goals()
-            gates = self._entity_list.get_gates()
-            no_go_pts = self._entity_list.get_no_go_obstacle_points(map_bounds=map_bounds)
+            hdg_for_gates = self._latest_heading_rad
+            boat_xy = (self._latest_pose[0], self._latest_pose[1])
+            gates = self._entity_list.get_gates(boat_heading_rad=hdg_for_gates, boat_pos=boat_xy)
+            no_go_pts = self._entity_list.get_no_go_obstacle_points(
+                map_bounds=map_bounds, boat_heading_rad=hdg_for_gates,
+            )
 
             # Current task
             task_id = self._task_master.task_id
             self.get_logger().info(f"{prefix}Current task: task_id={task_id}")
+
+            # Task 1 (Evacuation): report entry gates completed then exit gates completed via /messages/gate_pass
+            if task_id == 1:
+                mgr = self._task_master.manager
+                if getattr(mgr, "entry_gates_completed", lambda: False)() and not self._task1_entry_reported:
+                    self._gate_pass_pub.publish(StringMsg(data="start"))
+                    self._task1_entry_reported = True
+                    self.get_logger().info(f"{prefix}Task1: entry gates completed -> sent gate_pass 'start'")
+                if getattr(mgr, "exit_gates_completed", lambda: False)() and not self._task1_exit_reported:
+                    self._gate_pass_pub.publish(StringMsg(data="end"))
+                    self._task1_exit_reported = True
+                    self.get_logger().info(f"{prefix}Task1: exit gates completed -> sent gate_pass 'end' (heartbeat/time+position via message_node)")
+
+            if task_id == 1:
+                phase = result.get("phase", "?")
+                self.get_logger().info(f"{prefix}Task1 phase={phase}")
             if task_id == 3:
                 phase = result.get("phase", "?")
                 self.get_logger().info(f"{prefix}Task3 phase={phase}")
@@ -440,10 +516,31 @@ class GlobalPlannerNode(Node):
                         self._gs_message_pub.publish(StringMsg(data=msg_str))
                         self._last_indicator_report_time = time_now_sec
 
-            # Task 4: pump GPIO and serviced vessel reporting
-            if self._gpio_available:
-                pump_on = getattr(self._task_master.manager, "pump_on", False) if task_id == 4 else False
-                self._GPIO.output(self._pump_gpio_pin, self._GPIO.HIGH if pump_on else self._GPIO.LOW)
+            # Task 4: pump via pump_hold.py subprocess and serviced vessel reporting
+            if task_id == 4 and self._pump_hold_script:
+                pump_on = getattr(self._task_master.manager, "pump_on", False)
+                if pump_on:
+                    if self._pump_hold_proc is None or self._pump_hold_proc.poll() is not None:
+                        try:
+                            self._pump_hold_proc = subprocess.Popen(
+                                [sys.executable, self._pump_hold_script],
+                                start_new_session=True,
+                            )
+                            self.get_logger().info("Task4: started pump_hold.py")
+                        except Exception as e:
+                            self.get_logger().warn(f"Task4: failed to start pump_hold.py: {e}")
+                else:
+                    if self._pump_hold_proc is not None and self._pump_hold_proc.poll() is None:
+                        try:
+                            self._pump_hold_proc.terminate()
+                            self._pump_hold_proc.wait(timeout=2.0)
+                        except (subprocess.TimeoutExpired, ProcessLookupError):
+                            try:
+                                self._pump_hold_proc.kill()
+                            except ProcessLookupError:
+                                pass
+                        self._pump_hold_proc = None
+                        self.get_logger().info("Task4: stopped pump_hold.py")
             if task_id == 4:
                 serviced = getattr(self._task_master.manager, "serviced_for_report", [])
                 if serviced and self._global_ref is not None:
@@ -479,33 +576,7 @@ class GlobalPlannerNode(Node):
             else:
                 self.get_logger().info(f"{prefix}Velocity given: zero (no path)")
 
-            # Watchdog: use actual velocity from Pixhawk (odom twist, world frame) for collision check.
-            time_now = self.get_clock().now().nanoseconds * 1e-9
-            dt_sec = 1.0 / self._planning_hz
-            velocity_m_s = self._latest_velocity_m_s
-            obstacles_m = list(self._entity_list.get_obstacles()) + list(no_go_pts)
-            self._watchdog_state, twist_override, watchdog_reason = watchdog_tick(
-                self._watchdog_state,
-                time_now,
-                dt_sec,
-                (pose[0], pose[1], pose[2]),
-                velocity_m_s,
-                obstacles_m,
-                bool(goals),
-            )
-            if twist_override is not None and watchdog_reason:
-                self.get_logger().info(f"{prefix}This is the watchdog protocol happening. {watchdog_reason}")
-                if "spinning" in watchdog_reason.lower():
-                    self.get_logger().info(f"{prefix}We are spinning.")
-                twist = Twist()
-                twist.linear.x = float(twist_override.get("linear.x", 0.0))
-                twist.linear.y = float(twist_override.get("linear.y", 0.0))
-                twist.linear.z = 0.0
-                twist.angular.x = 0.0
-                twist.angular.y = 0.0
-                twist.angular.z = float(twist_override.get("angular.z", 0.0))
-                self._cmd_vel_pub.publish(twist)
-                return
+            # Watchdog disabled for testing
             # Normal: use planner output
             if goals:
                 path_msg = Path()
@@ -522,15 +593,12 @@ class GlobalPlannerNode(Node):
 
             twist = Twist()
             if has_vel:
-                # Planner gives world-frame velocity (m/s). Convert to body frame for MAVROS.
-                vx_w = float(velocities[0][0])
-                vy_w = float(velocities[0][1])
-                hdg = float(pose[2])
-                c, s = math.cos(hdg), math.sin(hdg)
-                v_forward = vx_w * c + vy_w * s
-                v_left = -vx_w * s + vy_w * c
-                twist.linear.x = v_forward
-                twist.linear.y = v_left
+                # Planner gives world-frame velocity (ENU: x=East, y=North).
+                # MAVROS setpoint_velocity expects LOCAL_NED: x=North, y=East, z=Down.
+                vx_w = float(velocities[0][0])  # East
+                vy_w = float(velocities[0][1])  # North
+                twist.linear.x = vy_w   # North (NED x)
+                twist.linear.y = vx_w   # East (NED y)
                 twist.linear.z = 0.0
                 twist.angular.x = 0.0
                 twist.angular.y = 0.0
@@ -550,7 +618,7 @@ class GlobalPlannerNode(Node):
                 self._timer.cancel()
 
         except Exception as e:
-            self.get_logger().error(f"Planning tick error: {e}")
+            self.get_logger().error(f"Planning tick error: {e}\n{traceback.format_exc()}")
             twist = Twist()
             twist.linear.x = 0.0
             twist.linear.y = 0.0
@@ -562,6 +630,16 @@ class GlobalPlannerNode(Node):
 
     def destroy_node(self) -> None:
         self._timer.cancel()
+        if self._pump_hold_proc is not None and self._pump_hold_proc.poll() is None:
+            try:
+                self._pump_hold_proc.terminate()
+                self._pump_hold_proc.wait(timeout=2.0)
+            except (subprocess.TimeoutExpired, ProcessLookupError):
+                try:
+                    self._pump_hold_proc.kill()
+                except ProcessLookupError:
+                    pass
+            self._pump_hold_proc = None
         super().destroy_node()
 
 

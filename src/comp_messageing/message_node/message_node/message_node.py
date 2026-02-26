@@ -1,5 +1,6 @@
 import rclpy
 from rclpy.node import Node
+from rclpy.qos import QoSProfile, QoSReliabilityPolicy, QoSHistoryPolicy
 
 from std_msgs.msg import String, Int32, Float64
 from geometry_msgs.msg import TwistStamped, Twist, Vector3
@@ -12,7 +13,17 @@ from datetime import datetime, timezone
 from google.protobuf.timestamp_pb2 import Timestamp
 from google.protobuf import json_format
 from .report_pb2 import *
-import socket, struct
+from math import sqrt
+import socket
+import struct
+
+# MAVROS sensor topics use BEST_EFFORT QoS; default RELIABLE would not receive them
+_QOS_SENSOR = QoSProfile(
+    reliability=QoSReliabilityPolicy.BEST_EFFORT,
+    history=QoSHistoryPolicy.KEEP_LAST,
+    depth=10,
+)
+
 
 class MinimalSubscriber(Node):
 
@@ -38,20 +49,20 @@ class MinimalSubscriber(Node):
             self.state_callback,
             10)
         self.pos_sub = self.create_subscription(
-                NavSatFix, #sensor_msgs/NavSatFix
+                NavSatFix,
                 'mavros/global_position/global',
                 self.pos_callback,
-                10)
+                _QOS_SENSOR)
         self.vel_sub = self.create_subscription(
-                TwistStamped, #geometry_msgs/TwistStamped
+                TwistStamped,
                 'mavros/global_position/gp_vel',
                 self.vel_callback,
-                10)
+                _QOS_SENSOR)
         self.heading_sub = self.create_subscription(
-                Float64, #std_msgs/Float64
+                Float64,
                 'mavros/global_position/compass_hdg',
                 self.heading_callback,
-                10)
+                _QOS_SENSOR)
         self.task_sub  # prevent unused variable warning
         self.state_sub
         self.pos_sub
@@ -77,6 +88,11 @@ class MinimalSubscriber(Node):
                 Dock,
                 'messages/docking',
                 self.docking_callback,
+                10)
+        self.patrol_boat_sub = self.create_subscription(
+                String,
+                'messages/patrol_boat',
+                self.patrol_boat_callback,
                 10)
         self.sound_signal_sub = self.create_subscription(
                 SoundSignalWithFreq,
@@ -107,11 +123,11 @@ class MinimalSubscriber(Node):
 
     def state_callback(self, msg):
         if (msg.guided):
-            self.state = RobotState.AUTO
+            self.state = RobotState.STATE_AUTO
         elif (msg.manual_input):
-            self.state = RobotState.MANUAL
+            self.state = RobotState.STATE_MANUAL
         else:
-            self.state = RobotState.UNKNOWN
+            self.state = RobotState.STATE_UNKNOWN
 
     def pos_callback(self, msg):
         self.position = LatLng(latitude=msg.latitude, longitude=msg.longitude)
@@ -144,7 +160,9 @@ class MinimalSubscriber(Node):
         frame = b'$R' + struct.pack("!B", len(payload)) + payload + b'!!'
         
         try:
-            with socket.create_connection(("10.10.10.1", 50000)) as s:
+            with socket.create_connection(("10.10.10.1", 50000)) as s: #localhost for temp server
+            #with socket.create_connection(("127.0.0.1", 50000)) as s: #localhost for temp server
+
                 s.sendall(frame)
         except:
                 self.get_logger().warning('Failed to connect to heartbeat message server')
@@ -167,7 +185,7 @@ class MinimalSubscriber(Node):
 
     def gate_pass_callback(self, msg):
         # Build message,
-        gate_type = GateType.UNKNOWN
+        gate_type = GateType.GATE_UNKNOWN
         match msg.data:
             case "start":
                 gate_type = GateType.GATE_ENTRY
@@ -190,7 +208,7 @@ class MinimalSubscriber(Node):
             ),
         )
 
-        message_send(report)
+        self.message_send(report)
 
     def object_detected_callback(self, msg):
         # Build message,
@@ -201,7 +219,7 @@ class MinimalSubscriber(Node):
             case "light":
                 obj_typ = ObjectType.OBJECT_LIGHT_BEACON
             case "buoy":
-                obj_type = ObjectType.OBJECT_BUOY
+                obj_typ = ObjectType.OBJECT_BUOY
             case _:
                 self.get_logger().warning('Malformed object type in object detected message: "%s"' % msg.object_type)
 
@@ -231,7 +249,7 @@ class MinimalSubscriber(Node):
             ),
         )
 
-        message_send(report)
+        self.message_send(report)
 
     def object_delivered_callback(self, msg):
         # Build message,
@@ -240,13 +258,13 @@ class MinimalSubscriber(Node):
             vehicle_id=self.vehicle_id,
             seq=self.seq,
             object_delivery=ObjectDelivery(
-                vessel_color = Color.YELLOW,
+                vessel_color = Color.COLOR_YELLOW,
                 position=self.position,
                 delivery_type = DeliveryType.DELIVERY_WATER
             ),
         )
 
-        message_send(report)
+        self.message_send(report)
     
     def docking_callback(self, msg):
         # Build message,
@@ -260,7 +278,62 @@ class MinimalSubscriber(Node):
             ),
         )
 
-        message_send(report)
+        self.message_send(report)
+
+    def patrol_boat_callback(self, msg):
+        """Send PatrolBoat report to RoboCommand (STOPPING=1 or RESUMING=2)."""
+        action = msg.data.strip().upper()
+        if action == 'STOPPING':
+            action_type = 1  # PATROL_BOAT_ACTION_STOPPING
+        elif action == 'RESUMING':
+            action_type = 2  # PATROL_BOAT_ACTION_RESUMING
+        else:
+            self.get_logger().warning('Unknown patrol_boat action: "%s"' % msg.data)
+            return
+        self._send_patrol_boat_report(action_type)
+
+    def _send_patrol_boat_report(self, patrol_boat_action_type: int):
+        """Build and send a Report with body=PatrolBoat (wire format, report_pb2 has no PatrolBoat)."""
+        def varint_bytes(n: int) -> bytes:
+            out = []
+            while n > 0x7F:
+                out.append((n & 0x7F) | 0x80)
+                n >>= 7
+            out.append(n & 0x7F)
+            return bytes(out)
+
+        def tag(field_num: int, wire_type: int) -> bytes:
+            return varint_bytes((field_num << 3) | wire_type)
+
+        def encode_string(s: str) -> bytes:
+            b = s.encode('utf-8')
+            return tag(1, 2) + varint_bytes(len(b)) + b
+
+        now = datetime.now(timezone.utc)
+        ts_seconds = int(now.timestamp())
+        ts_nanos = now.microsecond * 1000
+        # Timestamp: field 1 seconds, field 2 nanos
+        ts_payload = tag(1, 0) + varint_bytes(ts_seconds) + tag(2, 0) + varint_bytes(ts_nanos)
+        # PatrolBoat: field 1 patrol_boat_action_type (enum)
+        patrol_payload = tag(1, 0) + varint_bytes(patrol_boat_action_type)
+        # Report: 1 team_id, 2 vehicle_id, 3 seq, 4 sent_at, 16 patrol_boat
+        self.seq += 1
+        t_id = self.team_id.encode('utf-8')
+        v_id = self.vehicle_id.encode('utf-8')
+        payload = (
+            tag(1, 2) + varint_bytes(len(t_id)) + t_id
+            + tag(2, 2) + varint_bytes(len(v_id)) + v_id
+            + tag(3, 0) + varint_bytes(self.seq)
+            + tag(4, 2) + varint_bytes(len(ts_payload)) + ts_payload
+            + tag(16, 2) + varint_bytes(len(patrol_payload)) + patrol_payload
+        )
+        frame = b'$R' + struct.pack("!B", len(payload)) + payload + b'!!'
+        try:
+            # Send to the same endpoint as other reports (local RoboCommand/test server)
+            with socket.create_connection(("127.0.0.1", 50000)) as s:
+                s.sendall(frame)
+        except Exception:
+            self.get_logger().warning('Failed to send patrol boat report to RoboCommand')
 
     def sound_signal_callback(self, msg):
         # Build message,
@@ -272,7 +345,7 @@ class MinimalSubscriber(Node):
                 ass_t = TaskType.TASK_NAV_CHANNEL
             case 2: 
                 sig_t = SignalType.SIGNAL_TWO_BLAST
-                ass_t = Task_type.TASK_DOCKING
+                ass_t = TaskType.TASK_DOCKING
         
         report = Report(
             team_id=self.team_id,
@@ -285,7 +358,7 @@ class MinimalSubscriber(Node):
             ),
         )
 
-        message_send(report)
+        self.message_send(report)
 
 
 
@@ -297,13 +370,16 @@ def main(args=None):
 
     minimal_subscriber = MinimalSubscriber()
 
-    rclpy.spin(minimal_subscriber)
-
-    # Destroy the node explicitly
-    # (optional - otherwise it will be done automatically
-    # when the garbage collector destroys the node object)
-    minimal_subscriber.destroy_node()
-    rclpy.shutdown()
+    try:
+        rclpy.spin(minimal_subscriber)
+    except KeyboardInterrupt:
+        pass
+    finally:
+        minimal_subscriber.destroy_node()
+        try:
+            rclpy.shutdown()
+        except Exception:
+            pass  # context may already be shut down by signal handler
 
 
 if __name__ == '__main__':

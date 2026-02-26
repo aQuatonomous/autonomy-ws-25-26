@@ -20,6 +20,7 @@ setup(
     entry_points={
         "console_scripts": [
             "global_planner_node = global_planner.global_planner_node:main",
+            "task1_cheese_node = global_planner.task1_cheese_node:main",
         ],
     },
 )
