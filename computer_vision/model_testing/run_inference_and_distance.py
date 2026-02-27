@@ -24,7 +24,7 @@ from test_inference import TensorRTInference
 # Default calibration (camera_grid_calibration_2)
 DEFAULT_CALIB = os.path.join(CV_ROOT, "camera_grid_calibration_2", "camera_calib.npz")
 DEFAULT_ENGINE = os.path.join(CV_ROOT, "model_building_and_training", "model.engine")
-CLASS_MAPPING_PATH = os.path.join(CV_ROOT, "cv_scripts", "class_mapping.yaml")
+CLASS_MAPPING_PATH = os.path.join(CV_ROOT, "class_mapping.yaml")
 
 # Reference dimensions (m) - same as maritime_distance_estimator.py (1 ft for small buoys, 39 in for pole)
 REFERENCE_DIMENSIONS = {

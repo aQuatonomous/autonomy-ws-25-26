@@ -24,7 +24,7 @@ sys.path.insert(0, MODELS_DIR)
 from test_inference import TensorRTInference
 
 DEFAULT_ENGINE = os.path.join(CV_ROOT, "model_building_and_training", "model.engine")
-CLASS_MAPPING_PATH = os.path.join(CV_ROOT, "cv_scripts", "class_mapping.yaml")
+CLASS_MAPPING_PATH = os.path.join(CV_ROOT, "class_mapping.yaml")
 
 # -----------------------------------------------------------------------------
 # Camera intrinsics from manufacturer spec (no calibration file)

@@ -10,8 +10,8 @@ setup(
         ('share/ament_index/resource_index/packages',
             ['resource/' + package_name]),
         ('share/' + package_name, ['package.xml']),
-        # Keep the canonical mapping file under computer_vision/cv_scripts (repo root).
-        ('share/' + package_name, ['../../computer_vision/cv_scripts/class_mapping.yaml']),
+        # Keep the canonical mapping file under computer_vision/ (repo root).
+        ('share/' + package_name, ['../../computer_vision/class_mapping.yaml']),
         ('share/' + package_name + '/launch',
         ['cv_ros_nodes/launch/launch_cv.py', 'cv_ros_nodes/launch/launch_cv_sim.py', 'cv_ros_nodes/launch/launch_cv_single_camera1.py']),
     ],

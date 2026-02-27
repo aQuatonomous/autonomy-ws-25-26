@@ -27,7 +27,7 @@ GATE_NO_GO_SAMPLE_SPACING = 3.0     # Sample spacing for wall points - sparse sa
 # 0.5 means at least 50% of the gate line is across the channel (allows ~60° tilt).
 GATE_MIN_CROSS_RATIO = 0.5
 
-# Matches computer_vision cv_scripts/class_mapping.yaml (0-22). class_id 255 = unknown (unmapped).
+# Matches computer_vision/class_mapping.yaml (0-22). class_id 255 = unknown (unmapped).
 CLASS_ID_TO_ENTITY_TYPE = {
     0: "black_buoy",
     1: "green_buoy",

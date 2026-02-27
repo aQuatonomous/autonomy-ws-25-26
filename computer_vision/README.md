@@ -178,7 +178,7 @@ computer_vision/
 ├── src/
 │   ├── cv_ros_nodes/       # Nodes, launch_cv.py, launch_cv_sim.py
 │   └── cv_lidar_fusion/    # vision_lidar_fusion → /fused_buoys
-├── cv_scripts/             # class_mapping.yaml (YOLO class mapping)
+├── class_mapping.yaml      # YOLO class mapping (shared by CV and planner)
 ├── task_specific/          # Task 2/3, Docking number detection
 │   # set_camera_fps.sh lives in repo root
 ├── README.md
@@ -302,7 +302,7 @@ For machine-specific trtexec path, PATH, conversion commands (FP32/FP16/INT8), a
 | 21 | digit_2 | Docking Number | - |
 | 22 | digit_3 | Docking Number | - |
 
-**Total Classes**: 23 (as defined in `cv_scripts/class_mapping.yaml`)
+**Total Classes**: 23 (as defined in `class_mapping.yaml`)
 
 **Note**: 
 - Class IDs 0-8: Main YOLO model detections
@@ -317,7 +317,7 @@ For machine-specific trtexec path, PATH, conversion commands (FP32/FP16/INT8), a
 - **Documentation**: See `task_specific/task_2_3/COLOUR_INDICATOR_BUOY.md`
 - **Node**: `indicator_buoy_processor` (self-contained, no external dependencies)
 
-**Configuration File**: `cv_scripts/class_mapping.yaml`
+**Configuration File**: `class_mapping.yaml` (in the `computer_vision/` root)
 
 See [NODES.md](NODES.md) for complete message formats and detection output structure.
 

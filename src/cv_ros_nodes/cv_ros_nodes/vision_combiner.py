@@ -171,7 +171,7 @@ class DetectionCombiner(Node):
             paths.append(os.path.join(pkg_share, 'class_mapping.yaml'))
         except Exception:
             pass
-        paths.append(os.path.join(os.path.expanduser('~'), 'autonomy-ws-25-26', 'computer_vision', 'cv_scripts', 'class_mapping.yaml'))
+        paths.append(os.path.join(os.path.expanduser('~'), 'autonomy-ws-25-26', 'computer_vision', 'class_mapping.yaml'))
         for path in paths:
             if os.path.isfile(path):
                 try:
