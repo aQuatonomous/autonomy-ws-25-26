@@ -17,6 +17,6 @@ else
         xdg-open "${LATEST}" 2>/dev/null || echo "Path: ${LATEST}"
     else
         echo "No run folders found. Run the logger first:"
-        echo "  ./run_and_log.sh ros2 launch global_planner global_planner.launch.py task_id:=0"
+        echo "  ./run_and_log_competition.sh ros2 launch global_planner global_planner.launch.py task_id:=0"
     fi
 fi

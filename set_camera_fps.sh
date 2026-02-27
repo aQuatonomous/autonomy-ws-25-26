@@ -10,7 +10,7 @@ set -e
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 cd "$SCRIPT_DIR"
 
-# --- Default device lists (by-path; run ./monitor_camera_move.sh to see current ports) ---
+# --- Default device lists (by-path; run ./monitor_camera_devices.sh to see current ports) ---
 # Single camera: one device (port 1.4.2)
 SINGLE_DEFAULT="/dev/video0"
 # Three cameras: Cam0=port 1.2, Cam1=port 1.1, Cam2=port 1.4.2
@@ -53,7 +53,7 @@ for i in "${!CAMERA_DEVICES_ARRAY[@]}"; do
             echo "  ✗ Failed"
         fi
     else
-        echo "⚠ Camera $i not found: $device (run ./monitor_camera_move.sh to see current by-path devices)"
+        echo "⚠ Camera $i not found: $device (run ./monitor_camera_devices.sh to see current by-path devices)"
     fi
     echo
 done

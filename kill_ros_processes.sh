@@ -1,6 +1,6 @@
 #!/bin/bash
 # Comprehensive ROS process killer. Run from autonomy-ws-25-26 root.
-# Usage: ./kill_all_ros.sh  (all output to this terminal)
+# Usage: ./kill_ros_processes.sh  (all output to this terminal)
 
 echo "=== Killing all ROS/autonomy processes ==="
 

@@ -1,6 +1,6 @@
 #!/bin/bash
 # Record Map Data - Bags all topics needed for mapping and web server visualization
-# Run this while your pipeline (comp_single_camera.sh or full comp.sh) is running
+# Run this while your pipeline (run_comp_single_camera.sh or full comp.sh) is running
 
 set -e
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
@@ -45,7 +45,7 @@ if [ "$BOAT_PUB" = "0" ] || [ "$GLOBAL_PUB" = "0" ]; then
 fi
 
 echo "🔴 Recording... Press Ctrl+C to stop"
-echo "💡 Make sure your pipeline is running (comp_single_camera.sh or comp.sh)"
+echo "💡 Make sure your pipeline is running (run_comp_single_camera.sh or comp.sh)"
 echo ""
 
 # Record: mapping/planning, camera raw, LiDAR raw, and per-camera + combined detections

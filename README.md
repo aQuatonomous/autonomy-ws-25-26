@@ -21,13 +21,13 @@ need to build and run it.
 
 - **Computer vision training + engines** (`computer_vision/`)  
   - `model_building_and_training/`: trained weights (`aqua_main.pt`), exported ONNX, and TensorRT engines (`model.engine`, `number_detection.engine`).
-  - `models/`: conversion scripts and docs (`export_onnx.py`, `build_fp16_engine.sh`, `TENSORRT.md`).
+  - `models/`: conversion scripts and docs (`export_onnx.py`, `build_fp16_main_engine.sh`, `TENSORRT.md`).
   - `model_testing/`: standalone test harnesses for engines and ONNX.
 
 - **Top‑level scripts**  
   - `build.sh`: builds the root workspace and the `computer_vision` workspace in one go.
-  - `task_sequence.sh`: “lightweight competition” run – MAVROS + sound pipeline + task‑sequence coordinator (+ minimal CV for patrol boat).
-  - `comp_3_cameras.sh` and friends: full autonomy stack (3‑camera CV, LiDAR, mapping, planner, messaging) for competition‑style runs.
+  - `run_task_sequence.sh`: “lightweight competition” run – MAVROS + sound pipeline + task‑sequence coordinator (+ minimal CV for patrol boat).
+  - `run_comp_three_cameras.sh` and friends: full autonomy stack (3‑camera CV, LiDAR, mapping, planner, messaging) for competition‑style runs.
 
 ---
 
@@ -95,10 +95,10 @@ This is the simplest way to see the state machine and pump control working:
 cd ~/autonomy-ws-25-26
 source /opt/ros/humble/setup.bash
 source install/setup.bash
-./task_sequence.sh
+./run_task_sequence.sh
 ```
 
-`task_sequence.sh` will:
+`run_task_sequence.sh` will:
 
 - Start MAVROS and connect to the flight controller.
 - Start the sound pipeline + `message_node`.

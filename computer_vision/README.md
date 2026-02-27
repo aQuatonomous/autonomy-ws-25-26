@@ -102,7 +102,7 @@ Multi-camera object detection with TensorRT-optimized YOLO on ROS2 Humble: 3 cam
 
 ## Hardware Requirements
 
-**Development platform**: Think (x86). Camera USB paths are in `set_camera_fps.sh` (repo root); on Jetson or other hardware, run `./monitor_camera_move.sh` and edit that script or override `CAMERA_DEVICES`.
+**Development platform**: Think (x86). Camera USB paths are in `set_camera_fps.sh` (repo root); on Jetson or other hardware, run `./monitor_camera_devices.sh` and edit that script or override `CAMERA_DEVICES`.
 
 **Deployment target (e.g. boat)**: NVIDIA Jetson Orin
 - GPU: NVIDIA Orin (2048 CUDA cores)

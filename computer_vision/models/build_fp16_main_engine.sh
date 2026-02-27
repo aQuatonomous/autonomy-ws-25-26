@@ -1,6 +1,6 @@
 #!/bin/bash
 # Build FP16 TensorRT engine for faster inference (~2x speed, minimal accuracy loss).
-# Run from repo root or computer_vision:  bash computer_vision/models/build_fp16_engine.sh
+# Run from repo root or computer_vision:  bash computer_vision/models/build_fp16_main_engine.sh
 # Output: computer_vision/model_building_and_training/model.engine (overwrites existing).
 
 set -e

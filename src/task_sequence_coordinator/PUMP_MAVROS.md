@@ -45,12 +45,12 @@ brings up MAVROS, the sound pipeline, CV, and the coordinator for Tasks 1→3→
 cd ~/autonomy-ws-25-26
 source /opt/ros/humble/setup.bash
 ./build_comp_messageing.sh         # or ./build.sh if you prefer
-./task_sequence.sh
+./run_task_sequence.sh
 ```
 
 What happens:
 
-- `task_sequence.sh`:
+- `run_task_sequence.sh`:
   - Sources ROS2 and the workspace.
   - Launches CV and the patrol‑boat detector.
   - Launches **MAVROS** (talking to your Pixhawk/ArduPilot via `FCU_URL`, default `/dev/ttyACM0:57600`).

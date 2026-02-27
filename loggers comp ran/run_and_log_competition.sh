@@ -1,13 +1,13 @@
 #!/usr/bin/env bash
-# run_and_log.sh — wrapper to capture all ROS2 launch output and parse it by node.
+# run_and_log_competition.sh — wrapper to capture all ROS2 launch output and parse it by node.
 #
 # Usage:
-#   ./run_and_log.sh <launch_command_args...>
+#   ./run_and_log_competition.sh <launch_command_args...>
 #
 # Examples:
-#   ./run_and_log.sh ./task_test_comp.sh
-#   ./run_and_log.sh ./task1_comp.sh
-#   SOUND=1 ./run_and_log.sh ./task3_comp.sh      # also launch sound pipeline
+#   ./run_and_log_competition.sh ./task_test_comp.sh
+#   ./run_and_log_competition.sh ./comp_task1.sh
+#   SOUND=1 ./run_and_log_competition.sh ./comp_task3.sh      # also launch sound pipeline
 #
 # Environment variables:
 #   SOUND=1       Also launch the sound pipeline (audio_capturer, sound_signal, message_node)
