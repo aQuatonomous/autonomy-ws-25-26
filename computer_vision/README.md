@@ -11,7 +11,7 @@ Multi-camera object detection with TensorRT-optimized YOLO on ROS2 Humble: 3 cam
 | **[COMPETITION.md](COMPETITION.md)** | What to run at competition and when; task-specific launch table; inference/FP16/calibration; iterating at competition. |
 | **[NODES.md](NODES.md)** | Complete node architecture, build, launch, manual commands, topic I/O, message formats, troubleshooting. |
 
-**See also:** [camera_calibration/README.md](camera_calibration/README.md) (distance scale factor), [model_building_and_training/TENSORRT.md](model_building_and_training/TENSORRT.md) (TensorRT and engine build), [FUSION_NODE_GUIDE.md](FUSION_NODE_GUIDE.md) (CV + LiDAR fusion), [DISTANCE_ESTIMATOR_CHANGES.md](DISTANCE_ESTIMATOR_CHANGES.md) (distance estimator), [simulations/README.md](../simulations/README.md) (sim + CV).
+**See also:** [camera_calibration/README.md](camera_calibration/README.md) (distance scale factor), [models/TENSORRT.md](models/TENSORRT.md) (TensorRT and engine build), [FUSION_NODE_GUIDE.md](FUSION_NODE_GUIDE.md) (CV + LiDAR fusion), [DISTANCE_ESTIMATOR_CHANGES.md](DISTANCE_ESTIMATOR_CHANGES.md) (distance estimator), [simulations/README.md](../simulations/README.md) (sim + CV).
 
 ---
 
@@ -174,11 +174,11 @@ Task-specific launch and competition settings: [COMPETITION.md](COMPETITION.md).
 ```
 computer_vision/
 ├── camera_calibration/     # Distance scale factor, calibration CSV
-├── model_building_and_training/  # Weights, ONNX, TensorRT, TENSORRT.md
+├── model_building_and_training/  # Trained models: .pt, .onnx, .engine
 ├── src/
 │   ├── cv_ros_nodes/       # Nodes, launch_cv.py, launch_cv_sim.py
 │   └── cv_lidar_fusion/    # vision_lidar_fusion → /fused_buoys
-├── cv_scripts/             # model.engine, class_mapping.yaml
+├── cv_scripts/             # class_mapping.yaml (YOLO class mapping)
 ├── task_specific/          # Task 2/3, Docking number detection
 │   # set_camera_fps.sh lives in repo root
 ├── README.md
@@ -257,15 +257,15 @@ For machine-specific trtexec path, PATH, conversion commands (FP32/FP16/INT8), a
 **Output**: Deployed model in ROS2 nodes
 
 **Process**:
-1. Copy `.engine` file to `cv_scripts/` directory
-2. Update `--engine_path` parameter in launch scripts (default: `~/autonomy-ws-25-26/computer_vision/cv_scripts/model.engine`)
+1. Build `.engine` file into `model_building_and_training/` directory
+2. Use default `--engine_path` from launch scripts (points to `~/autonomy-ws-25-26/computer_vision/model_building_and_training/model.engine`)
 3. Verify inference nodes load engine successfully
 4. Monitor performance in production
 
 **File Locations**:
-- Engine file: `/home/lorenzo/autonomy-ws-25-26/computer_vision/cv_scripts/model.engine`
-- ONNX file: `/home/lorenzo/autonomy-ws-25-26/computer_vision/model_building_and_training/weights.onnx`
-- PyTorch weights: `/home/lorenzo/autonomy-ws-25-26/computer_vision/model_building_and_training/weights.pt`
+- Engine file: `/home/lorenzo/autonomy-ws-25-26/computer_vision/model_building_and_training/model.engine`
+- ONNX file: `/home/lorenzo/autonomy-ws-25-26/computer_vision/model_building_and_training/aqua_main.onnx`
+- PyTorch weights: `/home/lorenzo/autonomy-ws-25-26/computer_vision/model_building_and_training/aqua_main.pt`
 
 ### Model Versioning
 

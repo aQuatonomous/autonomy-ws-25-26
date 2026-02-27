@@ -10,21 +10,15 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 TASK_ID=4
 source "${SCRIPT_DIR}/loggers comp ran/logging_lib.sh"
 
-MAPPING_WS="${SCRIPT_DIR}/mapping"
-CV_WS="${SCRIPT_DIR}/computer_vision"
-PLANNING_WS="${SCRIPT_DIR}/planning"
-
 FCU_URL="${FCU_URL:-/dev/ttyACM0:57600}"
 
 echo "=== Task 4: Setting camera format (single camera) ==="
 "${SCRIPT_DIR}/set_camera_fps.sh" single || { echo "Warning: set_camera_fps failed"; exit 1; }
 CAMERA1_DEVICE="$(cat "${SCRIPT_DIR}/.camera_devices")"
 
-echo "=== Sourcing ROS2 and workspaces ==="
+echo "=== Sourcing ROS2 and workspace (root) ==="
 source /opt/ros/humble/setup.bash
-source "${MAPPING_WS}/install/setup.bash"
-source "${CV_WS}/install/setup.bash"
-source "${PLANNING_WS}/install/setup.bash"
+source "${SCRIPT_DIR}/install/setup.bash"
 
 set -m
 MAVROS_PID=""; GLOBAL_FRAME_PID=""; LIDAR_PID=""; CV_PID=""; FUSION_PID=""; PLANNER_PID=""

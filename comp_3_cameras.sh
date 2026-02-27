@@ -9,21 +9,15 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 TASK_ID="${TASK_ID:-3}"
 source "${SCRIPT_DIR}/loggers comp ran/logging_lib.sh"
 
-MAPPING_WS="${SCRIPT_DIR}/mapping"
-CV_WS="${SCRIPT_DIR}/computer_vision"
-PLANNING_WS="${SCRIPT_DIR}/planning"
-
 FCU_URL="${FCU_URL:-/dev/ttyACM0:57600}"
 
 echo "=== Setting camera format (3 cameras: YUYV @ 960x600 @ 15fps) ==="
 "${SCRIPT_DIR}/set_camera_fps.sh" three || { echo "Warning: set_camera_fps failed (edit set_camera_fps.sh or run ./monitor_camera_move.sh)"; exit 1; }
 CAMERA_DEVICES="$(cat "${SCRIPT_DIR}/.camera_devices")"
 
-echo "=== Sourcing ROS2 and workspaces ==="
+echo "=== Sourcing ROS2 and workspace (root) ==="
 source /opt/ros/humble/setup.bash
-source "${MAPPING_WS}/install/setup.bash"
-source "${CV_WS}/install/setup.bash"
-source "${PLANNING_WS}/install/setup.bash"
+source "${SCRIPT_DIR}/install/setup.bash"
 
 set -m
 MAVROS_PID=""

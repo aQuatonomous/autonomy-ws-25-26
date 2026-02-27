@@ -9,9 +9,7 @@
 set -e
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 source /opt/ros/humble/setup.bash
-source "${SCRIPT_DIR}/mapping/install/setup.bash"
-source "${SCRIPT_DIR}/computer_vision/install/setup.bash"
-source "${SCRIPT_DIR}/planning/install/setup.bash"
+source "${SCRIPT_DIR}/install/setup.bash"
 
 INTERVAL="${INTERVAL:-0.5}"
 # WAIT must allow time for ROS2 discovery + one message (1.5–2s); 0.8s often too short

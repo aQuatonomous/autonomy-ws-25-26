@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Export best.pt to number_detection.onnx (imgsz=960), then build TensorRT engine in cv_scripts/.
+# Export best.pt to number_detection.onnx (imgsz=960), then build TensorRT engine in model_building_and_training/.
 # Run from repo root or from this directory. Requires: Python + ultralytics, trtexec on PATH or TRTEXEC set.
 
 set -e
@@ -7,7 +7,7 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 CV_DIR="$(cd "$SCRIPT_DIR/../../.." && pwd)"
 PT="$SCRIPT_DIR/best.pt"
 ONNX="$SCRIPT_DIR/number_detection.onnx"
-ENGINE="$CV_DIR/cv_scripts/number_detection.engine"
+ENGINE="$CV_DIR/model_building_and_training/number_detection.engine"
 TRTEXEC="${TRTEXEC:-/usr/src/tensorrt/bin/trtexec}"
 
 if [ ! -f "$PT" ]; then

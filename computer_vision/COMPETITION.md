@@ -50,8 +50,8 @@ The robot uses **`/combined/detection_info`** (and `..._with_distance`) when inf
 **Build FP16 engine (before competition):**
 ```bash
 cd ~/autonomy-ws-25-26/computer_vision
-python model_building_and_training/export_onnx.py model_building_and_training/aqua_main.pt
-/usr/src/tensorrt/bin/trtexec --onnx=model_building_and_training/aqua_main.onnx --saveEngine=cv_scripts/model.engine --fp16 --memPoolSize=workspace:4096 --skipInference
+python models/export_onnx.py model_building_and_training/aqua_main.pt
+/usr/src/tensorrt/bin/trtexec --onnx=model_building_and_training/aqua_main.onnx --saveEngine=model_building_and_training/model.engine --fp16 --memPoolSize=workspace:4096 --skipInference
 ```
 
 ---

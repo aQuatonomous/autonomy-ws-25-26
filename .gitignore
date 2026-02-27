@@ -1,6 +1,5 @@
 # ROS-Bags
 map_data*/
-last_bag/
 
 # ROS 2 Build Artifacts
 build/
@@ -31,23 +30,20 @@ __pycache__/
 .DS_Store
 
 
-# Vendor Packages (clone separately)
-mapping/src/unilidar_sdk/
+# Vendor Packages (legacy)
 mapping/src/ros_numpy/
 mapping/src/my_lidar_pkg/
 
-# ROS 1 Legacy (from unilidar SDK)
+# ROS 1 Legacy (from old unilidar SDK tree)
 unitree_lidar_ros/build
 unitree_lidar_ros/devel
 unitree_lidar_ros/.catkin_workspace
 unitree_lidar_ros/src/CMakeLists.txt
 
-# ROS 2 SDK build artifacts
+# ROS 2 SDK build artifacts (unitree_lidar_ros2 and C++ SDK)
 unitree_lidar_ros2/build
 unitree_lidar_ros2/install
 unitree_lidar_ros2/log
-
-# SDK binaries
 unitree_lidar_sdk/bin
 unitree_lidar_sdk/build
 

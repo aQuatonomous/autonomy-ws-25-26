@@ -115,7 +115,7 @@ Camera2: /camera2/image_raw → preprocessing2 → ... → inference2 → /camer
 
 **Parameters** (Command Line):
 - `--camera_id`: Integer (0, 1, or 2) - Required
-- `--engine_path`: String (default: `model.engine`) - Path to TensorRT engine file
+- `--engine_path`: String (default: `model_building_and_training/model.engine`) - Path to TensorRT engine file
 - `--conf_threshold`: Float (default: 0.25) - Confidence threshold (0.0-1.0)
 - `--enable_number_detection`: Boolean flag - Enable docking number detection
 - `--number_detection_engine`: String - Path to number detection TensorRT engine
@@ -313,7 +313,7 @@ ros2 run v4l2_camera v4l2_camera_node --ros-args -p video_device:=/dev/v4l/by-pa
 
 **CV nodes:**
 - Preprocessing: `ros2 run cv_ros_nodes vision_preprocessing --camera_id 0` (and 1, 2)
-- Inference: `ros2 run cv_ros_nodes vision_inference --camera_id 0 --engine_path ~/autonomy-ws-25-26/computer_vision/cv_scripts/model.engine` (and 1, 2)
+- Inference: `ros2 run cv_ros_nodes vision_inference --camera_id 0 --engine_path ~/autonomy-ws-25-26/computer_vision/model_building_and_training/model.engine` (and 1, 2)
 - Combiner: `ros2 run cv_ros_nodes vision_combiner`
 - Distance estimator: `ros2 run cv_ros_nodes maritime_distance_estimator`
 - Task4: `ros2 run cv_ros_nodes task4_supply_processor`
@@ -965,7 +965,7 @@ ros2 bag play <bag_file_name>
 
 **Recovery**:
 - Process manager auto-restart
-- Manual restart: `ros2 run cv_ros_nodes vision_inference --camera_id N --engine_path model.engine`
+- Manual restart: `ros2 run cv_ros_nodes vision_inference --camera_id N --engine_path model_building_and_training/model.engine`
 - Verify GPU memory released: `nvidia-smi`
 
 #### Failure Mode: Combiner Node Crash

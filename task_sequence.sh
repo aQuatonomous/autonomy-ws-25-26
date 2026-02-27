@@ -6,7 +6,6 @@
 
 set -e
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-CV_WS="${SCRIPT_DIR}/computer_vision"
 
 FCU_URL="${FCU_URL:-/dev/ttyACM0:57600}"
 
@@ -18,16 +17,12 @@ fi
 echo "=== Sourcing ROS2 and workspace ==="
 source /opt/ros/humble/setup.bash
 source "${SCRIPT_DIR}/install/setup.bash"
-source /home/lorenzo/autonomy-ws-25-26/install/setup.bash
 set -m
 MAVROS_PID=""
 SOUND_PID=""
 COORDINATOR_PID=""
 CV_PID=""
 PATROL_PID=""
-
-
-
 cleanup() {
     echo ""
     echo "=== Stopping MAVROS, sound pipeline, and task coordinator ==="
@@ -77,7 +72,6 @@ if [ ! -e "$CAMERA1_DEVICE" ]; then
     exit 1
 fi
 
-source "${CV_WS}/install/setup.bash"
 sleep 1
 echo "=== Launching CV"
 ros2 launch cv_ros_nodes launch_cv_single_camera1.py \
@@ -91,14 +85,9 @@ CV_PID=$!
 
 # Launch patrol boat detector node (listens to /camera1/image_preprocessed)
 echo "=== Launching patrol boat detector ==="
-PATROL_EXEC="${SCRIPT_DIR}/install/task_sequence_coordinator/bin/patrol_boat_detector"
-if [ -x "$PATROL_EXEC" ]; then
-    "$PATROL_EXEC" --camera_id 1 &
-    PATROL_PID=$!
-    sleep 1
-else
-    echo "WARNING: patrol_boat_detector executable not found at ${PATROL_EXEC}; skipping patrol boat detection."
-fi
+ros2 run task_sequence_coordinator patrol_boat_detector --camera_id 1 &
+PATROL_PID=$!
+sleep 1
 
 
 # Launch MAVROS
@@ -122,14 +111,9 @@ sleep 2
 
 # Launch task sequence coordinator
 echo "=== Launching task sequence coordinator ==="
-COORD_EXEC="${SCRIPT_DIR}/install/task_sequence_coordinator/bin/task_sequence_coordinator"
-if [ -x "$COORD_EXEC" ]; then
-    "$COORD_EXEC" &
-    COORDINATOR_PID=$!
-    echo "Coordinator PID: $COORDINATOR_PID"
-else
-    echo "ERROR: task_sequence_coordinator executable not found at ${COORD_EXEC}"
-fi
+ros2 run task_sequence_coordinator task_sequence_coordinator &
+COORDINATOR_PID=$!
+echo "Coordinator PID: $COORDINATOR_PID"
 
 echo ""
 echo "========================================="
