@@ -56,7 +56,12 @@ echo "✓ Bag has $BOAT_COUNT boat_pose and $GLOBAL_COUNT global_detections mess
 echo ""
 echo "▶ Playing with --loop. Press Ctrl+C to stop."
 echo ""
-echo "In another terminal, run: ./run_visualizer.sh"
+echo "In another terminal, run the web visualizer:"
+echo "  cd \"${SCRIPT_DIR}/web_server_map\""
+echo "  source /opt/ros/humble/setup.bash"
+echo "  source \"${MAPPING_WS}/install/setup.bash\""
+echo "  source install/setup.bash"
+echo "  ros2 run web_server_map map_visualizer_node"
 echo "Then open: http://localhost:8080"
 echo ""
 

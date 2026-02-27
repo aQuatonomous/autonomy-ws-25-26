@@ -76,6 +76,7 @@ class MapVisualizerNode(Node):
         
         self.get_logger().info(f'Map Visualizer Node started')
         self.get_logger().info(f'Web server: http://0.0.0.0:{self.port}')
+        self.get_logger().info(f'Web directory: {self.web_server.web_dir}')
         self.get_logger().info(f'Subscribing to: {self.boat_pose_topic}, {self.global_detections_topic}')
         self.get_logger().info(f'Update rate: {self.update_rate_hz} Hz')
         self.get_logger().info(f'Access via SSH: ssh -L {self.port}:localhost:{self.port} user@jetson-ip')

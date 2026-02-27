@@ -17,6 +17,8 @@ class MapVisualizer {
         // Viewport
         this.viewBounds = { minEast: -10, maxEast: 10, minNorth: -10, maxNorth: 10 };
         this.padding = 0.15; // 15% padding around data
+        // Global bounds: grow over time but never shrink, to avoid jittery rescaling
+        this.globalBounds = { minEast: null, maxEast: null, minNorth: null, maxNorth: null };
         
         // Colors - matches class_mapping.yaml and tracked_buoy_visualizer.py
         this.colors = {
@@ -152,7 +154,7 @@ class MapVisualizer {
     }
     
     calculateViewBounds() {
-        // Calculate bounding box from boat and detections
+        // Calculate instantaneous bounding box from current boat and detections
         let minEast = 0, maxEast = 0, minNorth = 0, maxNorth = 0;
         let hasData = false;
         
@@ -177,26 +179,40 @@ class MapVisualizer {
         }
         
         if (!hasData) {
-            // Default view
-            this.viewBounds = { minEast: -10, maxEast: 10, minNorth: -10, maxNorth: 10 };
+            // If we have no new data but already have global bounds, keep them;
+            // otherwise use a small default view.
+            if (this.globalBounds.minEast == null) {
+                this.viewBounds = { minEast: -10, maxEast: 10, minNorth: -10, maxNorth: 10 };
+            }
             return;
         }
         
-        // Add padding
-        const rangeEast = maxEast - minEast;
-        const rangeNorth = maxNorth - minNorth;
+        // Update global bounds – they only ever expand, never shrink
+        if (this.globalBounds.minEast == null) {
+            this.globalBounds = { minEast, maxEast, minNorth, maxNorth };
+        } else {
+            this.globalBounds.minEast = Math.min(this.globalBounds.minEast, minEast);
+            this.globalBounds.maxEast = Math.max(this.globalBounds.maxEast, maxEast);
+            this.globalBounds.minNorth = Math.min(this.globalBounds.minNorth, minNorth);
+            this.globalBounds.maxNorth = Math.max(this.globalBounds.maxNorth, maxNorth);
+        }
+        
+        // Add padding based on global bounds
+        const rangeEast = this.globalBounds.maxEast - this.globalBounds.minEast;
+        const rangeNorth = this.globalBounds.maxNorth - this.globalBounds.minNorth;
         const paddingEast = Math.max(rangeEast * this.padding, 5); // At least 5m padding
         const paddingNorth = Math.max(rangeNorth * this.padding, 5);
         
         this.viewBounds = {
-            minEast: minEast - paddingEast,
-            maxEast: maxEast + paddingEast,
-            minNorth: minNorth - paddingNorth,
-            maxNorth: maxNorth + paddingNorth
+            minEast: this.globalBounds.minEast - paddingEast,
+            maxEast: this.globalBounds.maxEast + paddingEast,
+            minNorth: this.globalBounds.minNorth - paddingNorth,
+            maxNorth: this.globalBounds.maxNorth + paddingNorth
         };
         
         // Ensure aspect ratio matches canvas
-        const dataAspect = (maxEast - minEast) / (maxNorth - minNorth);
+        const dataAspect = (this.globalBounds.maxEast - this.globalBounds.minEast) /
+                           (this.globalBounds.maxNorth - this.globalBounds.minNorth);
         const canvasAspect = this.canvas.width / this.canvas.height;
         
         if (canvasAspect > dataAspect) {

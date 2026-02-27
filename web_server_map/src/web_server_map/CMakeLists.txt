@@ -10,8 +10,11 @@ ament_python_install_package(${PROJECT_NAME}
 )
 
 # Install Python executables
+# Use a small wrapper script named 'map_visualizer_node' so that
+# `ros2 run web_server_map map_visualizer_node` and the launch file
+# (which refers to executable 'map_visualizer_node') both work.
 install(PROGRAMS
-  src/${PROJECT_NAME}/map_visualizer_node.py
+  map_visualizer_node
   DESTINATION lib/${PROJECT_NAME}
 )
 

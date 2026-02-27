@@ -51,8 +51,12 @@ class MapWebServer:
         self.web_dir = self._find_web_directory()
         
         # Setup routes
+        # Note: register explicit handlers for CSS/JS before the generic
+        # static route to avoid any subtle issues with static mapping.
         self.app.router.add_get('/', self.handle_index)
         self.app.router.add_get('/ws', self.handle_websocket)
+        self.app.router.add_get('/web/style.css', self.handle_style_css)
+        self.app.router.add_get('/web/map.js', self.handle_map_js)
         self.app.router.add_static('/web', self.web_dir, show_index=False)
         
         self.logger = logging.getLogger('MapWebServer')
@@ -90,6 +94,20 @@ class MapWebServer:
         if not index_path.exists():
             return web.Response(text='index.html not found', status=404)
         return web.FileResponse(index_path)
+    
+    async def handle_style_css(self, request):
+        """Serve style.css explicitly (defensive against static routing issues)."""
+        css_path = self.web_dir / 'style.css'
+        if not css_path.exists():
+            return web.Response(text='style.css not found', status=404)
+        return web.FileResponse(css_path)
+    
+    async def handle_map_js(self, request):
+        """Serve map.js explicitly (defensive against static routing issues)."""
+        js_path = self.web_dir / 'map.js'
+        if not js_path.exists():
+            return web.Response(text='map.js not found', status=404)
+        return web.FileResponse(js_path)
     
     async def handle_websocket(self, request):
         """Handle WebSocket connections."""
