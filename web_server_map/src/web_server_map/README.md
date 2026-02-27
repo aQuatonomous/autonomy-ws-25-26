@@ -8,7 +8,7 @@ Lightweight web-based 2D map for boat position and global detections. Real-time 
 
 - Real-time boat position with heading arrow
 - Color-coded detection markers by class
-- Auto-scaling coordinate system
+- Stable auto-scaling map (bounds expand as new areas are seen, but do not jitter)
 - WebSocket updates (5–10 Hz)
 - Grid overlay and mouse position
 - Connection status indicator
@@ -59,6 +59,8 @@ Open **http://localhost:8080**. For remote access: `ssh -L 8080:localhost:8080 u
 
 ```bash
 cd ~/autonomy-ws-25-26/web_server_map
+source /opt/ros/humble/setup.bash
+source ../mapping/install/setup.bash
 source install/setup.bash
 ros2 run web_server_map map_visualizer_node
 ```
@@ -67,9 +69,30 @@ ros2 run web_server_map map_visualizer_node
 
 ```bash
 cd ~/autonomy-ws-25-26/web_server_map
+source /opt/ros/humble/setup.bash
+source ../mapping/install/setup.bash
 source install/setup.bash
 ros2 launch web_server_map map_visualizer.launch.py
 ros2 launch web_server_map map_visualizer.launch.py port:=8888 update_rate_hz:=5.0
+```
+
+**Replay a recorded `map_data_*` bag**
+
+```bash
+# Terminal 1 – start the web visualizer on the Jetson
+cd ~/autonomy-ws-25-26/web_server_map
+source /opt/ros/humble/setup.bash
+source ../mapping/install/setup.bash
+source install/setup.bash
+ros2 run web_server_map map_visualizer_node
+
+# Terminal 2 – from the repo root, replay a bag
+cd ~/autonomy-ws-25-26
+./replay_map.sh map_data_20260221_152248   # or omit the argument to use the most recent map_data_*
+
+# From your laptop:
+ssh -L 8080:localhost:8080 user@jetson-ip
+# then open http://localhost:8080 in a browser
 ```
 
 **Parameters**
@@ -109,7 +132,7 @@ ros2 launch web_server_map map_visualizer.launch.py port:=8888 update_rate_hz:=5
 ## Coordinate System
 
 - **Map**: ENU – East = +X, North = +Y; heading 0° = East, positive = CCW.
-- **Canvas**: Auto-scaled to fit boat + detections with padding.
+- **Canvas**: Initially auto-scales to fit boat + detections, then expands as new areas are explored while keeping the global scale stable (no zoom jitter).
 
 ## Testing
 
