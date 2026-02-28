@@ -20,7 +20,7 @@ echo ""
 
 # Source same workspaces as comp scripts (message types for all recorded topics)
 echo "Sourcing ROS2 and workspaces..."
-source /opt/ros/humble/setup.bash
+source /opt/ros/jazzy/setup.bash
 source "${SCRIPT_DIR}/install/setup.bash"
 echo "✓ Workspaces sourced"
 echo ""
@@ -80,7 +80,7 @@ fi
 echo ""
 echo "To replay with web visualizer:"
 echo "  1. In one terminal:"
-echo "     source /opt/ros/humble/setup.bash"
+echo "     source /opt/ros/jazzy/setup.bash"
 echo "     source \"${SCRIPT_DIR}/install/setup.bash\""
 echo "     ros2 run web_server_map map_visualizer_node"
 echo "  2. In another terminal: ./replay_map.sh ${BAG_NAME}"

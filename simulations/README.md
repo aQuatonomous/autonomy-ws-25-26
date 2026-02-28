@@ -235,7 +235,7 @@ Or by hand: `cd ~/ardupilot && sudo chown -R $USER:$USER . && rm -rf build/sitl 
 
 **5. Run computer vision with the sim (in a second terminal, after sim is up):**
 ```bash
-source /opt/ros/humble/setup.bash
+source /opt/ros/jazzy/setup.bash
 source ~/autonomy-ws-25-26/computer_vision/install/setup.bash
 ros2 launch cv_ros_nodes launch_cv_sim.py single_camera:=true
 ```
@@ -314,7 +314,7 @@ The sim bridges publish **`/camera0/image_raw`**, **`/camera1/image_raw`**, **`/
 
 **Launch CV (sim-only, no v4l2 camera nodes):**
 ```bash
-source /opt/ros/humble/setup.bash
+source /opt/ros/jazzy/setup.bash
 source ~/autonomy-ws-25-26/computer_vision/install/setup.bash
 ros2 launch cv_ros_nodes launch_cv_sim.py
 ```
@@ -546,7 +546,7 @@ Do not use port 5763; nothing is bound there. If MAVROS fails to connect, ensure
 
 ## One-Time Setup and Dependencies
 
-- **ROS 2 Humble** and **Gazebo Harmonic** (gz-sim 8.x).
+- **ROS 2 Jazzy** and **Gazebo Harmonic** (gz-sim 8.x).
 - **MAVProxy:** `pip install --user MAVProxy`; ensure `~/.local/bin` is on `PATH` (script sets it for the SITL window).
 - **ArduPilot:** Clone or symlink to `~/ardupilot`; build SITL (e.g. `./waf configure --board sitl && ./waf build`); run from `~/ardupilot/Tools/autotest` with `sim_vehicle.py`.
 - **ardupilot_gazebo:** Clone to `~/ardupilot_gazebo`, build as above; `libArduPilotPlugin.so` in `~/ardupilot_gazebo/build/`.

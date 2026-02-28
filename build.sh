@@ -19,7 +19,7 @@ echo
 
 # Source ROS2 from a clean environment
 unset AMENT_PREFIX_PATH CMAKE_PREFIX_PATH COLCON_PREFIX_PATH
-source /opt/ros/humble/setup.bash
+source /opt/ros/jazzy/setup.bash
 
 # Build from the workspace root; only consider packages under ./src
 cd "${SCRIPT_DIR}"

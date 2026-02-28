@@ -14,7 +14,7 @@ Requires `pointcloud_filters` from the mapping workspace (build mapping first, t
 1. **Camera pipeline** (final CV output = `/combined/detection_info_with_distance`):
    ```bash
    cd ~/autonomy-ws-25-26/computer_vision
-   source /opt/ros/humble/setup.bash
+   source /opt/ros/jazzy/setup.bash
    source install/setup.bash
    ros2 launch cv_ros_nodes launch_cv.py
    ```
@@ -22,14 +22,14 @@ Requires `pointcloud_filters` from the mapping workspace (build mapping first, t
 2. **LiDAR pipeline** (`/tracked_buoys`, `/tracked_buoys_json`):
    ```bash
    cd ~/autonomy-ws-25-26/mapping
-   source /opt/ros/humble/setup.bash
+   source /opt/ros/jazzy/setup.bash
    source install/setup.bash
    ros2 launch pointcloud_filters buoy_pipeline.launch.py
    ```
 
 3. **Fusion node** (single node; subscribes to both, publishes `/fused_buoys`):
    ```bash
-   source /opt/ros/humble/setup.bash
+   source /opt/ros/jazzy/setup.bash
    source ~/autonomy-ws-25-26/mapping/install/setup.bash
    source ~/autonomy-ws-25-26/computer_vision/install/setup.bash
    ros2 run cv_lidar_fusion vision_lidar_fusion

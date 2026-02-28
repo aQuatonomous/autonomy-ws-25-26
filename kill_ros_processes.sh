@@ -71,7 +71,7 @@ sleep 1
 pkill -9 -f "mavros" 2>/dev/null || true
 
 echo "=== Stopping ROS2 daemon ==="
-source /opt/ros/humble/setup.bash 2>/dev/null
+source /opt/ros/jazzy/setup.bash 2>/dev/null
 ros2 daemon stop 2>/dev/null || true
 ros2 daemon start 2>/dev/null || true
 sleep 1

@@ -8,7 +8,7 @@
 
 set -e
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-source /opt/ros/humble/setup.bash
+source /opt/ros/jazzy/setup.bash
 source "${SCRIPT_DIR}/install/setup.bash"
 
 INTERVAL="${INTERVAL:-0.5}"

@@ -8,7 +8,7 @@ Build, launch, manual node commands, and topic inputs/outputs. For “what to ru
 
 ```bash
 cd ~/autonomy-ws-25-26/computer_vision
-source /opt/ros/humble/setup.bash
+source /opt/ros/jazzy/setup.bash
 colcon build --packages-select cv_ros_nodes
 source install/setup.bash
 ```

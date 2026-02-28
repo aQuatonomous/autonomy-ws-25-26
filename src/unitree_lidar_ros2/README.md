@@ -54,7 +54,7 @@ This package now lives in the **root** ROS 2 workspace under `src/unitree_lidar_
 
 ```bash
 cd ~/autonomy-ws-25-26
-source /opt/ros/humble/setup.bash
+source /opt/ros/jazzy/setup.bash
 ./build.sh          # builds all packages, including unitree_lidar_ros2
 source install/setup.bash
 ```

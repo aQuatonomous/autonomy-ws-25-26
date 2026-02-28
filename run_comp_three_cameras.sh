@@ -16,7 +16,7 @@ echo "=== Setting camera format (3 cameras: YUYV @ 960x600 @ 15fps) ==="
 CAMERA_DEVICES="$(cat "${SCRIPT_DIR}/.camera_devices")"
 
 echo "=== Sourcing ROS2 and workspace (root) ==="
-source /opt/ros/humble/setup.bash
+source /opt/ros/jazzy/setup.bash
 source "${SCRIPT_DIR}/install/setup.bash"
 
 set -m

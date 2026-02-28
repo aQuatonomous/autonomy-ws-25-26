@@ -5,7 +5,7 @@ set -e
 FCU_URL="${FCU_URL:-/dev/ttyACM0:57600}"
 
 echo "=== Sourcing ROS2 ==="
-source /opt/ros/humble/setup.bash
+source /opt/ros/jazzy/setup.bash
 
 echo "=== Launching MAVROS (Pixhawk at ${FCU_URL}) ==="
 echo "Press Ctrl+C to stop."

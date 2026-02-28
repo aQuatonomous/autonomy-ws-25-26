@@ -1,7 +1,7 @@
 # Roboboat 2026 – Autonomy Workspace
 
 Welcome to the autonomy workspace that runs a full RoboBoat competition stack end‑to‑end:
-perception, mapping, planning, and task‑level coordination, all built on ROS 2 Humble.
+perception, mapping, planning, and task‑level coordination, all built on ROS 2 Jazzy.
 
 This repo is intended to be readable both as **production code** and as a **portfolio
 project**. The sections below give a high‑level mental model first, then the minimum you
@@ -71,7 +71,7 @@ From the repo root:
 
 ```bash
 cd ~/autonomy-ws-25-26
-source /opt/ros/humble/setup.bash
+source /opt/ros/jazzy/setup.bash
 ./build.sh
 source install/setup.bash
 ```
@@ -93,7 +93,7 @@ This is the simplest way to see the state machine and pump control working:
 
 ```bash
 cd ~/autonomy-ws-25-26
-source /opt/ros/humble/setup.bash
+source /opt/ros/jazzy/setup.bash
 source install/setup.bash
 ./run_task_sequence.sh
 ```

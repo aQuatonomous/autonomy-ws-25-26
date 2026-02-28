@@ -15,7 +15,7 @@ if [ -e /dev/video0 ]; then
 fi
 
 echo "=== Sourcing ROS2 and workspace ==="
-source /opt/ros/humble/setup.bash
+source /opt/ros/jazzy/setup.bash
 source "${SCRIPT_DIR}/install/setup.bash"
 set -m
 MAVROS_PID=""

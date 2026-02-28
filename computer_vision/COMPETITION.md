@@ -8,7 +8,7 @@ What to run at competition, when to use which launch, and how to iterate (calibr
 
 ```bash
 cd ~/autonomy-ws-25-26/computer_vision
-source /opt/ros/humble/setup.bash
+source /opt/ros/jazzy/setup.bash
 colcon build --packages-select cv_ros_nodes
 source install/setup.bash
 ./set_camera_fps.sh single

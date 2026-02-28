@@ -69,7 +69,7 @@ From the **repo root** (this repo is now a single ROS 2 workspace):
 
 ```bash
 cd ~/autonomy-ws-25-26
-source /opt/ros/humble/setup.bash
+source /opt/ros/jazzy/setup.bash
 ./build.sh   # builds unitree_lidar_ros2, pointcloud_filters, etc.
 source install/setup.bash
 ```

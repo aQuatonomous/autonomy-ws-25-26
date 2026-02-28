@@ -29,7 +29,7 @@ ros2 launch global_frame global_frame.launch.py
 Run the task loop with pose and detections from ROS:
 
 ```bash
-source /opt/ros/humble/setup.bash
+source /opt/ros/jazzy/setup.bash
 source autonomy-ws-25-26/mapping/install/setup.bash
 cd autonomy-ws-25-26/planning
 python3 run_task_with_ros.py --task 1 --entities Input_Entities/task1_entities.json

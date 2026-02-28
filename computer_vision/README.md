@@ -1,6 +1,6 @@
 # Computer Vision ROS2 Pipeline
 
-Multi-camera object detection with TensorRT-optimized YOLO on ROS2 Humble: 3 cameras → preprocessing → inference → combiner → distance estimator. Final output: **`/combined/detection_info_with_distance`** (JSON, ~30 Hz) with bearing, elevation, and distance for navigation and CV–LiDAR fusion.
+Multi-camera object detection with TensorRT-optimized YOLO on ROS 2 Jazzy: 3 cameras → preprocessing → inference → combiner → distance estimator. Final output: **`/combined/detection_info_with_distance`** (JSON, ~30 Hz) with bearing, elevation, and distance for navigation and CV–LiDAR fusion.
 
 ---
 
@@ -153,7 +153,7 @@ Multi-camera object detection with TensorRT-optimized YOLO on ROS2 Humble: 3 cam
 
 **System Packages**:
 - `v4l2-utils` (camera utilities)
-- `ros-humble-v4l2-camera` (camera driver)
+- `ros-jazzy-v4l2-camera` (camera driver)
 
 ---
 
@@ -161,7 +161,7 @@ Multi-camera object detection with TensorRT-optimized YOLO on ROS2 Humble: 3 cam
 
 ```bash
 cd ~/autonomy-ws-25-26 && ./set_camera_fps.sh single
-cd computer_vision && source /opt/ros/humble/setup.bash && source install/setup.bash
+cd computer_vision && source /opt/ros/jazzy/setup.bash && source install/setup.bash
 ros2 launch cv_ros_nodes launch_cv_single_camera1.py camera1_device:="$(cat ../.camera_devices)"
 ```
 

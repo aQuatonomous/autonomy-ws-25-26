@@ -76,7 +76,7 @@ trap cleanup EXIT
 # Optionally launch sound pipeline (merged into same output stream)
 if [ "${SOUND:-0}" = "1" ]; then
     echo "=== Starting sound pipeline (audio_capturer, sound_signal, message_node) ==="
-    source /opt/ros/humble/setup.bash
+    source /opt/ros/jazzy/setup.bash
     if [ -f "${WS_ROOT}/install/setup.bash" ]; then
         source "${WS_ROOT}/install/setup.bash"
     fi

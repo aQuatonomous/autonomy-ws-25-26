@@ -43,7 +43,7 @@ brings up MAVROS, the sound pipeline, CV, and the coordinator for Tasks 1→3→
 
 ```bash
 cd ~/autonomy-ws-25-26
-source /opt/ros/humble/setup.bash
+source /opt/ros/jazzy/setup.bash
 ./build_comp_messageing.sh         # or ./build.sh if you prefer
 ./run_task_sequence.sh
 ```
@@ -78,7 +78,7 @@ If you want to test just the MAVLink relay commands without running the full tas
 call the MAVROS service directly once MAVROS is running:
 
 ```bash
-source /opt/ros/humble/setup.bash
+source /opt/ros/jazzy/setup.bash
 source ~/autonomy-ws-25-26/install/setup.bash
 
 # Turn pump ON via CommandInt 182

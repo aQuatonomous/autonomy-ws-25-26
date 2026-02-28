@@ -17,7 +17,7 @@ echo "=== Single camera (all CV tasks): Setting format YUYV @ 960x600 @ 15fps ==
 CAMERA1_DEVICE="$(cat "${SCRIPT_DIR}/.camera_devices")"
 
 echo "=== Sourcing ROS2 and workspace (root) ==="
-source /opt/ros/humble/setup.bash
+source /opt/ros/jazzy/setup.bash
 source "${SCRIPT_DIR}/install/setup.bash"
 
 # Single-camera only: fail if 3-camera pipeline is already running

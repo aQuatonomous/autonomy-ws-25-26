@@ -416,7 +416,7 @@ Pixhawk (GPS + Compass)
 To use custom types (e.g. `ros2 topic echo /boat_pose` or `/global_detections`), source the mapping workspace:
 
 ```bash
-source /opt/ros/humble/setup.bash
+source /opt/ros/jazzy/setup.bash
 source /home/lorenzo/autonomy-ws-25-26/mapping/install/setup.bash
 ```
 

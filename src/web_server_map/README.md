@@ -19,7 +19,7 @@ Lightweight web-based 2D map for boat position and global detections. Real-time 
 ```bash
 pip3 install aiohttp
 cd ~/autonomy-ws-25-26
-source /opt/ros/humble/setup.bash
+source /opt/ros/jazzy/setup.bash
 ./build.sh
 source install/setup.bash
 
@@ -40,7 +40,7 @@ Open **http://localhost:8080**. For remote access: `ssh -L 8080:localhost:8080 u
 
    ```bash
    cd ~/autonomy-ws-25-26
-   source /opt/ros/humble/setup.bash
+   source /opt/ros/jazzy/setup.bash
    ./build.sh
    source install/setup.bash
    ```
@@ -51,7 +51,7 @@ Open **http://localhost:8080**. For remote access: `ssh -L 8080:localhost:8080 u
 
 ```bash
 cd ~/autonomy-ws-25-26
-source /opt/ros/humble/setup.bash
+source /opt/ros/jazzy/setup.bash
 source install/setup.bash
 ros2 run web_server_map map_visualizer_node
 ```
@@ -60,7 +60,7 @@ ros2 run web_server_map map_visualizer_node
 
 ```bash
 cd ~/autonomy-ws-25-26
-source /opt/ros/humble/setup.bash
+source /opt/ros/jazzy/setup.bash
 source install/setup.bash
 ros2 launch web_server_map map_visualizer.launch.py
 ros2 launch web_server_map map_visualizer.launch.py port:=8888 update_rate_hz:=5.0
@@ -71,7 +71,7 @@ ros2 launch web_server_map map_visualizer.launch.py port:=8888 update_rate_hz:=5
 ```bash
 # Terminal 1 – start the web visualizer on the Jetson
 cd ~/autonomy-ws-25-26
-source /opt/ros/humble/setup.bash
+source /opt/ros/jazzy/setup.bash
 source install/setup.bash
 ros2 run web_server_map map_visualizer_node
 

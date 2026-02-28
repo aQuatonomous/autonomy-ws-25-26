@@ -4,7 +4,7 @@
 
 ```bash
 cd ~/autonomy-ws-25-26/mapping
-source /opt/ros/humble/setup.bash
+source /opt/ros/jazzy/setup.bash
 colcon build --packages-select unitree_lidar_ros2 pointcloud_filters --symlink-install
 source install/setup.bash
 ```

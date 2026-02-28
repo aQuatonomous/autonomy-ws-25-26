@@ -17,8 +17,8 @@ fi
 cd ..
 
 echo ""
-echo "Step 1: Sourcing ROS 2 Humble..."
-source /opt/ros/humble/setup.bash
+echo "Step 1: Sourcing ROS 2 Jazzy..."
+source /opt/ros/jazzy/setup.bash
 
 echo ""
 echo "Step 2: Checking dependencies..."

@@ -3,7 +3,7 @@
 ## Run MAVROS
 
 ```bash
-source /opt/ros/humble/setup.bash
+source /opt/ros/jazzy/setup.bash
 ros2 launch mavros apm.launch fcu_url:=/dev/ttyACM0:57600
 ```
 
