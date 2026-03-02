@@ -1,8 +1,8 @@
-# Install script for directory: /home/ethan/autonomy-ws-25-26/src/asv_wave_sim/build/gz-waves1/_deps/gnuplot-iostream-src
+# Install script for directory: /home/lorenzo/autonomy-ws-25-26/src/asv_wave_sim/build/gz-waves1/_deps/gnuplot-iostream-src
 
 # Set the install prefix
 if(NOT DEFINED CMAKE_INSTALL_PREFIX)
-  set(CMAKE_INSTALL_PREFIX "/home/ethan/autonomy-ws-25-26/src/asv_wave_sim/install")
+  set(CMAKE_INSTALL_PREFIX "/home/lorenzo/autonomy-ws-25-26/src/asv_wave_sim/install/gz-waves1")
 endif()
 string(REGEX REPLACE "/$" "" CMAKE_INSTALL_PREFIX "${CMAKE_INSTALL_PREFIX}")
 
@@ -12,7 +12,7 @@ if(NOT DEFINED CMAKE_INSTALL_CONFIG_NAME)
     string(REGEX REPLACE "^[^A-Za-z0-9_]+" ""
            CMAKE_INSTALL_CONFIG_NAME "${BUILD_TYPE}")
   else()
-    set(CMAKE_INSTALL_CONFIG_NAME "RelWithDebInfo")
+    set(CMAKE_INSTALL_CONFIG_NAME "")
   endif()
   message(STATUS "Install configuration: \"${CMAKE_INSTALL_CONFIG_NAME}\"")
 endif()

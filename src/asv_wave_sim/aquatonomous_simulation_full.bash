@@ -4,7 +4,14 @@
 # Switch windows: Ctrl+b 0 / 1 / 2
 # See src/asv_wave_sim/AQUATONOMOUS_SIM.md for full documentation.
 
+set -euo pipefail
+
 SESSION=simfull
+
+# Compute absolute paths so we don't depend on $HOME being correct inside tmux.
+SCRIPT_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" >/dev/null 2>&1 && pwd)"
+WS_ROOT="$(cd -- "${SCRIPT_DIR}/../.." >/dev/null 2>&1 && pwd)"
+USER_HOME="${HOME}"
 
 # Start fresh: kill old session so Gazebo actually starts
 tmux kill-session -t "$SESSION" 2>/dev/null || true
@@ -14,8 +21,9 @@ tmux kill-session -t "$SESSION" 2>/dev/null || true
 # Use NVIDIA GPU libs first so ogre2 can render. Ensure ArduPilot plugin and ourboat model load so SITL (port 9002) can drive the boat in Gazebo.
 # On Jetson, if Gazebo shows black/white screen, append: --render-engine-gui ogre
 # If you see libEGL/Mesa/nvidia-drm and 0 entities, run before this script: sudo modprobe nvidia-drm modeset=1; export __GLX_VENDOR_LIBRARY_NAME=nvidia
+ASV_INSTALL="${WS_ROOT}/src/asv_wave_sim/install"
 tmux new-session -d -s "$SESSION" \
-  'source /opt/ros/humble/setup.bash && source ~/autonomy-ws-25-26/src/asv_wave_sim/install/setup.bash && export GZ_VERSION=harmonic && export LD_LIBRARY_PATH=/usr/lib/aarch64-linux-gnu/nvidia:$HOME/autonomy-ws-25-26/src/asv_wave_sim/install/lib:$LD_LIBRARY_PATH && export GZ_SIM_SYSTEM_PLUGIN_PATH=$HOME/ardupilot_gazebo/build:${GZ_SIM_SYSTEM_PLUGIN_PATH:-} && export GZ_SIM_RESOURCE_PATH=$HOME/autonomy-ws-25-26/src/asv_wave_sim/gz-waves-models/models:$HOME/autonomy-ws-25-26/src/asv_wave_sim/gz-waves-models/world_models:$HOME/SITL_Models/Gazebo/models:$HOME/SITL_Models/Gazebo/worlds:$HOME/ardupilot_gazebo/models:$HOME/ardupilot_gazebo/worlds:${GZ_SIM_RESOURCE_PATH:-} && cd ~/autonomy-ws-25-26/src/asv_wave_sim/gz-waves-models/worlds && gz sim -v 4 -r aquatonomous_world.sdf'
+  "source /opt/ros/humble/setup.bash && export COLCON_CURRENT_PREFIX=\"${ASV_INSTALL}\" && source \"${ASV_INSTALL}/setup.bash\" && export GZ_VERSION=harmonic && export LD_LIBRARY_PATH=/usr/lib/aarch64-linux-gnu/nvidia:\"${ASV_INSTALL}/lib\":\$LD_LIBRARY_PATH && export GZ_SIM_SYSTEM_PLUGIN_PATH=\"${USER_HOME}/ardupilot_gazebo/build\":\${GZ_SIM_SYSTEM_PLUGIN_PATH:-} && export GZ_SIM_RESOURCE_PATH=\"${WS_ROOT}/src/asv_wave_sim/gz-waves-models/models\":\"${WS_ROOT}/src/asv_wave_sim/gz-waves-models/world_models\":\"${USER_HOME}/SITL_Models/Gazebo/models\":\"${USER_HOME}/SITL_Models/Gazebo/worlds\":\"${USER_HOME}/ardupilot_gazebo/models\":\"${USER_HOME}/ardupilot_gazebo/worlds\":\${GZ_SIM_RESOURCE_PATH:-} && cd \"${WS_ROOT}/src/asv_wave_sim/gz-waves-models/worlds\" && gz sim -v 4 -r aquatonomous_world.sdf"
 
 tmux split-window -t "${SESSION}:0" -h 'source /opt/ros/humble/setup.bash && source ~/bridge_ws/install/setup.bash && sleep 20 && ros2 run ros_gz_bridge parameter_bridge /lidar_topic/points@sensor_msgs/msg/PointCloud2@gz.msgs.PointCloudPacked --ros-args -r /lidar_topic/points:=/laser_points'
 tmux split-window -t "${SESSION}:0.1" 'source /opt/ros/humble/setup.bash && source ~/bridge_ws/install/setup.bash && sleep 20 && ros2 run ros_gz_bridge parameter_bridge /camera1_topic@sensor_msgs/msg/Image@gz.msgs.Image --ros-args -r /camera1_topic:=/camera0/image_raw'

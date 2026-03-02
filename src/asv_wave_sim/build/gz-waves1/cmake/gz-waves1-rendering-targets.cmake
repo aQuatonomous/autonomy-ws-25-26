@@ -45,14 +45,14 @@ unset(_expectedTargets)
 add_library(gz-waves1::gz-waves1-rendering SHARED IMPORTED)
 
 set_target_properties(gz-waves1::gz-waves1-rendering PROPERTIES
-  INTERFACE_INCLUDE_DIRECTORIES "/home/ethan/autonomy-ws-25-26/src/asv_wave_sim/build/gz-waves1/rendering/include"
+  INTERFACE_INCLUDE_DIRECTORIES "/home/lorenzo/autonomy-ws-25-26/src/asv_wave_sim/build/gz-waves1/rendering/include"
   INTERFACE_LINK_LIBRARIES "CGAL_Core;CGAL;gz-waves1::gz-waves1;gz-common5::gz-common5;gz-rendering8::gz-rendering8"
 )
 
 # Import target "gz-waves1::gz-waves1-rendering" for configuration "RelWithDebInfo"
 set_property(TARGET gz-waves1::gz-waves1-rendering APPEND PROPERTY IMPORTED_CONFIGURATIONS RELWITHDEBINFO)
 set_target_properties(gz-waves1::gz-waves1-rendering PROPERTIES
-  IMPORTED_LOCATION_RELWITHDEBINFO "/home/ethan/autonomy-ws-25-26/src/asv_wave_sim/build/gz-waves1/lib/libgz-waves1-rendering.so.1.0.0"
+  IMPORTED_LOCATION_RELWITHDEBINFO "/home/lorenzo/autonomy-ws-25-26/src/asv_wave_sim/build/gz-waves1/lib/libgz-waves1-rendering.so.1.0.0"
   IMPORTED_SONAME_RELWITHDEBINFO "libgz-waves1-rendering.so.1"
   )
 

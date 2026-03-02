@@ -53,10 +53,10 @@ RM = /usr/bin/cmake -E rm -f
 EQUALS = =
 
 # The top-level source directory on which CMake was run.
-CMAKE_SOURCE_DIR = /home/ethan/autonomy-ws-25-26/src/asv_wave_sim/gz-waves
+CMAKE_SOURCE_DIR = /home/lorenzo/autonomy-ws-25-26/src/asv_wave_sim/gz-waves
 
 # The top-level build directory on which CMake was run.
-CMAKE_BINARY_DIR = /home/ethan/autonomy-ws-25-26/src/asv_wave_sim/build/gz-waves1
+CMAKE_BINARY_DIR = /home/lorenzo/autonomy-ws-25-26/src/asv_wave_sim/build/gz-waves1
 
 # Utility rule file for codecheck.
 
@@ -81,6 +81,6 @@ CMakeFiles/codecheck.dir/clean:
 .PHONY : CMakeFiles/codecheck.dir/clean
 
 CMakeFiles/codecheck.dir/depend:
-	cd /home/ethan/autonomy-ws-25-26/src/asv_wave_sim/build/gz-waves1 && $(CMAKE_COMMAND) -E cmake_depends "Unix Makefiles" /home/ethan/autonomy-ws-25-26/src/asv_wave_sim/gz-waves /home/ethan/autonomy-ws-25-26/src/asv_wave_sim/gz-waves /home/ethan/autonomy-ws-25-26/src/asv_wave_sim/build/gz-waves1 /home/ethan/autonomy-ws-25-26/src/asv_wave_sim/build/gz-waves1 /home/ethan/autonomy-ws-25-26/src/asv_wave_sim/build/gz-waves1/CMakeFiles/codecheck.dir/DependInfo.cmake --color=$(COLOR)
+	cd /home/lorenzo/autonomy-ws-25-26/src/asv_wave_sim/build/gz-waves1 && $(CMAKE_COMMAND) -E cmake_depends "Unix Makefiles" /home/lorenzo/autonomy-ws-25-26/src/asv_wave_sim/gz-waves /home/lorenzo/autonomy-ws-25-26/src/asv_wave_sim/gz-waves /home/lorenzo/autonomy-ws-25-26/src/asv_wave_sim/build/gz-waves1 /home/lorenzo/autonomy-ws-25-26/src/asv_wave_sim/build/gz-waves1 /home/lorenzo/autonomy-ws-25-26/src/asv_wave_sim/build/gz-waves1/CMakeFiles/codecheck.dir/DependInfo.cmake --color=$(COLOR)
 .PHONY : CMakeFiles/codecheck.dir/depend
 

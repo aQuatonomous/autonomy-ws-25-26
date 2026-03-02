@@ -1,7 +1,7 @@
 src/systems/dynamic/CMakeFiles/gz-waves1-dynamic-geometry-system.dir/DynamicGeometry.cc.o: \
- /home/ethan/autonomy-ws-25-26/src/asv_wave_sim/gz-waves/src/systems/dynamic/DynamicGeometry.cc \
+ /home/lorenzo/autonomy-ws-25-26/src/asv_wave_sim/gz-waves/src/systems/dynamic/DynamicGeometry.cc \
  /usr/include/stdc-predef.h \
- /home/ethan/autonomy-ws-25-26/src/asv_wave_sim/gz-waves/src/systems/dynamic/DynamicGeometry.hh \
+ /home/lorenzo/autonomy-ws-25-26/src/asv_wave_sim/gz-waves/src/systems/dynamic/DynamicGeometry.hh \
  /usr/include/c++/11/memory /usr/include/c++/11/bits/stl_algobase.h \
  /usr/include/aarch64-linux-gnu/c++/11/bits/c++config.h \
  /usr/include/aarch64-linux-gnu/c++/11/bits/os_defines.h \
@@ -618,6 +618,7 @@ src/systems/dynamic/CMakeFiles/gz-waves1-dynamic-geometry-system.dir/DynamicGeom
  /usr/include/gz/common5/gz/common/profiler/Export.hh \
  /usr/include/gz/common5/gz/common/profiler/detail/Export.hh \
  /usr/include/gz/common5/gz/common/SingletonT.hh \
+ /usr/include/gz/common5/gz/common/ProfilerImpl.hh \
  /usr/include/gz/plugin2/gz/plugin/Register.hh \
  /usr/include/gz/plugin2/gz/plugin/detail/Register.hh \
  /usr/include/gz/plugin2/gz/plugin/Info.hh \

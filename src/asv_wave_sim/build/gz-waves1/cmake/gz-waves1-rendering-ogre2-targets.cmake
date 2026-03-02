@@ -46,7 +46,7 @@ add_library(gz-waves1::gz-waves1-rendering-ogre2 SHARED IMPORTED)
 
 set_target_properties(gz-waves1::gz-waves1-rendering-ogre2 PROPERTIES
   INTERFACE_COMPILE_DEFINITIONS "OGRE_IGNORE_UNKNOWN_DEBUG"
-  INTERFACE_INCLUDE_DIRECTORIES "/home/ethan/autonomy-ws-25-26/src/asv_wave_sim/build/gz-waves1/rendering-ogre2/include"
+  INTERFACE_INCLUDE_DIRECTORIES "/home/lorenzo/autonomy-ws-25-26/src/asv_wave_sim/build/gz-waves1/rendering-ogre2/include"
   INTERFACE_LINK_DIRECTORIES "/usr/include/gz/rendering8/../../../lib/gz-rendering-8/engine-plugins"
   INTERFACE_LINK_LIBRARIES "CGAL_Core;CGAL;gz-waves1::gz-waves1;gz-waves1::gz-waves1-rendering;gz-common5::gz-common5;gz-rendering8::gz-rendering8;gz-rendering8-ogre2;GzOGRE2::GzOGRE2"
 )
@@ -54,7 +54,7 @@ set_target_properties(gz-waves1::gz-waves1-rendering-ogre2 PROPERTIES
 # Import target "gz-waves1::gz-waves1-rendering-ogre2" for configuration "RelWithDebInfo"
 set_property(TARGET gz-waves1::gz-waves1-rendering-ogre2 APPEND PROPERTY IMPORTED_CONFIGURATIONS RELWITHDEBINFO)
 set_target_properties(gz-waves1::gz-waves1-rendering-ogre2 PROPERTIES
-  IMPORTED_LOCATION_RELWITHDEBINFO "/home/ethan/autonomy-ws-25-26/src/asv_wave_sim/build/gz-waves1/lib/libgz-waves1-rendering-ogre2.so.1.0.0"
+  IMPORTED_LOCATION_RELWITHDEBINFO "/home/lorenzo/autonomy-ws-25-26/src/asv_wave_sim/build/gz-waves1/lib/libgz-waves1-rendering-ogre2.so.1.0.0"
   IMPORTED_SONAME_RELWITHDEBINFO "libgz-waves1-rendering-ogre2.so.1"
   )
 

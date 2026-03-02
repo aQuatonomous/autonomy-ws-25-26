@@ -22,8 +22,8 @@ set_property(GLOBAL PROPERTY _CMAKE_FindGit_GIT_EXECUTABLE_VERSION
 include(ExternalProject)
 ExternalProject_Add(gnuplot-iostream-populate
                      "UPDATE_DISCONNECTED" "False" "GIT_REPOSITORY" "https://github.com/dstahlke/gnuplot-iostream.git" "GIT_TAG" "d674bdf23b93c76d491f03246d2e6f72bf5739ce"
-                    SOURCE_DIR          "/home/ethan/autonomy-ws-25-26/src/asv_wave_sim/build/gz-waves1/_deps/gnuplot-iostream-src"
-                    BINARY_DIR          "/home/ethan/autonomy-ws-25-26/src/asv_wave_sim/build/gz-waves1/_deps/gnuplot-iostream-build"
+                    SOURCE_DIR          "/home/lorenzo/autonomy-ws-25-26/src/asv_wave_sim/build/gz-waves1/_deps/gnuplot-iostream-src"
+                    BINARY_DIR          "/home/lorenzo/autonomy-ws-25-26/src/asv_wave_sim/build/gz-waves1/_deps/gnuplot-iostream-build"
                     CONFIGURE_COMMAND   ""
                     BUILD_COMMAND       ""
                     INSTALL_COMMAND     ""

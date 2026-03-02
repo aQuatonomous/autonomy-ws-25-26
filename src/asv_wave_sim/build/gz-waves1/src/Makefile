@@ -57,10 +57,10 @@ RM = /usr/bin/cmake -E rm -f
 EQUALS = =
 
 # The top-level source directory on which CMake was run.
-CMAKE_SOURCE_DIR = /home/ethan/autonomy-ws-25-26/src/asv_wave_sim/gz-waves
+CMAKE_SOURCE_DIR = /home/lorenzo/autonomy-ws-25-26/src/asv_wave_sim/gz-waves
 
 # The top-level build directory on which CMake was run.
-CMAKE_BINARY_DIR = /home/ethan/autonomy-ws-25-26/src/asv_wave_sim/build/gz-waves1
+CMAKE_BINARY_DIR = /home/lorenzo/autonomy-ws-25-26/src/asv_wave_sim/build/gz-waves1
 
 #=============================================================================
 # Targets provided globally by CMake.
@@ -68,7 +68,7 @@ CMAKE_BINARY_DIR = /home/ethan/autonomy-ws-25-26/src/asv_wave_sim/build/gz-waves
 # Special rule for the target package
 package: preinstall
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --cyan "Run CPack packaging tool..."
-	cd /home/ethan/autonomy-ws-25-26/src/asv_wave_sim/build/gz-waves1 && /usr/bin/cpack --config ./CPackConfig.cmake
+	cd /home/lorenzo/autonomy-ws-25-26/src/asv_wave_sim/build/gz-waves1 && /usr/bin/cpack --config ./CPackConfig.cmake
 .PHONY : package
 
 # Special rule for the target package
@@ -78,7 +78,7 @@ package/fast: package
 # Special rule for the target package_source
 package_source:
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --cyan "Run CPack packaging tool for source..."
-	cd /home/ethan/autonomy-ws-25-26/src/asv_wave_sim/build/gz-waves1 && /usr/bin/cpack --config ./CPackSourceConfig.cmake /home/ethan/autonomy-ws-25-26/src/asv_wave_sim/build/gz-waves1/CPackSourceConfig.cmake
+	cd /home/lorenzo/autonomy-ws-25-26/src/asv_wave_sim/build/gz-waves1 && /usr/bin/cpack --config ./CPackSourceConfig.cmake /home/lorenzo/autonomy-ws-25-26/src/asv_wave_sim/build/gz-waves1/CPackSourceConfig.cmake
 .PHONY : package_source
 
 # Special rule for the target package_source
@@ -162,14 +162,14 @@ install/strip/fast: preinstall/fast
 
 # The main all target
 all: cmake_check_build_system
-	cd /home/ethan/autonomy-ws-25-26/src/asv_wave_sim/build/gz-waves1 && $(CMAKE_COMMAND) -E cmake_progress_start /home/ethan/autonomy-ws-25-26/src/asv_wave_sim/build/gz-waves1/CMakeFiles /home/ethan/autonomy-ws-25-26/src/asv_wave_sim/build/gz-waves1/src//CMakeFiles/progress.marks
-	cd /home/ethan/autonomy-ws-25-26/src/asv_wave_sim/build/gz-waves1 && $(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 src/all
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/ethan/autonomy-ws-25-26/src/asv_wave_sim/build/gz-waves1/CMakeFiles 0
+	cd /home/lorenzo/autonomy-ws-25-26/src/asv_wave_sim/build/gz-waves1 && $(CMAKE_COMMAND) -E cmake_progress_start /home/lorenzo/autonomy-ws-25-26/src/asv_wave_sim/build/gz-waves1/CMakeFiles /home/lorenzo/autonomy-ws-25-26/src/asv_wave_sim/build/gz-waves1/src//CMakeFiles/progress.marks
+	cd /home/lorenzo/autonomy-ws-25-26/src/asv_wave_sim/build/gz-waves1 && $(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 src/all
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/lorenzo/autonomy-ws-25-26/src/asv_wave_sim/build/gz-waves1/CMakeFiles 0
 .PHONY : all
 
 # The main clean target
 clean:
-	cd /home/ethan/autonomy-ws-25-26/src/asv_wave_sim/build/gz-waves1 && $(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 src/clean
+	cd /home/lorenzo/autonomy-ws-25-26/src/asv_wave_sim/build/gz-waves1 && $(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 src/clean
 .PHONY : clean
 
 # The main clean target
@@ -178,22 +178,22 @@ clean/fast: clean
 
 # Prepare targets for installation.
 preinstall: all
-	cd /home/ethan/autonomy-ws-25-26/src/asv_wave_sim/build/gz-waves1 && $(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 src/preinstall
+	cd /home/lorenzo/autonomy-ws-25-26/src/asv_wave_sim/build/gz-waves1 && $(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 src/preinstall
 .PHONY : preinstall
 
 # Prepare targets for installation.
 preinstall/fast:
-	cd /home/ethan/autonomy-ws-25-26/src/asv_wave_sim/build/gz-waves1 && $(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 src/preinstall
+	cd /home/lorenzo/autonomy-ws-25-26/src/asv_wave_sim/build/gz-waves1 && $(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 src/preinstall
 .PHONY : preinstall/fast
 
 # clear depends
 depend:
-	cd /home/ethan/autonomy-ws-25-26/src/asv_wave_sim/build/gz-waves1 && $(CMAKE_COMMAND) -S$(CMAKE_SOURCE_DIR) -B$(CMAKE_BINARY_DIR) --check-build-system CMakeFiles/Makefile.cmake 1
+	cd /home/lorenzo/autonomy-ws-25-26/src/asv_wave_sim/build/gz-waves1 && $(CMAKE_COMMAND) -S$(CMAKE_SOURCE_DIR) -B$(CMAKE_BINARY_DIR) --check-build-system CMakeFiles/Makefile.cmake 1
 .PHONY : depend
 
 # Convenience name for target.
 src/CMakeFiles/gz-waves1.dir/rule:
-	cd /home/ethan/autonomy-ws-25-26/src/asv_wave_sim/build/gz-waves1 && $(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 src/CMakeFiles/gz-waves1.dir/rule
+	cd /home/lorenzo/autonomy-ws-25-26/src/asv_wave_sim/build/gz-waves1 && $(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 src/CMakeFiles/gz-waves1.dir/rule
 .PHONY : src/CMakeFiles/gz-waves1.dir/rule
 
 # Convenience name for target.
@@ -202,197 +202,15 @@ gz-waves1: src/CMakeFiles/gz-waves1.dir/rule
 
 # fast build rule for target.
 gz-waves1/fast:
-	cd /home/ethan/autonomy-ws-25-26/src/asv_wave_sim/build/gz-waves1 && $(MAKE) $(MAKESILENT) -f src/CMakeFiles/gz-waves1.dir/build.make src/CMakeFiles/gz-waves1.dir/build
+	cd /home/lorenzo/autonomy-ws-25-26/src/asv_wave_sim/build/gz-waves1 && $(MAKE) $(MAKESILENT) -f src/CMakeFiles/gz-waves1.dir/build.make src/CMakeFiles/gz-waves1.dir/build
 .PHONY : gz-waves1/fast
-
-# Convenience name for target.
-src/CMakeFiles/UNIT_Algorithm_TEST.dir/rule:
-	cd /home/ethan/autonomy-ws-25-26/src/asv_wave_sim/build/gz-waves1 && $(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 src/CMakeFiles/UNIT_Algorithm_TEST.dir/rule
-.PHONY : src/CMakeFiles/UNIT_Algorithm_TEST.dir/rule
-
-# Convenience name for target.
-UNIT_Algorithm_TEST: src/CMakeFiles/UNIT_Algorithm_TEST.dir/rule
-.PHONY : UNIT_Algorithm_TEST
-
-# fast build rule for target.
-UNIT_Algorithm_TEST/fast:
-	cd /home/ethan/autonomy-ws-25-26/src/asv_wave_sim/build/gz-waves1 && $(MAKE) $(MAKESILENT) -f src/CMakeFiles/UNIT_Algorithm_TEST.dir/build.make src/CMakeFiles/UNIT_Algorithm_TEST.dir/build
-.PHONY : UNIT_Algorithm_TEST/fast
-
-# Convenience name for target.
-src/CMakeFiles/UNIT_CGAL_TEST.dir/rule:
-	cd /home/ethan/autonomy-ws-25-26/src/asv_wave_sim/build/gz-waves1 && $(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 src/CMakeFiles/UNIT_CGAL_TEST.dir/rule
-.PHONY : src/CMakeFiles/UNIT_CGAL_TEST.dir/rule
-
-# Convenience name for target.
-UNIT_CGAL_TEST: src/CMakeFiles/UNIT_CGAL_TEST.dir/rule
-.PHONY : UNIT_CGAL_TEST
-
-# fast build rule for target.
-UNIT_CGAL_TEST/fast:
-	cd /home/ethan/autonomy-ws-25-26/src/asv_wave_sim/build/gz-waves1 && $(MAKE) $(MAKESILENT) -f src/CMakeFiles/UNIT_CGAL_TEST.dir/build.make src/CMakeFiles/UNIT_CGAL_TEST.dir/build
-.PHONY : UNIT_CGAL_TEST/fast
-
-# Convenience name for target.
-src/CMakeFiles/UNIT_EigenFFTW_TEST.dir/rule:
-	cd /home/ethan/autonomy-ws-25-26/src/asv_wave_sim/build/gz-waves1 && $(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 src/CMakeFiles/UNIT_EigenFFTW_TEST.dir/rule
-.PHONY : src/CMakeFiles/UNIT_EigenFFTW_TEST.dir/rule
-
-# Convenience name for target.
-UNIT_EigenFFTW_TEST: src/CMakeFiles/UNIT_EigenFFTW_TEST.dir/rule
-.PHONY : UNIT_EigenFFTW_TEST
-
-# fast build rule for target.
-UNIT_EigenFFTW_TEST/fast:
-	cd /home/ethan/autonomy-ws-25-26/src/asv_wave_sim/build/gz-waves1 && $(MAKE) $(MAKESILENT) -f src/CMakeFiles/UNIT_EigenFFTW_TEST.dir/build.make src/CMakeFiles/UNIT_EigenFFTW_TEST.dir/build
-.PHONY : UNIT_EigenFFTW_TEST/fast
-
-# Convenience name for target.
-src/CMakeFiles/UNIT_Geometry_TEST.dir/rule:
-	cd /home/ethan/autonomy-ws-25-26/src/asv_wave_sim/build/gz-waves1 && $(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 src/CMakeFiles/UNIT_Geometry_TEST.dir/rule
-.PHONY : src/CMakeFiles/UNIT_Geometry_TEST.dir/rule
-
-# Convenience name for target.
-UNIT_Geometry_TEST: src/CMakeFiles/UNIT_Geometry_TEST.dir/rule
-.PHONY : UNIT_Geometry_TEST
-
-# fast build rule for target.
-UNIT_Geometry_TEST/fast:
-	cd /home/ethan/autonomy-ws-25-26/src/asv_wave_sim/build/gz-waves1 && $(MAKE) $(MAKESILENT) -f src/CMakeFiles/UNIT_Geometry_TEST.dir/build.make src/CMakeFiles/UNIT_Geometry_TEST.dir/build
-.PHONY : UNIT_Geometry_TEST/fast
-
-# Convenience name for target.
-src/CMakeFiles/UNIT_Grid_TEST.dir/rule:
-	cd /home/ethan/autonomy-ws-25-26/src/asv_wave_sim/build/gz-waves1 && $(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 src/CMakeFiles/UNIT_Grid_TEST.dir/rule
-.PHONY : src/CMakeFiles/UNIT_Grid_TEST.dir/rule
-
-# Convenience name for target.
-UNIT_Grid_TEST: src/CMakeFiles/UNIT_Grid_TEST.dir/rule
-.PHONY : UNIT_Grid_TEST
-
-# fast build rule for target.
-UNIT_Grid_TEST/fast:
-	cd /home/ethan/autonomy-ws-25-26/src/asv_wave_sim/build/gz-waves1 && $(MAKE) $(MAKESILENT) -f src/CMakeFiles/UNIT_Grid_TEST.dir/build.make src/CMakeFiles/UNIT_Grid_TEST.dir/build
-.PHONY : UNIT_Grid_TEST/fast
-
-# Convenience name for target.
-src/CMakeFiles/UNIT_LinearRegularWaveSimulation_TEST.dir/rule:
-	cd /home/ethan/autonomy-ws-25-26/src/asv_wave_sim/build/gz-waves1 && $(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 src/CMakeFiles/UNIT_LinearRegularWaveSimulation_TEST.dir/rule
-.PHONY : src/CMakeFiles/UNIT_LinearRegularWaveSimulation_TEST.dir/rule
-
-# Convenience name for target.
-UNIT_LinearRegularWaveSimulation_TEST: src/CMakeFiles/UNIT_LinearRegularWaveSimulation_TEST.dir/rule
-.PHONY : UNIT_LinearRegularWaveSimulation_TEST
-
-# fast build rule for target.
-UNIT_LinearRegularWaveSimulation_TEST/fast:
-	cd /home/ethan/autonomy-ws-25-26/src/asv_wave_sim/build/gz-waves1 && $(MAKE) $(MAKESILENT) -f src/CMakeFiles/UNIT_LinearRegularWaveSimulation_TEST.dir/build.make src/CMakeFiles/UNIT_LinearRegularWaveSimulation_TEST.dir/build
-.PHONY : UNIT_LinearRegularWaveSimulation_TEST/fast
-
-# Convenience name for target.
-src/CMakeFiles/UNIT_LinearRandomFFTWaveSimulation_TEST.dir/rule:
-	cd /home/ethan/autonomy-ws-25-26/src/asv_wave_sim/build/gz-waves1 && $(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 src/CMakeFiles/UNIT_LinearRandomFFTWaveSimulation_TEST.dir/rule
-.PHONY : src/CMakeFiles/UNIT_LinearRandomFFTWaveSimulation_TEST.dir/rule
-
-# Convenience name for target.
-UNIT_LinearRandomFFTWaveSimulation_TEST: src/CMakeFiles/UNIT_LinearRandomFFTWaveSimulation_TEST.dir/rule
-.PHONY : UNIT_LinearRandomFFTWaveSimulation_TEST
-
-# fast build rule for target.
-UNIT_LinearRandomFFTWaveSimulation_TEST/fast:
-	cd /home/ethan/autonomy-ws-25-26/src/asv_wave_sim/build/gz-waves1 && $(MAKE) $(MAKESILENT) -f src/CMakeFiles/UNIT_LinearRandomFFTWaveSimulation_TEST.dir/build.make src/CMakeFiles/UNIT_LinearRandomFFTWaveSimulation_TEST.dir/build
-.PHONY : UNIT_LinearRandomFFTWaveSimulation_TEST/fast
-
-# Convenience name for target.
-src/CMakeFiles/UNIT_MeshTools_TEST.dir/rule:
-	cd /home/ethan/autonomy-ws-25-26/src/asv_wave_sim/build/gz-waves1 && $(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 src/CMakeFiles/UNIT_MeshTools_TEST.dir/rule
-.PHONY : src/CMakeFiles/UNIT_MeshTools_TEST.dir/rule
-
-# Convenience name for target.
-UNIT_MeshTools_TEST: src/CMakeFiles/UNIT_MeshTools_TEST.dir/rule
-.PHONY : UNIT_MeshTools_TEST
-
-# fast build rule for target.
-UNIT_MeshTools_TEST/fast:
-	cd /home/ethan/autonomy-ws-25-26/src/asv_wave_sim/build/gz-waves1 && $(MAKE) $(MAKESILENT) -f src/CMakeFiles/UNIT_MeshTools_TEST.dir/build.make src/CMakeFiles/UNIT_MeshTools_TEST.dir/build
-.PHONY : UNIT_MeshTools_TEST/fast
-
-# Convenience name for target.
-src/CMakeFiles/UNIT_Physics_TEST.dir/rule:
-	cd /home/ethan/autonomy-ws-25-26/src/asv_wave_sim/build/gz-waves1 && $(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 src/CMakeFiles/UNIT_Physics_TEST.dir/rule
-.PHONY : src/CMakeFiles/UNIT_Physics_TEST.dir/rule
-
-# Convenience name for target.
-UNIT_Physics_TEST: src/CMakeFiles/UNIT_Physics_TEST.dir/rule
-.PHONY : UNIT_Physics_TEST
-
-# fast build rule for target.
-UNIT_Physics_TEST/fast:
-	cd /home/ethan/autonomy-ws-25-26/src/asv_wave_sim/build/gz-waves1 && $(MAKE) $(MAKESILENT) -f src/CMakeFiles/UNIT_Physics_TEST.dir/build.make src/CMakeFiles/UNIT_Physics_TEST.dir/build
-.PHONY : UNIT_Physics_TEST/fast
-
-# Convenience name for target.
-src/CMakeFiles/UNIT_TriangulatedGrid_TEST.dir/rule:
-	cd /home/ethan/autonomy-ws-25-26/src/asv_wave_sim/build/gz-waves1 && $(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 src/CMakeFiles/UNIT_TriangulatedGrid_TEST.dir/rule
-.PHONY : src/CMakeFiles/UNIT_TriangulatedGrid_TEST.dir/rule
-
-# Convenience name for target.
-UNIT_TriangulatedGrid_TEST: src/CMakeFiles/UNIT_TriangulatedGrid_TEST.dir/rule
-.PHONY : UNIT_TriangulatedGrid_TEST
-
-# fast build rule for target.
-UNIT_TriangulatedGrid_TEST/fast:
-	cd /home/ethan/autonomy-ws-25-26/src/asv_wave_sim/build/gz-waves1 && $(MAKE) $(MAKESILENT) -f src/CMakeFiles/UNIT_TriangulatedGrid_TEST.dir/build.make src/CMakeFiles/UNIT_TriangulatedGrid_TEST.dir/build
-.PHONY : UNIT_TriangulatedGrid_TEST/fast
-
-# Convenience name for target.
-src/CMakeFiles/UNIT_Wavefield_TEST.dir/rule:
-	cd /home/ethan/autonomy-ws-25-26/src/asv_wave_sim/build/gz-waves1 && $(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 src/CMakeFiles/UNIT_Wavefield_TEST.dir/rule
-.PHONY : src/CMakeFiles/UNIT_Wavefield_TEST.dir/rule
-
-# Convenience name for target.
-UNIT_Wavefield_TEST: src/CMakeFiles/UNIT_Wavefield_TEST.dir/rule
-.PHONY : UNIT_Wavefield_TEST
-
-# fast build rule for target.
-UNIT_Wavefield_TEST/fast:
-	cd /home/ethan/autonomy-ws-25-26/src/asv_wave_sim/build/gz-waves1 && $(MAKE) $(MAKESILENT) -f src/CMakeFiles/UNIT_Wavefield_TEST.dir/build.make src/CMakeFiles/UNIT_Wavefield_TEST.dir/build
-.PHONY : UNIT_Wavefield_TEST/fast
-
-# Convenience name for target.
-src/CMakeFiles/UNIT_WaveSpectrum_TEST.dir/rule:
-	cd /home/ethan/autonomy-ws-25-26/src/asv_wave_sim/build/gz-waves1 && $(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 src/CMakeFiles/UNIT_WaveSpectrum_TEST.dir/rule
-.PHONY : src/CMakeFiles/UNIT_WaveSpectrum_TEST.dir/rule
-
-# Convenience name for target.
-UNIT_WaveSpectrum_TEST: src/CMakeFiles/UNIT_WaveSpectrum_TEST.dir/rule
-.PHONY : UNIT_WaveSpectrum_TEST
-
-# fast build rule for target.
-UNIT_WaveSpectrum_TEST/fast:
-	cd /home/ethan/autonomy-ws-25-26/src/asv_wave_sim/build/gz-waves1 && $(MAKE) $(MAKESILENT) -f src/CMakeFiles/UNIT_WaveSpectrum_TEST.dir/build.make src/CMakeFiles/UNIT_WaveSpectrum_TEST.dir/build
-.PHONY : UNIT_WaveSpectrum_TEST/fast
-
-# Convenience name for target.
-src/CMakeFiles/UNIT_WaveSpreadingFunction_TEST.dir/rule:
-	cd /home/ethan/autonomy-ws-25-26/src/asv_wave_sim/build/gz-waves1 && $(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 src/CMakeFiles/UNIT_WaveSpreadingFunction_TEST.dir/rule
-.PHONY : src/CMakeFiles/UNIT_WaveSpreadingFunction_TEST.dir/rule
-
-# Convenience name for target.
-UNIT_WaveSpreadingFunction_TEST: src/CMakeFiles/UNIT_WaveSpreadingFunction_TEST.dir/rule
-.PHONY : UNIT_WaveSpreadingFunction_TEST
-
-# fast build rule for target.
-UNIT_WaveSpreadingFunction_TEST/fast:
-	cd /home/ethan/autonomy-ws-25-26/src/asv_wave_sim/build/gz-waves1 && $(MAKE) $(MAKESILENT) -f src/CMakeFiles/UNIT_WaveSpreadingFunction_TEST.dir/build.make src/CMakeFiles/UNIT_WaveSpreadingFunction_TEST.dir/build
-.PHONY : UNIT_WaveSpreadingFunction_TEST/fast
 
 Algorithm.o: Algorithm.cc.o
 .PHONY : Algorithm.o
 
 # target to build an object file
 Algorithm.cc.o:
-	cd /home/ethan/autonomy-ws-25-26/src/asv_wave_sim/build/gz-waves1 && $(MAKE) $(MAKESILENT) -f src/CMakeFiles/gz-waves1.dir/build.make src/CMakeFiles/gz-waves1.dir/Algorithm.cc.o
+	cd /home/lorenzo/autonomy-ws-25-26/src/asv_wave_sim/build/gz-waves1 && $(MAKE) $(MAKESILENT) -f src/CMakeFiles/gz-waves1.dir/build.make src/CMakeFiles/gz-waves1.dir/Algorithm.cc.o
 .PHONY : Algorithm.cc.o
 
 Algorithm.i: Algorithm.cc.i
@@ -400,7 +218,7 @@ Algorithm.i: Algorithm.cc.i
 
 # target to preprocess a source file
 Algorithm.cc.i:
-	cd /home/ethan/autonomy-ws-25-26/src/asv_wave_sim/build/gz-waves1 && $(MAKE) $(MAKESILENT) -f src/CMakeFiles/gz-waves1.dir/build.make src/CMakeFiles/gz-waves1.dir/Algorithm.cc.i
+	cd /home/lorenzo/autonomy-ws-25-26/src/asv_wave_sim/build/gz-waves1 && $(MAKE) $(MAKESILENT) -f src/CMakeFiles/gz-waves1.dir/build.make src/CMakeFiles/gz-waves1.dir/Algorithm.cc.i
 .PHONY : Algorithm.cc.i
 
 Algorithm.s: Algorithm.cc.s
@@ -408,63 +226,15 @@ Algorithm.s: Algorithm.cc.s
 
 # target to generate assembly for a file
 Algorithm.cc.s:
-	cd /home/ethan/autonomy-ws-25-26/src/asv_wave_sim/build/gz-waves1 && $(MAKE) $(MAKESILENT) -f src/CMakeFiles/gz-waves1.dir/build.make src/CMakeFiles/gz-waves1.dir/Algorithm.cc.s
+	cd /home/lorenzo/autonomy-ws-25-26/src/asv_wave_sim/build/gz-waves1 && $(MAKE) $(MAKESILENT) -f src/CMakeFiles/gz-waves1.dir/build.make src/CMakeFiles/gz-waves1.dir/Algorithm.cc.s
 .PHONY : Algorithm.cc.s
-
-Algorithm_TEST.o: Algorithm_TEST.cc.o
-.PHONY : Algorithm_TEST.o
-
-# target to build an object file
-Algorithm_TEST.cc.o:
-	cd /home/ethan/autonomy-ws-25-26/src/asv_wave_sim/build/gz-waves1 && $(MAKE) $(MAKESILENT) -f src/CMakeFiles/UNIT_Algorithm_TEST.dir/build.make src/CMakeFiles/UNIT_Algorithm_TEST.dir/Algorithm_TEST.cc.o
-.PHONY : Algorithm_TEST.cc.o
-
-Algorithm_TEST.i: Algorithm_TEST.cc.i
-.PHONY : Algorithm_TEST.i
-
-# target to preprocess a source file
-Algorithm_TEST.cc.i:
-	cd /home/ethan/autonomy-ws-25-26/src/asv_wave_sim/build/gz-waves1 && $(MAKE) $(MAKESILENT) -f src/CMakeFiles/UNIT_Algorithm_TEST.dir/build.make src/CMakeFiles/UNIT_Algorithm_TEST.dir/Algorithm_TEST.cc.i
-.PHONY : Algorithm_TEST.cc.i
-
-Algorithm_TEST.s: Algorithm_TEST.cc.s
-.PHONY : Algorithm_TEST.s
-
-# target to generate assembly for a file
-Algorithm_TEST.cc.s:
-	cd /home/ethan/autonomy-ws-25-26/src/asv_wave_sim/build/gz-waves1 && $(MAKE) $(MAKESILENT) -f src/CMakeFiles/UNIT_Algorithm_TEST.dir/build.make src/CMakeFiles/UNIT_Algorithm_TEST.dir/Algorithm_TEST.cc.s
-.PHONY : Algorithm_TEST.cc.s
-
-CGAL_TEST.o: CGAL_TEST.cc.o
-.PHONY : CGAL_TEST.o
-
-# target to build an object file
-CGAL_TEST.cc.o:
-	cd /home/ethan/autonomy-ws-25-26/src/asv_wave_sim/build/gz-waves1 && $(MAKE) $(MAKESILENT) -f src/CMakeFiles/UNIT_CGAL_TEST.dir/build.make src/CMakeFiles/UNIT_CGAL_TEST.dir/CGAL_TEST.cc.o
-.PHONY : CGAL_TEST.cc.o
-
-CGAL_TEST.i: CGAL_TEST.cc.i
-.PHONY : CGAL_TEST.i
-
-# target to preprocess a source file
-CGAL_TEST.cc.i:
-	cd /home/ethan/autonomy-ws-25-26/src/asv_wave_sim/build/gz-waves1 && $(MAKE) $(MAKESILENT) -f src/CMakeFiles/UNIT_CGAL_TEST.dir/build.make src/CMakeFiles/UNIT_CGAL_TEST.dir/CGAL_TEST.cc.i
-.PHONY : CGAL_TEST.cc.i
-
-CGAL_TEST.s: CGAL_TEST.cc.s
-.PHONY : CGAL_TEST.s
-
-# target to generate assembly for a file
-CGAL_TEST.cc.s:
-	cd /home/ethan/autonomy-ws-25-26/src/asv_wave_sim/build/gz-waves1 && $(MAKE) $(MAKESILENT) -f src/CMakeFiles/UNIT_CGAL_TEST.dir/build.make src/CMakeFiles/UNIT_CGAL_TEST.dir/CGAL_TEST.cc.s
-.PHONY : CGAL_TEST.cc.s
 
 Convert.o: Convert.cc.o
 .PHONY : Convert.o
 
 # target to build an object file
 Convert.cc.o:
-	cd /home/ethan/autonomy-ws-25-26/src/asv_wave_sim/build/gz-waves1 && $(MAKE) $(MAKESILENT) -f src/CMakeFiles/gz-waves1.dir/build.make src/CMakeFiles/gz-waves1.dir/Convert.cc.o
+	cd /home/lorenzo/autonomy-ws-25-26/src/asv_wave_sim/build/gz-waves1 && $(MAKE) $(MAKESILENT) -f src/CMakeFiles/gz-waves1.dir/build.make src/CMakeFiles/gz-waves1.dir/Convert.cc.o
 .PHONY : Convert.cc.o
 
 Convert.i: Convert.cc.i
@@ -472,7 +242,7 @@ Convert.i: Convert.cc.i
 
 # target to preprocess a source file
 Convert.cc.i:
-	cd /home/ethan/autonomy-ws-25-26/src/asv_wave_sim/build/gz-waves1 && $(MAKE) $(MAKESILENT) -f src/CMakeFiles/gz-waves1.dir/build.make src/CMakeFiles/gz-waves1.dir/Convert.cc.i
+	cd /home/lorenzo/autonomy-ws-25-26/src/asv_wave_sim/build/gz-waves1 && $(MAKE) $(MAKESILENT) -f src/CMakeFiles/gz-waves1.dir/build.make src/CMakeFiles/gz-waves1.dir/Convert.cc.i
 .PHONY : Convert.cc.i
 
 Convert.s: Convert.cc.s
@@ -480,39 +250,15 @@ Convert.s: Convert.cc.s
 
 # target to generate assembly for a file
 Convert.cc.s:
-	cd /home/ethan/autonomy-ws-25-26/src/asv_wave_sim/build/gz-waves1 && $(MAKE) $(MAKESILENT) -f src/CMakeFiles/gz-waves1.dir/build.make src/CMakeFiles/gz-waves1.dir/Convert.cc.s
+	cd /home/lorenzo/autonomy-ws-25-26/src/asv_wave_sim/build/gz-waves1 && $(MAKE) $(MAKESILENT) -f src/CMakeFiles/gz-waves1.dir/build.make src/CMakeFiles/gz-waves1.dir/Convert.cc.s
 .PHONY : Convert.cc.s
-
-EigenFFTW_TEST.o: EigenFFTW_TEST.cc.o
-.PHONY : EigenFFTW_TEST.o
-
-# target to build an object file
-EigenFFTW_TEST.cc.o:
-	cd /home/ethan/autonomy-ws-25-26/src/asv_wave_sim/build/gz-waves1 && $(MAKE) $(MAKESILENT) -f src/CMakeFiles/UNIT_EigenFFTW_TEST.dir/build.make src/CMakeFiles/UNIT_EigenFFTW_TEST.dir/EigenFFTW_TEST.cc.o
-.PHONY : EigenFFTW_TEST.cc.o
-
-EigenFFTW_TEST.i: EigenFFTW_TEST.cc.i
-.PHONY : EigenFFTW_TEST.i
-
-# target to preprocess a source file
-EigenFFTW_TEST.cc.i:
-	cd /home/ethan/autonomy-ws-25-26/src/asv_wave_sim/build/gz-waves1 && $(MAKE) $(MAKESILENT) -f src/CMakeFiles/UNIT_EigenFFTW_TEST.dir/build.make src/CMakeFiles/UNIT_EigenFFTW_TEST.dir/EigenFFTW_TEST.cc.i
-.PHONY : EigenFFTW_TEST.cc.i
-
-EigenFFTW_TEST.s: EigenFFTW_TEST.cc.s
-.PHONY : EigenFFTW_TEST.s
-
-# target to generate assembly for a file
-EigenFFTW_TEST.cc.s:
-	cd /home/ethan/autonomy-ws-25-26/src/asv_wave_sim/build/gz-waves1 && $(MAKE) $(MAKESILENT) -f src/CMakeFiles/UNIT_EigenFFTW_TEST.dir/build.make src/CMakeFiles/UNIT_EigenFFTW_TEST.dir/EigenFFTW_TEST.cc.s
-.PHONY : EigenFFTW_TEST.cc.s
 
 Geometry.o: Geometry.cc.o
 .PHONY : Geometry.o
 
 # target to build an object file
 Geometry.cc.o:
-	cd /home/ethan/autonomy-ws-25-26/src/asv_wave_sim/build/gz-waves1 && $(MAKE) $(MAKESILENT) -f src/CMakeFiles/gz-waves1.dir/build.make src/CMakeFiles/gz-waves1.dir/Geometry.cc.o
+	cd /home/lorenzo/autonomy-ws-25-26/src/asv_wave_sim/build/gz-waves1 && $(MAKE) $(MAKESILENT) -f src/CMakeFiles/gz-waves1.dir/build.make src/CMakeFiles/gz-waves1.dir/Geometry.cc.o
 .PHONY : Geometry.cc.o
 
 Geometry.i: Geometry.cc.i
@@ -520,7 +266,7 @@ Geometry.i: Geometry.cc.i
 
 # target to preprocess a source file
 Geometry.cc.i:
-	cd /home/ethan/autonomy-ws-25-26/src/asv_wave_sim/build/gz-waves1 && $(MAKE) $(MAKESILENT) -f src/CMakeFiles/gz-waves1.dir/build.make src/CMakeFiles/gz-waves1.dir/Geometry.cc.i
+	cd /home/lorenzo/autonomy-ws-25-26/src/asv_wave_sim/build/gz-waves1 && $(MAKE) $(MAKESILENT) -f src/CMakeFiles/gz-waves1.dir/build.make src/CMakeFiles/gz-waves1.dir/Geometry.cc.i
 .PHONY : Geometry.cc.i
 
 Geometry.s: Geometry.cc.s
@@ -528,39 +274,15 @@ Geometry.s: Geometry.cc.s
 
 # target to generate assembly for a file
 Geometry.cc.s:
-	cd /home/ethan/autonomy-ws-25-26/src/asv_wave_sim/build/gz-waves1 && $(MAKE) $(MAKESILENT) -f src/CMakeFiles/gz-waves1.dir/build.make src/CMakeFiles/gz-waves1.dir/Geometry.cc.s
+	cd /home/lorenzo/autonomy-ws-25-26/src/asv_wave_sim/build/gz-waves1 && $(MAKE) $(MAKESILENT) -f src/CMakeFiles/gz-waves1.dir/build.make src/CMakeFiles/gz-waves1.dir/Geometry.cc.s
 .PHONY : Geometry.cc.s
-
-Geometry_TEST.o: Geometry_TEST.cc.o
-.PHONY : Geometry_TEST.o
-
-# target to build an object file
-Geometry_TEST.cc.o:
-	cd /home/ethan/autonomy-ws-25-26/src/asv_wave_sim/build/gz-waves1 && $(MAKE) $(MAKESILENT) -f src/CMakeFiles/UNIT_Geometry_TEST.dir/build.make src/CMakeFiles/UNIT_Geometry_TEST.dir/Geometry_TEST.cc.o
-.PHONY : Geometry_TEST.cc.o
-
-Geometry_TEST.i: Geometry_TEST.cc.i
-.PHONY : Geometry_TEST.i
-
-# target to preprocess a source file
-Geometry_TEST.cc.i:
-	cd /home/ethan/autonomy-ws-25-26/src/asv_wave_sim/build/gz-waves1 && $(MAKE) $(MAKESILENT) -f src/CMakeFiles/UNIT_Geometry_TEST.dir/build.make src/CMakeFiles/UNIT_Geometry_TEST.dir/Geometry_TEST.cc.i
-.PHONY : Geometry_TEST.cc.i
-
-Geometry_TEST.s: Geometry_TEST.cc.s
-.PHONY : Geometry_TEST.s
-
-# target to generate assembly for a file
-Geometry_TEST.cc.s:
-	cd /home/ethan/autonomy-ws-25-26/src/asv_wave_sim/build/gz-waves1 && $(MAKE) $(MAKESILENT) -f src/CMakeFiles/UNIT_Geometry_TEST.dir/build.make src/CMakeFiles/UNIT_Geometry_TEST.dir/Geometry_TEST.cc.s
-.PHONY : Geometry_TEST.cc.s
 
 Grid.o: Grid.cc.o
 .PHONY : Grid.o
 
 # target to build an object file
 Grid.cc.o:
-	cd /home/ethan/autonomy-ws-25-26/src/asv_wave_sim/build/gz-waves1 && $(MAKE) $(MAKESILENT) -f src/CMakeFiles/gz-waves1.dir/build.make src/CMakeFiles/gz-waves1.dir/Grid.cc.o
+	cd /home/lorenzo/autonomy-ws-25-26/src/asv_wave_sim/build/gz-waves1 && $(MAKE) $(MAKESILENT) -f src/CMakeFiles/gz-waves1.dir/build.make src/CMakeFiles/gz-waves1.dir/Grid.cc.o
 .PHONY : Grid.cc.o
 
 Grid.i: Grid.cc.i
@@ -568,7 +290,7 @@ Grid.i: Grid.cc.i
 
 # target to preprocess a source file
 Grid.cc.i:
-	cd /home/ethan/autonomy-ws-25-26/src/asv_wave_sim/build/gz-waves1 && $(MAKE) $(MAKESILENT) -f src/CMakeFiles/gz-waves1.dir/build.make src/CMakeFiles/gz-waves1.dir/Grid.cc.i
+	cd /home/lorenzo/autonomy-ws-25-26/src/asv_wave_sim/build/gz-waves1 && $(MAKE) $(MAKESILENT) -f src/CMakeFiles/gz-waves1.dir/build.make src/CMakeFiles/gz-waves1.dir/Grid.cc.i
 .PHONY : Grid.cc.i
 
 Grid.s: Grid.cc.s
@@ -576,39 +298,15 @@ Grid.s: Grid.cc.s
 
 # target to generate assembly for a file
 Grid.cc.s:
-	cd /home/ethan/autonomy-ws-25-26/src/asv_wave_sim/build/gz-waves1 && $(MAKE) $(MAKESILENT) -f src/CMakeFiles/gz-waves1.dir/build.make src/CMakeFiles/gz-waves1.dir/Grid.cc.s
+	cd /home/lorenzo/autonomy-ws-25-26/src/asv_wave_sim/build/gz-waves1 && $(MAKE) $(MAKESILENT) -f src/CMakeFiles/gz-waves1.dir/build.make src/CMakeFiles/gz-waves1.dir/Grid.cc.s
 .PHONY : Grid.cc.s
-
-Grid_TEST.o: Grid_TEST.cc.o
-.PHONY : Grid_TEST.o
-
-# target to build an object file
-Grid_TEST.cc.o:
-	cd /home/ethan/autonomy-ws-25-26/src/asv_wave_sim/build/gz-waves1 && $(MAKE) $(MAKESILENT) -f src/CMakeFiles/UNIT_Grid_TEST.dir/build.make src/CMakeFiles/UNIT_Grid_TEST.dir/Grid_TEST.cc.o
-.PHONY : Grid_TEST.cc.o
-
-Grid_TEST.i: Grid_TEST.cc.i
-.PHONY : Grid_TEST.i
-
-# target to preprocess a source file
-Grid_TEST.cc.i:
-	cd /home/ethan/autonomy-ws-25-26/src/asv_wave_sim/build/gz-waves1 && $(MAKE) $(MAKESILENT) -f src/CMakeFiles/UNIT_Grid_TEST.dir/build.make src/CMakeFiles/UNIT_Grid_TEST.dir/Grid_TEST.cc.i
-.PHONY : Grid_TEST.cc.i
-
-Grid_TEST.s: Grid_TEST.cc.s
-.PHONY : Grid_TEST.s
-
-# target to generate assembly for a file
-Grid_TEST.cc.s:
-	cd /home/ethan/autonomy-ws-25-26/src/asv_wave_sim/build/gz-waves1 && $(MAKE) $(MAKESILENT) -f src/CMakeFiles/UNIT_Grid_TEST.dir/build.make src/CMakeFiles/UNIT_Grid_TEST.dir/Grid_TEST.cc.s
-.PHONY : Grid_TEST.cc.s
 
 LinearRandomFFTWaveSimulation.o: LinearRandomFFTWaveSimulation.cc.o
 .PHONY : LinearRandomFFTWaveSimulation.o
 
 # target to build an object file
 LinearRandomFFTWaveSimulation.cc.o:
-	cd /home/ethan/autonomy-ws-25-26/src/asv_wave_sim/build/gz-waves1 && $(MAKE) $(MAKESILENT) -f src/CMakeFiles/gz-waves1.dir/build.make src/CMakeFiles/gz-waves1.dir/LinearRandomFFTWaveSimulation.cc.o
+	cd /home/lorenzo/autonomy-ws-25-26/src/asv_wave_sim/build/gz-waves1 && $(MAKE) $(MAKESILENT) -f src/CMakeFiles/gz-waves1.dir/build.make src/CMakeFiles/gz-waves1.dir/LinearRandomFFTWaveSimulation.cc.o
 .PHONY : LinearRandomFFTWaveSimulation.cc.o
 
 LinearRandomFFTWaveSimulation.i: LinearRandomFFTWaveSimulation.cc.i
@@ -616,7 +314,7 @@ LinearRandomFFTWaveSimulation.i: LinearRandomFFTWaveSimulation.cc.i
 
 # target to preprocess a source file
 LinearRandomFFTWaveSimulation.cc.i:
-	cd /home/ethan/autonomy-ws-25-26/src/asv_wave_sim/build/gz-waves1 && $(MAKE) $(MAKESILENT) -f src/CMakeFiles/gz-waves1.dir/build.make src/CMakeFiles/gz-waves1.dir/LinearRandomFFTWaveSimulation.cc.i
+	cd /home/lorenzo/autonomy-ws-25-26/src/asv_wave_sim/build/gz-waves1 && $(MAKE) $(MAKESILENT) -f src/CMakeFiles/gz-waves1.dir/build.make src/CMakeFiles/gz-waves1.dir/LinearRandomFFTWaveSimulation.cc.i
 .PHONY : LinearRandomFFTWaveSimulation.cc.i
 
 LinearRandomFFTWaveSimulation.s: LinearRandomFFTWaveSimulation.cc.s
@@ -624,7 +322,7 @@ LinearRandomFFTWaveSimulation.s: LinearRandomFFTWaveSimulation.cc.s
 
 # target to generate assembly for a file
 LinearRandomFFTWaveSimulation.cc.s:
-	cd /home/ethan/autonomy-ws-25-26/src/asv_wave_sim/build/gz-waves1 && $(MAKE) $(MAKESILENT) -f src/CMakeFiles/gz-waves1.dir/build.make src/CMakeFiles/gz-waves1.dir/LinearRandomFFTWaveSimulation.cc.s
+	cd /home/lorenzo/autonomy-ws-25-26/src/asv_wave_sim/build/gz-waves1 && $(MAKE) $(MAKESILENT) -f src/CMakeFiles/gz-waves1.dir/build.make src/CMakeFiles/gz-waves1.dir/LinearRandomFFTWaveSimulation.cc.s
 .PHONY : LinearRandomFFTWaveSimulation.cc.s
 
 LinearRandomFFTWaveSimulationRef.o: LinearRandomFFTWaveSimulationRef.cc.o
@@ -632,7 +330,7 @@ LinearRandomFFTWaveSimulationRef.o: LinearRandomFFTWaveSimulationRef.cc.o
 
 # target to build an object file
 LinearRandomFFTWaveSimulationRef.cc.o:
-	cd /home/ethan/autonomy-ws-25-26/src/asv_wave_sim/build/gz-waves1 && $(MAKE) $(MAKESILENT) -f src/CMakeFiles/gz-waves1.dir/build.make src/CMakeFiles/gz-waves1.dir/LinearRandomFFTWaveSimulationRef.cc.o
+	cd /home/lorenzo/autonomy-ws-25-26/src/asv_wave_sim/build/gz-waves1 && $(MAKE) $(MAKESILENT) -f src/CMakeFiles/gz-waves1.dir/build.make src/CMakeFiles/gz-waves1.dir/LinearRandomFFTWaveSimulationRef.cc.o
 .PHONY : LinearRandomFFTWaveSimulationRef.cc.o
 
 LinearRandomFFTWaveSimulationRef.i: LinearRandomFFTWaveSimulationRef.cc.i
@@ -640,7 +338,7 @@ LinearRandomFFTWaveSimulationRef.i: LinearRandomFFTWaveSimulationRef.cc.i
 
 # target to preprocess a source file
 LinearRandomFFTWaveSimulationRef.cc.i:
-	cd /home/ethan/autonomy-ws-25-26/src/asv_wave_sim/build/gz-waves1 && $(MAKE) $(MAKESILENT) -f src/CMakeFiles/gz-waves1.dir/build.make src/CMakeFiles/gz-waves1.dir/LinearRandomFFTWaveSimulationRef.cc.i
+	cd /home/lorenzo/autonomy-ws-25-26/src/asv_wave_sim/build/gz-waves1 && $(MAKE) $(MAKESILENT) -f src/CMakeFiles/gz-waves1.dir/build.make src/CMakeFiles/gz-waves1.dir/LinearRandomFFTWaveSimulationRef.cc.i
 .PHONY : LinearRandomFFTWaveSimulationRef.cc.i
 
 LinearRandomFFTWaveSimulationRef.s: LinearRandomFFTWaveSimulationRef.cc.s
@@ -648,39 +346,15 @@ LinearRandomFFTWaveSimulationRef.s: LinearRandomFFTWaveSimulationRef.cc.s
 
 # target to generate assembly for a file
 LinearRandomFFTWaveSimulationRef.cc.s:
-	cd /home/ethan/autonomy-ws-25-26/src/asv_wave_sim/build/gz-waves1 && $(MAKE) $(MAKESILENT) -f src/CMakeFiles/gz-waves1.dir/build.make src/CMakeFiles/gz-waves1.dir/LinearRandomFFTWaveSimulationRef.cc.s
+	cd /home/lorenzo/autonomy-ws-25-26/src/asv_wave_sim/build/gz-waves1 && $(MAKE) $(MAKESILENT) -f src/CMakeFiles/gz-waves1.dir/build.make src/CMakeFiles/gz-waves1.dir/LinearRandomFFTWaveSimulationRef.cc.s
 .PHONY : LinearRandomFFTWaveSimulationRef.cc.s
-
-LinearRandomFFTWaveSimulation_TEST.o: LinearRandomFFTWaveSimulation_TEST.cc.o
-.PHONY : LinearRandomFFTWaveSimulation_TEST.o
-
-# target to build an object file
-LinearRandomFFTWaveSimulation_TEST.cc.o:
-	cd /home/ethan/autonomy-ws-25-26/src/asv_wave_sim/build/gz-waves1 && $(MAKE) $(MAKESILENT) -f src/CMakeFiles/UNIT_LinearRandomFFTWaveSimulation_TEST.dir/build.make src/CMakeFiles/UNIT_LinearRandomFFTWaveSimulation_TEST.dir/LinearRandomFFTWaveSimulation_TEST.cc.o
-.PHONY : LinearRandomFFTWaveSimulation_TEST.cc.o
-
-LinearRandomFFTWaveSimulation_TEST.i: LinearRandomFFTWaveSimulation_TEST.cc.i
-.PHONY : LinearRandomFFTWaveSimulation_TEST.i
-
-# target to preprocess a source file
-LinearRandomFFTWaveSimulation_TEST.cc.i:
-	cd /home/ethan/autonomy-ws-25-26/src/asv_wave_sim/build/gz-waves1 && $(MAKE) $(MAKESILENT) -f src/CMakeFiles/UNIT_LinearRandomFFTWaveSimulation_TEST.dir/build.make src/CMakeFiles/UNIT_LinearRandomFFTWaveSimulation_TEST.dir/LinearRandomFFTWaveSimulation_TEST.cc.i
-.PHONY : LinearRandomFFTWaveSimulation_TEST.cc.i
-
-LinearRandomFFTWaveSimulation_TEST.s: LinearRandomFFTWaveSimulation_TEST.cc.s
-.PHONY : LinearRandomFFTWaveSimulation_TEST.s
-
-# target to generate assembly for a file
-LinearRandomFFTWaveSimulation_TEST.cc.s:
-	cd /home/ethan/autonomy-ws-25-26/src/asv_wave_sim/build/gz-waves1 && $(MAKE) $(MAKESILENT) -f src/CMakeFiles/UNIT_LinearRandomFFTWaveSimulation_TEST.dir/build.make src/CMakeFiles/UNIT_LinearRandomFFTWaveSimulation_TEST.dir/LinearRandomFFTWaveSimulation_TEST.cc.s
-.PHONY : LinearRandomFFTWaveSimulation_TEST.cc.s
 
 LinearRandomWaveSimulation.o: LinearRandomWaveSimulation.cc.o
 .PHONY : LinearRandomWaveSimulation.o
 
 # target to build an object file
 LinearRandomWaveSimulation.cc.o:
-	cd /home/ethan/autonomy-ws-25-26/src/asv_wave_sim/build/gz-waves1 && $(MAKE) $(MAKESILENT) -f src/CMakeFiles/gz-waves1.dir/build.make src/CMakeFiles/gz-waves1.dir/LinearRandomWaveSimulation.cc.o
+	cd /home/lorenzo/autonomy-ws-25-26/src/asv_wave_sim/build/gz-waves1 && $(MAKE) $(MAKESILENT) -f src/CMakeFiles/gz-waves1.dir/build.make src/CMakeFiles/gz-waves1.dir/LinearRandomWaveSimulation.cc.o
 .PHONY : LinearRandomWaveSimulation.cc.o
 
 LinearRandomWaveSimulation.i: LinearRandomWaveSimulation.cc.i
@@ -688,7 +362,7 @@ LinearRandomWaveSimulation.i: LinearRandomWaveSimulation.cc.i
 
 # target to preprocess a source file
 LinearRandomWaveSimulation.cc.i:
-	cd /home/ethan/autonomy-ws-25-26/src/asv_wave_sim/build/gz-waves1 && $(MAKE) $(MAKESILENT) -f src/CMakeFiles/gz-waves1.dir/build.make src/CMakeFiles/gz-waves1.dir/LinearRandomWaveSimulation.cc.i
+	cd /home/lorenzo/autonomy-ws-25-26/src/asv_wave_sim/build/gz-waves1 && $(MAKE) $(MAKESILENT) -f src/CMakeFiles/gz-waves1.dir/build.make src/CMakeFiles/gz-waves1.dir/LinearRandomWaveSimulation.cc.i
 .PHONY : LinearRandomWaveSimulation.cc.i
 
 LinearRandomWaveSimulation.s: LinearRandomWaveSimulation.cc.s
@@ -696,7 +370,7 @@ LinearRandomWaveSimulation.s: LinearRandomWaveSimulation.cc.s
 
 # target to generate assembly for a file
 LinearRandomWaveSimulation.cc.s:
-	cd /home/ethan/autonomy-ws-25-26/src/asv_wave_sim/build/gz-waves1 && $(MAKE) $(MAKESILENT) -f src/CMakeFiles/gz-waves1.dir/build.make src/CMakeFiles/gz-waves1.dir/LinearRandomWaveSimulation.cc.s
+	cd /home/lorenzo/autonomy-ws-25-26/src/asv_wave_sim/build/gz-waves1 && $(MAKE) $(MAKESILENT) -f src/CMakeFiles/gz-waves1.dir/build.make src/CMakeFiles/gz-waves1.dir/LinearRandomWaveSimulation.cc.s
 .PHONY : LinearRandomWaveSimulation.cc.s
 
 LinearRegularWaveSimulation.o: LinearRegularWaveSimulation.cc.o
@@ -704,7 +378,7 @@ LinearRegularWaveSimulation.o: LinearRegularWaveSimulation.cc.o
 
 # target to build an object file
 LinearRegularWaveSimulation.cc.o:
-	cd /home/ethan/autonomy-ws-25-26/src/asv_wave_sim/build/gz-waves1 && $(MAKE) $(MAKESILENT) -f src/CMakeFiles/gz-waves1.dir/build.make src/CMakeFiles/gz-waves1.dir/LinearRegularWaveSimulation.cc.o
+	cd /home/lorenzo/autonomy-ws-25-26/src/asv_wave_sim/build/gz-waves1 && $(MAKE) $(MAKESILENT) -f src/CMakeFiles/gz-waves1.dir/build.make src/CMakeFiles/gz-waves1.dir/LinearRegularWaveSimulation.cc.o
 .PHONY : LinearRegularWaveSimulation.cc.o
 
 LinearRegularWaveSimulation.i: LinearRegularWaveSimulation.cc.i
@@ -712,7 +386,7 @@ LinearRegularWaveSimulation.i: LinearRegularWaveSimulation.cc.i
 
 # target to preprocess a source file
 LinearRegularWaveSimulation.cc.i:
-	cd /home/ethan/autonomy-ws-25-26/src/asv_wave_sim/build/gz-waves1 && $(MAKE) $(MAKESILENT) -f src/CMakeFiles/gz-waves1.dir/build.make src/CMakeFiles/gz-waves1.dir/LinearRegularWaveSimulation.cc.i
+	cd /home/lorenzo/autonomy-ws-25-26/src/asv_wave_sim/build/gz-waves1 && $(MAKE) $(MAKESILENT) -f src/CMakeFiles/gz-waves1.dir/build.make src/CMakeFiles/gz-waves1.dir/LinearRegularWaveSimulation.cc.i
 .PHONY : LinearRegularWaveSimulation.cc.i
 
 LinearRegularWaveSimulation.s: LinearRegularWaveSimulation.cc.s
@@ -720,39 +394,15 @@ LinearRegularWaveSimulation.s: LinearRegularWaveSimulation.cc.s
 
 # target to generate assembly for a file
 LinearRegularWaveSimulation.cc.s:
-	cd /home/ethan/autonomy-ws-25-26/src/asv_wave_sim/build/gz-waves1 && $(MAKE) $(MAKESILENT) -f src/CMakeFiles/gz-waves1.dir/build.make src/CMakeFiles/gz-waves1.dir/LinearRegularWaveSimulation.cc.s
+	cd /home/lorenzo/autonomy-ws-25-26/src/asv_wave_sim/build/gz-waves1 && $(MAKE) $(MAKESILENT) -f src/CMakeFiles/gz-waves1.dir/build.make src/CMakeFiles/gz-waves1.dir/LinearRegularWaveSimulation.cc.s
 .PHONY : LinearRegularWaveSimulation.cc.s
-
-LinearRegularWaveSimulation_TEST.o: LinearRegularWaveSimulation_TEST.cc.o
-.PHONY : LinearRegularWaveSimulation_TEST.o
-
-# target to build an object file
-LinearRegularWaveSimulation_TEST.cc.o:
-	cd /home/ethan/autonomy-ws-25-26/src/asv_wave_sim/build/gz-waves1 && $(MAKE) $(MAKESILENT) -f src/CMakeFiles/UNIT_LinearRegularWaveSimulation_TEST.dir/build.make src/CMakeFiles/UNIT_LinearRegularWaveSimulation_TEST.dir/LinearRegularWaveSimulation_TEST.cc.o
-.PHONY : LinearRegularWaveSimulation_TEST.cc.o
-
-LinearRegularWaveSimulation_TEST.i: LinearRegularWaveSimulation_TEST.cc.i
-.PHONY : LinearRegularWaveSimulation_TEST.i
-
-# target to preprocess a source file
-LinearRegularWaveSimulation_TEST.cc.i:
-	cd /home/ethan/autonomy-ws-25-26/src/asv_wave_sim/build/gz-waves1 && $(MAKE) $(MAKESILENT) -f src/CMakeFiles/UNIT_LinearRegularWaveSimulation_TEST.dir/build.make src/CMakeFiles/UNIT_LinearRegularWaveSimulation_TEST.dir/LinearRegularWaveSimulation_TEST.cc.i
-.PHONY : LinearRegularWaveSimulation_TEST.cc.i
-
-LinearRegularWaveSimulation_TEST.s: LinearRegularWaveSimulation_TEST.cc.s
-.PHONY : LinearRegularWaveSimulation_TEST.s
-
-# target to generate assembly for a file
-LinearRegularWaveSimulation_TEST.cc.s:
-	cd /home/ethan/autonomy-ws-25-26/src/asv_wave_sim/build/gz-waves1 && $(MAKE) $(MAKESILENT) -f src/CMakeFiles/UNIT_LinearRegularWaveSimulation_TEST.dir/build.make src/CMakeFiles/UNIT_LinearRegularWaveSimulation_TEST.dir/LinearRegularWaveSimulation_TEST.cc.s
-.PHONY : LinearRegularWaveSimulation_TEST.cc.s
 
 MeshTools.o: MeshTools.cc.o
 .PHONY : MeshTools.o
 
 # target to build an object file
 MeshTools.cc.o:
-	cd /home/ethan/autonomy-ws-25-26/src/asv_wave_sim/build/gz-waves1 && $(MAKE) $(MAKESILENT) -f src/CMakeFiles/gz-waves1.dir/build.make src/CMakeFiles/gz-waves1.dir/MeshTools.cc.o
+	cd /home/lorenzo/autonomy-ws-25-26/src/asv_wave_sim/build/gz-waves1 && $(MAKE) $(MAKESILENT) -f src/CMakeFiles/gz-waves1.dir/build.make src/CMakeFiles/gz-waves1.dir/MeshTools.cc.o
 .PHONY : MeshTools.cc.o
 
 MeshTools.i: MeshTools.cc.i
@@ -760,7 +410,7 @@ MeshTools.i: MeshTools.cc.i
 
 # target to preprocess a source file
 MeshTools.cc.i:
-	cd /home/ethan/autonomy-ws-25-26/src/asv_wave_sim/build/gz-waves1 && $(MAKE) $(MAKESILENT) -f src/CMakeFiles/gz-waves1.dir/build.make src/CMakeFiles/gz-waves1.dir/MeshTools.cc.i
+	cd /home/lorenzo/autonomy-ws-25-26/src/asv_wave_sim/build/gz-waves1 && $(MAKE) $(MAKESILENT) -f src/CMakeFiles/gz-waves1.dir/build.make src/CMakeFiles/gz-waves1.dir/MeshTools.cc.i
 .PHONY : MeshTools.cc.i
 
 MeshTools.s: MeshTools.cc.s
@@ -768,39 +418,15 @@ MeshTools.s: MeshTools.cc.s
 
 # target to generate assembly for a file
 MeshTools.cc.s:
-	cd /home/ethan/autonomy-ws-25-26/src/asv_wave_sim/build/gz-waves1 && $(MAKE) $(MAKESILENT) -f src/CMakeFiles/gz-waves1.dir/build.make src/CMakeFiles/gz-waves1.dir/MeshTools.cc.s
+	cd /home/lorenzo/autonomy-ws-25-26/src/asv_wave_sim/build/gz-waves1 && $(MAKE) $(MAKESILENT) -f src/CMakeFiles/gz-waves1.dir/build.make src/CMakeFiles/gz-waves1.dir/MeshTools.cc.s
 .PHONY : MeshTools.cc.s
-
-MeshTools_TEST.o: MeshTools_TEST.cc.o
-.PHONY : MeshTools_TEST.o
-
-# target to build an object file
-MeshTools_TEST.cc.o:
-	cd /home/ethan/autonomy-ws-25-26/src/asv_wave_sim/build/gz-waves1 && $(MAKE) $(MAKESILENT) -f src/CMakeFiles/UNIT_MeshTools_TEST.dir/build.make src/CMakeFiles/UNIT_MeshTools_TEST.dir/MeshTools_TEST.cc.o
-.PHONY : MeshTools_TEST.cc.o
-
-MeshTools_TEST.i: MeshTools_TEST.cc.i
-.PHONY : MeshTools_TEST.i
-
-# target to preprocess a source file
-MeshTools_TEST.cc.i:
-	cd /home/ethan/autonomy-ws-25-26/src/asv_wave_sim/build/gz-waves1 && $(MAKE) $(MAKESILENT) -f src/CMakeFiles/UNIT_MeshTools_TEST.dir/build.make src/CMakeFiles/UNIT_MeshTools_TEST.dir/MeshTools_TEST.cc.i
-.PHONY : MeshTools_TEST.cc.i
-
-MeshTools_TEST.s: MeshTools_TEST.cc.s
-.PHONY : MeshTools_TEST.s
-
-# target to generate assembly for a file
-MeshTools_TEST.cc.s:
-	cd /home/ethan/autonomy-ws-25-26/src/asv_wave_sim/build/gz-waves1 && $(MAKE) $(MAKESILENT) -f src/CMakeFiles/UNIT_MeshTools_TEST.dir/build.make src/CMakeFiles/UNIT_MeshTools_TEST.dir/MeshTools_TEST.cc.s
-.PHONY : MeshTools_TEST.cc.s
 
 OceanTile.o: OceanTile.cc.o
 .PHONY : OceanTile.o
 
 # target to build an object file
 OceanTile.cc.o:
-	cd /home/ethan/autonomy-ws-25-26/src/asv_wave_sim/build/gz-waves1 && $(MAKE) $(MAKESILENT) -f src/CMakeFiles/gz-waves1.dir/build.make src/CMakeFiles/gz-waves1.dir/OceanTile.cc.o
+	cd /home/lorenzo/autonomy-ws-25-26/src/asv_wave_sim/build/gz-waves1 && $(MAKE) $(MAKESILENT) -f src/CMakeFiles/gz-waves1.dir/build.make src/CMakeFiles/gz-waves1.dir/OceanTile.cc.o
 .PHONY : OceanTile.cc.o
 
 OceanTile.i: OceanTile.cc.i
@@ -808,7 +434,7 @@ OceanTile.i: OceanTile.cc.i
 
 # target to preprocess a source file
 OceanTile.cc.i:
-	cd /home/ethan/autonomy-ws-25-26/src/asv_wave_sim/build/gz-waves1 && $(MAKE) $(MAKESILENT) -f src/CMakeFiles/gz-waves1.dir/build.make src/CMakeFiles/gz-waves1.dir/OceanTile.cc.i
+	cd /home/lorenzo/autonomy-ws-25-26/src/asv_wave_sim/build/gz-waves1 && $(MAKE) $(MAKESILENT) -f src/CMakeFiles/gz-waves1.dir/build.make src/CMakeFiles/gz-waves1.dir/OceanTile.cc.i
 .PHONY : OceanTile.cc.i
 
 OceanTile.s: OceanTile.cc.s
@@ -816,7 +442,7 @@ OceanTile.s: OceanTile.cc.s
 
 # target to generate assembly for a file
 OceanTile.cc.s:
-	cd /home/ethan/autonomy-ws-25-26/src/asv_wave_sim/build/gz-waves1 && $(MAKE) $(MAKESILENT) -f src/CMakeFiles/gz-waves1.dir/build.make src/CMakeFiles/gz-waves1.dir/OceanTile.cc.s
+	cd /home/lorenzo/autonomy-ws-25-26/src/asv_wave_sim/build/gz-waves1 && $(MAKE) $(MAKESILENT) -f src/CMakeFiles/gz-waves1.dir/build.make src/CMakeFiles/gz-waves1.dir/OceanTile.cc.s
 .PHONY : OceanTile.cc.s
 
 PhysicalConstants.o: PhysicalConstants.cc.o
@@ -824,7 +450,7 @@ PhysicalConstants.o: PhysicalConstants.cc.o
 
 # target to build an object file
 PhysicalConstants.cc.o:
-	cd /home/ethan/autonomy-ws-25-26/src/asv_wave_sim/build/gz-waves1 && $(MAKE) $(MAKESILENT) -f src/CMakeFiles/gz-waves1.dir/build.make src/CMakeFiles/gz-waves1.dir/PhysicalConstants.cc.o
+	cd /home/lorenzo/autonomy-ws-25-26/src/asv_wave_sim/build/gz-waves1 && $(MAKE) $(MAKESILENT) -f src/CMakeFiles/gz-waves1.dir/build.make src/CMakeFiles/gz-waves1.dir/PhysicalConstants.cc.o
 .PHONY : PhysicalConstants.cc.o
 
 PhysicalConstants.i: PhysicalConstants.cc.i
@@ -832,7 +458,7 @@ PhysicalConstants.i: PhysicalConstants.cc.i
 
 # target to preprocess a source file
 PhysicalConstants.cc.i:
-	cd /home/ethan/autonomy-ws-25-26/src/asv_wave_sim/build/gz-waves1 && $(MAKE) $(MAKESILENT) -f src/CMakeFiles/gz-waves1.dir/build.make src/CMakeFiles/gz-waves1.dir/PhysicalConstants.cc.i
+	cd /home/lorenzo/autonomy-ws-25-26/src/asv_wave_sim/build/gz-waves1 && $(MAKE) $(MAKESILENT) -f src/CMakeFiles/gz-waves1.dir/build.make src/CMakeFiles/gz-waves1.dir/PhysicalConstants.cc.i
 .PHONY : PhysicalConstants.cc.i
 
 PhysicalConstants.s: PhysicalConstants.cc.s
@@ -840,7 +466,7 @@ PhysicalConstants.s: PhysicalConstants.cc.s
 
 # target to generate assembly for a file
 PhysicalConstants.cc.s:
-	cd /home/ethan/autonomy-ws-25-26/src/asv_wave_sim/build/gz-waves1 && $(MAKE) $(MAKESILENT) -f src/CMakeFiles/gz-waves1.dir/build.make src/CMakeFiles/gz-waves1.dir/PhysicalConstants.cc.s
+	cd /home/lorenzo/autonomy-ws-25-26/src/asv_wave_sim/build/gz-waves1 && $(MAKE) $(MAKESILENT) -f src/CMakeFiles/gz-waves1.dir/build.make src/CMakeFiles/gz-waves1.dir/PhysicalConstants.cc.s
 .PHONY : PhysicalConstants.cc.s
 
 Physics.o: Physics.cc.o
@@ -848,7 +474,7 @@ Physics.o: Physics.cc.o
 
 # target to build an object file
 Physics.cc.o:
-	cd /home/ethan/autonomy-ws-25-26/src/asv_wave_sim/build/gz-waves1 && $(MAKE) $(MAKESILENT) -f src/CMakeFiles/gz-waves1.dir/build.make src/CMakeFiles/gz-waves1.dir/Physics.cc.o
+	cd /home/lorenzo/autonomy-ws-25-26/src/asv_wave_sim/build/gz-waves1 && $(MAKE) $(MAKESILENT) -f src/CMakeFiles/gz-waves1.dir/build.make src/CMakeFiles/gz-waves1.dir/Physics.cc.o
 .PHONY : Physics.cc.o
 
 Physics.i: Physics.cc.i
@@ -856,7 +482,7 @@ Physics.i: Physics.cc.i
 
 # target to preprocess a source file
 Physics.cc.i:
-	cd /home/ethan/autonomy-ws-25-26/src/asv_wave_sim/build/gz-waves1 && $(MAKE) $(MAKESILENT) -f src/CMakeFiles/gz-waves1.dir/build.make src/CMakeFiles/gz-waves1.dir/Physics.cc.i
+	cd /home/lorenzo/autonomy-ws-25-26/src/asv_wave_sim/build/gz-waves1 && $(MAKE) $(MAKESILENT) -f src/CMakeFiles/gz-waves1.dir/build.make src/CMakeFiles/gz-waves1.dir/Physics.cc.i
 .PHONY : Physics.cc.i
 
 Physics.s: Physics.cc.s
@@ -864,39 +490,15 @@ Physics.s: Physics.cc.s
 
 # target to generate assembly for a file
 Physics.cc.s:
-	cd /home/ethan/autonomy-ws-25-26/src/asv_wave_sim/build/gz-waves1 && $(MAKE) $(MAKESILENT) -f src/CMakeFiles/gz-waves1.dir/build.make src/CMakeFiles/gz-waves1.dir/Physics.cc.s
+	cd /home/lorenzo/autonomy-ws-25-26/src/asv_wave_sim/build/gz-waves1 && $(MAKE) $(MAKESILENT) -f src/CMakeFiles/gz-waves1.dir/build.make src/CMakeFiles/gz-waves1.dir/Physics.cc.s
 .PHONY : Physics.cc.s
-
-Physics_TEST.o: Physics_TEST.cc.o
-.PHONY : Physics_TEST.o
-
-# target to build an object file
-Physics_TEST.cc.o:
-	cd /home/ethan/autonomy-ws-25-26/src/asv_wave_sim/build/gz-waves1 && $(MAKE) $(MAKESILENT) -f src/CMakeFiles/UNIT_Physics_TEST.dir/build.make src/CMakeFiles/UNIT_Physics_TEST.dir/Physics_TEST.cc.o
-.PHONY : Physics_TEST.cc.o
-
-Physics_TEST.i: Physics_TEST.cc.i
-.PHONY : Physics_TEST.i
-
-# target to preprocess a source file
-Physics_TEST.cc.i:
-	cd /home/ethan/autonomy-ws-25-26/src/asv_wave_sim/build/gz-waves1 && $(MAKE) $(MAKESILENT) -f src/CMakeFiles/UNIT_Physics_TEST.dir/build.make src/CMakeFiles/UNIT_Physics_TEST.dir/Physics_TEST.cc.i
-.PHONY : Physics_TEST.cc.i
-
-Physics_TEST.s: Physics_TEST.cc.s
-.PHONY : Physics_TEST.s
-
-# target to generate assembly for a file
-Physics_TEST.cc.s:
-	cd /home/ethan/autonomy-ws-25-26/src/asv_wave_sim/build/gz-waves1 && $(MAKE) $(MAKESILENT) -f src/CMakeFiles/UNIT_Physics_TEST.dir/build.make src/CMakeFiles/UNIT_Physics_TEST.dir/Physics_TEST.cc.s
-.PHONY : Physics_TEST.cc.s
 
 SubMeshWithTangents.o: SubMeshWithTangents.cc.o
 .PHONY : SubMeshWithTangents.o
 
 # target to build an object file
 SubMeshWithTangents.cc.o:
-	cd /home/ethan/autonomy-ws-25-26/src/asv_wave_sim/build/gz-waves1 && $(MAKE) $(MAKESILENT) -f src/CMakeFiles/gz-waves1.dir/build.make src/CMakeFiles/gz-waves1.dir/SubMeshWithTangents.cc.o
+	cd /home/lorenzo/autonomy-ws-25-26/src/asv_wave_sim/build/gz-waves1 && $(MAKE) $(MAKESILENT) -f src/CMakeFiles/gz-waves1.dir/build.make src/CMakeFiles/gz-waves1.dir/SubMeshWithTangents.cc.o
 .PHONY : SubMeshWithTangents.cc.o
 
 SubMeshWithTangents.i: SubMeshWithTangents.cc.i
@@ -904,7 +506,7 @@ SubMeshWithTangents.i: SubMeshWithTangents.cc.i
 
 # target to preprocess a source file
 SubMeshWithTangents.cc.i:
-	cd /home/ethan/autonomy-ws-25-26/src/asv_wave_sim/build/gz-waves1 && $(MAKE) $(MAKESILENT) -f src/CMakeFiles/gz-waves1.dir/build.make src/CMakeFiles/gz-waves1.dir/SubMeshWithTangents.cc.i
+	cd /home/lorenzo/autonomy-ws-25-26/src/asv_wave_sim/build/gz-waves1 && $(MAKE) $(MAKESILENT) -f src/CMakeFiles/gz-waves1.dir/build.make src/CMakeFiles/gz-waves1.dir/SubMeshWithTangents.cc.i
 .PHONY : SubMeshWithTangents.cc.i
 
 SubMeshWithTangents.s: SubMeshWithTangents.cc.s
@@ -912,7 +514,7 @@ SubMeshWithTangents.s: SubMeshWithTangents.cc.s
 
 # target to generate assembly for a file
 SubMeshWithTangents.cc.s:
-	cd /home/ethan/autonomy-ws-25-26/src/asv_wave_sim/build/gz-waves1 && $(MAKE) $(MAKESILENT) -f src/CMakeFiles/gz-waves1.dir/build.make src/CMakeFiles/gz-waves1.dir/SubMeshWithTangents.cc.s
+	cd /home/lorenzo/autonomy-ws-25-26/src/asv_wave_sim/build/gz-waves1 && $(MAKE) $(MAKESILENT) -f src/CMakeFiles/gz-waves1.dir/build.make src/CMakeFiles/gz-waves1.dir/SubMeshWithTangents.cc.s
 .PHONY : SubMeshWithTangents.cc.s
 
 TriangulatedGrid.o: TriangulatedGrid.cc.o
@@ -920,7 +522,7 @@ TriangulatedGrid.o: TriangulatedGrid.cc.o
 
 # target to build an object file
 TriangulatedGrid.cc.o:
-	cd /home/ethan/autonomy-ws-25-26/src/asv_wave_sim/build/gz-waves1 && $(MAKE) $(MAKESILENT) -f src/CMakeFiles/gz-waves1.dir/build.make src/CMakeFiles/gz-waves1.dir/TriangulatedGrid.cc.o
+	cd /home/lorenzo/autonomy-ws-25-26/src/asv_wave_sim/build/gz-waves1 && $(MAKE) $(MAKESILENT) -f src/CMakeFiles/gz-waves1.dir/build.make src/CMakeFiles/gz-waves1.dir/TriangulatedGrid.cc.o
 .PHONY : TriangulatedGrid.cc.o
 
 TriangulatedGrid.i: TriangulatedGrid.cc.i
@@ -928,7 +530,7 @@ TriangulatedGrid.i: TriangulatedGrid.cc.i
 
 # target to preprocess a source file
 TriangulatedGrid.cc.i:
-	cd /home/ethan/autonomy-ws-25-26/src/asv_wave_sim/build/gz-waves1 && $(MAKE) $(MAKESILENT) -f src/CMakeFiles/gz-waves1.dir/build.make src/CMakeFiles/gz-waves1.dir/TriangulatedGrid.cc.i
+	cd /home/lorenzo/autonomy-ws-25-26/src/asv_wave_sim/build/gz-waves1 && $(MAKE) $(MAKESILENT) -f src/CMakeFiles/gz-waves1.dir/build.make src/CMakeFiles/gz-waves1.dir/TriangulatedGrid.cc.i
 .PHONY : TriangulatedGrid.cc.i
 
 TriangulatedGrid.s: TriangulatedGrid.cc.s
@@ -936,39 +538,15 @@ TriangulatedGrid.s: TriangulatedGrid.cc.s
 
 # target to generate assembly for a file
 TriangulatedGrid.cc.s:
-	cd /home/ethan/autonomy-ws-25-26/src/asv_wave_sim/build/gz-waves1 && $(MAKE) $(MAKESILENT) -f src/CMakeFiles/gz-waves1.dir/build.make src/CMakeFiles/gz-waves1.dir/TriangulatedGrid.cc.s
+	cd /home/lorenzo/autonomy-ws-25-26/src/asv_wave_sim/build/gz-waves1 && $(MAKE) $(MAKESILENT) -f src/CMakeFiles/gz-waves1.dir/build.make src/CMakeFiles/gz-waves1.dir/TriangulatedGrid.cc.s
 .PHONY : TriangulatedGrid.cc.s
-
-TriangulatedGrid_TEST.o: TriangulatedGrid_TEST.cc.o
-.PHONY : TriangulatedGrid_TEST.o
-
-# target to build an object file
-TriangulatedGrid_TEST.cc.o:
-	cd /home/ethan/autonomy-ws-25-26/src/asv_wave_sim/build/gz-waves1 && $(MAKE) $(MAKESILENT) -f src/CMakeFiles/UNIT_TriangulatedGrid_TEST.dir/build.make src/CMakeFiles/UNIT_TriangulatedGrid_TEST.dir/TriangulatedGrid_TEST.cc.o
-.PHONY : TriangulatedGrid_TEST.cc.o
-
-TriangulatedGrid_TEST.i: TriangulatedGrid_TEST.cc.i
-.PHONY : TriangulatedGrid_TEST.i
-
-# target to preprocess a source file
-TriangulatedGrid_TEST.cc.i:
-	cd /home/ethan/autonomy-ws-25-26/src/asv_wave_sim/build/gz-waves1 && $(MAKE) $(MAKESILENT) -f src/CMakeFiles/UNIT_TriangulatedGrid_TEST.dir/build.make src/CMakeFiles/UNIT_TriangulatedGrid_TEST.dir/TriangulatedGrid_TEST.cc.i
-.PHONY : TriangulatedGrid_TEST.cc.i
-
-TriangulatedGrid_TEST.s: TriangulatedGrid_TEST.cc.s
-.PHONY : TriangulatedGrid_TEST.s
-
-# target to generate assembly for a file
-TriangulatedGrid_TEST.cc.s:
-	cd /home/ethan/autonomy-ws-25-26/src/asv_wave_sim/build/gz-waves1 && $(MAKE) $(MAKESILENT) -f src/CMakeFiles/UNIT_TriangulatedGrid_TEST.dir/build.make src/CMakeFiles/UNIT_TriangulatedGrid_TEST.dir/TriangulatedGrid_TEST.cc.s
-.PHONY : TriangulatedGrid_TEST.cc.s
 
 TrochoidIrregularWaveSimulation.o: TrochoidIrregularWaveSimulation.cc.o
 .PHONY : TrochoidIrregularWaveSimulation.o
 
 # target to build an object file
 TrochoidIrregularWaveSimulation.cc.o:
-	cd /home/ethan/autonomy-ws-25-26/src/asv_wave_sim/build/gz-waves1 && $(MAKE) $(MAKESILENT) -f src/CMakeFiles/gz-waves1.dir/build.make src/CMakeFiles/gz-waves1.dir/TrochoidIrregularWaveSimulation.cc.o
+	cd /home/lorenzo/autonomy-ws-25-26/src/asv_wave_sim/build/gz-waves1 && $(MAKE) $(MAKESILENT) -f src/CMakeFiles/gz-waves1.dir/build.make src/CMakeFiles/gz-waves1.dir/TrochoidIrregularWaveSimulation.cc.o
 .PHONY : TrochoidIrregularWaveSimulation.cc.o
 
 TrochoidIrregularWaveSimulation.i: TrochoidIrregularWaveSimulation.cc.i
@@ -976,7 +554,7 @@ TrochoidIrregularWaveSimulation.i: TrochoidIrregularWaveSimulation.cc.i
 
 # target to preprocess a source file
 TrochoidIrregularWaveSimulation.cc.i:
-	cd /home/ethan/autonomy-ws-25-26/src/asv_wave_sim/build/gz-waves1 && $(MAKE) $(MAKESILENT) -f src/CMakeFiles/gz-waves1.dir/build.make src/CMakeFiles/gz-waves1.dir/TrochoidIrregularWaveSimulation.cc.i
+	cd /home/lorenzo/autonomy-ws-25-26/src/asv_wave_sim/build/gz-waves1 && $(MAKE) $(MAKESILENT) -f src/CMakeFiles/gz-waves1.dir/build.make src/CMakeFiles/gz-waves1.dir/TrochoidIrregularWaveSimulation.cc.i
 .PHONY : TrochoidIrregularWaveSimulation.cc.i
 
 TrochoidIrregularWaveSimulation.s: TrochoidIrregularWaveSimulation.cc.s
@@ -984,7 +562,7 @@ TrochoidIrregularWaveSimulation.s: TrochoidIrregularWaveSimulation.cc.s
 
 # target to generate assembly for a file
 TrochoidIrregularWaveSimulation.cc.s:
-	cd /home/ethan/autonomy-ws-25-26/src/asv_wave_sim/build/gz-waves1 && $(MAKE) $(MAKESILENT) -f src/CMakeFiles/gz-waves1.dir/build.make src/CMakeFiles/gz-waves1.dir/TrochoidIrregularWaveSimulation.cc.s
+	cd /home/lorenzo/autonomy-ws-25-26/src/asv_wave_sim/build/gz-waves1 && $(MAKE) $(MAKESILENT) -f src/CMakeFiles/gz-waves1.dir/build.make src/CMakeFiles/gz-waves1.dir/TrochoidIrregularWaveSimulation.cc.s
 .PHONY : TrochoidIrregularWaveSimulation.cc.s
 
 Utilities.o: Utilities.cc.o
@@ -992,7 +570,7 @@ Utilities.o: Utilities.cc.o
 
 # target to build an object file
 Utilities.cc.o:
-	cd /home/ethan/autonomy-ws-25-26/src/asv_wave_sim/build/gz-waves1 && $(MAKE) $(MAKESILENT) -f src/CMakeFiles/gz-waves1.dir/build.make src/CMakeFiles/gz-waves1.dir/Utilities.cc.o
+	cd /home/lorenzo/autonomy-ws-25-26/src/asv_wave_sim/build/gz-waves1 && $(MAKE) $(MAKESILENT) -f src/CMakeFiles/gz-waves1.dir/build.make src/CMakeFiles/gz-waves1.dir/Utilities.cc.o
 .PHONY : Utilities.cc.o
 
 Utilities.i: Utilities.cc.i
@@ -1000,7 +578,7 @@ Utilities.i: Utilities.cc.i
 
 # target to preprocess a source file
 Utilities.cc.i:
-	cd /home/ethan/autonomy-ws-25-26/src/asv_wave_sim/build/gz-waves1 && $(MAKE) $(MAKESILENT) -f src/CMakeFiles/gz-waves1.dir/build.make src/CMakeFiles/gz-waves1.dir/Utilities.cc.i
+	cd /home/lorenzo/autonomy-ws-25-26/src/asv_wave_sim/build/gz-waves1 && $(MAKE) $(MAKESILENT) -f src/CMakeFiles/gz-waves1.dir/build.make src/CMakeFiles/gz-waves1.dir/Utilities.cc.i
 .PHONY : Utilities.cc.i
 
 Utilities.s: Utilities.cc.s
@@ -1008,7 +586,7 @@ Utilities.s: Utilities.cc.s
 
 # target to generate assembly for a file
 Utilities.cc.s:
-	cd /home/ethan/autonomy-ws-25-26/src/asv_wave_sim/build/gz-waves1 && $(MAKE) $(MAKESILENT) -f src/CMakeFiles/gz-waves1.dir/build.make src/CMakeFiles/gz-waves1.dir/Utilities.cc.s
+	cd /home/lorenzo/autonomy-ws-25-26/src/asv_wave_sim/build/gz-waves1 && $(MAKE) $(MAKESILENT) -f src/CMakeFiles/gz-waves1.dir/build.make src/CMakeFiles/gz-waves1.dir/Utilities.cc.s
 .PHONY : Utilities.cc.s
 
 WaveParameters.o: WaveParameters.cc.o
@@ -1016,7 +594,7 @@ WaveParameters.o: WaveParameters.cc.o
 
 # target to build an object file
 WaveParameters.cc.o:
-	cd /home/ethan/autonomy-ws-25-26/src/asv_wave_sim/build/gz-waves1 && $(MAKE) $(MAKESILENT) -f src/CMakeFiles/gz-waves1.dir/build.make src/CMakeFiles/gz-waves1.dir/WaveParameters.cc.o
+	cd /home/lorenzo/autonomy-ws-25-26/src/asv_wave_sim/build/gz-waves1 && $(MAKE) $(MAKESILENT) -f src/CMakeFiles/gz-waves1.dir/build.make src/CMakeFiles/gz-waves1.dir/WaveParameters.cc.o
 .PHONY : WaveParameters.cc.o
 
 WaveParameters.i: WaveParameters.cc.i
@@ -1024,7 +602,7 @@ WaveParameters.i: WaveParameters.cc.i
 
 # target to preprocess a source file
 WaveParameters.cc.i:
-	cd /home/ethan/autonomy-ws-25-26/src/asv_wave_sim/build/gz-waves1 && $(MAKE) $(MAKESILENT) -f src/CMakeFiles/gz-waves1.dir/build.make src/CMakeFiles/gz-waves1.dir/WaveParameters.cc.i
+	cd /home/lorenzo/autonomy-ws-25-26/src/asv_wave_sim/build/gz-waves1 && $(MAKE) $(MAKESILENT) -f src/CMakeFiles/gz-waves1.dir/build.make src/CMakeFiles/gz-waves1.dir/WaveParameters.cc.i
 .PHONY : WaveParameters.cc.i
 
 WaveParameters.s: WaveParameters.cc.s
@@ -1032,7 +610,7 @@ WaveParameters.s: WaveParameters.cc.s
 
 # target to generate assembly for a file
 WaveParameters.cc.s:
-	cd /home/ethan/autonomy-ws-25-26/src/asv_wave_sim/build/gz-waves1 && $(MAKE) $(MAKESILENT) -f src/CMakeFiles/gz-waves1.dir/build.make src/CMakeFiles/gz-waves1.dir/WaveParameters.cc.s
+	cd /home/lorenzo/autonomy-ws-25-26/src/asv_wave_sim/build/gz-waves1 && $(MAKE) $(MAKESILENT) -f src/CMakeFiles/gz-waves1.dir/build.make src/CMakeFiles/gz-waves1.dir/WaveParameters.cc.s
 .PHONY : WaveParameters.cc.s
 
 WaveSimulation.o: WaveSimulation.cc.o
@@ -1040,7 +618,7 @@ WaveSimulation.o: WaveSimulation.cc.o
 
 # target to build an object file
 WaveSimulation.cc.o:
-	cd /home/ethan/autonomy-ws-25-26/src/asv_wave_sim/build/gz-waves1 && $(MAKE) $(MAKESILENT) -f src/CMakeFiles/gz-waves1.dir/build.make src/CMakeFiles/gz-waves1.dir/WaveSimulation.cc.o
+	cd /home/lorenzo/autonomy-ws-25-26/src/asv_wave_sim/build/gz-waves1 && $(MAKE) $(MAKESILENT) -f src/CMakeFiles/gz-waves1.dir/build.make src/CMakeFiles/gz-waves1.dir/WaveSimulation.cc.o
 .PHONY : WaveSimulation.cc.o
 
 WaveSimulation.i: WaveSimulation.cc.i
@@ -1048,7 +626,7 @@ WaveSimulation.i: WaveSimulation.cc.i
 
 # target to preprocess a source file
 WaveSimulation.cc.i:
-	cd /home/ethan/autonomy-ws-25-26/src/asv_wave_sim/build/gz-waves1 && $(MAKE) $(MAKESILENT) -f src/CMakeFiles/gz-waves1.dir/build.make src/CMakeFiles/gz-waves1.dir/WaveSimulation.cc.i
+	cd /home/lorenzo/autonomy-ws-25-26/src/asv_wave_sim/build/gz-waves1 && $(MAKE) $(MAKESILENT) -f src/CMakeFiles/gz-waves1.dir/build.make src/CMakeFiles/gz-waves1.dir/WaveSimulation.cc.i
 .PHONY : WaveSimulation.cc.i
 
 WaveSimulation.s: WaveSimulation.cc.s
@@ -1056,7 +634,7 @@ WaveSimulation.s: WaveSimulation.cc.s
 
 # target to generate assembly for a file
 WaveSimulation.cc.s:
-	cd /home/ethan/autonomy-ws-25-26/src/asv_wave_sim/build/gz-waves1 && $(MAKE) $(MAKESILENT) -f src/CMakeFiles/gz-waves1.dir/build.make src/CMakeFiles/gz-waves1.dir/WaveSimulation.cc.s
+	cd /home/lorenzo/autonomy-ws-25-26/src/asv_wave_sim/build/gz-waves1 && $(MAKE) $(MAKESILENT) -f src/CMakeFiles/gz-waves1.dir/build.make src/CMakeFiles/gz-waves1.dir/WaveSimulation.cc.s
 .PHONY : WaveSimulation.cc.s
 
 WaveSpectrum.o: WaveSpectrum.cc.o
@@ -1064,7 +642,7 @@ WaveSpectrum.o: WaveSpectrum.cc.o
 
 # target to build an object file
 WaveSpectrum.cc.o:
-	cd /home/ethan/autonomy-ws-25-26/src/asv_wave_sim/build/gz-waves1 && $(MAKE) $(MAKESILENT) -f src/CMakeFiles/gz-waves1.dir/build.make src/CMakeFiles/gz-waves1.dir/WaveSpectrum.cc.o
+	cd /home/lorenzo/autonomy-ws-25-26/src/asv_wave_sim/build/gz-waves1 && $(MAKE) $(MAKESILENT) -f src/CMakeFiles/gz-waves1.dir/build.make src/CMakeFiles/gz-waves1.dir/WaveSpectrum.cc.o
 .PHONY : WaveSpectrum.cc.o
 
 WaveSpectrum.i: WaveSpectrum.cc.i
@@ -1072,7 +650,7 @@ WaveSpectrum.i: WaveSpectrum.cc.i
 
 # target to preprocess a source file
 WaveSpectrum.cc.i:
-	cd /home/ethan/autonomy-ws-25-26/src/asv_wave_sim/build/gz-waves1 && $(MAKE) $(MAKESILENT) -f src/CMakeFiles/gz-waves1.dir/build.make src/CMakeFiles/gz-waves1.dir/WaveSpectrum.cc.i
+	cd /home/lorenzo/autonomy-ws-25-26/src/asv_wave_sim/build/gz-waves1 && $(MAKE) $(MAKESILENT) -f src/CMakeFiles/gz-waves1.dir/build.make src/CMakeFiles/gz-waves1.dir/WaveSpectrum.cc.i
 .PHONY : WaveSpectrum.cc.i
 
 WaveSpectrum.s: WaveSpectrum.cc.s
@@ -1080,39 +658,15 @@ WaveSpectrum.s: WaveSpectrum.cc.s
 
 # target to generate assembly for a file
 WaveSpectrum.cc.s:
-	cd /home/ethan/autonomy-ws-25-26/src/asv_wave_sim/build/gz-waves1 && $(MAKE) $(MAKESILENT) -f src/CMakeFiles/gz-waves1.dir/build.make src/CMakeFiles/gz-waves1.dir/WaveSpectrum.cc.s
+	cd /home/lorenzo/autonomy-ws-25-26/src/asv_wave_sim/build/gz-waves1 && $(MAKE) $(MAKESILENT) -f src/CMakeFiles/gz-waves1.dir/build.make src/CMakeFiles/gz-waves1.dir/WaveSpectrum.cc.s
 .PHONY : WaveSpectrum.cc.s
-
-WaveSpectrum_TEST.o: WaveSpectrum_TEST.cc.o
-.PHONY : WaveSpectrum_TEST.o
-
-# target to build an object file
-WaveSpectrum_TEST.cc.o:
-	cd /home/ethan/autonomy-ws-25-26/src/asv_wave_sim/build/gz-waves1 && $(MAKE) $(MAKESILENT) -f src/CMakeFiles/UNIT_WaveSpectrum_TEST.dir/build.make src/CMakeFiles/UNIT_WaveSpectrum_TEST.dir/WaveSpectrum_TEST.cc.o
-.PHONY : WaveSpectrum_TEST.cc.o
-
-WaveSpectrum_TEST.i: WaveSpectrum_TEST.cc.i
-.PHONY : WaveSpectrum_TEST.i
-
-# target to preprocess a source file
-WaveSpectrum_TEST.cc.i:
-	cd /home/ethan/autonomy-ws-25-26/src/asv_wave_sim/build/gz-waves1 && $(MAKE) $(MAKESILENT) -f src/CMakeFiles/UNIT_WaveSpectrum_TEST.dir/build.make src/CMakeFiles/UNIT_WaveSpectrum_TEST.dir/WaveSpectrum_TEST.cc.i
-.PHONY : WaveSpectrum_TEST.cc.i
-
-WaveSpectrum_TEST.s: WaveSpectrum_TEST.cc.s
-.PHONY : WaveSpectrum_TEST.s
-
-# target to generate assembly for a file
-WaveSpectrum_TEST.cc.s:
-	cd /home/ethan/autonomy-ws-25-26/src/asv_wave_sim/build/gz-waves1 && $(MAKE) $(MAKESILENT) -f src/CMakeFiles/UNIT_WaveSpectrum_TEST.dir/build.make src/CMakeFiles/UNIT_WaveSpectrum_TEST.dir/WaveSpectrum_TEST.cc.s
-.PHONY : WaveSpectrum_TEST.cc.s
 
 WaveSpreadingFunction.o: WaveSpreadingFunction.cc.o
 .PHONY : WaveSpreadingFunction.o
 
 # target to build an object file
 WaveSpreadingFunction.cc.o:
-	cd /home/ethan/autonomy-ws-25-26/src/asv_wave_sim/build/gz-waves1 && $(MAKE) $(MAKESILENT) -f src/CMakeFiles/gz-waves1.dir/build.make src/CMakeFiles/gz-waves1.dir/WaveSpreadingFunction.cc.o
+	cd /home/lorenzo/autonomy-ws-25-26/src/asv_wave_sim/build/gz-waves1 && $(MAKE) $(MAKESILENT) -f src/CMakeFiles/gz-waves1.dir/build.make src/CMakeFiles/gz-waves1.dir/WaveSpreadingFunction.cc.o
 .PHONY : WaveSpreadingFunction.cc.o
 
 WaveSpreadingFunction.i: WaveSpreadingFunction.cc.i
@@ -1120,7 +674,7 @@ WaveSpreadingFunction.i: WaveSpreadingFunction.cc.i
 
 # target to preprocess a source file
 WaveSpreadingFunction.cc.i:
-	cd /home/ethan/autonomy-ws-25-26/src/asv_wave_sim/build/gz-waves1 && $(MAKE) $(MAKESILENT) -f src/CMakeFiles/gz-waves1.dir/build.make src/CMakeFiles/gz-waves1.dir/WaveSpreadingFunction.cc.i
+	cd /home/lorenzo/autonomy-ws-25-26/src/asv_wave_sim/build/gz-waves1 && $(MAKE) $(MAKESILENT) -f src/CMakeFiles/gz-waves1.dir/build.make src/CMakeFiles/gz-waves1.dir/WaveSpreadingFunction.cc.i
 .PHONY : WaveSpreadingFunction.cc.i
 
 WaveSpreadingFunction.s: WaveSpreadingFunction.cc.s
@@ -1128,39 +682,15 @@ WaveSpreadingFunction.s: WaveSpreadingFunction.cc.s
 
 # target to generate assembly for a file
 WaveSpreadingFunction.cc.s:
-	cd /home/ethan/autonomy-ws-25-26/src/asv_wave_sim/build/gz-waves1 && $(MAKE) $(MAKESILENT) -f src/CMakeFiles/gz-waves1.dir/build.make src/CMakeFiles/gz-waves1.dir/WaveSpreadingFunction.cc.s
+	cd /home/lorenzo/autonomy-ws-25-26/src/asv_wave_sim/build/gz-waves1 && $(MAKE) $(MAKESILENT) -f src/CMakeFiles/gz-waves1.dir/build.make src/CMakeFiles/gz-waves1.dir/WaveSpreadingFunction.cc.s
 .PHONY : WaveSpreadingFunction.cc.s
-
-WaveSpreadingFunction_TEST.o: WaveSpreadingFunction_TEST.cc.o
-.PHONY : WaveSpreadingFunction_TEST.o
-
-# target to build an object file
-WaveSpreadingFunction_TEST.cc.o:
-	cd /home/ethan/autonomy-ws-25-26/src/asv_wave_sim/build/gz-waves1 && $(MAKE) $(MAKESILENT) -f src/CMakeFiles/UNIT_WaveSpreadingFunction_TEST.dir/build.make src/CMakeFiles/UNIT_WaveSpreadingFunction_TEST.dir/WaveSpreadingFunction_TEST.cc.o
-.PHONY : WaveSpreadingFunction_TEST.cc.o
-
-WaveSpreadingFunction_TEST.i: WaveSpreadingFunction_TEST.cc.i
-.PHONY : WaveSpreadingFunction_TEST.i
-
-# target to preprocess a source file
-WaveSpreadingFunction_TEST.cc.i:
-	cd /home/ethan/autonomy-ws-25-26/src/asv_wave_sim/build/gz-waves1 && $(MAKE) $(MAKESILENT) -f src/CMakeFiles/UNIT_WaveSpreadingFunction_TEST.dir/build.make src/CMakeFiles/UNIT_WaveSpreadingFunction_TEST.dir/WaveSpreadingFunction_TEST.cc.i
-.PHONY : WaveSpreadingFunction_TEST.cc.i
-
-WaveSpreadingFunction_TEST.s: WaveSpreadingFunction_TEST.cc.s
-.PHONY : WaveSpreadingFunction_TEST.s
-
-# target to generate assembly for a file
-WaveSpreadingFunction_TEST.cc.s:
-	cd /home/ethan/autonomy-ws-25-26/src/asv_wave_sim/build/gz-waves1 && $(MAKE) $(MAKESILENT) -f src/CMakeFiles/UNIT_WaveSpreadingFunction_TEST.dir/build.make src/CMakeFiles/UNIT_WaveSpreadingFunction_TEST.dir/WaveSpreadingFunction_TEST.cc.s
-.PHONY : WaveSpreadingFunction_TEST.cc.s
 
 Wavefield.o: Wavefield.cc.o
 .PHONY : Wavefield.o
 
 # target to build an object file
 Wavefield.cc.o:
-	cd /home/ethan/autonomy-ws-25-26/src/asv_wave_sim/build/gz-waves1 && $(MAKE) $(MAKESILENT) -f src/CMakeFiles/gz-waves1.dir/build.make src/CMakeFiles/gz-waves1.dir/Wavefield.cc.o
+	cd /home/lorenzo/autonomy-ws-25-26/src/asv_wave_sim/build/gz-waves1 && $(MAKE) $(MAKESILENT) -f src/CMakeFiles/gz-waves1.dir/build.make src/CMakeFiles/gz-waves1.dir/Wavefield.cc.o
 .PHONY : Wavefield.cc.o
 
 Wavefield.i: Wavefield.cc.i
@@ -1168,7 +698,7 @@ Wavefield.i: Wavefield.cc.i
 
 # target to preprocess a source file
 Wavefield.cc.i:
-	cd /home/ethan/autonomy-ws-25-26/src/asv_wave_sim/build/gz-waves1 && $(MAKE) $(MAKESILENT) -f src/CMakeFiles/gz-waves1.dir/build.make src/CMakeFiles/gz-waves1.dir/Wavefield.cc.i
+	cd /home/lorenzo/autonomy-ws-25-26/src/asv_wave_sim/build/gz-waves1 && $(MAKE) $(MAKESILENT) -f src/CMakeFiles/gz-waves1.dir/build.make src/CMakeFiles/gz-waves1.dir/Wavefield.cc.i
 .PHONY : Wavefield.cc.i
 
 Wavefield.s: Wavefield.cc.s
@@ -1176,7 +706,7 @@ Wavefield.s: Wavefield.cc.s
 
 # target to generate assembly for a file
 Wavefield.cc.s:
-	cd /home/ethan/autonomy-ws-25-26/src/asv_wave_sim/build/gz-waves1 && $(MAKE) $(MAKESILENT) -f src/CMakeFiles/gz-waves1.dir/build.make src/CMakeFiles/gz-waves1.dir/Wavefield.cc.s
+	cd /home/lorenzo/autonomy-ws-25-26/src/asv_wave_sim/build/gz-waves1 && $(MAKE) $(MAKESILENT) -f src/CMakeFiles/gz-waves1.dir/build.make src/CMakeFiles/gz-waves1.dir/Wavefield.cc.s
 .PHONY : Wavefield.cc.s
 
 WavefieldSampler.o: WavefieldSampler.cc.o
@@ -1184,7 +714,7 @@ WavefieldSampler.o: WavefieldSampler.cc.o
 
 # target to build an object file
 WavefieldSampler.cc.o:
-	cd /home/ethan/autonomy-ws-25-26/src/asv_wave_sim/build/gz-waves1 && $(MAKE) $(MAKESILENT) -f src/CMakeFiles/gz-waves1.dir/build.make src/CMakeFiles/gz-waves1.dir/WavefieldSampler.cc.o
+	cd /home/lorenzo/autonomy-ws-25-26/src/asv_wave_sim/build/gz-waves1 && $(MAKE) $(MAKESILENT) -f src/CMakeFiles/gz-waves1.dir/build.make src/CMakeFiles/gz-waves1.dir/WavefieldSampler.cc.o
 .PHONY : WavefieldSampler.cc.o
 
 WavefieldSampler.i: WavefieldSampler.cc.i
@@ -1192,7 +722,7 @@ WavefieldSampler.i: WavefieldSampler.cc.i
 
 # target to preprocess a source file
 WavefieldSampler.cc.i:
-	cd /home/ethan/autonomy-ws-25-26/src/asv_wave_sim/build/gz-waves1 && $(MAKE) $(MAKESILENT) -f src/CMakeFiles/gz-waves1.dir/build.make src/CMakeFiles/gz-waves1.dir/WavefieldSampler.cc.i
+	cd /home/lorenzo/autonomy-ws-25-26/src/asv_wave_sim/build/gz-waves1 && $(MAKE) $(MAKESILENT) -f src/CMakeFiles/gz-waves1.dir/build.make src/CMakeFiles/gz-waves1.dir/WavefieldSampler.cc.i
 .PHONY : WavefieldSampler.cc.i
 
 WavefieldSampler.s: WavefieldSampler.cc.s
@@ -1200,32 +730,8 @@ WavefieldSampler.s: WavefieldSampler.cc.s
 
 # target to generate assembly for a file
 WavefieldSampler.cc.s:
-	cd /home/ethan/autonomy-ws-25-26/src/asv_wave_sim/build/gz-waves1 && $(MAKE) $(MAKESILENT) -f src/CMakeFiles/gz-waves1.dir/build.make src/CMakeFiles/gz-waves1.dir/WavefieldSampler.cc.s
+	cd /home/lorenzo/autonomy-ws-25-26/src/asv_wave_sim/build/gz-waves1 && $(MAKE) $(MAKESILENT) -f src/CMakeFiles/gz-waves1.dir/build.make src/CMakeFiles/gz-waves1.dir/WavefieldSampler.cc.s
 .PHONY : WavefieldSampler.cc.s
-
-Wavefield_TEST.o: Wavefield_TEST.cc.o
-.PHONY : Wavefield_TEST.o
-
-# target to build an object file
-Wavefield_TEST.cc.o:
-	cd /home/ethan/autonomy-ws-25-26/src/asv_wave_sim/build/gz-waves1 && $(MAKE) $(MAKESILENT) -f src/CMakeFiles/UNIT_Wavefield_TEST.dir/build.make src/CMakeFiles/UNIT_Wavefield_TEST.dir/Wavefield_TEST.cc.o
-.PHONY : Wavefield_TEST.cc.o
-
-Wavefield_TEST.i: Wavefield_TEST.cc.i
-.PHONY : Wavefield_TEST.i
-
-# target to preprocess a source file
-Wavefield_TEST.cc.i:
-	cd /home/ethan/autonomy-ws-25-26/src/asv_wave_sim/build/gz-waves1 && $(MAKE) $(MAKESILENT) -f src/CMakeFiles/UNIT_Wavefield_TEST.dir/build.make src/CMakeFiles/UNIT_Wavefield_TEST.dir/Wavefield_TEST.cc.i
-.PHONY : Wavefield_TEST.cc.i
-
-Wavefield_TEST.s: Wavefield_TEST.cc.s
-.PHONY : Wavefield_TEST.s
-
-# target to generate assembly for a file
-Wavefield_TEST.cc.s:
-	cd /home/ethan/autonomy-ws-25-26/src/asv_wave_sim/build/gz-waves1 && $(MAKE) $(MAKESILENT) -f src/CMakeFiles/UNIT_Wavefield_TEST.dir/build.make src/CMakeFiles/UNIT_Wavefield_TEST.dir/Wavefield_TEST.cc.s
-.PHONY : Wavefield_TEST.cc.s
 
 # Help Target
 help:
@@ -1242,71 +748,34 @@ help:
 	@echo "... package_source"
 	@echo "... rebuild_cache"
 	@echo "... test"
-	@echo "... UNIT_Algorithm_TEST"
-	@echo "... UNIT_CGAL_TEST"
-	@echo "... UNIT_EigenFFTW_TEST"
-	@echo "... UNIT_Geometry_TEST"
-	@echo "... UNIT_Grid_TEST"
-	@echo "... UNIT_LinearRandomFFTWaveSimulation_TEST"
-	@echo "... UNIT_LinearRegularWaveSimulation_TEST"
-	@echo "... UNIT_MeshTools_TEST"
-	@echo "... UNIT_Physics_TEST"
-	@echo "... UNIT_TriangulatedGrid_TEST"
-	@echo "... UNIT_WaveSpectrum_TEST"
-	@echo "... UNIT_WaveSpreadingFunction_TEST"
-	@echo "... UNIT_Wavefield_TEST"
 	@echo "... gz-waves1"
 	@echo "... Algorithm.o"
 	@echo "... Algorithm.i"
 	@echo "... Algorithm.s"
-	@echo "... Algorithm_TEST.o"
-	@echo "... Algorithm_TEST.i"
-	@echo "... Algorithm_TEST.s"
-	@echo "... CGAL_TEST.o"
-	@echo "... CGAL_TEST.i"
-	@echo "... CGAL_TEST.s"
 	@echo "... Convert.o"
 	@echo "... Convert.i"
 	@echo "... Convert.s"
-	@echo "... EigenFFTW_TEST.o"
-	@echo "... EigenFFTW_TEST.i"
-	@echo "... EigenFFTW_TEST.s"
 	@echo "... Geometry.o"
 	@echo "... Geometry.i"
 	@echo "... Geometry.s"
-	@echo "... Geometry_TEST.o"
-	@echo "... Geometry_TEST.i"
-	@echo "... Geometry_TEST.s"
 	@echo "... Grid.o"
 	@echo "... Grid.i"
 	@echo "... Grid.s"
-	@echo "... Grid_TEST.o"
-	@echo "... Grid_TEST.i"
-	@echo "... Grid_TEST.s"
 	@echo "... LinearRandomFFTWaveSimulation.o"
 	@echo "... LinearRandomFFTWaveSimulation.i"
 	@echo "... LinearRandomFFTWaveSimulation.s"
 	@echo "... LinearRandomFFTWaveSimulationRef.o"
 	@echo "... LinearRandomFFTWaveSimulationRef.i"
 	@echo "... LinearRandomFFTWaveSimulationRef.s"
-	@echo "... LinearRandomFFTWaveSimulation_TEST.o"
-	@echo "... LinearRandomFFTWaveSimulation_TEST.i"
-	@echo "... LinearRandomFFTWaveSimulation_TEST.s"
 	@echo "... LinearRandomWaveSimulation.o"
 	@echo "... LinearRandomWaveSimulation.i"
 	@echo "... LinearRandomWaveSimulation.s"
 	@echo "... LinearRegularWaveSimulation.o"
 	@echo "... LinearRegularWaveSimulation.i"
 	@echo "... LinearRegularWaveSimulation.s"
-	@echo "... LinearRegularWaveSimulation_TEST.o"
-	@echo "... LinearRegularWaveSimulation_TEST.i"
-	@echo "... LinearRegularWaveSimulation_TEST.s"
 	@echo "... MeshTools.o"
 	@echo "... MeshTools.i"
 	@echo "... MeshTools.s"
-	@echo "... MeshTools_TEST.o"
-	@echo "... MeshTools_TEST.i"
-	@echo "... MeshTools_TEST.s"
 	@echo "... OceanTile.o"
 	@echo "... OceanTile.i"
 	@echo "... OceanTile.s"
@@ -1316,18 +785,12 @@ help:
 	@echo "... Physics.o"
 	@echo "... Physics.i"
 	@echo "... Physics.s"
-	@echo "... Physics_TEST.o"
-	@echo "... Physics_TEST.i"
-	@echo "... Physics_TEST.s"
 	@echo "... SubMeshWithTangents.o"
 	@echo "... SubMeshWithTangents.i"
 	@echo "... SubMeshWithTangents.s"
 	@echo "... TriangulatedGrid.o"
 	@echo "... TriangulatedGrid.i"
 	@echo "... TriangulatedGrid.s"
-	@echo "... TriangulatedGrid_TEST.o"
-	@echo "... TriangulatedGrid_TEST.i"
-	@echo "... TriangulatedGrid_TEST.s"
 	@echo "... TrochoidIrregularWaveSimulation.o"
 	@echo "... TrochoidIrregularWaveSimulation.i"
 	@echo "... TrochoidIrregularWaveSimulation.s"
@@ -1343,24 +806,15 @@ help:
 	@echo "... WaveSpectrum.o"
 	@echo "... WaveSpectrum.i"
 	@echo "... WaveSpectrum.s"
-	@echo "... WaveSpectrum_TEST.o"
-	@echo "... WaveSpectrum_TEST.i"
-	@echo "... WaveSpectrum_TEST.s"
 	@echo "... WaveSpreadingFunction.o"
 	@echo "... WaveSpreadingFunction.i"
 	@echo "... WaveSpreadingFunction.s"
-	@echo "... WaveSpreadingFunction_TEST.o"
-	@echo "... WaveSpreadingFunction_TEST.i"
-	@echo "... WaveSpreadingFunction_TEST.s"
 	@echo "... Wavefield.o"
 	@echo "... Wavefield.i"
 	@echo "... Wavefield.s"
 	@echo "... WavefieldSampler.o"
 	@echo "... WavefieldSampler.i"
 	@echo "... WavefieldSampler.s"
-	@echo "... Wavefield_TEST.o"
-	@echo "... Wavefield_TEST.i"
-	@echo "... Wavefield_TEST.s"
 .PHONY : help
 
 
@@ -1372,6 +826,6 @@ help:
 # No rule that depends on this can have commands that come from listfiles
 # because they might be regenerated.
 cmake_check_build_system:
-	cd /home/ethan/autonomy-ws-25-26/src/asv_wave_sim/build/gz-waves1 && $(CMAKE_COMMAND) -S$(CMAKE_SOURCE_DIR) -B$(CMAKE_BINARY_DIR) --check-build-system CMakeFiles/Makefile.cmake 0
+	cd /home/lorenzo/autonomy-ws-25-26/src/asv_wave_sim/build/gz-waves1 && $(CMAKE_COMMAND) -S$(CMAKE_SOURCE_DIR) -B$(CMAKE_BINARY_DIR) --check-build-system CMakeFiles/Makefile.cmake 0
 .PHONY : cmake_check_build_system
 

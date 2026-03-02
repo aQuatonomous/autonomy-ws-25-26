@@ -1,15 +1,15 @@
 
-if(NOT "/home/ethan/autonomy-ws-25-26/src/asv_wave_sim/build/gz-waves1/_deps/gnuplot-iostream-subbuild/gnuplot-iostream-populate-prefix/src/gnuplot-iostream-populate-stamp/gnuplot-iostream-populate-gitinfo.txt" IS_NEWER_THAN "/home/ethan/autonomy-ws-25-26/src/asv_wave_sim/build/gz-waves1/_deps/gnuplot-iostream-subbuild/gnuplot-iostream-populate-prefix/src/gnuplot-iostream-populate-stamp/gnuplot-iostream-populate-gitclone-lastrun.txt")
-  message(STATUS "Avoiding repeated git clone, stamp file is up to date: '/home/ethan/autonomy-ws-25-26/src/asv_wave_sim/build/gz-waves1/_deps/gnuplot-iostream-subbuild/gnuplot-iostream-populate-prefix/src/gnuplot-iostream-populate-stamp/gnuplot-iostream-populate-gitclone-lastrun.txt'")
+if(NOT "/home/lorenzo/autonomy-ws-25-26/src/asv_wave_sim/build/gz-waves1/_deps/gnuplot-iostream-subbuild/gnuplot-iostream-populate-prefix/src/gnuplot-iostream-populate-stamp/gnuplot-iostream-populate-gitinfo.txt" IS_NEWER_THAN "/home/lorenzo/autonomy-ws-25-26/src/asv_wave_sim/build/gz-waves1/_deps/gnuplot-iostream-subbuild/gnuplot-iostream-populate-prefix/src/gnuplot-iostream-populate-stamp/gnuplot-iostream-populate-gitclone-lastrun.txt")
+  message(STATUS "Avoiding repeated git clone, stamp file is up to date: '/home/lorenzo/autonomy-ws-25-26/src/asv_wave_sim/build/gz-waves1/_deps/gnuplot-iostream-subbuild/gnuplot-iostream-populate-prefix/src/gnuplot-iostream-populate-stamp/gnuplot-iostream-populate-gitclone-lastrun.txt'")
   return()
 endif()
 
 execute_process(
-  COMMAND ${CMAKE_COMMAND} -E rm -rf "/home/ethan/autonomy-ws-25-26/src/asv_wave_sim/build/gz-waves1/_deps/gnuplot-iostream-src"
+  COMMAND ${CMAKE_COMMAND} -E rm -rf "/home/lorenzo/autonomy-ws-25-26/src/asv_wave_sim/build/gz-waves1/_deps/gnuplot-iostream-src"
   RESULT_VARIABLE error_code
   )
 if(error_code)
-  message(FATAL_ERROR "Failed to remove directory: '/home/ethan/autonomy-ws-25-26/src/asv_wave_sim/build/gz-waves1/_deps/gnuplot-iostream-src'")
+  message(FATAL_ERROR "Failed to remove directory: '/home/lorenzo/autonomy-ws-25-26/src/asv_wave_sim/build/gz-waves1/_deps/gnuplot-iostream-src'")
 endif()
 
 # try the clone 3 times in case there is an odd git clone issue
@@ -18,7 +18,7 @@ set(number_of_tries 0)
 while(error_code AND number_of_tries LESS 3)
   execute_process(
     COMMAND "/usr/bin/git"  clone --no-checkout --config "advice.detachedHead=false" "https://github.com/dstahlke/gnuplot-iostream.git" "gnuplot-iostream-src"
-    WORKING_DIRECTORY "/home/ethan/autonomy-ws-25-26/src/asv_wave_sim/build/gz-waves1/_deps"
+    WORKING_DIRECTORY "/home/lorenzo/autonomy-ws-25-26/src/asv_wave_sim/build/gz-waves1/_deps"
     RESULT_VARIABLE error_code
     )
   math(EXPR number_of_tries "${number_of_tries} + 1")
@@ -33,7 +33,7 @@ endif()
 
 execute_process(
   COMMAND "/usr/bin/git"  checkout d674bdf23b93c76d491f03246d2e6f72bf5739ce --
-  WORKING_DIRECTORY "/home/ethan/autonomy-ws-25-26/src/asv_wave_sim/build/gz-waves1/_deps/gnuplot-iostream-src"
+  WORKING_DIRECTORY "/home/lorenzo/autonomy-ws-25-26/src/asv_wave_sim/build/gz-waves1/_deps/gnuplot-iostream-src"
   RESULT_VARIABLE error_code
   )
 if(error_code)
@@ -44,23 +44,23 @@ set(init_submodules TRUE)
 if(init_submodules)
   execute_process(
     COMMAND "/usr/bin/git"  submodule update --recursive --init 
-    WORKING_DIRECTORY "/home/ethan/autonomy-ws-25-26/src/asv_wave_sim/build/gz-waves1/_deps/gnuplot-iostream-src"
+    WORKING_DIRECTORY "/home/lorenzo/autonomy-ws-25-26/src/asv_wave_sim/build/gz-waves1/_deps/gnuplot-iostream-src"
     RESULT_VARIABLE error_code
     )
 endif()
 if(error_code)
-  message(FATAL_ERROR "Failed to update submodules in: '/home/ethan/autonomy-ws-25-26/src/asv_wave_sim/build/gz-waves1/_deps/gnuplot-iostream-src'")
+  message(FATAL_ERROR "Failed to update submodules in: '/home/lorenzo/autonomy-ws-25-26/src/asv_wave_sim/build/gz-waves1/_deps/gnuplot-iostream-src'")
 endif()
 
 # Complete success, update the script-last-run stamp file:
 #
 execute_process(
   COMMAND ${CMAKE_COMMAND} -E copy
-    "/home/ethan/autonomy-ws-25-26/src/asv_wave_sim/build/gz-waves1/_deps/gnuplot-iostream-subbuild/gnuplot-iostream-populate-prefix/src/gnuplot-iostream-populate-stamp/gnuplot-iostream-populate-gitinfo.txt"
-    "/home/ethan/autonomy-ws-25-26/src/asv_wave_sim/build/gz-waves1/_deps/gnuplot-iostream-subbuild/gnuplot-iostream-populate-prefix/src/gnuplot-iostream-populate-stamp/gnuplot-iostream-populate-gitclone-lastrun.txt"
+    "/home/lorenzo/autonomy-ws-25-26/src/asv_wave_sim/build/gz-waves1/_deps/gnuplot-iostream-subbuild/gnuplot-iostream-populate-prefix/src/gnuplot-iostream-populate-stamp/gnuplot-iostream-populate-gitinfo.txt"
+    "/home/lorenzo/autonomy-ws-25-26/src/asv_wave_sim/build/gz-waves1/_deps/gnuplot-iostream-subbuild/gnuplot-iostream-populate-prefix/src/gnuplot-iostream-populate-stamp/gnuplot-iostream-populate-gitclone-lastrun.txt"
   RESULT_VARIABLE error_code
   )
 if(error_code)
-  message(FATAL_ERROR "Failed to copy script-last-run stamp file: '/home/ethan/autonomy-ws-25-26/src/asv_wave_sim/build/gz-waves1/_deps/gnuplot-iostream-subbuild/gnuplot-iostream-populate-prefix/src/gnuplot-iostream-populate-stamp/gnuplot-iostream-populate-gitclone-lastrun.txt'")
+  message(FATAL_ERROR "Failed to copy script-last-run stamp file: '/home/lorenzo/autonomy-ws-25-26/src/asv_wave_sim/build/gz-waves1/_deps/gnuplot-iostream-subbuild/gnuplot-iostream-populate-prefix/src/gnuplot-iostream-populate-stamp/gnuplot-iostream-populate-gitclone-lastrun.txt'")
 endif()
 

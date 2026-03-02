@@ -3,9 +3,9 @@ set(CPACK_PACKAGE_VENDOR "osrfoundation.org")
 set(CPACK_PACKAGE_DESCRIPTION_SUMMARY
   "A set of waves classes for robot applications.")
 set(CPACK_PACKAGE_INSTALL_DIRECTORY "gz-waves")
-set(CPACK_RESOURCE_FILE_LICENSE "/home/ethan/autonomy-ws-25-26/src/asv_wave_sim/gz-waves/LICENSE")
-set(CPACK_RESOURCE_FILE_README "/home/ethan/autonomy-ws-25-26/src/asv_wave_sim/gz-waves/README.md")
-set(CPACK_PACKAGE_DESCRIPTION_FILE "/home/ethan/autonomy-ws-25-26/src/asv_wave_sim/gz-waves/README.md")
+set(CPACK_RESOURCE_FILE_LICENSE "/home/lorenzo/autonomy-ws-25-26/src/asv_wave_sim/gz-waves/LICENSE")
+set(CPACK_RESOURCE_FILE_README "/home/lorenzo/autonomy-ws-25-26/src/asv_wave_sim/gz-waves/README.md")
+set(CPACK_PACKAGE_DESCRIPTION_FILE "/home/lorenzo/autonomy-ws-25-26/src/asv_wave_sim/gz-waves/README.md")
 set(CPACK_PACKAGE_MAINTAINER "Nate Koenig <nate@osrfoundation.org>")
 set(CPACK_PACKAGE_CONTACT "Nate Koenig <natekoenig@osrfoundation.org>")
 

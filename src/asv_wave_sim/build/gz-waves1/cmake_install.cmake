@@ -1,8 +1,8 @@
-# Install script for directory: /home/ethan/autonomy-ws-25-26/src/asv_wave_sim/gz-waves
+# Install script for directory: /home/lorenzo/autonomy-ws-25-26/src/asv_wave_sim/gz-waves
 
 # Set the install prefix
 if(NOT DEFINED CMAKE_INSTALL_PREFIX)
-  set(CMAKE_INSTALL_PREFIX "/home/ethan/autonomy-ws-25-26/src/asv_wave_sim/install")
+  set(CMAKE_INSTALL_PREFIX "/home/lorenzo/autonomy-ws-25-26/src/asv_wave_sim/install/gz-waves1")
 endif()
 string(REGEX REPLACE "/$" "" CMAKE_INSTALL_PREFIX "${CMAKE_INSTALL_PREFIX}")
 
@@ -44,8 +44,8 @@ endif()
 
 if("x${CMAKE_INSTALL_COMPONENT}x" STREQUAL "xcmakex" OR NOT CMAKE_INSTALL_COMPONENT)
   file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/lib/cmake/gz-waves1-all" TYPE FILE FILES
-    "/home/ethan/autonomy-ws-25-26/src/asv_wave_sim/build/gz-waves1/cmake/gz-waves1-all-config.cmake"
-    "/home/ethan/autonomy-ws-25-26/src/asv_wave_sim/build/gz-waves1/cmake/gz-waves1-all-config-version.cmake"
+    "/home/lorenzo/autonomy-ws-25-26/src/asv_wave_sim/build/gz-waves1/cmake/gz-waves1-all-config.cmake"
+    "/home/lorenzo/autonomy-ws-25-26/src/asv_wave_sim/build/gz-waves1/cmake/gz-waves1-all-config-version.cmake"
     )
 endif()
 
@@ -53,7 +53,7 @@ if("x${CMAKE_INSTALL_COMPONENT}x" STREQUAL "xUnspecifiedx" OR NOT CMAKE_INSTALL_
   if(EXISTS "$ENV{DESTDIR}${CMAKE_INSTALL_PREFIX}/lib/cmake/gz-waves1-all/gz-waves1-all-targets.cmake")
     file(DIFFERENT EXPORT_FILE_CHANGED FILES
          "$ENV{DESTDIR}${CMAKE_INSTALL_PREFIX}/lib/cmake/gz-waves1-all/gz-waves1-all-targets.cmake"
-         "/home/ethan/autonomy-ws-25-26/src/asv_wave_sim/build/gz-waves1/CMakeFiles/Export/lib/cmake/gz-waves1-all/gz-waves1-all-targets.cmake")
+         "/home/lorenzo/autonomy-ws-25-26/src/asv_wave_sim/build/gz-waves1/CMakeFiles/Export/lib/cmake/gz-waves1-all/gz-waves1-all-targets.cmake")
     if(EXPORT_FILE_CHANGED)
       file(GLOB OLD_CONFIG_FILES "$ENV{DESTDIR}${CMAKE_INSTALL_PREFIX}/lib/cmake/gz-waves1-all/gz-waves1-all-targets-*.cmake")
       if(OLD_CONFIG_FILES)
@@ -62,15 +62,14 @@ if("x${CMAKE_INSTALL_COMPONENT}x" STREQUAL "xUnspecifiedx" OR NOT CMAKE_INSTALL_
       endif()
     endif()
   endif()
-  file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/lib/cmake/gz-waves1-all" TYPE FILE FILES "/home/ethan/autonomy-ws-25-26/src/asv_wave_sim/build/gz-waves1/CMakeFiles/Export/lib/cmake/gz-waves1-all/gz-waves1-all-targets.cmake")
+  file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/lib/cmake/gz-waves1-all" TYPE FILE FILES "/home/lorenzo/autonomy-ws-25-26/src/asv_wave_sim/build/gz-waves1/CMakeFiles/Export/lib/cmake/gz-waves1-all/gz-waves1-all-targets.cmake")
 endif()
 
 if(NOT CMAKE_INSTALL_LOCAL_ONLY)
   # Include the install script for each subdirectory.
-  include("/home/ethan/autonomy-ws-25-26/src/asv_wave_sim/build/gz-waves1/_deps/gnuplot-iostream-build/cmake_install.cmake")
-  include("/home/ethan/autonomy-ws-25-26/src/asv_wave_sim/build/gz-waves1/src/cmake_install.cmake")
-  include("/home/ethan/autonomy-ws-25-26/src/asv_wave_sim/build/gz-waves1/include/cmake_install.cmake")
-  include("/home/ethan/autonomy-ws-25-26/src/asv_wave_sim/build/gz-waves1/test/cmake_install.cmake")
+  include("/home/lorenzo/autonomy-ws-25-26/src/asv_wave_sim/build/gz-waves1/_deps/gnuplot-iostream-build/cmake_install.cmake")
+  include("/home/lorenzo/autonomy-ws-25-26/src/asv_wave_sim/build/gz-waves1/src/cmake_install.cmake")
+  include("/home/lorenzo/autonomy-ws-25-26/src/asv_wave_sim/build/gz-waves1/include/cmake_install.cmake")
 
 endif()
 
@@ -82,5 +81,5 @@ endif()
 
 string(REPLACE ";" "\n" CMAKE_INSTALL_MANIFEST_CONTENT
        "${CMAKE_INSTALL_MANIFEST_FILES}")
-file(WRITE "/home/ethan/autonomy-ws-25-26/src/asv_wave_sim/build/gz-waves1/${CMAKE_INSTALL_MANIFEST}"
+file(WRITE "/home/lorenzo/autonomy-ws-25-26/src/asv_wave_sim/build/gz-waves1/${CMAKE_INSTALL_MANIFEST}"
      "${CMAKE_INSTALL_MANIFEST_CONTENT}")

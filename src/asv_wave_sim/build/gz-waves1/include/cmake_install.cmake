@@ -1,8 +1,8 @@
-# Install script for directory: /home/ethan/autonomy-ws-25-26/src/asv_wave_sim/gz-waves/include
+# Install script for directory: /home/lorenzo/autonomy-ws-25-26/src/asv_wave_sim/gz-waves/include
 
 # Set the install prefix
 if(NOT DEFINED CMAKE_INSTALL_PREFIX)
-  set(CMAKE_INSTALL_PREFIX "/home/ethan/autonomy-ws-25-26/src/asv_wave_sim/install")
+  set(CMAKE_INSTALL_PREFIX "/home/lorenzo/autonomy-ws-25-26/src/asv_wave_sim/install/gz-waves1")
 endif()
 string(REGEX REPLACE "/$" "" CMAKE_INSTALL_PREFIX "${CMAKE_INSTALL_PREFIX}")
 
@@ -44,7 +44,7 @@ endif()
 
 if(NOT CMAKE_INSTALL_LOCAL_ONLY)
   # Include the install script for each subdirectory.
-  include("/home/ethan/autonomy-ws-25-26/src/asv_wave_sim/build/gz-waves1/include/gz/cmake_install.cmake")
+  include("/home/lorenzo/autonomy-ws-25-26/src/asv_wave_sim/build/gz-waves1/include/gz/cmake_install.cmake")
 
 endif()
 

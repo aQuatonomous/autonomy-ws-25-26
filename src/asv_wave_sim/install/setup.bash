@@ -17,9 +17,17 @@ _colcon_prefix_chain_bash_source_script() {
   fi
 }
 
-# source this prefix
+# source chained prefixes
 # setting COLCON_CURRENT_PREFIX avoids determining the prefix in the sourced script
-COLCON_CURRENT_PREFIX="$(builtin cd "`dirname "${BASH_SOURCE[0]}"`" > /dev/null && pwd)"
+COLCON_CURRENT_PREFIX="/opt/ros/humble"
+_colcon_prefix_chain_bash_source_script "$COLCON_CURRENT_PREFIX/local_setup.bash"
+
+# source this prefix
+# If COLCON_CURRENT_PREFIX is already set (by the caller), respect it;
+# otherwise determine it from the script's directory (use pwd -L to avoid symlink resolution).
+if [ -z "$COLCON_CURRENT_PREFIX" ]; then
+  COLCON_CURRENT_PREFIX="$(builtin cd "`dirname "${BASH_SOURCE[0]}"`" > /dev/null && pwd -L)"
+fi
 _colcon_prefix_chain_bash_source_script "$COLCON_CURRENT_PREFIX/local_setup.bash"
 
 unset COLCON_CURRENT_PREFIX
