@@ -1,0 +1,112 @@
+[33mCMake Warning at /usr/share/cmake/gz-cmake3/cmake3/GzFindPackage.cmake:243 (find_package):
+  By not providing "Findgz-msgs9.cmake" in CMAKE_MODULE_PATH this project has
+  asked CMake to find a package configuration file provided by "gz-msgs9",
+  but CMake did not find one.
+
+  Could not find a package configuration file provided by "gz-msgs9" with any
+  of the following names:
+
+    gz-msgs9Config.cmake
+    gz-msgs9-config.cmake
+
+  Add the installation prefix of "gz-msgs9" to CMAKE_PREFIX_PATH or set
+  "gz-msgs9_DIR" to a directory containing one of the above files.  If
+  "gz-msgs9" provides a separate development package or SDK, be sure it has
+  been installed.
+Call Stack (most recent call first):
+  CMakeLists.txt:71 (gz_find_package)
+
+[0m
+[33mCMake Warning at /usr/share/cmake/gz-cmake3/cmake3/GzFindPackage.cmake:243 (find_package):
+  By not providing "Findgz-transport12.cmake" in CMAKE_MODULE_PATH this
+  project has asked CMake to find a package configuration file provided by
+  "gz-transport12", but CMake did not find one.
+
+  Could not find a package configuration file provided by "gz-transport12"
+  with any of the following names:
+
+    gz-transport12Config.cmake
+    gz-transport12-config.cmake
+
+  Add the installation prefix of "gz-transport12" to CMAKE_PREFIX_PATH or set
+  "gz-transport12_DIR" to a directory containing one of the above files.  If
+  "gz-transport12" provides a separate development package or SDK, be sure it
+  has been installed.
+Call Stack (most recent call first):
+  CMakeLists.txt:76 (gz_find_package)
+
+[0m
+[33mCMake Warning at /usr/share/cmake/gz-cmake3/cmake3/GzFindPackage.cmake:243 (find_package):
+  By not providing "Findgz-rendering7.cmake" in CMAKE_MODULE_PATH this
+  project has asked CMake to find a package configuration file provided by
+  "gz-rendering7", but CMake did not find one.
+
+  Could not find a package configuration file provided by "gz-rendering7"
+  with any of the following names:
+
+    gz-rendering7Config.cmake
+    gz-rendering7-config.cmake
+
+  Add the installation prefix of "gz-rendering7" to CMAKE_PREFIX_PATH or set
+  "gz-rendering7_DIR" to a directory containing one of the above files.  If
+  "gz-rendering7" provides a separate development package or SDK, be sure it
+  has been installed.
+Call Stack (most recent call first):
+  CMakeLists.txt:81 (gz_find_package)
+
+[0m
+[33mCMake Warning at /usr/share/cmake/gz-cmake3/cmake3/GzFindPackage.cmake:243 (find_package):
+  By not providing "Findgz-sim7.cmake" in CMAKE_MODULE_PATH this project has
+  asked CMake to find a package configuration file provided by "gz-sim7", but
+  CMake did not find one.
+
+  Could not find a package configuration file provided by "gz-sim7" with any
+  of the following names:
+
+    gz-sim7Config.cmake
+    gz-sim7-config.cmake
+
+  Add the installation prefix of "gz-sim7" to CMAKE_PREFIX_PATH or set
+  "gz-sim7_DIR" to a directory containing one of the above files.  If
+  "gz-sim7" provides a separate development package or SDK, be sure it has
+  been installed.
+Call Stack (most recent call first):
+  CMakeLists.txt:86 (gz_find_package)
+
+[0m
+[33mCMake Warning at /usr/share/cmake/gz-cmake3/cmake3/GzFindPackage.cmake:243 (find_package):
+  By not providing "Findsdformat13.cmake" in CMAKE_MODULE_PATH this project
+  has asked CMake to find a package configuration file provided by
+  "sdformat13", but CMake did not find one.
+
+  Could not find a package configuration file provided by "sdformat13" with
+  any of the following names:
+
+    sdformat13Config.cmake
+    sdformat13-config.cmake
+
+  Add the installation prefix of "sdformat13" to CMAKE_PREFIX_PATH or set
+  "sdformat13_DIR" to a directory containing one of the above files.  If
+  "sdformat13" provides a separate development package or SDK, be sure it has
+  been installed.
+Call Stack (most recent call first):
+  CMakeLists.txt:91 (gz_find_package)
+
+[0m
+[31mCMake Error at CMakeLists.txt:240 (find_package):
+  By not providing "FindCGAL.cmake" in CMAKE_MODULE_PATH this project has
+  asked CMake to find a package configuration file provided by "CGAL", but
+  CMake did not find one.
+
+  Could not find a package configuration file provided by "CGAL" with any of
+  the following names:
+
+    CGALConfig.cmake
+    cgal-config.cmake
+
+  Add the installation prefix of "CGAL" to CMAKE_PREFIX_PATH or set
+  "CGAL_DIR" to a directory containing one of the above files.  If "CGAL"
+  provides a separate development package or SDK, be sure it has been
+  installed.
+
+[0m
