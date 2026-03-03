@@ -75,3 +75,6 @@ computer_vision/task_specific/task4/detection_videos/
 src/asv_wave_sim/build/
 src/asv_wave_sim/install/
 src/asv_wave_sim/log/
+
+# SITL_Models lives in ~/SITL_Models, not in workspace
+SITL_Models/

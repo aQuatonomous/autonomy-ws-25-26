@@ -1,4 +1,5 @@
 file(REMOVE_RECURSE
+  "../lib/.1"
   "../lib/libgz-waves1.pdb"
   "../lib/libgz-waves1.so"
   "../lib/libgz-waves1.so.1"

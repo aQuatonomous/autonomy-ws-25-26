@@ -1,4 +1,5 @@
 file(REMOVE_RECURSE
+  "../../../lib/.1"
   "../../../lib/libgz-waves1-dynamic-geometry-system.pdb"
   "../../../lib/libgz-waves1-dynamic-geometry-system.so"
   "../../../lib/libgz-waves1-dynamic-geometry-system.so.1"
