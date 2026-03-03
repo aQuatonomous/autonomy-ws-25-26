@@ -1,8 +1,10 @@
 #!/bin/bash
-# Full sim: win 0 = Gazebo+bridges, 1 = MAVROS+shell, 2 = ArduPilot. MAVROS connects to SITL on 5760.
-# Run from anywhere. ArduPilot must be at ~/ardupilot.
+# Run full boat simulation in tmux: Gazebo + bridges + MAVROS + ArduPilot SITL
+# Window 0: Gazebo + 4 bridge panes (lidar, camera1, camera2, camera3)
+# Window 1: MAVROS + shell
+# Window 2: ArduPilot SITL + MAVProxy
 # Switch windows: Ctrl+b 0 / 1 / 2
-# See src/asv_wave_sim/AQUATONOMOUS_SIM.md for full documentation.
+# See SIMULATION.md for full documentation.
 
 set -euo pipefail
 

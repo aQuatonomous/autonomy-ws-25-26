@@ -1,8 +1,8 @@
 #!/bin/bash
-# Fix ArduPilot SITL build when Waf fails with:
+# Fix ArduPilot SITL build permission errors:
 #   PermissionError: [Errno 13] Permission denied: '.../build/sitl/.wafpickle-...'
 # Run this on the machine where ~/ardupilot lives (e.g. Jetson). Do not run with sudo.
-# See src/asv_wave_sim/AQUATONOMOUS_SIM.md § "SITL build fails: Permission denied on .wafpickle".
+# See SIMULATION.md § "SITL build fails: Permission denied on `.wafpickle` (Jetson)".
 
 set -e
 ARDUPILOT="${ARDUPILOT:-$HOME/ardupilot}"
@@ -19,4 +19,4 @@ rm -rf "$ARDUPILOT/build/sitl"
 cd "$ARDUPILOT"
 ./waf configure
 ./waf rover
-echo "Done. You can run simulation_full.bash again."
+echo "Done. You can run run_full_simulation_tmux.bash again."

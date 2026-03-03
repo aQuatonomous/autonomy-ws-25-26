@@ -1,7 +1,7 @@
 #!/bin/bash
-# Standalone Gazebo test script for asv_wave_sim
-# Run Gazebo with aquatonomous world in a single terminal (no tmux, no MAVROS/SITL)
-# Use this to test that the wave sim stack works before adding the full boat/SITL setup
+# Run Gazebo with waves and course models (no boat, no SITL)
+# Single terminal; useful for testing the wave sim before full boat simulation.
+# See README.md for quick start and SIMULATION.md for full boat setup.
 
 set -e
 
