@@ -97,7 +97,7 @@ This package includes two ready-to-use scripts:
 For running the **complete simulation stack** (boat + ArduPilot SITL + MAVROS + ROS 2 bridges), see [SIMULATION.md](SIMULATION.md).
 
 That document covers:
-- External dependencies setup (SITL_Models, ardupilot_gazebo, bridge_ws, etc.)
+- External dependencies setup (SITL_Models, ardupilot_gazebo, bridge_ws, and optional bridge_deps_ws for ros_gz_bridge message deps)
 - Full system architecture and how components connect
 - How to run (tmux or separate terminals)
 - How to control the boat

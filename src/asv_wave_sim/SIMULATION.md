@@ -99,6 +99,7 @@ The full boat simulation requires these components (they live outside the `auton
 | **ardupilot_gazebo** | `~/ardupilot_gazebo/build/` | ArduPilotPlugin (connects SITL to Gazebo) |
 | **ardupilot** | `~/ardupilot/` | ArduPilot SITL binary (simulated autopilot) |
 | **bridge_ws** | `~/bridge_ws/` | ros_gz_bridge (Gazebo ↔ ROS 2 for Jazzy) |
+| **bridge_deps_ws** | `~/bridge_deps_ws/` | Optional; message deps for ros_gz_bridge (actuator_msgs, gps_msgs, vision_msgs) if not from apt |
 | **MAVProxy** | `~/.local/bin/mavproxy.py` | MAVProxy (command-line ground station) |
 
 ### 1. SITL_Models (Boat Model)
@@ -168,6 +169,20 @@ cd ardupilot
 
 **Where it should be:** `~/bridge_ws/install/`
 
+**Dependencies:** `ros_gz_bridge` needs `actuator_msgs`, `gps_msgs`, and `vision_msgs`. If `colcon build` fails to find them, build a deps workspace first:
+
+```bash
+# Optional: only if bridge_ws build fails with missing actuator_msgs/gps_msgs/vision_msgs
+mkdir -p ~/bridge_deps_ws/src && cd ~/bridge_deps_ws/src
+git clone https://github.com/rudislabs/actuator_msgs.git
+git clone https://github.com/swri-robotics/gps_umd.git -b ros2-devel
+git clone https://github.com/ros-perception/vision_msgs.git -b jazzy
+
+cd ~/bridge_deps_ws
+source /opt/ros/jazzy/setup.bash
+colcon build --symlink-install --packages-select gps_msgs actuator_msgs vision_msgs
+```
+
 **How to get it:**
 ```bash
 mkdir -p ~/bridge_ws/src
@@ -176,11 +191,14 @@ git clone https://github.com/gazebosim/ros_gz.git -b ros2
 
 cd ~/bridge_ws
 source /opt/ros/jazzy/setup.bash
+[ -f ~/bridge_deps_ws/install/setup.bash ] && source ~/bridge_deps_ws/install/setup.bash
 colcon build --symlink-install
 ```
 
 **Verify:**
 ```bash
+source /opt/ros/jazzy/setup.bash
+[ -f ~/bridge_deps_ws/install/setup.bash ] && source ~/bridge_deps_ws/install/setup.bash
 source ~/bridge_ws/install/setup.bash
 ros2 pkg list | grep ros_gz_bridge
 ```
@@ -259,6 +277,7 @@ gz sim -v 4 -r aquatonomous_world.sdf
 
 ```bash
 source /opt/ros/jazzy/setup.bash
+[ -f ~/bridge_deps_ws/install/setup.bash ] && source ~/bridge_deps_ws/install/setup.bash
 source ~/bridge_ws/install/setup.bash
 
 ros2 run ros_gz_bridge parameter_bridge \
@@ -270,6 +289,7 @@ ros2 run ros_gz_bridge parameter_bridge \
 
 ```bash
 source /opt/ros/jazzy/setup.bash
+[ -f ~/bridge_deps_ws/install/setup.bash ] && source ~/bridge_deps_ws/install/setup.bash
 source ~/bridge_ws/install/setup.bash
 
 ros2 run ros_gz_bridge parameter_bridge \
@@ -281,6 +301,7 @@ ros2 run ros_gz_bridge parameter_bridge \
 
 ```bash
 source /opt/ros/jazzy/setup.bash
+[ -f ~/bridge_deps_ws/install/setup.bash ] && source ~/bridge_deps_ws/install/setup.bash
 source ~/bridge_ws/install/setup.bash
 
 ros2 run ros_gz_bridge parameter_bridge \
@@ -292,6 +313,7 @@ ros2 run ros_gz_bridge parameter_bridge \
 
 ```bash
 source /opt/ros/jazzy/setup.bash
+[ -f ~/bridge_deps_ws/install/setup.bash ] && source ~/bridge_deps_ws/install/setup.bash
 source ~/bridge_ws/install/setup.bash
 
 ros2 run ros_gz_bridge parameter_bridge \

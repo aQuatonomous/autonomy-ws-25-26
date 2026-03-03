@@ -109,6 +109,10 @@ fi
 GZ_SIM_RESOURCE_PATH="${GZ_SIM_RESOURCE_PATH}:${GZ_SIM_RESOURCE_PATH:-}"
 export GZ_SIM_RESOURCE_PATH
 
+# Fix GZ_CONFIG_PATH so 'gz sim' command is available
+# ROS 2 sets GZ_CONFIG_PATH to only ROS vendor directories, we need system paths too
+export GZ_CONFIG_PATH="/usr/share/gz:${GZ_CONFIG_PATH:-}"
+
 echo
 echo "Environment ready. Starting Gazebo..."
 echo "World: aquatonomous_world.sdf"
