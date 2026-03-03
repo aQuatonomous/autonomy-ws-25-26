@@ -141,13 +141,7 @@ cmake .. -DCMAKE_BUILD_TYPE=RelWithDebInfo
 make -j4
 ```
 
-**Important:** The plugin must be built under **your user** (not root, not another user). If built under a different user, do a clean rebuild:
-```bash
-cd ~/ardupilot_gazebo
-rm -rf build && mkdir build && cd build
-cmake .. -DCMAKE_BUILD_TYPE=RelWithDebInfo
-make -j4
-```
+**Important:** The plugin must be built under **your user** (not root, not another user).
 
 ### 3. ardupilot (SITL)
 
@@ -167,7 +161,6 @@ cd ardupilot
 **If the repo is under another user's directory:**
 1. Symlink it to your home: `ln -s /home/other_user/ardupilot ~/ardupilot`
 2. Add it as a Git safe directory: `git config --global --add safe.directory /home/other_user/ardupilot`
-3. Rebuild SITL under your user if needed (see fix_ardupilot_sitl_permissions.sh in README.md).
 
 ### 4. bridge_ws (ros_gz_bridge for Jazzy)
 
@@ -489,12 +482,7 @@ arm throttle
 
 **Cause:** `ardupilot` was built with `sudo` or owned by another user.
 
-**Fix:** Run the helper script on the machine with `~/ardupilot`:
-```bash
-bash ~/autonomy-ws-25-26/src/asv_wave_sim/fix_ardupilot_sitl_permissions.sh
-```
-
-Or by hand:
+**Fix:**
 ```bash
 cd ~/ardupilot
 sudo chown -R $USER:$USER .
@@ -561,7 +549,7 @@ rm -rf build/sitl
 | MAVROS connection refused | SITL listening on 5760; use `fcu_url:=tcp://localhost:5760` |
 | Can't arm: position / gyros | For sim: `param set ARMING_REQUIRE 0` then `mode GUIDED` and `arm throttle` |
 | Gazebo black or white screen | `LD_LIBRARY_PATH` for NVIDIA libs (Jetson); ensure NVIDIA drivers installed |
-| SITL build: Permission denied .wafpickle | Run `fix_ardupilot_sitl_permissions.sh` or manually fix ownership |
+| SITL build: Permission denied .wafpickle | `cd ~/ardupilot && sudo chown -R $USER:$USER . && rm -rf build/sitl && ./waf configure --board sitl && ./waf rover` |
 | Gazebo shows 0 entities | `GZ_SIM_RESOURCE_PATH` must include all model dirs; check Gazebo pane for "could not find model" errors |
 | Gazebo 0 entities + libEGL / Mesa / nvidia-drm | Run `sudo modprobe nvidia-drm modeset=1`; ensure `LD_LIBRARY_PATH` has NVIDIA libs first |
 | DO SET MODE failed / stuck on MANUAL | **Set the param first:** `param set ARMING_REQUIRE 0`, then `mode GUIDED`, then `arm throttle` |

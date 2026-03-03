@@ -57,39 +57,38 @@ To run the complete simulation with the boat, ArduPilot SITL, and MAVROS, see [S
 
 ## Key Paths and Files
 
-| Item | Path |
-|------|------|
-| **World (Aquatonomous simulation map)** | `autonomy-ws-25-26/src/asv_wave_sim/gz-waves-models/worlds/aquatonomous_world.sdf` |
-| **Wave/course models** | `gz-waves-models/models/` and `gz-waves-models/world_models/` (waves, buoys, gates, etc.) |
-| **Boat model** | `~/SITL_Models/Gazebo/models/ourboat/` (external; see SIMULATION.md) |
-| **ArduPilot plugin** | `~/ardupilot_gazebo/build/libArduPilotPlugin.so` (external; see SIMULATION.md) |
-| **Waves/hydro libs** | `~/autonomy-ws-25-26/src/asv_wave_sim/install/lib/` (libgz-waves1.so, Hydrodynamics) |
+|| Item | Path |
+||------|------|
+|| **World (Aquatonomous simulation map)** | `autonomy-ws-25-26/src/asv_wave_sim/gz-waves-models/worlds/aquatonomous_world.sdf` |
+|| **Wave/course models** | `gz-waves-models/models/` and `gz-waves-models/world_models/` (waves, buoys, gates, etc.) |
+|| **Boat model** | `~/SITL_Models/Gazebo/models/ourboat/` (external; see SIMULATION.md) |
+|| **ArduPilot plugin** | `~/ardupilot_gazebo/build/libArduPilotPlugin.so` (external; see SIMULATION.md) |
+|| **Waves/hydro libs** | `~/autonomy-ws-25-26/src/asv_wave_sim/install/lib/` (libgz-waves1.so, Hydrodynamics) |
 
 ---
 
 ## Scripts
 
-This package includes three ready-to-use scripts:
+This package includes two ready-to-use scripts:
 
-| Script | Purpose |
-|--------|---------|
-| **run_gazebo_standalone.sh** | Run Gazebo with waves and course models only (no boat, no SITL). Single terminal; useful for testing. |
-| **run_full_simulation_tmux.bash** | Run the complete boat simulation (Gazebo + bridges + MAVROS + SITL) in a tmux session. All-in-one command. |
-| **fix_ardupilot_sitl_permissions.sh** | Fix ArduPilot SITL build permission errors (`.wafpickle` on Jetson). Run only if SITL build fails with permission denied. |
+|| Script | Purpose |
+||--------|---------|
+|| **run_gazebo_standalone.sh** | Run Gazebo with waves and course models only (no boat, no SITL). Single terminal; useful for testing. |
+|| **run_full_simulation_tmux.bash** | Run the complete boat simulation (Gazebo + bridges + MAVROS + SITL) in a tmux session. All-in-one command. |
 
 ---
 
 ## Troubleshooting
 
-| Issue | Solution |
-|-------|----------|
-| `libcgal-dev` or `libfftw3-dev` not found | `sudo apt update && sudo apt install -y libcgal-dev libfftw3-dev` |
-| Build fails | Check you're using C++17: `colcon build ... -DCMAKE_CXX_STANDARD=17` |
-| Gazebo won't start | Ensure ROS 2 Jazzy is sourced: `source /opt/ros/jazzy/setup.bash` |
-| "Unable to find uri[model://waves]" | Check that `GZ_SIM_RESOURCE_PATH` includes `gz-waves-models/models` (the standalone script does this) |
-| "Unable to find uri[model://ourboat]" | Expected without `~/SITL_Models` set up; see [SIMULATION.md](SIMULATION.md) |
-| Gazebo "0 entities" (empty world) | Verify `GZ_SIM_RESOURCE_PATH` includes all required model dirs; see [SIMULATION.md](SIMULATION.md) §9 |
-| "Missing COLLADA tag" + segmentation fault | The `ourboat` model uses STL for the hull visual to avoid COLLADA loader crashes. Other visuals are commented out in `~/SITL_Models/Gazebo/models/ourboat/model.sdf`. To restore full appearance, export meshes as STL/OBJ instead of DAE. |
+|| Issue | Solution |
+||-------|----------|
+|| `libcgal-dev` or `libfftw3-dev` not found | `sudo apt update && sudo apt install -y libcgal-dev libfftw3-dev` |
+|| Build fails | Check you're using C++17: `colcon build ... -DCMAKE_CXX_STANDARD=17` |
+|| Gazebo won't start | Ensure ROS 2 Jazzy is sourced: `source /opt/ros/jazzy/setup.bash` |
+|| "Unable to find uri[model://waves]" | Check that `GZ_SIM_RESOURCE_PATH` includes `gz-waves-models/models` (the standalone script does this) |
+|| "Unable to find uri[model://ourboat]" | Expected without `~/SITL_Models` set up; see [SIMULATION.md](SIMULATION.md) |
+|| Gazebo "0 entities" (empty world) | Verify `GZ_SIM_RESOURCE_PATH` includes all required model dirs; see [SIMULATION.md](SIMULATION.md) §9 |
+|| "Missing COLLADA tag" + segmentation fault | The `ourboat` model uses STL for the hull visual to avoid COLLADA loader crashes. Other visuals are commented out in `~/SITL_Models/Gazebo/models/ourboat/model.sdf`. To restore full appearance, export meshes as STL/OBJ instead of DAE. |
 
 ---
 
