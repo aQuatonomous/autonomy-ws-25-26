@@ -1,3 +1,0 @@
-repository='https://github.com/dstahlke/gnuplot-iostream.git'
-module=''
-tag='origin'
