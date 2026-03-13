@@ -1,51 +1,52 @@
 #!/bin/bash
-# Build script for all ROS2 workspaces
-# Run from autonomy-ws-25-26 directory
+# Top-level build script for the repo.
+# Run from autonomy-ws-25-26 directory.
+#
+# This builds:
+#   - Root ROS2 workspace (./src)
+#   - Computer vision workspace (./computer_vision/src)
+#
+# Examples (extra args are passed to the **root** build):
+#   ./build.sh
+#   ./build.sh --packages-select message_node task_sequence_coordinator
+#   ./build.sh --packages-up-to task_sequence_coordinator
 
 set -e
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-MAPPING_WS="${SCRIPT_DIR}/mapping"
-CV_WS="${SCRIPT_DIR}/computer_vision"
-PLANNING_WS="${SCRIPT_DIR}/planning"
-WEB_SERVER_WS="${SCRIPT_DIR}/web_server_map"
 
-echo "=== Building All ROS2 Workspaces ==="
+echo "=== Building root ROS2 workspace (./src) ==="
 echo
 
-#source ROS2
+# Source ROS2 from a clean environment
 unset AMENT_PREFIX_PATH CMAKE_PREFIX_PATH COLCON_PREFIX_PATH
 source /opt/ros/humble/setup.bash
-# Build mapping workspace
-echo "=== Building mapping workspace ==="
-cd "${MAPPING_WS}"
-colcon build --symlink-install
-echo "✓ Mapping workspace built successfully"
-echo
 
-# Build planning workspace (needs mapping for global_frame dependency)
-echo "=== Building planning workspace ==="
-source "${MAPPING_WS}/install/setup.bash"
-cd "${PLANNING_WS}"
-if [ -d "Global_Planner" ]; then
-    colcon build --symlink-install --paths Global_Planner
-    echo "✓ Planning workspace built successfully"
+# Build from the workspace root; only consider packages under ./src
+cd "${SCRIPT_DIR}"
+colcon build --symlink-install --base-paths src "$@"
+
+echo
+echo "✓ Root workspace build finished."
+
+# Source the freshly built root workspace as an underlay for downstream workspaces
+source "${SCRIPT_DIR}/install/setup.bash"
+
+# Build computer_vision workspace if present
+if [ -d "${SCRIPT_DIR}/computer_vision/src" ]; then
+  echo
+  echo "=== Building computer_vision workspace (./computer_vision/src) ==="
+  echo
+  cd "${SCRIPT_DIR}/computer_vision"
+  colcon build --symlink-install --base-paths src
+  echo
+  echo "✓ computer_vision workspace build finished."
 else
-    echo "⚠ Global_Planner not found in planning directory"
+  echo
+  echo "Skipping computer_vision build (no computer_vision/src directory found)."
 fi
-echo
 
-
-# Build computer vision workspace  
-echo "=== Building computer vision workspace ==="
-cd "${CV_WS}"
-colcon build --symlink-install
-echo "✓ Computer vision workspace built successfully"
 echo
-
-echo "=== Build Summary ==="
-echo "✓ Mapping workspace:        ${MAPPING_WS}"
-echo "✓ Computer vision workspace: ${CV_WS}"
-echo "✓ Planning workspace:        ${PLANNING_WS}"
-echo
-echo "All workspaces built successfully!"
-echo "You can now run: ./comp.sh"
+echo "✓ All builds finished."
+echo "Next:"
+echo "  source install/setup.bash"
+echo "  (and for CV nodes, also: cd computer_vision && source install/setup.bash)"

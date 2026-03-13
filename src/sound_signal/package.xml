@@ -14,6 +14,8 @@
   <build_depend>audio_common</build_depend>
   <build_depend>audio_common_msgs</build_depend>
 
+  <depend>sound_signal_msgs</depend>
+
       <exec_depend>rclcpp</exec_depend>
         <exec_depend>std_msgs</exec_depend>
   <exec_depend>audio_common</exec_depend>

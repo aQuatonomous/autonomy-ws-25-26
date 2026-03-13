@@ -52,7 +52,7 @@ Example: you measure the buoy at **3 m**, but the formula says **3.9 m** → sca
    Use `-o out.jpg` to save an image with the bbox drawn so you can verify.
 3. Compute scale factor (use the `height_px` from step 2 and your measured distance/size in meters):
    ```bash
-   python3 cv_scripts/compute_distance_scale.py --measured-m 2.997 --reference-m 0.254 --height-px 77
+   python3 computer_vision/model_testing/compute_distance_scale.py --measured-m 2.997 --reference-m 0.254 --height-px 77
    ```
 4. Use the printed `distance_scale_factor` when launching (e.g. `distance_scale_factor:=0.7657`).
 

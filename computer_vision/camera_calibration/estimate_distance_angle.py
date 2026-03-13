@@ -105,17 +105,18 @@ def compute_bearing_elevation(camera_id: int, bbox, frame_width: int, frame_heig
 
 
 def load_class_mapping():
-    """Load class_id -> class_name from cv_scripts/class_mapping.yaml (fallback: model names)."""
+    """Load class_id -> class_name from class_mapping.yaml (fallback: model names)."""
     for base in [Path(__file__).resolve().parent.parent, Path.cwd()]:
-        path = base / "cv_scripts" / "class_mapping.yaml"
-        if path.is_file():
-            try:
-                with open(path) as f:
-                    data = yaml.safe_load(f)
-                classes = data.get("classes") or {}
-                return {int(k): str(v) for k, v in classes.items()}
-            except Exception:
-                pass
+        for rel in ["class_mapping.yaml"]:
+            path = base / rel
+            if path.is_file():
+                try:
+                    with open(path) as f:
+                        data = yaml.safe_load(f)
+                    classes = data.get("classes") or {}
+                    return {int(k): str(v) for k, v in classes.items()}
+                except Exception:
+                    pass
     return {}
 
 

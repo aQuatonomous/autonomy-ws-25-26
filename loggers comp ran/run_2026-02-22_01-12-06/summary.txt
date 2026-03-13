@@ -1,6 +1,0 @@
-Log run: run_2026-02-22_01-12-06
-Total lines: 1
-Nodes detected: 0
-
-
-  _unmatched                                    1 lines

@@ -12,6 +12,7 @@ find_package(rclcpp REQUIRED)
 find_package(std_msgs REQUIRED)
 find_package(audio_common REQUIRED)
 find_package(audio_common_msgs REQUIRED)
+find_package(sound_signal_msgs REQUIRED)
 
 add_executable(sound_signal src/sound_signal.cpp)
 target_link_libraries(sound_signal fftw3)
@@ -32,6 +33,6 @@ if(BUILD_TESTING)
   ament_lint_auto_find_test_dependencies()
 endif()
 
-ament_target_dependencies(sound_signal rclcpp std_msgs audio_common audio_common_msgs)
+ament_target_dependencies(sound_signal rclcpp std_msgs audio_common audio_common_msgs sound_signal_msgs)
 
 ament_package()

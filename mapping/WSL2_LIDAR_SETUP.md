@@ -63,18 +63,19 @@ sudo usermod -aG dialout $USER
 
 ---
 
-## 2b. WSL: Build the mapping workspace (one-time)
+## 2b. WSL: Build the unified workspace (one-time)
 
-From the **mapping** folder (this repo):
+From the **repo root** (this repo is now a single ROS 2 workspace):
 
 ```bash
-cd ~/autonomy-ws-25-26/mapping
+cd ~/autonomy-ws-25-26
 source /opt/ros/humble/setup.bash
-colcon build --symlink-install --packages-select unitree_lidar_ros2 pointcloud_filters
+./build.sh   # builds unitree_lidar_ros2, pointcloud_filters, etc.
 source install/setup.bash
 ```
 
-The **unitree_lidar_ros2** package lives in this repo under `mapping/src/unitree_lidar_ros2`. The C++ SDK is in `mapping/unilidar_sdk/unitree_lidar_sdk` (vendor dependency; prebuilt lib used at build time). No separate clone is needed.
+The **unitree_lidar_ros2** package lives under `src/unitree_lidar_ros2`.  
+The C++ SDK is vendored at `src/unitree_lidar_sdk` (prebuilt lib used at build time). No separate clone is needed.
 
 **After changing any Python code** (e.g. range filter, buoy detector), rebuild:  
 `colcon build --symlink-install --packages-select pointcloud_filters` then `source install/setup.bash`.
@@ -87,10 +88,10 @@ The launch file defaults to `/dev/ttyUSB0`. If your LiDAR is on another port (e.
 
 **Single terminal – full pipeline (driver + filter + detector + tracker + RViz):**
 
-From the **mapping** folder:
+From the **repo root** (after building):
 
 ```bash
-cd ~/autonomy-ws-25-26/mapping
+cd ~/autonomy-ws-25-26
 source install/setup.bash
 export RMW_IMPLEMENTATION=rmw_fastrtps_cpp
 ros2 launch pointcloud_filters buoy_pipeline.launch.py launch_lidar_driver:=true
@@ -109,7 +110,7 @@ ros2 launch pointcloud_filters buoy_pipeline.launch.py launch_lidar_driver:=true
 **Terminal 1 – LiDAR driver only (e.g. custom port):**
 
 ```bash
-cd ~/autonomy-ws-25-26/mapping
+cd ~/autonomy-ws-25-26
 source install/setup.bash
 ros2 run unitree_lidar_ros2 unitree_lidar_ros2_node --ros-args -p port:=/dev/ttyACM0
 ```
@@ -117,7 +118,7 @@ ros2 run unitree_lidar_ros2 unitree_lidar_ros2_node --ros-args -p port:=/dev/tty
 **Terminal 2 – Pipeline without launching the driver:**
 
 ```bash
-cd ~/autonomy-ws-25-26/mapping
+cd ~/autonomy-ws-25-26
 source install/setup.bash
 ros2 launch pointcloud_filters buoy_pipeline.launch.py launch_lidar_driver:=false
 ```
@@ -183,8 +184,8 @@ If it still crashes, run the pipeline without RViz and inspect data in the termi
 
 1. **Windows:** Install usbipd-win → plug LiDAR → `usbipd bind --busid <BUSID>` → `usbipd attach --wsl --busid <BUSID>`.
 2. **WSL:** Verify with `lsusb` and `ls /dev/ttyUSB* /dev/ttyACM*`; add user to `dialout` if needed.
-3. **WSL:** Build the mapping workspace from `~/autonomy-ws-25-26/mapping` (driver is in `mapping/src/unitree_lidar_ros2`, SDK in `mapping/unilidar_sdk/unitree_lidar_sdk`).
-4. **WSL:** Run `buoy_pipeline.launch.py` from the mapping folder (or run the driver with `port:=/dev/ttyACM0` and the pipeline with `launch_lidar_driver:=false`).
+3. **WSL:** Build the unified workspace from `~/autonomy-ws-25-26` (driver is in `src/unitree_lidar_ros2`, SDK in `src/unitree_lidar_sdk`).
+4. **WSL:** Run `buoy_pipeline.launch.py` from the root workspace (or run the driver with `port:=/dev/ttyACM0` and the pipeline with `launch_lidar_driver:=false`).
 5. Check `ros2 topic hz /unilidar/cloud` and RViz with fixed frame `unilidar_lidar`.
 
 For overrides, tuning, and troubleshooting, see [COMPETITION.md](COMPETITION.md) and [README.md](README.md).
