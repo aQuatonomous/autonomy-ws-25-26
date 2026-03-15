@@ -27,7 +27,7 @@ echo ""
 
 # Source same workspaces as comp/record (message types for bag topics)
 source /opt/ros/jazzy/setup.bash
-source "${SCRIPT_DIR}/install/setup.bash"
+source "${SCRIPT_DIR}/../install/setup.bash"
 
 # Check bag has required topics with messages (errors shown to terminal)
 INFO=$(ros2 bag info "$BAG") || { echo "❌ Failed to read bag info (see above)"; exit 1; }
@@ -53,7 +53,7 @@ echo "▶ Playing with --loop. Press Ctrl+C to stop."
 echo ""
 echo "In another terminal, run the web visualizer:"
 echo "  source /opt/ros/jazzy/setup.bash"
-echo "  source \"${SCRIPT_DIR}/install/setup.bash\""
+echo "  source \"${SCRIPT_DIR}/../install/setup.bash\""
 echo "  ros2 run web_server_map map_visualizer_node"
 echo "Then open: http://localhost:8080"
 echo ""
