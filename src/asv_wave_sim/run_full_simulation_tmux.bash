@@ -1,9 +1,10 @@
 #!/bin/bash
-# Run full boat simulation in tmux: Gazebo + bridges + MAVROS + ArduPilot SITL
-# Window 0: Gazebo + 4 bridge panes (lidar, camera1, camera2, camera3)
-# Window 1: MAVROS + shell
-# Window 2: ArduPilot SITL + MAVProxy
-# Switch windows: Ctrl+b 0 / 1 / 2
+# Run full boat simulation in tmux: Gazebo + bridges + ArduPilot SITL + MAVROS
+# Total: 3 windows, 9 panes. Switch windows: Ctrl+b 0 / 1 / 2
+#   Window 0: Gazebo (pane 0.0) + 4 bridge panes (0.1–0.4: lidar, camera1, camera2, camera3)
+#   Window 1: ArduPilot SITL (left) + ROS shell (right)
+#   Window 2: MAVROS (left) + ROS shell (right)
+# If SITL fails with NumPy/matplotlib (MAVProxy), use SITL_NO_GUI=1 to skip --console --map.
 # See SIMULATION.md for full documentation.
 
 set -e
@@ -15,6 +16,8 @@ SCRIPT_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" >/dev/null 2>&1 && pwd)"
 WS_ROOT="$(cd -- "${SCRIPT_DIR}/../.." >/dev/null 2>&1 && pwd)"
 USER_HOME="${HOME}"
 ASV_INSTALL="${WS_ROOT}/install"
+# gz-waves and hydro libs live under install/gz-waves1/lib (no top-level install/lib)
+GZ_WAVES_LIB="${WS_ROOT}/install/gz-waves1/lib"
 
 # Start fresh: kill old session so Gazebo actually starts
 tmux kill-session -t "$SESSION" 2>/dev/null || true
@@ -39,7 +42,7 @@ tmux new-window -t "${SESSION}" -n mavros
 tmux split-window -t "${SESSION}:2" -h
 
 # ── Window 0: Gazebo + Bridges ───────────────────────────────────────────────
-send "${SESSION}:0.0" "source /opt/ros/jazzy/setup.bash && source ${ASV_INSTALL}/setup.bash && export GZ_VERSION=harmonic && export GZ_CONFIG_PATH=/usr/share/gz:\${GZ_CONFIG_PATH:-} && export LD_LIBRARY_PATH=${ASV_INSTALL}/lib:\$LD_LIBRARY_PATH && export GZ_SIM_SYSTEM_PLUGIN_PATH=${ASV_INSTALL}/lib:${USER_HOME}/ardupilot_gazebo/build && export GZ_SIM_RESOURCE_PATH=${WS_ROOT}/src/asv_wave_sim/gz-waves-models/models:${WS_ROOT}/src/asv_wave_sim/gz-waves-models/world_models:${USER_HOME}/SITL_Models/Gazebo/models:${USER_HOME}/SITL_Models/Gazebo/worlds:${USER_HOME}/ardupilot_gazebo/models:${USER_HOME}/ardupilot_gazebo/worlds && export RMW_IMPLEMENTATION=rmw_fastrtps_cpp && cd ${WS_ROOT}/src/asv_wave_sim/gz-waves-models/worlds && gz sim -v 4 -r aquatonomous_world.sdf"
+send "${SESSION}:0.0" "source /opt/ros/jazzy/setup.bash && source ${ASV_INSTALL}/setup.bash && export GZ_VERSION=harmonic && export GZ_CONFIG_PATH=/usr/share/gz:\${GZ_CONFIG_PATH:-} && export LD_LIBRARY_PATH=${GZ_WAVES_LIB}:${USER_HOME}/ardupilot_gazebo/build:\$LD_LIBRARY_PATH && export GZ_SIM_SYSTEM_PLUGIN_PATH=${GZ_WAVES_LIB}:${USER_HOME}/ardupilot_gazebo/build && export GZ_SIM_RESOURCE_PATH=${WS_ROOT}/src/asv_wave_sim/gz-waves-models/models:${WS_ROOT}/src/asv_wave_sim/gz-waves-models/world_models:${USER_HOME}/SITL_Models/Gazebo/models:${USER_HOME}/SITL_Models/Gazebo/worlds:${USER_HOME}/ardupilot_gazebo/models:${USER_HOME}/ardupilot_gazebo/worlds && export RMW_IMPLEMENTATION=rmw_fastrtps_cpp && cd ${WS_ROOT}/src/asv_wave_sim/gz-waves-models/worlds && gz sim -v 4 -r aquatonomous_world.sdf"
 
 # Bridge panes – sleep 20s to let Gazebo fully initialize
 BRIDGE_SRC="source /opt/ros/jazzy/setup.bash; [ -f ~/bridge_deps_ws/install/setup.bash ] && source ~/bridge_deps_ws/install/setup.bash; [ -f ~/bridge_ws/install/setup.bash ] && source ~/bridge_ws/install/setup.bash; export RMW_IMPLEMENTATION=rmw_fastrtps_cpp"
@@ -49,9 +52,10 @@ send "${SESSION}:0.3" "$BRIDGE_SRC && sleep 20 && ros2 run ros_gz_bridge paramet
 send "${SESSION}:0.4" "$BRIDGE_SRC && sleep 20 && ros2 run ros_gz_bridge parameter_bridge /camera3_topic@sensor_msgs/msg/Image@gz.msgs.Image --ros-args -r /camera3_topic:=/camera2/image_raw"
 
 # ── Window 1: ArduPilot SITL ─────────────────────────────────────────────────
-# MAVProxy runs inside this pane. --console and --map open Qt sub-windows (OK).
-# Waits 15s for Gazebo/ArduPilotPlugin to be ready on port 9002.
-send "${SESSION}:1.0" "export PATH=${USER_HOME}/.local/bin:\$PATH && export PYTHONPATH=${USER_HOME}/.local/lib/python3.12/site-packages:\$PYTHONPATH && sleep 15 && echo 'Starting SITL...' && cd ~/ardupilot/Tools/autotest && python3 ./sim_vehicle.py -v Rover -f rover-skid --model JSON --console --map --custom-location=51.566151,-4.034345,10.0,-135"
+# MAVProxy runs here. With --console --map you get Qt windows; if NumPy/matplotlib fails, use SITL_NO_GUI=1.
+# Waits 35s for Gazebo/ArduPilotPlugin to be ready on port 9002 before SITL connects.
+SITL_EXTRA="--console --map"; [ -n "${SITL_NO_GUI:-}" ] && SITL_EXTRA=""
+send "${SESSION}:1.0" "export PATH=${USER_HOME}/.local/bin:\$PATH && export PYTHONPATH=${USER_HOME}/.local/lib/python3.12/site-packages:\$PYTHONPATH && sleep 35 && echo 'Starting SITL...' && cd ~/ardupilot/Tools/autotest && python3 ./sim_vehicle.py -v Rover -f rover-skid --model JSON ${SITL_EXTRA} --custom-location=51.566151,-4.034345,10.0,-135"
 send "${SESSION}:1.1" "source /opt/ros/jazzy/setup.bash && source ${ASV_INSTALL}/setup.bash && export RMW_IMPLEMENTATION=rmw_fastrtps_cpp && echo 'ROS shell - try: ros2 topic list'"
 
 # ── Window 2: MAVROS ─────────────────────────────────────────────────────────

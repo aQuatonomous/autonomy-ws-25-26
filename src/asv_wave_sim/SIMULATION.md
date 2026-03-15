@@ -559,13 +559,23 @@ rm -rf build/sitl
 2. Ensure `LD_LIBRARY_PATH` starts with `/usr/lib/aarch64-linux-gnu/nvidia`
 3. Try: `export __GLX_VENDOR_LIBRARY_NAME=nvidia`
 
+### 12. SITL / MAVProxy: NumPy 2.x / matplotlib crash
+
+**Symptom:** SITL pane shows `A module that was compiled using NumPy 1.x cannot be run in NumPy 2.x` and MAVProxy (or sim_vehicle.py) exits.
+
+**Cause:** MAVProxy imports matplotlib, which can conflict with NumPy 2.x.
+
+**Fix:**
+- Run the tmux script without MAVProxy GUI: `SITL_NO_GUI=1 bash run_full_simulation_tmux.bash` (SITL runs without `--console --map`).
+- Or install NumPy 1.x in the environment used for SITL: `pip install 'numpy<2'` (in a venv or user install that MAVProxy uses).
+
 ---
 
 ## Troubleshooting
 
 | Symptom | What to check |
 |---------|----------------|
-| Boat falls through water | `LD_LIBRARY_PATH` includes `.../asv_wave_sim/install/lib`; Hydrodynamics `<enable>` is `ourboat::base_link` |
+| Boat falls through water | `LD_LIBRARY_PATH` includes `.../install/gz-waves1/lib` (and `~/ardupilot_gazebo/build`); Hydrodynamics `<enable>` is `ourboat::base_link` |
 | Boat doesn't move in Gazebo | `GZ_SIM_SYSTEM_PLUGIN_PATH` includes `~/ardupilot_gazebo/build`; plugin rebuilt for current user; SITL starts after Gazebo (40s delay) |
 | MAVProxy not found | Script exports `PATH` and `PYTHONPATH` for SITL; `~/.local/bin/mavproxy.py` exists |
 | MAVROS connection refused | SITL listening on 5760; use `fcu_url:=tcp://localhost:5760` |
@@ -575,6 +585,7 @@ rm -rf build/sitl
 | Gazebo shows 0 entities | `GZ_SIM_RESOURCE_PATH` must include all model dirs; check Gazebo pane for "could not find model" errors |
 | Gazebo 0 entities + libEGL / Mesa / nvidia-drm | Run `sudo modprobe nvidia-drm modeset=1`; ensure `LD_LIBRARY_PATH` has NVIDIA libs first |
 | DO SET MODE failed / stuck on MANUAL | **Set the param first:** `param set ARMING_REQUIRE 0`, then `mode GUIDED`, then `arm throttle` |
+| SITL crashes: NumPy / matplotlib | Run with `SITL_NO_GUI=1` or use `numpy<2` for MAVProxy |
 
 ---
 
