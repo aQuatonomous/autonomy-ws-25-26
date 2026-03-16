@@ -71,7 +71,7 @@ def main():
         print(f"Saved bbox image: {args.output}")
     print()
     print("Use with compute_distance_scale.py:")
-    print(f"  python3 cv_scripts/compute_distance_scale.py --measured-m MEASURED_M --reference-m REF_M --height-px {height_px}")
+    print(f"  python3 computer_vision/model_testing/compute_distance_scale.py --measured-m MEASURED_M --reference-m REF_M --height-px {height_px}")
     return 0
 
 

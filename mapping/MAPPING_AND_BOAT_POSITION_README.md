@@ -9,7 +9,7 @@ This document describes the **entire** mapping and boat-position pipeline: how L
 1. [Overview](#1-overview)
 2. [Coordinate Frames](#2-coordinate-frames)
 3. [Hardware and External Dependencies](#3-hardware-and-external-dependencies)
-4. [Launch Order (comp_single_camera.sh)](#4-launch-order-comp_single_camerash)
+4. [Launch Order (run_comp_single_camera.sh)](#4-launch-order-run_comp_single_camerash)
 5. [Global Frame Package (Boat State + Detection to Global)](#5-global-frame-package-boat-state--detection-to-global)
 6. [LiDAR Buoy Pipeline (pointcloud_filters)](#6-lidar-buoy-pipeline-pointcloud_filters)
 7. [End-to-End Data Flow](#7-end-to-end-data-flow)
@@ -69,9 +69,9 @@ MAVROS is started by `comp_single_camera.sh` before the global_frame and LiDAR p
 
 ---
 
-## 4. Launch Order (comp_single_camera.sh)
+## 4. Launch Order (run_comp_single_camera.sh)
 
-From `comp_single_camera.sh`, the mapping-related launch order is:
+From `run_comp_single_camera.sh`, the mapping-related launch order is:
 
 1. **MAVROS** — `ros2 launch mavros apm.launch fcu_url:=/dev/ttyACM0:57600`
 2. **global_frame** — `ros2 launch global_frame global_frame.launch.py` (boat_state_node + detection_to_global_node)
