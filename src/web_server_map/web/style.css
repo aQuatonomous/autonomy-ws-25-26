@@ -23,17 +23,24 @@ body {
     color: white;
     padding: 15px 20px;
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    flex-wrap: wrap;
 }
 
 #header h1 {
     font-size: 24px;
-    margin-bottom: 10px;
+    margin-bottom: 0;
+    flex-shrink: 0;
 }
 
 #status {
     display: flex;
     gap: 20px;
     font-size: 14px;
+    flex: 1;
+    min-width: 300px;
 }
 
 #status span {
@@ -75,8 +82,10 @@ body {
     padding: 15px 20px;
     background-color: #ecf0f1;
     border-top: 2px solid #bdc3c7;
-    max-height: 200px;
+    min-height: 200px;
+    max-height: 250px;
     overflow-y: auto;
+    flex-shrink: 0;
 }
 
 #info-panel, #legend {
@@ -85,6 +94,9 @@ body {
     padding: 15px;
     border-radius: 5px;
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    min-width: 0;
+    overflow-y: auto;
+    max-height: 200px;
 }
 
 #info-panel h3, #legend h3 {
@@ -158,4 +170,150 @@ body {
 
 ::-webkit-scrollbar-thumb:hover {
     background: #555;
+}
+
+/* Object Placement Mode Styles */
+.placement-toggle-btn {
+    margin-left: auto;
+    padding: 8px 16px;
+    background-color: #db34ac;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    font-size: 14px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    align-self: center;
+}
+
+.placement-toggle-btn:hover {
+    background-color: #2980b9;
+}
+
+.placement-toggle-btn.active {
+    background-color: #27ae60;
+}
+
+.placement-toggle-btn.active:hover {
+    background-color: #229954;
+}
+
+/* Object Toolbar */
+.object-toolbar {
+    position: fixed;
+    top: 75px;
+    right: 15px;
+    width: 250px;
+    background-color: white;
+    border: 2px solid #3498db;
+    border-radius: 8px;
+    padding: 15px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+    z-index: 1000;
+    max-height: calc(100vh - 95px);
+    overflow-y: auto;
+    transition: all 0.3s ease;
+}
+
+.object-toolbar.hidden {
+    display: none;
+}
+
+.object-toolbar h4 {
+    color: #2c3e50;
+    font-size: 16px;
+    margin-bottom: 12px;
+    text-align: center;
+    border-bottom: 2px solid #3498db;
+    padding-bottom: 8px;
+}
+
+#object-buttons-container {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.object-type-btn {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 12px;
+    background-color: #ecf0f1;
+    border: 2px solid #bdc3c7;
+    border-radius: 5px;
+    cursor: grab;
+    font-size: 13px;
+    color: #2c3e50;
+    transition: all 0.2s ease;
+    font-weight: bold;
+}
+
+.object-type-btn:hover {
+    background-color: #d5dbdd;
+    border-color: #3498db;
+    transform: translateX(-2px);
+}
+
+.object-type-btn:active {
+    cursor: grabbing;
+}
+
+.object-color-box {
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    border: 2px solid #7f8c8d;
+    flex-shrink: 0;
+}
+
+/* Toolbar scrollbar styling */
+.object-toolbar::-webkit-scrollbar {
+    width: 6px;
+}
+
+.object-toolbar::-webkit-scrollbar-track {
+    background: #f0f0f0;
+}
+
+.object-toolbar::-webkit-scrollbar-thumb {
+    background: #3498db;
+    border-radius: 3px;
+}
+
+.object-toolbar::-webkit-scrollbar-thumb:hover {
+    background: #2980b9;
+}
+
+/* Responsive design for object toolbar */
+@media (max-width: 768px) {
+    .object-toolbar {
+        width: 220px;
+        top: 75px;
+        right: 10px;
+        max-height: calc(100vh - 95px);
+    }
+    
+    .object-toolbar h4 {
+        font-size: 14px;
+    }
+    
+    .object-type-btn {
+        font-size: 12px;
+        padding: 8px 10px;
+    }
+}
+
+@media (max-width: 480px) {
+    .placement-toggle-btn {
+        padding: 6px 12px;
+        font-size: 12px;
+    }
+    
+    .object-toolbar {
+        width: 200px;
+        top: 75px;
+        right: 5px;
+    }
 }
