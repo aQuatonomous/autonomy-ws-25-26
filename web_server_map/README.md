@@ -80,3 +80,14 @@ ros2 launch web_server_map map_visualizer.launch.py port:=8888 update_rate_hz:=5
 - **Node won’t start**: `pip3 show aiohttp`; ensure you built from root and sourced `install/setup.bash`.
 - **Map says “waiting for data”**: check `ros2 topic list` and `ros2 topic echo /boat_pose` on the Jetson.
 - **Can’t reach from laptop**: verify tunnel (`ssh -L 8080:localhost:8080 user@jetson-ip`) and open `http://localhost:8080`.
+
+
+##
+```bash
+source /opt/ros/humble/setup.bash
+./build.sh
+source install/setup.bash
+pkill -9 -f "map_visualizer_node" 2>/dev/null
+sleep 1
+ros2 run web_server_map map_visualizer_node
+```

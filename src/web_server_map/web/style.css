@@ -34,6 +34,8 @@ body {
     display: flex;
     gap: 20px;
     font-size: 14px;
+    align-items: center;
+    flex-wrap: wrap;
 }
 
 #status span {
@@ -52,6 +54,87 @@ body {
     background-color: #e74c3c !important;
     color: white;
     font-weight: bold;
+}
+
+/* Object placement toggle button sits inline in the header status bar */
+.placement-toggle-btn {
+    padding: 5px 12px;
+    border: none;
+    border-radius: 3px;
+    background-color: #3498db;
+    color: white;
+    font-size: 13px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.placement-toggle-btn:hover {
+    background-color: #2980b9;
+}
+
+.placement-toggle-btn.active {
+    background-color: #e67e22;
+}
+
+.placement-toggle-btn.active:hover {
+    background-color: #d35400;
+}
+
+/* Toolbar anchored just below the header, never overlapping it */
+.object-toolbar {
+    background-color: #34495e;
+    color: white;
+    padding: 10px 20px;
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    flex-wrap: wrap;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    /* Do NOT use position:fixed/absolute – sits in normal document flow */
+}
+
+.object-toolbar h4 {
+    font-size: 14px;
+    white-space: nowrap;
+    color: #ecf0f1;
+    margin: 0;
+}
+
+.object-toolbar.hidden {
+    display: none;
+}
+
+#object-buttons-container {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+.object-type-btn {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 5px 10px;
+    background-color: #4a6278;
+    border: 1px solid #5d7a92;
+    border-radius: 4px;
+    color: white;
+    font-size: 12px;
+    cursor: grab;
+    transition: background-color 0.2s;
+}
+
+.object-type-btn:hover {
+    background-color: #5d7a92;
+}
+
+.object-color-box {
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    border: 1px solid rgba(255, 255, 255, 0.5);
+    flex-shrink: 0;
 }
 
 #canvas-container {
@@ -130,11 +213,11 @@ body {
         flex-direction: column;
         max-height: 300px;
     }
-    
+
     #header h1 {
         font-size: 18px;
     }
-    
+
     #status {
         flex-direction: column;
         gap: 5px;

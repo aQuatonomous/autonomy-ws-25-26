@@ -9,6 +9,7 @@ class MapVisualizer {
         // State
         this.boat = null;
         this.detections = [];
+        this.objectPlacement = null;
         
         // WebSocket
         this.ws = null;
@@ -54,6 +55,9 @@ class MapVisualizer {
         this.setupCanvas();
         this.setupWebSocket();
         this.setupMouseTracking();
+
+        // Initialize object placement after setup
+        this.objectPlacement = new ObjectPlacement(this);
         
         // Start render loop
         this.render();
@@ -377,6 +381,11 @@ class MapVisualizer {
         if (this.boat) {
             this.drawBoat(this.boat);
         }
+
+        // Draw placed objects from object placement mode
+        if (this.objectPlacement) {
+            this.objectPlacement.drawPlacedObjects();
+        }
         
         // Draw "No data" message if no boat
         if (!this.boat) {
@@ -386,6 +395,8 @@ class MapVisualizer {
             this.ctx.fillText('Waiting for data...', this.canvas.width / 2, this.canvas.height / 2);
             this.ctx.textAlign = 'left';
         }
+
+
     }
 }
 

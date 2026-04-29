@@ -57,6 +57,7 @@ class MapWebServer:
         self.app.router.add_get('/ws', self.handle_websocket)
         self.app.router.add_get('/web/style.css', self.handle_style_css)
         self.app.router.add_get('/web/map.js', self.handle_map_js)
+        self.app.router.add_get('/web/objectPlacement.js', self.handle_object_placement_js)
         self.app.router.add_static('/web', self.web_dir, show_index=False)
         
         self.logger = logging.getLogger('MapWebServer')
@@ -107,6 +108,13 @@ class MapWebServer:
         js_path = self.web_dir / 'map.js'
         if not js_path.exists():
             return web.Response(text='map.js not found', status=404)
+        return web.FileResponse(js_path)
+    
+    async def handle_object_placement_js(self, request):
+        """Serve objectPlacement.js explicitly (defensive against static routing issues)."""
+        js_path = self.web_dir / 'objectPlacement.js'
+        if not js_path.exists():
+            return web.Response(text='objectPlacement.js not found', status=404)
         return web.FileResponse(js_path)
     
     async def handle_websocket(self, request):
