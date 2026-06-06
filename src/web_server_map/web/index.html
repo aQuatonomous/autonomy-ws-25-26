@@ -88,6 +88,25 @@
                     <span>Unknown</span>
                 </div>
             </div>
+            <div id="geo-panel">
+                <h3>Geo Reference</h3>
+                <p class="geo-hint">Enter real-world corners to overlay lat/lon on the map.</p>
+
+                <div class="geo-input-group">
+                    <label>Top-Right Corner</label>
+                    <input type="number" id="tr-lat" placeholder="Latitude"  step="0.000001">
+                    <input type="number" id="tr-lon" placeholder="Longitude" step="0.000001">
+                </div>
+
+                <div class="geo-input-group">
+                    <label>Bottom-Left Corner</label>
+                    <input type="number" id="bl-lat" placeholder="Latitude"  step="0.000001">
+                    <input type="number" id="bl-lon" placeholder="Longitude" step="0.000001">
+                </div>
+
+                <button id="apply-geo">Apply</button>
+                <button id="clear-geo">Clear</button>
+            </div>
         </div>
     </div>
     

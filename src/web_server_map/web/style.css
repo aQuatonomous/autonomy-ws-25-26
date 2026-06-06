@@ -242,3 +242,62 @@ body {
 ::-webkit-scrollbar-thumb:hover {
     background: #555;
 }
+
+#geo-panel {
+    flex: 1;
+    background-color: white;
+    padding: 15px;
+    border-radius: 5px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    min-width: 220px;
+}
+
+#geo-panel h3 {
+    font-size: 16px;
+    margin-bottom: 8px;
+    color: #2c3e50;
+    border-bottom: 2px solid #3498db;
+    padding-bottom: 5px;
+}
+
+.geo-hint {
+    font-size: 11px;
+    color: #888;
+    margin-bottom: 10px;
+}
+
+.geo-input-group {
+    margin-bottom: 10px;
+}
+
+.geo-input-group label {
+    display: block;
+    font-size: 12px;
+    font-weight: bold;
+    color: #34495e;
+    margin-bottom: 4px;
+}
+
+.geo-input-group input {
+    width: 100%;
+    padding: 5px 8px;
+    margin-bottom: 4px;
+    border: 1px solid #bdc3c7;
+    border-radius: 3px;
+    font-size: 12px;
+    box-sizing: border-box;
+}
+
+#geo-panel button {
+    padding: 6px 14px;
+    border: none;
+    border-radius: 3px;
+    font-size: 13px;
+    cursor: pointer;
+    margin-right: 6px;
+}
+
+#apply-geo { background-color: #27ae60; color: white; }
+#apply-geo:hover { background-color: #219a52; }
+#clear-geo { background-color: #e74c3c; color: white; }
+#clear-geo:hover { background-color: #c0392b; }
