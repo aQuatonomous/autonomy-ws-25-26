@@ -41,7 +41,7 @@ Camera 3: /camera2/image_raw ✅ PUBLISHING
 ### Test 4: Normal 'gz sim' Command Works
 ```bash
 $ source /opt/ros/jazzy/setup.bash
-$ source ~/autonomy-ws-25-26/install/setup.bash
+$ source ~/Repos/School/autonomy-ws-25-26/install/setup.bash
 $ export GZ_CONFIG_PATH="/usr/share/gz:${GZ_CONFIG_PATH:-}"
 $ gz sim -v 2 aquatonomous_world.sdf
 ```
@@ -65,15 +65,15 @@ Session structure verified:
 source /opt/ros/jazzy/setup.bash
 
 # Workspace
-source ~/autonomy-ws-25-26/install/setup.bash
+source ~/Repos/School/autonomy-ws-25-26/install/setup.bash
 
 # CRITICAL FIX: Restore system Gazebo paths
 export GZ_CONFIG_PATH="/usr/share/gz:${GZ_CONFIG_PATH:-}"
 
 # Other Gazebo variables
 export GZ_VERSION=harmonic
-export LD_LIBRARY_PATH="~/autonomy-ws-25-26/install/lib:$LD_LIBRARY_PATH"
-export GZ_SIM_SYSTEM_PLUGIN_PATH="~/autonomy-ws-25-26/install/lib"
+export LD_LIBRARY_PATH="~/Repos/School/autonomy-ws-25-26/install/lib:$LD_LIBRARY_PATH"
+export GZ_SIM_SYSTEM_PLUGIN_PATH="~/Repos/School/autonomy-ws-25-26/install/lib"
 export RMW_IMPLEMENTATION=rmw_fastrtps_cpp
 ```
 
@@ -84,7 +84,7 @@ Best for debugging and seeing individual component status.
 
 **Terminal 1 - Gazebo:**
 ```bash
-cd ~/autonomy-ws-25-26/src/asv_wave_sim
+cd ~/Repos/School/autonomy-ws-25-26/src/asv_wave_sim
 ./test_gazebo_gui.sh
 ```
 Opens Gazebo window with boat, water, buoys, gates
@@ -92,19 +92,19 @@ Opens Gazebo window with boat, water, buoys, gates
 **Terminal 2 - Check Topics (after 5s):**
 ```bash
 source /opt/ros/jazzy/setup.bash
-source ~/autonomy-ws-25-26/install/setup.bash
+source ~/Repos/School/autonomy-ws-25-26/install/setup.bash
 ros2 topic list | grep -E "laser|camera"
 ```
 
 **Terminal 3 - Bridges (if needed):**
 ```bash
-cd ~/autonomy-ws-25-26/src/asv_wave_sim
+cd ~/Repos/School/autonomy-ws-25-26/src/asv_wave_sim
 ./test_bridges.sh
 ```
 
 **Terminal 4 - SITL (after 40s):**
 ```bash
-cd ~/autonomy-ws-25-26/src/asv_wave_sim
+cd ~/Repos/School/autonomy-ws-25-26/src/asv_wave_sim
 ./test_sitl.sh
 ```
 
@@ -112,7 +112,7 @@ cd ~/autonomy-ws-25-26/src/asv_wave_sim
 Everything in one command, all components in organized panes.
 
 ```bash
-bash ~/autonomy-ws-25-26/src/asv_wave_sim/run_full_simulation_tmux.bash
+bash ~/Repos/School/autonomy-ws-25-26/src/asv_wave_sim/run_full_simulation_tmux.bash
 ```
 
 **Navigate between windows:**

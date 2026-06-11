@@ -3,7 +3,7 @@
 **Build (from the mapping folder):**
 
 ```bash
-cd ~/autonomy-ws-25-26/mapping
+cd ~/Repos/School/autonomy-ws-25-26/mapping
 source /opt/ros/jazzy/setup.bash
 colcon build --packages-select unitree_lidar_ros2 pointcloud_filters --symlink-install
 source install/setup.bash
@@ -21,7 +21,7 @@ If the port is missing you’ll get an error. Check `ls /dev/ttyUSB*` and add yo
 **Run the full pipeline** (driver → range filter → detector → tracker → visualizer):
 
 ```bash
-cd ~/autonomy-ws-25-26/mapping
+cd ~/Repos/School/autonomy-ws-25-26/mapping
 source install/setup.bash
 ros2 launch pointcloud_filters buoy_pipeline.launch.py
 ```

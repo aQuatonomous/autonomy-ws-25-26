@@ -68,7 +68,7 @@ sudo usermod -aG dialout $USER
 From the **repo root** (this repo is now a single ROS 2 workspace):
 
 ```bash
-cd ~/autonomy-ws-25-26
+cd ~/Repos/School/autonomy-ws-25-26
 source /opt/ros/jazzy/setup.bash
 ./build.sh   # builds unitree_lidar_ros2, pointcloud_filters, etc.
 source install/setup.bash
@@ -91,7 +91,7 @@ The launch file defaults to `/dev/ttyUSB0`. If your LiDAR is on another port (e.
 From the **repo root** (after building):
 
 ```bash
-cd ~/autonomy-ws-25-26
+cd ~/Repos/School/autonomy-ws-25-26
 source install/setup.bash
 export RMW_IMPLEMENTATION=rmw_fastrtps_cpp
 ros2 launch pointcloud_filters buoy_pipeline.launch.py launch_lidar_driver:=true
@@ -110,7 +110,7 @@ ros2 launch pointcloud_filters buoy_pipeline.launch.py launch_lidar_driver:=true
 **Terminal 1 – LiDAR driver only (e.g. custom port):**
 
 ```bash
-cd ~/autonomy-ws-25-26
+cd ~/Repos/School/autonomy-ws-25-26
 source install/setup.bash
 ros2 run unitree_lidar_ros2 unitree_lidar_ros2_node --ros-args -p port:=/dev/ttyACM0
 ```
@@ -118,7 +118,7 @@ ros2 run unitree_lidar_ros2 unitree_lidar_ros2_node --ros-args -p port:=/dev/tty
 **Terminal 2 – Pipeline without launching the driver:**
 
 ```bash
-cd ~/autonomy-ws-25-26
+cd ~/Repos/School/autonomy-ws-25-26
 source install/setup.bash
 ros2 launch pointcloud_filters buoy_pipeline.launch.py launch_lidar_driver:=false
 ```
@@ -148,7 +148,7 @@ The L1 has a **fixed scan rate** (~21,600 pts/s); there are **no driver paramete
 ### "can't open configuration file .cyclonedds.xml" / "rmw handle is invalid"
 ROS2 is using CycloneDDS and trying to load a missing config. **Fix:** use FastRTPS instead when launching (from mapping folder):
 ```bash
-cd ~/autonomy-ws-25-26/mapping && source install/setup.bash && export RMW_IMPLEMENTATION=rmw_fastrtps_cpp && ros2 launch pointcloud_filters buoy_pipeline.launch.py launch_lidar_driver:=false
+cd ~/Repos/School/autonomy-ws-25-26/mapping && source install/setup.bash && export RMW_IMPLEMENTATION=rmw_fastrtps_cpp && ros2 launch pointcloud_filters buoy_pipeline.launch.py launch_lidar_driver:=false
 ```
 
 ### "ModuleNotFoundError: No module named 'sklearn'"
@@ -158,7 +158,7 @@ Install scikit-learn: `sudo apt install python3-sklearn` (or re-run `./setup_wsl
 WSLg/OpenGL can crash under load. **Try the lighter config** (from mapping folder):
 
 ```bash
-cd ~/autonomy-ws-25-26/mapping
+cd ~/Repos/School/autonomy-ws-25-26/mapping
 export RMW_IMPLEMENTATION=rmw_fastrtps_cpp
 source install/setup.bash
 rviz2 -d install/pointcloud_filters/share/pointcloud_filters/rviz/buoy_pipeline_wsl.rviz
@@ -184,7 +184,7 @@ If it still crashes, run the pipeline without RViz and inspect data in the termi
 
 1. **Windows:** Install usbipd-win → plug LiDAR → `usbipd bind --busid <BUSID>` → `usbipd attach --wsl --busid <BUSID>`.
 2. **WSL:** Verify with `lsusb` and `ls /dev/ttyUSB* /dev/ttyACM*`; add user to `dialout` if needed.
-3. **WSL:** Build the unified workspace from `~/autonomy-ws-25-26` (driver is in `src/unitree_lidar_ros2`, SDK in `src/unitree_lidar_sdk`).
+3. **WSL:** Build the unified workspace from `~/Repos/School/autonomy-ws-25-26` (driver is in `src/unitree_lidar_ros2`, SDK in `src/unitree_lidar_sdk`).
 4. **WSL:** Run `buoy_pipeline.launch.py` from the root workspace (or run the driver with `port:=/dev/ttyACM0` and the pipeline with `launch_lidar_driver:=false`).
 5. Check `ros2 topic hz /unilidar/cloud` and RViz with fixed frame `unilidar_lidar`.
 

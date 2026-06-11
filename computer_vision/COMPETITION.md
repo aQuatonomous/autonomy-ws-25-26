@@ -7,7 +7,7 @@ What to run at competition, when to use which launch, and how to iterate (calibr
 ## Quick start (one command)
 
 ```bash
-cd ~/autonomy-ws-25-26/computer_vision
+cd ~/Repos/School/autonomy-ws-25-26/computer_vision
 source /opt/ros/jazzy/setup.bash
 colcon build --packages-select cv_ros_nodes
 source install/setup.bash
@@ -49,7 +49,7 @@ The robot uses **`/combined/detection_info`** (and `..._with_distance`) when inf
 
 **Build FP16 engine (before competition):**
 ```bash
-cd ~/autonomy-ws-25-26/computer_vision
+cd ~/Repos/School/autonomy-ws-25-26/computer_vision
 python models/export_onnx.py model_building_and_training/aqua_main.pt
 /usr/src/tensorrt/bin/trtexec --onnx=model_building_and_training/aqua_main.onnx --saveEngine=model_building_and_training/model.engine --fp16 --memPoolSize=workspace:4096 --skipInference
 ```

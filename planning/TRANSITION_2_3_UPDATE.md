@@ -97,13 +97,13 @@ After Task 2 completes:
 
 ## Files Modified
 
-1. `/home/lorenzo/autonomy-ws-25-26/planning/TaskMaster.py`
+1. `/home/lorenzo/Repos/School/autonomy-ws-25-26/planning/TaskMaster.py`
    - Turn angle: -π/6 (-30°)
    - Search timeout: 60s
    - Search distance: 40m
    - Enum: `TURN_TO_WEST_30`
 
-2. `/home/lorenzo/autonomy-ws-25-26/planning/TASKMASTER_STATE_MACHINE.md`
+2. `/home/lorenzo/Repos/School/autonomy-ws-25-26/planning/TASKMASTER_STATE_MACHINE.md`
    - Updated all references to reflect -30° WEST
    - Updated search parameters
    - Updated logging examples

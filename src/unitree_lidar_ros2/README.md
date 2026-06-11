@@ -53,7 +53,7 @@ The defalut IMU topic and its frame name is:
 This package now lives in the **root** ROS 2 workspace under `src/unitree_lidar_ros2`, and the C++ SDK is vendored at `src/unitree_lidar_sdk`:
 
 ```bash
-cd ~/autonomy-ws-25-26
+cd ~/Repos/School/autonomy-ws-25-26
 source /opt/ros/jazzy/setup.bash
 ./build.sh          # builds all packages, including unitree_lidar_ros2
 source install/setup.bash

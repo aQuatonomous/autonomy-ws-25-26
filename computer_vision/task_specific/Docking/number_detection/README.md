@@ -102,7 +102,7 @@ for result in results:
 Run the provided script on the included test image:
 
 ```bash
-cd /home/lorenzo/autonomy-ws-25-26/computer_vision/task_specific/Docking/number_detection
+cd /home/lorenzo/Repos/School/autonomy-ws-25-26/computer_vision/task_specific/Docking/number_detection
 python3 number_detection.py --model best.pt --source test_numbers.png --conf 0.25 --imgsz 960
 ```
 

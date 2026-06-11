@@ -70,7 +70,7 @@ own package, with clean topic/service interfaces between them.
 From the repo root:
 
 ```bash
-cd ~/autonomy-ws-25-26
+cd ~/Repos/School/autonomy-ws-25-26
 source /opt/ros/jazzy/setup.bash
 ./build.sh
 source install/setup.bash
@@ -92,7 +92,7 @@ If you only care about messaging + task sequence, `build_comp_messageing.sh` bui
 This is the simplest way to see the state machine and pump control working:
 
 ```bash
-cd ~/autonomy-ws-25-26
+cd ~/Repos/School/autonomy-ws-25-26
 source /opt/ros/jazzy/setup.bash
 source install/setup.bash
 ./run_task_sequence.sh

@@ -160,7 +160,7 @@ Multi-camera object detection with TensorRT-optimized YOLO on ROS 2 Jazzy: 3 cam
 ## Quick start
 
 ```bash
-cd ~/autonomy-ws-25-26 && ./set_camera_fps.sh single
+cd ~/Repos/School/autonomy-ws-25-26 && ./set_camera_fps.sh single
 cd computer_vision && source /opt/ros/jazzy/setup.bash && source install/setup.bash
 ros2 launch cv_ros_nodes launch_cv_single_camera1.py camera1_device:="$(cat ../.camera_devices)"
 ```
@@ -258,14 +258,14 @@ For machine-specific trtexec path, PATH, conversion commands (FP32/FP16/INT8), a
 
 **Process**:
 1. Build `.engine` file into `model_building_and_training/` directory
-2. Use default `--engine_path` from launch scripts (points to `~/autonomy-ws-25-26/computer_vision/model_building_and_training/model.engine`)
+2. Use default `--engine_path` from launch scripts (points to `~/Repos/School/autonomy-ws-25-26/computer_vision/model_building_and_training/model.engine`)
 3. Verify inference nodes load engine successfully
 4. Monitor performance in production
 
 **File Locations**:
-- Engine file: `/home/lorenzo/autonomy-ws-25-26/computer_vision/model_building_and_training/model.engine`
-- ONNX file: `/home/lorenzo/autonomy-ws-25-26/computer_vision/model_building_and_training/aqua_main.onnx`
-- PyTorch weights: `/home/lorenzo/autonomy-ws-25-26/computer_vision/model_building_and_training/aqua_main.pt`
+- Engine file: `/home/lorenzo/Repos/School/autonomy-ws-25-26/computer_vision/model_building_and_training/model.engine`
+- ONNX file: `/home/lorenzo/Repos/School/autonomy-ws-25-26/computer_vision/model_building_and_training/aqua_main.onnx`
+- PyTorch weights: `/home/lorenzo/Repos/School/autonomy-ws-25-26/computer_vision/model_building_and_training/aqua_main.pt`
 
 ### Model Versioning
 

@@ -18,7 +18,7 @@ Lightweight web-based 2D map for boat position and global detections. Real-time 
 
 ```bash
 pip3 install aiohttp
-cd ~/autonomy-ws-25-26
+cd ~/Repos/School/autonomy-ws-25-26
 source /opt/ros/jazzy/setup.bash
 ./build.sh
 source install/setup.bash
@@ -39,7 +39,7 @@ Open **http://localhost:8080**. For remote access: `ssh -L 8080:localhost:8080 u
 2. **Build**
 
    ```bash
-   cd ~/autonomy-ws-25-26
+   cd ~/Repos/School/autonomy-ws-25-26
    source /opt/ros/jazzy/setup.bash
    ./build.sh
    source install/setup.bash
@@ -50,7 +50,7 @@ Open **http://localhost:8080**. For remote access: `ssh -L 8080:localhost:8080 u
 **Run node**
 
 ```bash
-cd ~/autonomy-ws-25-26
+cd ~/Repos/School/autonomy-ws-25-26
 source /opt/ros/jazzy/setup.bash
 source install/setup.bash
 ros2 run web_server_map map_visualizer_node
@@ -59,7 +59,7 @@ ros2 run web_server_map map_visualizer_node
 **Launch file**
 
 ```bash
-cd ~/autonomy-ws-25-26
+cd ~/Repos/School/autonomy-ws-25-26
 source /opt/ros/jazzy/setup.bash
 source install/setup.bash
 ros2 launch web_server_map map_visualizer.launch.py
@@ -70,13 +70,13 @@ ros2 launch web_server_map map_visualizer.launch.py port:=8888 update_rate_hz:=5
 
 ```bash
 # Terminal 1 – start the web visualizer on the Jetson
-cd ~/autonomy-ws-25-26
+cd ~/Repos/School/autonomy-ws-25-26
 source /opt/ros/jazzy/setup.bash
 source install/setup.bash
 ros2 run web_server_map map_visualizer_node
 
 # Terminal 2 – from the repo root, replay a bag
-cd ~/autonomy-ws-25-26
+cd ~/Repos/School/autonomy-ws-25-26
 ./replay_map.sh map_data_20260221_152248   # or omit the argument to use the most recent map_data_*
 
 # From your laptop:
@@ -144,7 +144,7 @@ You should see boat arrow at (5, 3) and red buoy at (10, 8). Mouse over canvas t
 **4. Launch file**
 
 ```bash
-cd ~/autonomy-ws-25-26/web_server_map
+cd ~/Repos/School/autonomy-ws-25-26/web_server_map
 source install/setup.bash
 ros2 launch web_server_map map_visualizer.launch.py
 ros2 launch web_server_map map_visualizer.launch.py port:=8888
@@ -176,7 +176,7 @@ On Jetson: run `boat_state_node` and `detection_to_global_node` (or full mapping
 ## File Structure
 
 ```
-autonomy-ws-25-26/
+Repos/School/autonomy-ws-25-26/
 ├── src/
 │   └── web_server_map/          # ROS2 package
 │       ├── src/web_server_map/

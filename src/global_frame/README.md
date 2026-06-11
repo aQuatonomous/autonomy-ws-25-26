@@ -30,8 +30,8 @@ Run the task loop with pose and detections from ROS:
 
 ```bash
 source /opt/ros/jazzy/setup.bash
-source autonomy-ws-25-26/mapping/install/setup.bash
-cd autonomy-ws-25-26/planning
+source ~/Repos/School/autonomy-ws-25-26/mapping/install/setup.bash
+cd ~/Repos/School/autonomy-ws-25-26/planning
 python3 run_task_with_ros.py --task 1 --entities Input_Entities/task1_entities.json
 ```
 

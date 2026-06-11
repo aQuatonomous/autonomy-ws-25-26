@@ -42,7 +42,7 @@ The simplest way to exercise the pump via MAVLink is to run the **task sequence 
 brings up MAVROS, the sound pipeline, CV, and the coordinator for Tasks 1→3→4:
 
 ```bash
-cd ~/autonomy-ws-25-26
+cd ~/Repos/School/autonomy-ws-25-26
 source /opt/ros/jazzy/setup.bash
 ./build_comp_messageing.sh         # or ./build.sh if you prefer
 ./run_task_sequence.sh
@@ -79,7 +79,7 @@ call the MAVROS service directly once MAVROS is running:
 
 ```bash
 source /opt/ros/jazzy/setup.bash
-source ~/autonomy-ws-25-26/install/setup.bash
+source ~/Repos/School/autonomy-ws-25-26/install/setup.bash
 
 # Turn pump ON via CommandInt 182
 ros2 service call /mavros/cmd/command_int mavros_msgs/srv/CommandInt "{

@@ -268,7 +268,7 @@ ros2 topic echo /mavros/setpoint_velocity/cmd_vel_unstamped
 
 ## Next Steps
 
-1. **Rebuild**: `cd ~/autonomy-ws-25-26/planning && colcon build`
+1. **Rebuild**: `cd ~/Repos/School/autonomy-ws-25-26/planning && colcon build`
 2. **Run**: `./task123_comp.sh`
 3. **Watch logs**: Look for "[GATE DEBUG]" and "[TASK1 GOAL]" messages
 4. **Monitor**: Boat should now go through gates!

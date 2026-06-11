@@ -40,7 +40,7 @@
 **Result:** PASSED
 - RMW FastRTPS middleware working correctly
 - ROS 2 Jazzy fully sourced and operational
-- Workspace install directory created successfully: `~/autonomy-ws-25-26/install`
+- Workspace install directory created successfully: `~/Repos/School/autonomy-ws-25-26/install`
 - All essential packages built:
   - `gz-waves1` (Gazebo wave physics)
   - `message_node` (message passing)
@@ -78,7 +78,7 @@ Packages skipped (non-essential for simulation):
 - Distribution: Jazzy
 - Installation: `/opt/ros/jazzy/`
 - Middleware: FastRTPS (rmw_fastrtps_cpp)
-- Workspace: `~/autonomy-ws-25-26`
+- Workspace: `~/Repos/School/autonomy-ws-25-26`
 
 ### Simulation Environment
 - Boat model: `ourboat` from SITL_Models
@@ -91,7 +91,7 @@ Packages skipped (non-essential for simulation):
 ### Option 1: Manual Testing (Separate Terminals)
 ```bash
 # Terminal 1 - Gazebo
-cd ~/autonomy-ws-25-26/src/asv_wave_sim
+cd ~/Repos/School/autonomy-ws-25-26/src/asv_wave_sim
 ./test_gazebo_gui.sh
 
 # Terminal 2 - Bridges (wait 10s)
@@ -107,7 +107,7 @@ source /opt/ros/jazzy/setup.bash
 
 ### Option 2: Automated (tmux)
 ```bash
-bash ~/autonomy-ws-25-26/src/asv_wave_sim/run_full_simulation_tmux.bash
+bash ~/Repos/School/autonomy-ws-25-26/src/asv_wave_sim/run_full_simulation_tmux.bash
 ```
 This launches all components in tmux panels:
 - **Window 0:** Gazebo + 4 bridge panes (lidar, 3 cameras)
@@ -159,9 +159,9 @@ Ready to proceed with:
 
 ## Files Updated
 
-- `/home/lorenzo/autonomy-ws-25-26/run_full_simulation_tmux.bash` - Fixed Gazebo launcher to use Ruby runner
-- `/home/lorenzo/autonomy-ws-25-26/src/asv_wave_sim/test_gazebo_gui.sh` - Added Ruby workaround
-- `/home/lorenzo/autonomy-ws-25-26/PLAN_IMPLEMENTATION_SUMMARY.md` - Updated with build instructions
+- `/home/lorenzo/Repos/School/autonomy-ws-25-26/run_full_simulation_tmux.bash` - Fixed Gazebo launcher to use Ruby runner
+- `/home/lorenzo/Repos/School/autonomy-ws-25-26/src/asv_wave_sim/test_gazebo_gui.sh` - Added Ruby workaround
+- `/home/lorenzo/Repos/School/autonomy-ws-25-26/PLAN_IMPLEMENTATION_SUMMARY.md` - Updated with build instructions
 
 ---
 

@@ -211,12 +211,12 @@ MAX_NUDGE_COUNT = 30     # Fewer nudges before giving up
 
 ## Files Modified
 
-1. **`/home/lorenzo/autonomy-ws-25-26/planning/Local/potential_fields_planner.py`**
+1. **`/home/lorenzo/Repos/School/autonomy-ws-25-26/planning/Local/potential_fields_planner.py`**
    - `K_ATT`: 100 → 600 (6x increase)
    - `K_REP`: 2.0 → 0.8 (60% reduction)
    - `D_INFLUENCE`: 10.0 → 5.0 (50% reduction)
 
-2. **`/home/lorenzo/autonomy-ws-25-26/planning/Global/entities.py`**
+2. **`/home/lorenzo/Repos/School/autonomy-ws-25-26/planning/Global/entities.py`**
    - `GATE_NO_GO_GAP_M`: 0.5 → 5.0 (10x increase)
    - `GATE_NO_GO_SAMPLE_SPACING`: 1.0 → 2.0 (50% reduction in point density)
 

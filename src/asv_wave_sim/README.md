@@ -25,7 +25,7 @@ sudo apt install -y libcgal-dev libfftw3-dev
 ### 2. Build asv_wave_sim
 
 ```bash
-cd ~/autonomy-ws-25-26/src/asv_wave_sim
+cd ~/Repos/School/autonomy-ws-25-26/src/asv_wave_sim
 colcon build --symlink-install --merge-install --cmake-args \
   -DCMAKE_BUILD_TYPE=RelWithDebInfo \
   -DBUILD_TESTING=ON \
@@ -39,7 +39,7 @@ source install/setup.bash
 Run Gazebo with water + course models (no boat, no SITL):
 
 ```bash
-bash ~/autonomy-ws-25-26/src/asv_wave_sim/run_gazebo_standalone.sh
+bash ~/Repos/School/autonomy-ws-25-26/src/asv_wave_sim/run_gazebo_standalone.sh
 ```
 
 **Expected result:**
@@ -59,11 +59,11 @@ To run the complete simulation with the boat, ArduPilot SITL, and MAVROS, see [S
 
 || Item | Path |
 ||------|------|
-|| **World (Aquatonomous simulation map)** | `autonomy-ws-25-26/src/asv_wave_sim/gz-waves-models/worlds/aquatonomous_world.sdf` |
+|| **World (Aquatonomous simulation map)** | `~/Repos/School/autonomy-ws-25-26/src/asv_wave_sim/gz-waves-models/worlds/aquatonomous_world.sdf` |
 || **Wave/course models** | `gz-waves-models/models/` and `gz-waves-models/world_models/` (waves, buoys, gates, etc.) |
 || **Boat model** | `~/SITL_Models/Gazebo/models/ourboat/` (external; see SIMULATION.md) |
 || **ArduPilot plugin** | `~/ardupilot_gazebo/build/libArduPilotPlugin.so` (external; see SIMULATION.md) |
-|| **Waves/hydro libs** | `~/autonomy-ws-25-26/src/asv_wave_sim/install/lib/` (libgz-waves1.so, Hydrodynamics) |
+|| **Waves/hydro libs** | `~/Repos/School/autonomy-ws-25-26/install/gz-waves1/lib/` (libgz-waves1.so, Hydrodynamics) |
 
 ---
 

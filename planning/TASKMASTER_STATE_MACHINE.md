@@ -369,8 +369,8 @@ master = TaskMaster(entities=entities, start=start, task_id=3, map_bounds=map_bo
 
 ## Implementation Files
 
-- `/home/lorenzo/autonomy-ws-25-26/planning/TaskMaster.py` - Main state machine
-- `/home/lorenzo/autonomy-ws-25-26/planning/Global/Task1.py` - Task 1 manager (uses `initial_heading`)
-- `/home/lorenzo/autonomy-ws-25-26/planning/Global/Task2.py` - Task 2 manager (uses `initial_heading`)
-- `/home/lorenzo/autonomy-ws-25-26/planning/Global/Task3.py` - Task 3 manager (uses `initial_heading`)
-- `/home/lorenzo/autonomy-ws-25-26/planning/INITIAL_HEADING_FIX.md` - Initial heading documentation
+- `/home/lorenzo/Repos/School/autonomy-ws-25-26/planning/TaskMaster.py` - Main state machine
+- `/home/lorenzo/Repos/School/autonomy-ws-25-26/planning/Global/Task1.py` - Task 1 manager (uses `initial_heading`)
+- `/home/lorenzo/Repos/School/autonomy-ws-25-26/planning/Global/Task2.py` - Task 2 manager (uses `initial_heading`)
+- `/home/lorenzo/Repos/School/autonomy-ws-25-26/planning/Global/Task3.py` - Task 3 manager (uses `initial_heading`)
+- `/home/lorenzo/Repos/School/autonomy-ws-25-26/planning/INITIAL_HEADING_FIX.md` - Initial heading documentation

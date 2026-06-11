@@ -417,7 +417,7 @@ To use custom types (e.g. `ros2 topic echo /boat_pose` or `/global_detections`),
 
 ```bash
 source /opt/ros/jazzy/setup.bash
-source /home/lorenzo/autonomy-ws-25-26/mapping/install/setup.bash
+source /home/lorenzo/Repos/School/autonomy-ws-25-26/mapping/install/setup.bash
 ```
 
 ### Useful topics

@@ -25,7 +25,7 @@ Created 4 standalone test scripts to verify each component:
 
 All scripts are executable and located in:
 ```
-~/autonomy-ws-25-26/src/asv_wave_sim/
+~/Repos/School/autonomy-ws-25-26/src/asv_wave_sim/
 ```
 
 ### Phase 4: Update Existing Scripts ✅ COMPLETE
@@ -66,21 +66,21 @@ sudo apt install -y gz-sim8-cli
 
 #### PREREQUISITE: Build the workspace (MUST DO FIRST)
 ```bash
-cd ~/autonomy-ws-25-26
+cd ~/Repos/School/autonomy-ws-25-26
 colcon build --merge-install
 ```
 This builds asv_wave_sim and all dependencies. Takes 3-5 minutes.
 
 #### Test 1: Gazebo GUI
 ```bash
-cd ~/autonomy-ws-25-26/src/asv_wave_sim
+cd ~/Repos/School/autonomy-ws-25-26/src/asv_wave_sim
 ./test_gazebo_gui.sh
 ```
 **Expected:** Gazebo window opens with boat, water, buoys, gates
 
 #### Test 2: ROS 2 Bridges (wait 10s after Gazebo)
 ```bash
-cd ~/autonomy-ws-25-26/src/asv_wave_sim
+cd ~/Repos/School/autonomy-ws-25-26/src/asv_wave_sim
 ./test_bridges.sh
 ```
 **Expected:** Topics listed:
@@ -91,7 +91,7 @@ cd ~/autonomy-ws-25-26/src/asv_wave_sim
 
 #### Test 3: ArduPilot SITL (wait 40s after Gazebo)
 ```bash
-cd ~/autonomy-ws-25-26/src/asv_wave_sim
+cd ~/Repos/School/autonomy-ws-25-26/src/asv_wave_sim
 ./test_sitl.sh
 ```
 **Expected:** MAVProxy console with "APM: EKF2 IMU0 is using GPS"
@@ -106,14 +106,14 @@ position 10 0 0
 
 #### Test 4: MAVROS (after SITL console)
 ```bash
-cd ~/autonomy-ws-25-26/src/asv_wave_sim
+cd ~/Repos/School/autonomy-ws-25-26/src/asv_wave_sim
 ./test_mavros.sh
 ```
 **Expected:** MAVROS connects, `/mavros/*` topics appear, boat moves in Gazebo
 
 #### Test 5: Full Tmux Automation (AFTER manual tests pass)
 ```bash
-bash ~/autonomy-ws-25-26/src/asv_wave_sim/run_full_simulation_tmux.bash
+bash ~/Repos/School/autonomy-ws-25-26/src/asv_wave_sim/run_full_simulation_tmux.bash
 ```
 **Expected:** Single tmux session with 3 windows:
 - Window 0: Gazebo + 4 bridge panes

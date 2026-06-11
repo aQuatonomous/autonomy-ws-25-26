@@ -234,7 +234,8 @@ export PATH="$HOME/.local/bin:$PATH"
 The easiest way to start everything:
 
 ```bash
-bash ~/autonomy-ws-25-26/src/asv_wave_sim/run_full_simulation_tmux.bash
+cd ~/Repos/School/autonomy-ws-25-26
+bash ./src/asv_wave_sim/run_full_simulation_tmux.bash
 ```
 
 This starts a tmux session with three windows:
@@ -251,23 +252,23 @@ For more control and easier debugging, run each component in its own terminal. *
 #### Terminal 1 – Gazebo (wait for "Loaded plugins" message)
 
 ```bash
-cd ~/autonomy-ws-25-26
+cd ~/Repos/School/autonomy-ws-25-26
 source /opt/ros/jazzy/setup.bash
-source src/asv_wave_sim/install/setup.bash
+source install/setup.bash
 
 export GZ_VERSION=harmonic
-export LD_LIBRARY_PATH="$HOME/autonomy-ws-25-26/src/asv_wave_sim/install/lib:$LD_LIBRARY_PATH"
+export LD_LIBRARY_PATH="$HOME/Repos/School/autonomy-ws-25-26/install/gz-waves1/lib:$LD_LIBRARY_PATH"
 export GZ_SIM_SYSTEM_PLUGIN_PATH="$HOME/ardupilot_gazebo/build:${GZ_SIM_SYSTEM_PLUGIN_PATH:-}"
 export GZ_SIM_RESOURCE_PATH="\
-$HOME/autonomy-ws-25-26/src/asv_wave_sim/gz-waves-models/models:\
-$HOME/autonomy-ws-25-26/src/asv_wave_sim/gz-waves-models/world_models:\
+$HOME/Repos/School/autonomy-ws-25-26/src/asv_wave_sim/gz-waves-models/models:\
+$HOME/Repos/School/autonomy-ws-25-26/src/asv_wave_sim/gz-waves-models/world_models:\
 $HOME/SITL_Models/Gazebo/models:\
 $HOME/SITL_Models/Gazebo/worlds:\
 $HOME/ardupilot_gazebo/models:\
 $HOME/ardupilot_gazebo/worlds:\
 ${GZ_SIM_RESOURCE_PATH:-}"
 
-cd ~/autonomy-ws-25-26/src/asv_wave_sim/gz-waves-models/worlds
+cd ~/Repos/School/autonomy-ws-25-26/src/asv_wave_sim/gz-waves-models/worlds
 gz sim -v 4 -r aquatonomous_world.sdf
 ```
 
@@ -391,7 +392,7 @@ The sim bridges publish **`/camera0/image_raw`**, **`/camera1/image_raw`**, **`/
 **Launch CV (sim-only):**
 ```bash
 source /opt/ros/jazzy/setup.bash
-source ~/autonomy-ws-25-26/computer_vision/install/setup.bash
+source ~/Repos/School/autonomy-ws-25-26/computer_vision/install/setup.bash
 ros2 launch cv_ros_nodes launch_cv_sim.py
 ```
 
@@ -432,7 +433,7 @@ For more details, see the computer vision documentation.
 **Fix:**
 - Add the waves install lib path to `LD_LIBRARY_PATH`:
   ```bash
-  export LD_LIBRARY_PATH=$HOME/autonomy-ws-25-26/src/asv_wave_sim/install/lib:$LD_LIBRARY_PATH
+  export LD_LIBRARY_PATH=$HOME/Repos/School/autonomy-ws-25-26/install/gz-waves1/lib:$LD_LIBRARY_PATH
   ```
 - In `~/SITL_Models/Gazebo/models/ourboat/model.sdf`, ensure Hydrodynamics plugin has:
   ```xml
@@ -593,7 +594,7 @@ rm -rf build/sitl
 
 The full boat simulation is ready to run. Choose one of these two approaches:
 
-1. **Quick start (tmux):** `bash ~/autonomy-ws-25-26/src/asv_wave_sim/run_full_simulation_tmux.bash`
+1. **Quick start (tmux):** `cd ~/Repos/School/autonomy-ws-25-26 && bash ./src/asv_wave_sim/run_full_simulation_tmux.bash`
 2. **Manual (separate terminals):** Follow the "How to Run" section above.
 
 With everything working, the boat floats, arms, and moves in Gazebo under MAVProxy and ROS 2 control.

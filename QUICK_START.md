@@ -4,13 +4,14 @@
 
 ## Prerequisites
 - ROS 2 Jazzy installed: `/opt/ros/jazzy/`
-- Workspace built: `~/autonomy-ws-25-26/install/`
+- Workspace built: `~/Repos/School/autonomy-ws-25-26/install/`
 - Gazebo 8 with plugins: `/usr/lib/x86_64-linux-gnu/libgz-sim8*`
 - Optional: ArduPilot at `~/ardupilot`, bridge dependencies in `~/bridge_deps_ws`
 
 ## One-Line Launch (Everything in tmux)
 ```bash
-bash ~/autonomy-ws-25-26/src/asv_wave_sim/run_full_simulation_tmux.bash
+cd ~/Repos/School/autonomy-ws-25-26
+bash ./src/asv_wave_sim/run_full_simulation_tmux.bash
 ```
 
 **Then:**
@@ -24,7 +25,7 @@ bash ~/autonomy-ws-25-26/src/asv_wave_sim/run_full_simulation_tmux.bash
 
 **Terminal 1 - Gazebo:**
 ```bash
-cd ~/autonomy-ws-25-26/src/asv_wave_sim
+cd ~/Repos/School/autonomy-ws-25-26/src/asv_wave_sim
 ./test_gazebo_gui.sh
 ```
 Wait for window to open (~5 seconds)
@@ -32,7 +33,7 @@ Wait for window to open (~5 seconds)
 **Terminal 2 - Monitor Topics:**
 ```bash
 source /opt/ros/jazzy/setup.bash
-source ~/autonomy-ws-25-26/install/setup.bash
+source ~/Repos/School/autonomy-ws-25-26/install/setup.bash
 ros2 topic list | grep -E "camera|laser"
 ```
 You should see:
@@ -43,13 +44,13 @@ You should see:
 
 **Terminal 3 - Start Bridges (optional, already running in Gazebo):**
 ```bash
-cd ~/autonomy-ws-25-26/src/asv_wave_sim
+cd ~/Repos/School/autonomy-ws-25-26/src/asv_wave_sim
 ./test_bridges.sh
 ```
 
 **Terminal 4 - ArduPilot SITL (wait 40+ seconds after Gazebo):**
 ```bash
-cd ~/autonomy-ws-25-26/src/asv_wave_sim
+cd ~/Repos/School/autonomy-ws-25-26/src/asv_wave_sim
 ./test_sitl.sh
 ```
 You should see MAVProxy console with live telemetry
@@ -57,7 +58,7 @@ You should see MAVProxy console with live telemetry
 **Terminal 5 - MAVROS (optional, after SITL is running):**
 ```bash
 source /opt/ros/jazzy/setup.bash
-cd ~/autonomy-ws-25-26/src/asv_wave_sim
+cd ~/Repos/School/autonomy-ws-25-26/src/asv_wave_sim
 ./test_mavros.sh
 ```
 MAVROS will connect to SITL at `localhost:5760`
@@ -127,7 +128,7 @@ Check ROS topics to verify it's working.
 ### ROS 2 topics not showing
 Make sure you've sourced the workspace:
 ```bash
-source ~/autonomy-ws-25-26/install/setup.bash
+source ~/Repos/School/autonomy-ws-25-26/install/setup.bash
 ```
 
 ### SITL won't start
@@ -183,7 +184,7 @@ ros2 service list | grep mavros
 ## Files Structure
 
 ```
-~/autonomy-ws-25-26/
+~/Repos/School/autonomy-ws-25-26/
 ├── install/                              # Built workspace
 ├── src/
 │   └── asv_wave_sim/

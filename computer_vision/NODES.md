@@ -7,7 +7,7 @@ Build, launch, manual node commands, and topic inputs/outputs. For “what to ru
 ## Build
 
 ```bash
-cd ~/autonomy-ws-25-26/computer_vision
+cd ~/Repos/School/autonomy-ws-25-26/computer_vision
 source /opt/ros/jazzy/setup.bash
 colcon build --packages-select cv_ros_nodes
 source install/setup.bash
@@ -313,7 +313,7 @@ ros2 run v4l2_camera v4l2_camera_node --ros-args -p video_device:=/dev/v4l/by-pa
 
 **CV nodes:**
 - Preprocessing: `ros2 run cv_ros_nodes vision_preprocessing --camera_id 0` (and 1, 2)
-- Inference: `ros2 run cv_ros_nodes vision_inference --camera_id 0 --engine_path ~/autonomy-ws-25-26/computer_vision/model_building_and_training/model.engine` (and 1, 2)
+- Inference: `ros2 run cv_ros_nodes vision_inference --camera_id 0 --engine_path ~/Repos/School/autonomy-ws-25-26/computer_vision/model_building_and_training/model.engine` (and 1, 2)
 - Combiner: `ros2 run cv_ros_nodes vision_combiner`
 - Distance estimator: `ros2 run cv_ros_nodes maritime_distance_estimator`
 - Task4: `ros2 run cv_ros_nodes task4_supply_processor`
