@@ -5,34 +5,20 @@ from launch.actions import DeclareLaunchArgument, LogInfo
 from launch.conditions import IfCondition, UnlessCondition
 from launch_ros.actions import Node
 from launch.substitutions import LaunchConfiguration
-import os
+
+from cv_ros_nodes.workspace_paths import default_engine_path, default_number_engine_path
 
 
 def generate_launch_description():
-    default_engine_path = os.path.join(
-        os.path.expanduser('~'),
-        'autonomy-ws-25-26',
-        'computer_vision',
-        'model_building_and_training',
-        'model.engine'
-    )
-    default_number_engine = os.path.join(
-        os.path.expanduser('~'),
-        'autonomy-ws-25-26',
-        'computer_vision',
-        'model_building_and_training',
-        'number_detection.engine'
-    )
-
     return LaunchDescription([
         DeclareLaunchArgument('resolution', default_value='1920,1200', description='Camera resolution W,H'),
-        DeclareLaunchArgument('engine_path', default_value=default_engine_path, description='TensorRT engine'),
+        DeclareLaunchArgument('engine_path', default_value=default_engine_path(), description='TensorRT engine'),
         DeclareLaunchArgument('conf_threshold', default_value='0.25', description='Confidence threshold'),
         DeclareLaunchArgument('staleness_threshold', default_value='1.0', description='Combiner staleness (s)'),
         DeclareLaunchArgument('enable_task4', default_value='false'),
         DeclareLaunchArgument('enable_indicator_buoy', default_value='false'),
         DeclareLaunchArgument('enable_number_detection', default_value='false'),
-        DeclareLaunchArgument('number_detection_engine', default_value=default_number_engine),
+        DeclareLaunchArgument('number_detection_engine', default_value=default_number_engine_path()),
         DeclareLaunchArgument('number_conf_threshold', default_value='0.25'),
         DeclareLaunchArgument('distance_scale_factor', default_value='1.0'),
         DeclareLaunchArgument('task', default_value='3',

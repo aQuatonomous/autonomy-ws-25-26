@@ -1,7 +1,7 @@
 #!/bin/bash
 # Competition launch (single camera): all tasks enabled (Task 2/3/4/5).
 # Same structure as comp_single_camera_task3.sh but with task4, indicator buoy, number detection enabled.
-# Run from autonomy-ws-25-26. Ctrl+C kills all.
+# Run from the repository root. Ctrl+C kills all.
 #
 # Env vars: NOLOG=1 disable logging | SOUND=1 also launch sound pipeline | TASK_ID=N override task
 

@@ -1,6 +1,6 @@
 #!/bin/bash
 # Echo important topics in a single updating frame (boat_pose, cmd_vel, fused buoys).
-# Run from autonomy-ws-25-26. Refreshes in place like monitor_camera_move.sh.
+# Run from the repository root. Refreshes in place like monitor_camera_move.sh.
 #
 # If you see "RuntimeError: !rclpy.ok()" when running ros2 topic list/echo in another
 # terminal, use a fresh terminal and only source ROS + workspace (no nodes that call

@@ -1,6 +1,6 @@
 #!/bin/bash
 # Competition launch (3 cameras): all tasks enabled. Same as comp_single_camera but for all 3 cameras.
-# Run from autonomy-ws-25-26. Ctrl+C kills all.
+# Run from the repository root. Ctrl+C kills all.
 #
 # Env vars: NOLOG=1 disable logging | SOUND=1 also launch sound pipeline | TASK_ID=N override task
 

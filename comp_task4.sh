@@ -1,7 +1,7 @@
 #!/bin/bash
 # Task 4 - Supply Drop (vessels). Water delivery to yellow stationary vessels.
 # CV: enable_task4:=true (vessel detection). Planner: task_id:=4.
-# Run from autonomy-ws-25-26. Ctrl+C kills all.
+# Run from the repository root. Ctrl+C kills all.
 #
 # Env vars: NOLOG=1 disable logging | SOUND=1 also launch sound pipeline
 

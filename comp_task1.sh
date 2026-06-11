@@ -1,7 +1,7 @@
 #!/bin/bash
 # Task 1 - Evacuation Route. Two gates only; navigate through in order. No indicator buoy.
 # CV: task:=2 (buoy reference dimensions), single camera, enable_indicator_buoy:=false.
-# Run from autonomy-ws-25-26. Ctrl+C kills all.
+# Run from the repository root. Ctrl+C kills all.
 #
 # Env vars: NOLOG=1 disable logging | SOUND=1 also launch sound pipeline
 

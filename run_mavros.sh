@@ -1,5 +1,5 @@
 #!/bin/bash
-# Run MAVROS only (Pixhawk/ArduPilot). Run from autonomy-ws-25-26. Ctrl+C to stop.
+# Run MAVROS only (Pixhawk/ArduPilot). Run from the repository root. Ctrl+C to stop.
 
 set -e
 FCU_URL="${FCU_URL:-/dev/ttyACM0:57600}"

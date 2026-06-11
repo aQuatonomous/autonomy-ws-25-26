@@ -1,5 +1,5 @@
 #!/bin/bash
-# Set camera resolution and FPS. Run from autonomy-ws-25-26 root.
+# Set camera resolution and FPS. Run from the repository root.
 # Single camera or 3 cameras: device choices are defined here (by-path or /dev/videoN).
 # Usage: ./set_camera_fps.sh [single|three]   (default: single)
 #   single  = one camera (default port 1.4.2)

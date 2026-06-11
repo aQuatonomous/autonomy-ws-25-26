@@ -2,7 +2,7 @@
 # Task 3 - Emergency Response Sprint (Speed Challenge) - Single camera.
 # Gate + yellow buoy + color indicator (red=circle right, green=circle left).
 # CV: task:=3, enable_indicator_buoy:=true, enable_task4:=false, enable_number_detection:=false.
-# Run from autonomy-ws-25-26. Ctrl+C kills all.
+# Run from the repository root. Ctrl+C kills all.
 #
 # Env vars: NOLOG=1 disable logging | SOUND=1 also launch sound pipeline
 

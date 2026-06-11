@@ -1,6 +1,6 @@
 #!/bin/bash
 # Sound pipeline: audio capture, sound signal detection, message_node (heartbeat + confirmation of signal).
-# All three nodes are started together via one launch. Run from autonomy-ws-25-26. Ctrl+C stops all.
+# All three nodes are started together via one launch. Run from the repository root. Ctrl+C stops all.
 
 set -e
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"

@@ -5,6 +5,8 @@ from launch_ros.actions import Node
 from launch.substitutions import LaunchConfiguration
 import os
 
+from cv_ros_nodes.workspace_paths import default_engine_path, default_number_engine_path
+
 
 def _create_camera_nodes(context):
     res = LaunchConfiguration('resolution').perform(context)
@@ -75,14 +77,6 @@ def _create_camera_nodes(context):
 
 
 def generate_launch_description():
-    default_engine_path = os.path.join(
-        os.path.expanduser('~'),
-        'autonomy-ws-25-26',
-        'computer_vision',
-        'model_building_and_training',
-        'model.engine'
-    )
-
     resolution_arg = DeclareLaunchArgument(
         'resolution',
         default_value='960,600',
@@ -103,7 +97,7 @@ def generate_launch_description():
 
     engine_path_arg = DeclareLaunchArgument(
         'engine_path',
-        default_value=default_engine_path,
+        default_value=default_engine_path(),
         description='Path to TensorRT engine file'
     )
 
@@ -131,13 +125,6 @@ def generate_launch_description():
         description='Enable indicator buoy processor (red/green colour indicator buoy)'
     )
 
-    default_number_engine = os.path.join(
-        os.path.expanduser('~'),
-        'autonomy-ws-25-26',
-        'computer_vision',
-        'model_building_and_training',
-        'number_detection.engine'
-    )
     enable_number_detection_arg = DeclareLaunchArgument(
         'enable_number_detection',
         default_value='false',
@@ -145,7 +132,7 @@ def generate_launch_description():
     )
     number_detection_engine_arg = DeclareLaunchArgument(
         'number_detection_engine',
-        default_value=default_number_engine,
+        default_value=default_number_engine_path(),
         description='Path to number detection TensorRT engine'
     )
     number_conf_threshold_arg = DeclareLaunchArgument(

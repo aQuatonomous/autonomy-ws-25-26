@@ -25,9 +25,15 @@ import time
 import json
 import argparse
 
-CV_ROOT = os.path.join(os.path.expanduser('~'), 'autonomy-ws-25-26', 'computer_vision')
-DEFAULT_ENGINE_PATH = os.path.join(CV_ROOT, 'model_building_and_training', 'model.engine')
-DEFAULT_NUMBER_ENGINE_PATH = os.path.join(CV_ROOT, 'model_building_and_training', 'number_detection.engine')
+from cv_ros_nodes.workspace_paths import (
+    computer_vision_root,
+    default_engine_path,
+    default_number_engine_path,
+)
+
+CV_ROOT = str(computer_vision_root())
+DEFAULT_ENGINE_PATH = default_engine_path()
+DEFAULT_NUMBER_ENGINE_PATH = default_number_engine_path()
 
 
 # ============================================================================

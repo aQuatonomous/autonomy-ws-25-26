@@ -4,6 +4,21 @@
 
 set -e
 
+first_existing_dir() {
+  local candidate
+  for candidate in "$@"; do
+    if [ -d "${candidate}" ]; then
+      printf '%s\n' "${candidate}"
+      return 0
+    fi
+  done
+  return 1
+}
+
+ARDUPILOT_ROOT="$(first_existing_dir \
+  "$HOME/Repos/School/ardupilot" \
+  "$HOME/ardupilot")"
+
 echo "========================================="
 echo " Test 3: ArduPilot SITL"
 echo "========================================="
@@ -17,7 +32,15 @@ echo ""
 export PATH="$HOME/.local/bin:$PATH"
 export PYTHONPATH="$HOME/.local/lib/python3.12/site-packages:$PYTHONPATH"
 
-cd ~/ardupilot/Tools/autotest
+if [ -z "${ARDUPILOT_ROOT}" ] || [ ! -d "${ARDUPILOT_ROOT}/Tools/autotest" ]; then
+  echo "ERROR: Could not find ArduPilot checkout."
+  echo "Expected one of:"
+  echo "  $HOME/Repos/School/ardupilot"
+  echo "  $HOME/ardupilot"
+  exit 1
+fi
+
+cd "${ARDUPILOT_ROOT}/Tools/autotest"
 
 echo "Starting ArduPilot SITL with MAVProxy..."
 echo ""

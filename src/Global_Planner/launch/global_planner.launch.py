@@ -14,7 +14,7 @@ Usage (from workspace root after colcon build):
   ros2 launch global_planner global_planner.launch.py map_bounds:="[-50.0,-50.0,50.0,50.0]"
 
   # Task 4 with pump via pump_hold.py (full path to script):
-  ros2 launch global_planner global_planner.launch.py task_id:=4 pump_hold_script:=/path/to/autonomy-ws-25-26/pump_hold.py
+  ros2 launch global_planner global_planner.launch.py task_id:=4 pump_hold_script:=/absolute/path/to/autonomy-ws-25-26/pump_hold.py
 """
 
 import os

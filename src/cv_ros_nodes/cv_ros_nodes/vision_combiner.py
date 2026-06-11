@@ -56,6 +56,8 @@ import yaml
 from typing import Dict, List, Optional, Tuple
 import time
 
+from cv_ros_nodes.workspace_paths import default_class_mapping_path
+
 # Camera specifications (Arducam B0495 2.3MP AR0234)
 HORIZONTAL_FOV_PER_CAMERA_DEG = 85.0
 VERTICAL_FOV_PER_CAMERA_DEG = 69.0
@@ -171,7 +173,7 @@ class DetectionCombiner(Node):
             paths.append(os.path.join(pkg_share, 'class_mapping.yaml'))
         except Exception:
             pass
-        paths.append(os.path.join(os.path.expanduser('~'), 'autonomy-ws-25-26', 'computer_vision', 'class_mapping.yaml'))
+        paths.append(default_class_mapping_path())
         for path in paths:
             if os.path.isfile(path):
                 try:

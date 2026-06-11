@@ -1,7 +1,7 @@
 #!/bin/bash
 # Task 2 - Debris Clearance. Channel + debris field; green/red indicators (survivors/hazards), black buoys (debris).
 # CV: task:=2 (buoy reference dimensions), single camera, enable_indicator_buoy:=true.
-# Run from autonomy-ws-25-26. Ctrl+C kills all.
+# Run from the repository root. Ctrl+C kills all.
 #
 # Env vars: NOLOG=1 disable logging | SOUND=1 also launch sound pipeline
 
