@@ -60,6 +60,7 @@ class MapVisualizer {
         // Initialize object placement after setup
         this.objectPlacement = new ObjectPlacement(this);
         this.setupGeoReference();
+        this.setupGeoReference();
         
         // Start render loop
         this.render();
