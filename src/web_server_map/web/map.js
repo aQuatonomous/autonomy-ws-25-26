@@ -20,6 +20,7 @@ class MapVisualizer {
         this.padding = 0.15; // 15% padding around data
         // Global bounds: grow over time but never shrink, to avoid jittery rescaling
         this.globalBounds = { minEast: null, maxEast: null, minNorth: null, maxNorth: null };
+        this.geoRef = null;
         
         // Colors - matches class_mapping.yaml and tracked_buoy_visualizer.py
         this.colors = {
@@ -58,6 +59,7 @@ class MapVisualizer {
 
         // Initialize object placement after setup
         this.objectPlacement = new ObjectPlacement(this);
+        this.setupGeoReference();
         
         // Start render loop
         this.render();
@@ -117,18 +119,84 @@ class MapVisualizer {
     
     setupMouseTracking() {
         this.canvas.addEventListener('mousemove', (event) => {
-            const rect = this.canvas.getBoundingClientRect();
-            const canvasX = event.clientX - rect.left;
-            const canvasY = event.clientY - rect.top;
-            
-            // Convert canvas coordinates to map coordinates
+            const canvasX = event.offsetX; //maybe remove
+            const canvasY = event.offsetY;
             const mapCoords = this.canvasToMap(canvasX, canvasY);
-            
             document.getElementById('mouse-east').textContent = mapCoords.east.toFixed(2);
             document.getElementById('mouse-north').textContent = mapCoords.north.toFixed(2);
+
+            const geoCoords = this.mapToLatLon(mapCoords.east, mapCoords.north);
+            const mouseEastEl = document.getElementById('mouse-east');
+            const mouseNorthEl = document.getElementById('mouse-north');
+            if(geoCoords){
+                mouseEastEl.textContent = `${mapCoords.east.toFixed(1)}m (${geoCoords.lon.toFixed(6)}°)`;
+                mouseNorthEl.textContent = `${mapCoords.north.toFixed(1)}m (${geoCoords.lat.toFixed(6)}°)`;
+            }
+            else{
+                mouseEastEl.textContent = `${mapCoords.east.toFixed(2)}m`;
+                mouseNorthEl.textContent = `${mapCoords.north.toFixed(2)}m`;
+            }
         });
     }
     
+setupGeoReference() {
+    document.getElementById('apply-geo').addEventListener('click', () => {
+        const trLat = parseFloat(document.getElementById('tr-lat').value);
+        const trLon = parseFloat(document.getElementById('tr-lon').value);
+        const blLat = parseFloat(document.getElementById('bl-lat').value);
+        const blLon = parseFloat(document.getElementById('bl-lon').value);
+
+        // All four fields must be valid numbers
+        if ([trLat, trLon, blLat, blLon].some(isNaN)) {
+            alert('Please fill in all four lat/lon fields.');
+            return;
+        }
+
+        // Origin = bottom-left corner anchored to East=0, North=0 in map space
+        // (you can adjust this anchor if your map origin differs)
+        const originLat = blLat;
+        const originLon = blLon;
+
+        // How many meters does one degree represent at this latitude?
+        const metersPerDegLat = 111320;
+        const metersPerDegLon = 111320 * Math.cos(originLat * Math.PI / 180);
+
+        // Compute what East/North the top-right corner maps to, for validation
+        const trEast  = (trLon - originLon) * metersPerDegLon;
+        const trNorth = (trLat - originLat) * metersPerDegLat;
+
+        if (trEast <= 0 || trNorth <= 0) {
+            alert('Top-right corner must be north-east of bottom-left corner.');
+            return;
+        }
+
+        this.geoRef = { originLat, originLon, metersPerDegLat, metersPerDegLon };
+        console.log(`Geo-reference set. TR maps to E=${trEast.toFixed(1)}m, N=${trNorth.toFixed(1)}m`);
+        this.render();
+    });
+
+    document.getElementById('clear-geo').addEventListener('click', () => {
+        this.geoRef = null;
+        this.render();
+    });
+}
+
+    // Convert a map (East, North) position → (lat, lon)
+    mapToLatLon(east, north) {
+        if (!this.geoRef) return null;
+        const lat = this.geoRef.originLat + north / this.geoRef.metersPerDegLat;
+        const lon = this.geoRef.originLon + east  / this.geoRef.metersPerDegLon;
+        return { lat, lon };
+    }
+
+    // Convert (lat, lon) → map (East, North)
+    latLonToMap(lat, lon) {
+        if (!this.geoRef) return null;
+        const east  = (lon - this.geoRef.originLon) * this.geoRef.metersPerDegLon;
+        const north = (lat - this.geoRef.originLat) * this.geoRef.metersPerDegLat;
+        return { east, north };
+    }
+
     updateConnectionStatus(connected) {
         const statusEl = document.getElementById('connection-status');
         if (connected) {
@@ -295,6 +363,54 @@ class MapVisualizer {
         this.ctx.moveTo(origin.x, origin.y - 10);
         this.ctx.lineTo(origin.x, origin.y + 10);
         this.ctx.stroke();
+
+        // Overlay lat/lon grid lines if geo-reference is active
+        if (this.geoRef) {
+            this.ctx.strokeStyle = 'rgba(52, 152, 219, 0.35)';
+            this.ctx.lineWidth = 1;
+            this.ctx.setLineDash([6, 4]);
+            this.ctx.font = '10px Arial';
+            this.ctx.fillStyle = '#2980b9';
+
+            // Choose a sensible degree step (0.001° ≈ 111m; 0.0001° ≈ 11m)
+            const visibleRangeM = Math.max(
+                this.viewBounds.maxEast  - this.viewBounds.minEast,
+                this.viewBounds.maxNorth - this.viewBounds.minNorth
+            );
+            const approxDegStep = visibleRangeM / (this.geoRef.metersPerDegLat * 6);
+            const magnitude = Math.pow(10, Math.floor(Math.log10(approxDegStep)));
+            const degStep = Math.ceil(approxDegStep / magnitude) * magnitude;
+
+            // Lat lines (horizontal)
+            const minLat = this.geoRef.originLat + this.viewBounds.minNorth / this.geoRef.metersPerDegLat;
+            const maxLat = this.geoRef.originLat + this.viewBounds.maxNorth / this.geoRef.metersPerDegLat;
+            const startLat = Math.floor(minLat / degStep) * degStep;
+            for (let lat = startLat; lat <= maxLat; lat += degStep) {
+                const north = (lat - this.geoRef.originLat) * this.geoRef.metersPerDegLat;
+                const pos = this.mapToCanvas(0, north);
+                this.ctx.beginPath();
+                this.ctx.moveTo(0, pos.y);
+                this.ctx.lineTo(this.canvas.width, pos.y);
+                this.ctx.stroke();
+                this.ctx.fillText(`${lat.toFixed(6)}°N`, 2, pos.y - 2);
+            }
+
+            // Lon lines (vertical)
+            const minLon = this.geoRef.originLon + this.viewBounds.minEast / this.geoRef.metersPerDegLon;
+            const maxLon = this.geoRef.originLon + this.viewBounds.maxEast / this.geoRef.metersPerDegLon;
+            const startLon = Math.floor(minLon / degStep) * degStep;
+            for (let lon = startLon; lon <= maxLon; lon += degStep) {
+                const east = (lon - this.geoRef.originLon) * this.geoRef.metersPerDegLon;
+                const pos = this.mapToCanvas(east, 0);
+                this.ctx.beginPath();
+                this.ctx.moveTo(pos.x, 0);
+                this.ctx.lineTo(pos.x, this.canvas.height);
+                this.ctx.stroke();
+                this.ctx.fillText(`${lon.toFixed(6)}°E`, pos.x + 2, this.canvas.height - 5);
+            }
+
+            this.ctx.setLineDash([]); // Reset dash
+        }
     }
     
     drawBoat(boat) {
