@@ -118,6 +118,16 @@ ros2 topic echo /messages/docking
 ros2 topic echo /messages/patrol_boat
 ```
 
+### 3. Run the Gazebo boat simulator
+
+If you want the simulation stack specifically, use [SIMULATION_QUICK_START.md](SIMULATION_QUICK_START.md).
+
+That guide covers:
+
+- the one-command tmux launcher for Gazebo + bridges + SITL + MAVROS
+- what windows and panes should open
+- which `test_*.sh` scripts are only for debugging individual pieces
+
 ---
 
 ## Where to look next

@@ -61,7 +61,7 @@ To run the complete simulation with the boat, ArduPilot SITL, and MAVROS, see [S
 ||------|------|
 || **World (Aquatonomous simulation map)** | `~/Repos/School/autonomy-ws-25-26/src/asv_wave_sim/gz-waves-models/worlds/aquatonomous_world.sdf` |
 || **Wave/course models** | `gz-waves-models/models/` and `gz-waves-models/world_models/` (waves, buoys, gates, etc.) |
-|| **Boat model** | `~/SITL_Models/Gazebo/models/ourboat/` (external; see SIMULATION.md) |
+|| **Boat model** | `src/asv_wave_sim/gz-waves-models/models/ourboat/` (repo-local visual override) plus `~/SITL_Models/Gazebo/models/ourboat/` (external source assets) |
 || **ArduPilot plugin** | `~/ardupilot_gazebo/build/libArduPilotPlugin.so` (external; see SIMULATION.md) |
 || **Waves/hydro libs** | `~/Repos/School/autonomy-ws-25-26/install/gz-waves1/lib/` (libgz-waves1.so, Hydrodynamics) |
 
@@ -88,7 +88,8 @@ This package includes two ready-to-use scripts:
 || "Unable to find uri[model://waves]" | Check that `GZ_SIM_RESOURCE_PATH` includes `gz-waves-models/models` (the standalone script does this) |
 || "Unable to find uri[model://ourboat]" | Expected without `~/SITL_Models` set up; see [SIMULATION.md](SIMULATION.md) |
 || Gazebo "0 entities" (empty world) | Verify `GZ_SIM_RESOURCE_PATH` includes all required model dirs; see [SIMULATION.md](SIMULATION.md) §9 |
-|| "Missing COLLADA tag" + segmentation fault | The `ourboat` model uses STL for the hull visual to avoid COLLADA loader crashes. Other visuals are commented out in `~/SITL_Models/Gazebo/models/ourboat/model.sdf`. To restore full appearance, export meshes as STL/OBJ instead of DAE. |
+|| Boat looks like only two hulls | The repo now ships a local `ourboat` override with safe primitive bridge / deck visuals under `src/asv_wave_sim/gz-waves-models/models/ourboat/`. If you still only see bare hulls, make sure `gz-waves-models/models` appears before `~/SITL_Models/Gazebo/models` in `GZ_SIM_RESOURCE_PATH`. |
+|| "Missing COLLADA tag" + segmentation fault | The original external `ourboat` model disables many COLLADA / DAE visuals to avoid Gazebo loader crashes. The repo-local override keeps the sim stable by using the STL hull plus simple bridge / deck visuals instead of re-enabling the crash-prone DAE meshes. |
 
 ---
 
