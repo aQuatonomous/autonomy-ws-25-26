@@ -32,7 +32,7 @@
 class SpringPlanner : public rclcpp::Node
 {
 public:
-  SpringPlanner() : Node("spring-planner-node")
+  SpringPlanner() : Node("spring_planner_node")
   {
     // this->frequency_ = this->get_parameter("frequency").as_int();
     waypoints.reserve(100);
@@ -73,7 +73,7 @@ private:
 
 	// convert the fixed ne corner to ENU relative to origin 
 	
-	Eigen::Vector3d corner_vec = Eigen::Vector3d(corner_ECEF);
+	Eigen::Vector3d corner_vec = Eigen::Vector3d(corner_ECEF[0], corner_ECEF[1], corner_ECEF[2]);
 	const double sin_lat = std::sin(origin_long * DEG_TO_RAD);
 	const double sin_lon = std::sin(origin_long * DEG_TO_RAD);
 	const double cos_lat = std::cos(origin_lat * DEG_TO_RAD);
@@ -115,64 +115,58 @@ private:
 	}
 
 	// add the entities
-	for (i = 0; i < msg->entities->size(); i++){
-		j = msg->entities[i]->position[0];
-		k = msg->entities[i]->position[1];
-		grid[j][k][2] = msg->entities[i]->type;
+	for (int i = 0; i < msg->entities.size(); i++){
+		int j = msg->entities[i].position[0];
+		int k = msg->entities[i].position[1];
+		grid[j][k][2] = msg->entities[i].type;
 		int* ent = new int(2);
-		ent[0] = msg->entities[i]->position[0];
-		ent[1] = msg->entities[i]->position[1];
-		entityMap.insert(ent);
-		int id = msg->entities[i]->id;
-		entityIds.insert(id)
-		if (id > 9900){
-			waypoints[9999-id] = ent
+		ent[0] = msg->entities[i].position[0];
+		ent[1] = msg->entities[i].position[1];
+		entityHintMap.insert(ent);
+		//int id = msg->entities[i].type;
+		//entityIds.insert(id);
+		int type = msg->entities[i].type;
+		if (type > 9900){
+			waypoints[9999-type] = ent;
 		}
 	}
   }
 
   // Get the new detection info, match stuff up, balance the grid, and publish the new map
   void update_map(const global_frame::msg::GlobalDetectionArray::SharedPtr msg) {
-	  for (const auto& detection : *msg){
-		auto ent = entityIds.find(detection->id);
+	  for (const auto& detection : msg->detections){
+		auto ent = entityIds.find(detection.id);
 		if (ent == entityIds.end()){
 			// TODO update our grid with the most recent position
 			continue;
 		} else {
 			// attach the new entity to it's nearest neighbour in our grid
-			int coords[2] = {detection->x, detection->y};
+			float coords[2] = {detection.east, detection.north};
 			int neighbour[2] = {0,0};
 			nearest_free(coords, neighbour);
 			if (neighbour[0] == 0 && neighbour[1] ==1) {
 				// TODO emit an error message
 				break;
 			} else {
-				map[neighbour[0]][neighbour[1]][0] = detection->x;
-				map[neighbour[0]][neighbour[1]][] = detection->y;
-				map[neighbour[0]][neighbour[1]][] = detection->type;
-				map[neighbour[0]][neighbour[1]][] = 1;
-				entityIds.insert(detection->id);
-				arr = new int(6);
+				grid[neighbour[0]][neighbour[1]][0] = detection.east;
+				grid[neighbour[0]][neighbour[1]][1] = detection.north;
+				grid[neighbour[0]][neighbour[1]][2] = detection.class_id;
+				grid[neighbour[0]][neighbour[1]][3] = 1;
+				entityIds.insert(detection.id);
+				int* arr = new int(2);
 				arr[0] = neighbour[0];
 				arr[1] = neighbour[1];
-				entityMap.insert(arr);
+				entityDetectMap.insert(arr);
 			}
 		}
 		balance();
 		align();
 	  }
-	  // this message is an array of global_detection messages
-	// don't add anything more than 10 metres away, trust the map
-	// update things when you move closer to them
-	// de-dup by id -- need to collaboarte with mapping on this, on all of this lowkey
-	// add anything new by nearest free neighbour
-	// balence 
-	// align
   }
 
-  void algin(){
-	for (const auto& x : entityMap){
-		original_energy = energy(map);
+  void align(){
+	for (const auto& x : entityDetectMap){
+		float original_energy = energy();
 		int neighbour[2];
 		neighbour[0] = x[0];
 		neighbour[1] = x[1];
@@ -180,23 +174,23 @@ private:
 		if (x[0] == neighbour[0] && x[1] == neighbour[1]){ // no other entities of the same type
 			continue;
 		}
-		int dupx = map[neighbour[0]][neighbour[1]][0];
-		int dupy = map[neighbour[0]][neighbour[1]][1];
-		map[neighbour[0]][neighbour[1]][0] = map[x[0]][x[1]][0];
-		map[neighbour[0]][neighbour[1]][1] = map[x[0]][x[1]][1];
-		map[x[0]][x[1]][0] = dupx;
-		map[x[0]][x[1]][1] = dupy;
+		int dupx = grid[neighbour[0]][neighbour[1]][0];
+		int dupy = grid[neighbour[0]][neighbour[1]][1];
+		grid[neighbour[0]][neighbour[1]][0] = grid[x[0]][x[1]][0];
+		grid[neighbour[0]][neighbour[1]][1] = grid[x[0]][x[1]][1];
+		grid[x[0]][x[1]][0] = dupx;
+		grid[x[0]][x[1]][1] = dupy;
 		balance();
 		if (energy() < original_energy) {
 			align();
 			break;
 		} else {
-			int dupx = map[neighbour[0]][neighbour[1]][0];
-			int dupy = map[neighbour[0]][neighbour[1]][1];
-			map[neighbour[0]][neighbour[1]][0] = map[x[0]][x[1]][0];
-			map[neighbour[0]][neighbour[1]][1] = map[x[0]][x[1]][1];
-			map[x[0]][x[1]][0] = dupx;
-			map[x[0]][x[1]][1] = dupy;
+			int dupx = grid[neighbour[0]][neighbour[1]][0];
+			int dupy = grid[neighbour[0]][neighbour[1]][1];
+			grid[neighbour[0]][neighbour[1]][0] = grid[x[0]][x[1]][0];
+			grid[neighbour[0]][neighbour[1]][1] = grid[x[0]][x[1]][1];
+			grid[x[0]][x[1]][0] = dupx;
+			grid[x[0]][x[1]][1] = dupy;
 			balance();
 		}
 	}
@@ -204,20 +198,20 @@ private:
 
   /* let a grid get to it's lowest energy state */
   void balance() {
-	E = energy();
+	float E = energy();
 	for (int i = 0; i < 100; i++){
-		for (j=1; j < ew_dim - 1; j++){
-			for (k=1; k < ns_dim - 1; k++){
-				if (map[i][j][3] == 1)
+		for (int j=1; j < ew_dim - 1; j++){
+			for (int k=1; k < ns_dim - 1; k++){
+				if (grid[i][j][3] == 1)
 					continue;
-				map[i][j][0] += 1/2 * ( map[i-1][j][0] - map[i][j][0] 
-						+ map[i+1][j][0] - map[i][j][0] 
-						+ map[i][j+1][0] - map[i][j][0]
-						+ map[i][j-1][0] - map[i][j][0]);
-				map[i][j][1] += 1/2 * ( map[i-1][j][1] - map[i][j][1] 
-						+ map[i+1][j][1] - map[i][j][1] 
-						+ map[i][j+1][1] - map[i][j][1]
-						+ map[i][j-1][1] - map[i][j][1]);
+				grid[i][j][0] += 1/2 * ( grid[i-1][j][0] - grid[i][j][0] 
+						+ grid[i+1][j][0] - grid[i][j][0] 
+						+ grid[i][j+1][0] - grid[i][j][0]
+						+ grid[i][j-1][0] - grid[i][j][0]);
+				grid[i][j][1] += 1/2 * ( grid[i-1][j][1] - grid[i][j][1] 
+						+ grid[i+1][j][1] - grid[i][j][1] 
+						+ grid[i][j+1][1] - grid[i][j][1]
+						+ grid[i][j-1][1] - grid[i][j][1]);
 			}
 		}
 		if (abs(E - energy()) < 0.0001)
@@ -228,8 +222,8 @@ private:
   /* get the energy in a grid */ 
 int energy(){
 	int E = 0;
-	for (int i=0; i < xwidth-1; i++){
-		for (int j=0; j < ywidth-1; j++){
+	for (int i=0; i < ew_dim-1; i++){
+		for (int j=0; j < ns_dim-1; j++){
 			int a[2] = {i,j};
 			int b[2] = {i+1,j};
 			int c[2] = {i,j+1};
@@ -237,6 +231,7 @@ int energy(){
 			E += dist(a,c)*dist(a,c);
 		}
 	}
+	return E;
 }
 
 // You pass this function the coordinates of the point you want to get neighours of 
@@ -246,18 +241,18 @@ int energy(){
 // of the same type that have been seen yet
 void nearest(int coords[2], int nearest[2]){
 	if (grid[coords[0]][coords[1]][3] == 0)
-		throw runtime_error("Tried to find nearest neighbours of a location with no entity");
+		throw std::runtime_error("Tried to find nearest neighbours of a location with no entity");
 	int max_dist = 0;
 	nearest[0] = coords[0];
 	nearest[1] = coords[1];
-	for (const auto& x : entityMap){
+	for (const auto& x : entityDetectMap){
 		if (x[0] == coords[0] && x[1] == coords[1]) // don't count the distance to yourself
 			continue;
-		else if (max_dist == 0)
+		else if (max_dist == 0) {
 			nearest[0] = x[0];
 			nearest[1] = x[1];
 			max_dist = dist(coords, x);
-		else if (dist(coords, x) < max_dist){
+		} else if (dist(coords, x) < max_dist){
 			max_dist = dist(coords, x);
 			nearest[0] = x[0];
 			nearest[1] = x[1];
@@ -265,27 +260,27 @@ void nearest(int coords[2], int nearest[2]){
     }
 }
 
-void nearest_free(int coords[2], int nearest[2]){
-	int max_dist = 0;
-	for (const auto& x : entityMap){
-		if (x[0] == coords[0] && x[1] == coords[1]) // don't count the distance to yourself
-			continue;
-		int arr[2] = {map[x[0]][x[1]][0] , map[x[0]][x[1]][1]};
-		d = sqrt( (arr[0]-coords[0])*(arr[0]-coords[0]) + (arr[1]-coords[1])*(arr[1]-coords[1]) );
+void nearest_free(float coords[2], int nearest[2]){
+	float max_dist = 0;
+	for (const auto& x : entityHintMap){
+	//	if (x[0] == coords[0] && x[1] == coords[1]) // don't count the distance to yourself
+	//		continue;
+		float arr[2] = {grid[x[0]][x[1]][0] , grid[x[0]][x[1]][1]};
+		float d = sqrt( (arr[0]-coords[0])*(arr[0]-coords[0]) + (arr[1]-coords[1])*(arr[1]-coords[1]) );
 		if (max_dist == 0 || d < max_dist){
-			nearest[0] = arr[0];
-			nearest[1] = arr[1];
+			nearest[0] = x[0];
+			nearest[1] = x[1];
 			max_dist = d;
 		}
     }
 }
 
 float dist(int x[2], int y[2]){
-	a = grid[x[0]][x[1]][0];
-	b = grid[x[0]][x[1]][1];
-	c = grid[y[0]][y[1]][0];
-	d = grid[y[0]][y[1]][1];
-	return sqrt((a-c)*(a-c) + (b-d)*(b-d))
+	float a = grid[x[0]][x[1]][0];
+	float b = grid[x[0]][x[1]][1];
+	float c = grid[y[0]][y[1]][0];
+	float d = grid[y[0]][y[1]][1];
+	return sqrt((a-c)*(a-c) + (b-d)*(b-d));
 }
 
 void local_position_callback(const geometry_msgs::msg::PoseStamped::SharedPtr msg){
@@ -297,8 +292,8 @@ void local_position_callback(const geometry_msgs::msg::PoseStamped::SharedPtr ms
 	int* w = waypoints.back();
 	way[0] = grid[w[0]][w[1]][0];
 	way[1] = grid[w[0]][w[1]][1];
-	pos[0] = msg->pose->position->x;
-	pos[1] = msg->pose->position->y;
+	pos[0] = msg->pose.position.x;
+	pos[1] = msg->pose.position.y;
 	if (pow(way[0]-pos[0], 2) + pow(way[1]-pos[1], 2) < 0.71) {
 		// advance to the next waypoint
 		waypoints.pop_back();
@@ -306,8 +301,8 @@ void local_position_callback(const geometry_msgs::msg::PoseStamped::SharedPtr ms
 	// publish the location of the next waypoint
 	auto setpoint = geometry_msgs::msg::PoseStamped();
 	w = waypoints.back();
-	setpoint->pose->position->x = grid[w[0]][w[1]][0];
-	setpoint->pose->position->y = grid[w[0]][w[1]][1];
+	setpoint.pose.position.x = grid[w[0]][w[1]][0];
+	setpoint.pose.position.y = grid[w[0]][w[1]][1];
 	setpoint_position_pub->publish(setpoint);
 }
 
@@ -325,7 +320,8 @@ void local_position_callback(const geometry_msgs::msg::PoseStamped::SharedPtr ms
   float*** grid = NULL;
   int ew_dim = 0;
   int ns_dim = 0;
-  std::unordered_set<int*> entityMap;
+  std::unordered_set<int*> entityHintMap;
+  std::unordered_set<int*> entityDetectMap;
   std::unordered_set<int> entityIds;
   std::vector<int*> waypoints; // ordered list of waypoints with the highest index the next waypoint to visit
 };
