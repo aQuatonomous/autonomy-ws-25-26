@@ -20,7 +20,7 @@ first_existing_dir() {
             return 0
         fi
     done
-    return 1
+    return 0
 }
 
 SITL_MODELS_ROOT="$(first_existing_dir \

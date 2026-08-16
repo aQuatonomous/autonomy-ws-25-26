@@ -4,6 +4,7 @@ This document covers running the **complete boat simulation:** Gazebo Sim + Ardu
 
 **For a minimal test (Gazebo + waves only, no boat), see [README.md](README.md).**
 
+*last updated on aug 15th 2026 by Nathaniel FD
 ---
 
 ## Table of Contents
@@ -37,27 +38,27 @@ The full simulation stack consists of:
 
 ```
 ┌─────────────────────────────────────────────────────────────────────────────────┐
-│  YOU                                                                             │
-│  • MAVProxy (terminal): mode GUIDED, arm throttle, position/velocity              │
-│  • ROS 2 (terminal): /mavros/*, setpoints, services                              │
+│  YOU                                                                            │
+│  • MAVProxy (terminal): mode GUIDED, arm throttle, position/velocity            │
+│  • ROS 2 (terminal): /mavros/*, setpoints, services                             │
 └─────────────────────────────────────────────────────────────────────────────────┘
          │                                    │
          ▼                                    ▼
 ┌──────────────────────┐           ┌──────────────────────┐
-│  MAVROS (ROS 2)      │           │  ArduPilot SITL       │
-│  • fcu_url :=        │  TCP      │  • Listens 5760       │
+│  MAVROS (ROS 2)      │           │  ArduPilot SITL      │
+│  • fcu_url :=        │  TCP      │  • Listens 5760      │
 │    tcp://localhost:  │◄─────────►│  • Rover, JSON model │
-│    5760              │  5760     │  • Sends to 9002      │
+│    5760              │  5760     │  • Sends to 9002     │
 └──────────────────────┘           └──────────┬───────────┘
          │                                    │ UDP (JSON FDM)
          │                                    │ pose/IMU ← → motor cmds
          │                                    ▼
          │                         ┌──────────────────────┐
-         │                         │  ArduPilotPlugin      │
+         │                         │  ArduPilotPlugin     │
          │                         │  (in Gazebo, ourboat)│
-         │                         │  • Listens 127.0.0.1: │
-         │                         │    9002               │
-         │                         │  • Drives thrusters   │
+         │                         │  • Listens 127.0.0.1:│
+         │                         │    9002              │
+         │                         │  • Drives thrusters  │
          │                         └──────────┬───────────┘
          │                                    │
          │                                    ▼
@@ -75,7 +76,7 @@ The full simulation stack consists of:
 │  ros_gz_bridge       │◄─────────►│  Gazebo topics       │
 │  • /laser_points     │           │  • /lidar_topic/     │
 │  • /camera0..2/      │           │    points, camera*   │
-│    image_raw          │           │                      │
+│    image_raw         │           │                      │
 └──────────────────────┘           └──────────────────────┘
 ```
 
@@ -92,6 +93,19 @@ Gazebo must be running **before** SITL starts so the plugin binds to 9002 when S
 ## External Dependencies
 
 The full boat simulation requires these components (they live outside the `autonomy-ws-25-26` repository):
+
+> **Before building anything below:** export `GZ_VERSION=harmonic` in your
+> shell first (`export GZ_VERSION=harmonic`, or add it to `~/.bashrc`).
+> `gz-waves` and other Gazebo-dependent builds select which Gazebo version's
+> libraries to link against based on this variable at **build time** — not
+> just at launch time. If it's unset during `colcon build`, the build will
+> silently target the wrong Gazebo version (Garden instead of Harmonic) and
+> fail with "missing dependency" errors that don't obviously point back to
+> this cause.
+
+> **Note:** the scripts in this repo check both `~/Repos/School/<name>` and
+> `~/<name>` for each external dependency below and use whichever exists.
+> This doc uses `~/<name>` for brevity, but either location works.
 
 | Component | Path | Purpose |
 |-----------|------|---------|
@@ -124,7 +138,20 @@ The full boat simulation requires these components (they live outside the `auton
 **Check if you have it:**
 ```bash
 ls -la ~/SITL_Models/Gazebo/models/ourboat/
+
 ```
+**If `ourboat` is missing:** `SITL_Models` (per ArduPilot's own repo) only
+ships stock models like `blueboat`. `ourboat` is aQuatonomous's own
+customized BlueBoat hull (renamed model + fixed mesh URIs — see Issue #4
+below), and a pre-built copy already lives inside this repo. Copy it into
+place rather than rebuilding it from scratch:
+
+```bash
+mkdir -p ~/SITL_Models/Gazebo/models
+cp -r ~/Repos/School/autonomy-ws-25-26/src/asv_wave_sim/gz-waves-models/models/ourboat \
+      ~/SITL_Models/Gazebo/models/ourboat
+```
+
 
 ### 2. ardupilot_gazebo (ArduPilotPlugin)
 
@@ -187,7 +214,7 @@ colcon build --symlink-install --packages-select gps_msgs actuator_msgs vision_m
 ```bash
 mkdir -p ~/bridge_ws/src
 cd ~/bridge_ws/src
-git clone https://github.com/gazebosim/ros_gz.git -b ros2
+git clone https://github.com/gazebosim/ros_gz.git -b jazzy   # NOT -b ros2 — that tracks ROS Rolling and fails to build against Jazzy which is what we r using
 
 cd ~/bridge_ws
 source /opt/ros/jazzy/setup.bash
@@ -227,6 +254,55 @@ export PATH="$HOME/.local/bin:$PATH"
 
 ---
 
+## System Build Dependencies
+
+Before building any of the external dependencies above, install these
+system packages. None of them are covered by the ROS 2 Jazzy or Gazebo
+Harmonic installs on their own.
+
+```bash
+sudo apt install -y \
+  libcgal-dev libfftw3-dev libogre-next-2.3-dev \
+  libgstreamer1.0-dev libgstreamer-plugins-base1.0-dev \
+  libportaudio19-dev \
+  ros-jazzy-mavros ros-jazzy-mavros-extras \
+  ros-jazzy-ament-cmake-clang-format \
+  tmux
+```
+
+MAVROS also needs the GeographicLib datasets:
+```bash
+sudo bash /opt/ros/jazzy/lib/mavros/install_geographiclib_datasets.sh
+```
+
+**Only one Gazebo Harmonic install should be present on the machine.**
+Having both the system `gz-harmonic` apt metapackage and ROS 2's own
+`ros-jazzy-gz-sim-vendor` installed at once causes a version mismatch between
+Gazebo's GUI and server processes, which breaks resource-path resolution in
+confusing ways. If you hit this, remove the standalone system package and
+keep only the ROS-vendored copy:
+```bash
+sudo apt remove --purge gz-harmonic gz-sim8-cli libgz-sim8 libgz-sim8-dev \
+  libgz-sim8-plugins python3-gz-sim8
+sudo apt autoremove
+```
+
+---
+
+> **Prerequisite:** the full stack requires the **whole workspace** to be
+> built, not just `src/asv_wave_sim` (which is enough for the Stage 1 basic
+> standalone test in [README.md](README.md)). From the workspace root:
+> ```bash
+> cd ~/Repos/School/autonomy-ws-25-26
+> rm -rf build install log   # if taking over an existing/stale checkout
+> export GZ_VERSION=harmonic
+> ./build.sh
+> ```
+> **If this repo was previously checked out and built by someone else on
+> this machine,** always wipe `build/`, `install/`, and `log/` first. CMake
+> caches absolute paths from the original build machine and fails with a
+> confusing "CMakeCache.txt directory is different" error otherwise.
+
 ## How to Run
 
 ### Option A: Single Command with tmux (Recommended)
@@ -243,7 +319,7 @@ This starts a tmux session with three windows:
 - **Window 1:** MAVROS + shell
 - **Window 2:** ArduPilot SITL + MAVProxy
 
-Switch windows with `Ctrl+b` then `0`, `1`, or `2`.
+To Switch windows select termina then use `Ctrl+b` then `0`, `1`, or `2`.
 
 ### Option B: Manual Launch in Separate Terminals
 
@@ -257,8 +333,7 @@ source /opt/ros/jazzy/setup.bash
 source install/setup.bash
 
 export GZ_VERSION=harmonic
-export LD_LIBRARY_PATH="$HOME/Repos/School/autonomy-ws-25-26/install/gz-waves1/lib:$LD_LIBRARY_PATH"
-export GZ_SIM_SYSTEM_PLUGIN_PATH="$HOME/ardupilot_gazebo/build:${GZ_SIM_SYSTEM_PLUGIN_PATH:-}"
+export LD_LIBRARY_PATH="$HOME/Repos/School/autonomy-ws-25-26/install/gz-waves1/lib:$LD_LIBRARY_PATH"export GZ_SIM_SYSTEM_PLUGIN_PATH="$HOME/ardupilot_gazebo/build:${GZ_SIM_SYSTEM_PLUGIN_PATH:-}"
 export GZ_SIM_RESOURCE_PATH="\
 $HOME/Repos/School/autonomy-ws-25-26/src/asv_wave_sim/gz-waves-models/models:\
 $HOME/Repos/School/autonomy-ws-25-26/src/asv_wave_sim/gz-waves-models/world_models:\
@@ -386,6 +461,13 @@ Use MAVROS services for mode, arm, etc., as needed.
 ## Running with Computer Vision
 
 The sim bridges publish **`/camera0/image_raw`**, **`/camera1/image_raw`**, **`/camera2/image_raw`** from Gazebo. You can run the computer vision pipeline on these topics without real cameras.
+
+> **Note on sensor rates:** Camera/lidar topic rates depend on Gazebo's
+> real-time factor (RTF) on your machine, which is often well under 100% for
+> the full stack (physics + rendering + 4 bridges + SITL running together).
+> Expect update rates in the low single-digit Hz with some jitter on typical
+> development hardware, not a clean fixed rate. This isn't a bug, check
+> `gz sim`'s stats panel for the current RTF if rates seem unexpectedly low.
 
 **Order:** Start the **simulation first**, then in a **second terminal** start the CV launch.
 
@@ -570,6 +652,28 @@ rm -rf build/sitl
 - Run the tmux script without MAVProxy GUI: `SITL_NO_GUI=1 bash run_full_simulation_tmux.bash` (SITL runs without `--console --map`).
 - Or install NumPy 1.x in the environment used for SITL: `pip install 'numpy<2'` (in a venv or user install that MAVProxy uses).
 
+### 13. OGRE2 wave-shader plugin fails to load (cosmetic, not blocking — do not "fix" via LD_LIBRARY_PATH)
+
+**Symptom:** Gazebo logs `Failed to load plugin [gz-waves1-rendering-ogre2]` /
+`libOgreNextMain.so.2.3.1: cannot open shared object file`.
+
+**Cause:** This is a rendering-only plugin (fancier wave shading) — the
+simulation runs correctly without it. The library it wants
+(`/usr/lib/x86_64-linux-gnu/OGRE-2.3/`, v2.3.1) is a **different build** of
+Ogre-Next than the one `gz-rendering8` already uses internally (the
+ROS-vendored copy, v2.3.3).
+
+**Do NOT add `/usr/lib/x86_64-linux-gnu/OGRE-2.3` to `LD_LIBRARY_PATH`** —
+this was tried and makes things worse: it forces two separate Ogre-Next
+instances into the same process, and the plugin hard-crashes both the
+Gazebo server and GUI with `Ogre::MeshManager::getSingleton(): Assertion
+'msSingleton' failed`, rather than just failing to load.
+
+**Current status:** unresolved, low priority. The plugin failing to load
+silently (original behavior) is the safer outcome — leave it alone. A real
+fix would need `gz-waves1-rendering-ogre2` rebuilt against the same
+Ogre-Next 2.3.3 build the rest of Gazebo uses, not a `LD_LIBRARY_PATH`
+workaround.
 ---
 
 ## Troubleshooting
